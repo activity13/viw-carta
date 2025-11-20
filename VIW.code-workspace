@@ -12,5 +12,8 @@
     {
       "path": "../.vscode"
     }
-  ]
+  ],
+  "settings": {
+    "better-comments.highlightPlainText": true
+  }
 }
