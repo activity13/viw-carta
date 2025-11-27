@@ -1,6 +1,8 @@
 import React from "react";
 import localFont from "next/font/local";
 import type { Metadata } from "next";
+import styles from "./theme.module.css"; // Import CSS module theme
+
 const avenir = localFont({
   src: [
     {
@@ -33,10 +35,10 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div
-      className={`${avenir.variable} max-h-screen bg-white text-black font-avenir`}
+    <main
+      className={`${avenir.variable} ${styles.themeLaK} min-h-screen text-foreground font-avenir`}
     >
       {children}
-    </div>
+    </main>
   );
 }

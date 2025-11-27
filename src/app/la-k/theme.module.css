@@ -1,0 +1,81 @@
+/* La-K theme as a CSS Module.
+   We expose a single local class `.themeLaK` which applies the CSS variables
+   to the layout's root element. Components inside will inherit these variables.
+*/
+.themeLaK {
+  /* Base: Clean & Bright (Beach Restaurant Vibe) */
+  --background: oklch(1 0 318); /* Blanco cálido */
+  --foreground: oklch(0 0 318); /* Negro puro */
+
+  /* Surfaces */
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0 0 318);
+
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0 0 318);
+
+  /* Primary: Ocean Blue (normalized decimals) */
+  --primary: oklch(0.3211 0 0);
+  --primary-foreground: oklch(1 0 271.152);
+
+  /* Secondary: Sand/Beige tones */
+  --secondary: oklch(0.7071 0.0224 261.75);
+  --secondary-foreground: oklch(0.967 0.003 264.542);
+  --secondary-content: oklch(0.446 0.03 257.7);
+
+  /* Muted */
+  --muted: oklch(0.96 0.01 260);
+  --muted-foreground: oklch(0.55 0.05 260);
+
+  /* Accent */
+  --accent: oklch(0.92 0.03 90);
+  --accent-foreground: oklch(0.2 0.02 260);
+
+  /* Destructive */
+  --destructive: rgb(199, 74, 87);
+  --destructive-foreground: oklch(0.98 0.01 100);
+
+  /* Borders */
+  --border: oklch(0.9 0.02 260);
+  --input: oklch(0.9 0.02 260);
+  --ring: oklch(0.45 0.15 260);
+
+  /* Map shadcn/Tailwind color tokens (safety: ensure utilities pick up local values) */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary-content: var(--secondary-content);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Radius: Softer for hospitality */
+  --radius: 0.5rem;
+
+  /* Font variables mapping (expects `--font-avenir` to be set by layout) */
+  --font-mono: var(--font-avenir);
+  --font-orbitron: var(--font-avenir);
+  --font-sans: var(--font-avenir);
+
+  /* Ensure the theme root uses the local font variable as fallback */
+  font-family: var(--font-avenir);
+}
+
+/* optional tweaks for headings inside the module-scoped theme */
+.themeLaK :global(h1),
+.themeLaK :global(h2),
+.themeLaK :global(h3),
+.themeLaK :global(h4) {
+  font-weight: 100;
+  text-transform: none;
+  letter-spacing: normal;
+}

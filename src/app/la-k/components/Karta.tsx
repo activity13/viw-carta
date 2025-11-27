@@ -71,8 +71,8 @@ function KartaContent({ data, restaurant }: KartaProps) {
         <LanguageToggle />
       </div>
 
-      {/* Nav móvil de categorías (usa ancla estable por id) */}
-      <div className="fixed bottom-0 left-0 w-full z-50 border-t border-black bg-neutral-50 shadow-inner overflow-x-auto lg:hidden">
+      {/* Barra horizontal para móviles, se pueden ver las categorías (usa ancla estable por id) */}
+      <div className="fixed bottom-0 left-0 w-full z-50 border-t border-black bg-neutral-50 shadow-inner overflow-x-auto xl:hidden">
         <div className="flex gap-3 px-4 py-3 min-w-full overflow-x-auto scrollbar-none">
           {filteredCategories.map((category) => (
             <button
@@ -83,7 +83,7 @@ function KartaContent({ data, restaurant }: KartaProps) {
                   target.scrollIntoView({ behavior: "smooth", block: "start" });
                 }
               }}
-              className="whitespace-nowrap px-4 py-2 text-sm uppercase tracking-wider text-black font-semibold border border-black rounded-md bg-white shadow-sm active:scale-95 active:bg-black active:text-white transition-all duration-150"
+              className="whitespace-nowrap px-4 py-2 text-sm uppercase tracking-wider text-primary font-semibold border border-border rounded-md bg-card shadow-sm active:scale-95 active:bg-primary active:text-primary-foreground transition-all duration-150"
             >
               {t(category.name, category.name_en)}
             </button>
@@ -93,17 +93,17 @@ function KartaContent({ data, restaurant }: KartaProps) {
 
       <DecorativeFrame>
         {/* Contenedor del menú dentro del marco */}
-        <div className="w-full mx-auto p-4 md:p-6 overflow-x-hidden">
+        <div className="w-full mx-auto py-4 md:py-6 overflow-x-hidden">
           {filteredCategories.length === 0 ? (
             <div className="text-center py-16">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4">
                 {activeMenu === "pizzas" ? (
-                  <Pizza className="w-8 h-8 text-gray-400" />
+                  <Pizza className="w-8 h-8 text-secondary" />
                 ) : (
-                  <Utensils className="w-8 h-8 text-gray-400" />
+                  <Utensils className="w-8 h-8 text-secondary" />
                 )}
               </div>
-              <p className="text-gray-500 text-lg font-medium">
+              <p className="text-secondary text-lg font-medium">
                 {language === "en"
                   ? "No categories available in this menu"
                   : "No hay categorías disponibles en esta carta"}
@@ -113,8 +113,8 @@ function KartaContent({ data, restaurant }: KartaProps) {
             <div
               className={`space-y-8 -order-1 flex-1 ${
                 activeMenu === "pizzas"
-                  ? "grid grid-cols-1 xl:grid-cols-1 gap-4"
-                  : "grid grid-cols-1 xl:grid-cols-2 gap-2"
+                  ? "grid grid-cols-1 xl:grid-cols-1 gap-2"
+                  : "grid grid-cols-1 xl:grid-cols-2 gap-10"
               } `}
             >
               {activeMenu === "pizzas" ? (
@@ -134,7 +134,7 @@ function KartaContent({ data, restaurant }: KartaProps) {
                                 width={100}
                                 height={100}
                               />
-                              <h3 className="text-sm md:text-2xl">
+                              <h3 className="theme-la-k text-sm md:text-2xl text-primary">
                                 {language === "en"
                                   ? "Family size, thin crust"
                                   : "Tamaño familiar masa delgada"}
@@ -142,7 +142,7 @@ function KartaContent({ data, restaurant }: KartaProps) {
                             </div>
                           )}
                           {t(category.description, category.description_en) && (
-                            <p className="whitespace-pre-line text-center text-xs md:text-4xl text-gray-600 mb-4">
+                            <p className="whitespace-pre-line text-center text-xs md:text-4xl text-secondary mb-4">
                               {t(category.description, category.description_en)}
                             </p>
                           )}
@@ -153,20 +153,20 @@ function KartaContent({ data, restaurant }: KartaProps) {
                           {category.meals.map((meal) => (
                             <div
                               key={meal.id}
-                              className="flex items-start justify-between gap-4 group leading-none active:scale-95 active:bg-gray-100 transition-transform duration-150"
+                              className="flex items-start justify-between gap-4 group leading-none active:scale-95 active:bg-secondary-foreground transition-transform duration-150"
                             >
                               <div className="flex-1 md:flex md:flex-row">
-                                <h5 className="text-[0.80rem] md:text-lg text-gray-900 uppercase tracking-wide leading-tight m-0 p-0 whitespace-nowrap">
+                                <h5 className="text-[0.80rem] md:text-lg text-primary uppercase tracking-wide leading-tight m-0 p-0 whitespace-nowrap">
                                   {t(meal.name, meal.name_en)}
                                 </h5>
                                 {t(meal.description, meal.description_en) && (
-                                  <p className="flex text-[0.7rem] md:text-xs text-gray-600 leading-relaxed uppercase">
+                                  <p className="flex text-[0.7rem] md:text-xs text-secondary-content leading-relaxed uppercase">
                                     {t(meal.description, meal.description_en)}
                                   </p>
                                 )}
                               </div>
                               <div className="text-right">
-                                <span className="text-[0.80rem] md:text-lg text-gray-900 uppercase tracking-wide leading-tight whitespace-nowrap">
+                                <span className="text-[0.80rem] md:text-lg text-primary uppercase tracking-wide leading-tight whitespace-nowrap">
                                   S/ {meal.price.toFixed(2)}
                                 </span>
                               </div>
@@ -196,7 +196,7 @@ function KartaContent({ data, restaurant }: KartaProps) {
                       <div key={category.id} id={`cat-${category.id}`}>
                         {!(t(category.name, category.name_en) === "Salsas") && (
                           <div>
-                            <h2 className="text-center text-xs font-bold uppercase tracking-wider text-gray-900">
+                            <h2 className="text-center text-xs font-bold uppercase tracking-wider text-primary">
                               {t(category.name, category.name_en)}
                             </h2>
                             <div className="flex justify-center mb-4">
@@ -210,7 +210,7 @@ function KartaContent({ data, restaurant }: KartaProps) {
                           </div>
                         )}
                         {t(category.description, category.description_en) && (
-                          <p className="whitespace-pre-line text-start text-xs text-gray-600">
+                          <p className="whitespace-pre-line text-start text-xs text-secondary-primary">
                             {t(category.description, category.description_en)}
                           </p>
                         )}
@@ -220,20 +220,23 @@ function KartaContent({ data, restaurant }: KartaProps) {
                           {category.meals.map((meal) => (
                             <div
                               key={meal.id}
-                              className="flex items-start justify-between gap-4 group leading-none active:scale-95 active:bg-gray-100 transition-transform duration-150"
+                              className="flex items-start justify-between gap-4 group leading-none active:scale-95 active:bg-secondary-foreground transition-transform duration-150"
                             >
                               <div className="flex-1">
-                                <h5 className="text-[0.80rem]  text-gray-900 uppercase tracking-wide leading-tight m-0 p-0">
+                                {/* Nombre del plato */}
+                                <h5 className="text-[0.80rem] text-primary uppercase tracking-wide leading-tight m-0 p-0">
                                   {t(meal.name, meal.name_en)}
                                 </h5>
+                                {/* Descripción del plato */}
+
                                 {t(meal.description, meal.description_en) && (
-                                  <p className="text-[0.7rem] text-gray-600 leading-relaxed">
+                                  <p className="text-[0.7rem] text-secondary-content leading-relaxed">
                                     {t(meal.description, meal.description_en)}
                                   </p>
                                 )}
                               </div>
                               <div className="text-right">
-                                <span className="text-[0.80rem] text-gray-900 uppercase tracking-wide leading-tight">
+                                <span className="text-[0.80rem] text-primary uppercase tracking-wide leading-tight">
                                   S/ {meal.price.toFixed(2)}
                                 </span>
                               </div>
@@ -249,7 +252,7 @@ function KartaContent({ data, restaurant }: KartaProps) {
                       <div key={category.id} id={`cat-${category.id}`}>
                         {!(t(category.name, category.name_en) === "Salsas") && (
                           <div>
-                            <h2 className="text-center text-xs font-bold uppercase tracking-wider text-gray-900">
+                            <h2 className="text-center text-xs font-bold uppercase tracking-wider text-primary">
                               {t(category.name, category.name_en)}
                             </h2>
                             <div className="flex justify-center mb-4">
@@ -263,7 +266,7 @@ function KartaContent({ data, restaurant }: KartaProps) {
                           </div>
                         )}
                         {t(category.description, category.description_en) && (
-                          <p className="whitespace-pre-line text-start text-xs text-gray-600">
+                          <p className="whitespace-pre-line text-start text-xs text-secondary-content">
                             {t(category.description, category.description_en)}
                           </p>
                         )}
@@ -273,20 +276,20 @@ function KartaContent({ data, restaurant }: KartaProps) {
                           {category.meals.map((meal) => (
                             <div
                               key={meal.id}
-                              className="flex items-start justify-between gap-4 group leading-none active:scale-95 active:bg-gray-100 transition-transform duration-150"
+                              className="flex items-start justify-between gap-4 group leading-none active:scale-95 active:bg-secondary-foreground transition-transform duration-150"
                             >
                               <div className="flex-1">
-                                <h5 className="text-[0.80rem]  text-gray-900 uppercase tracking-wide leading-tight m-0 p-0">
+                                <h5 className="text-[0.80rem]  text-primary uppercase tracking-wide leading-tight m-0 p-0">
                                   {t(meal.name, meal.name_en)}
                                 </h5>
                                 {t(meal.description, meal.description_en) && (
-                                  <p className="text-[0.7rem] text-gray-600 leading-relaxed">
+                                  <p className="text-[0.7rem] text-secondary-content leading-relaxed">
                                     {t(meal.description, meal.description_en)}
                                   </p>
                                 )}
                               </div>
                               <div className="text-right">
-                                <span className="text-[0.80rem] text-gray-900 uppercase tracking-wide leading-tight">
+                                <span className="text-[0.80rem] text-primary uppercase tracking-wide leading-tight">
                                   S/ {meal.price.toFixed(2)}
                                 </span>
                               </div>

@@ -41,7 +41,7 @@ export default async function LaK() {
   // Aseguramos que tenga al menos un plato
   // const platoDelDia = platoDelDiaCategory?.meals?.[0];
   return (
-    <div className=" min-h-screen">
+    <div className=" min-h-screen bg-background">
       <Header restaurant={data.restaurant} />
       {/* {platoDelDia && (
         <PlatoDelDia
