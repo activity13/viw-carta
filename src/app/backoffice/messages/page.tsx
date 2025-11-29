@@ -9,7 +9,6 @@ import { Switch } from "@/components/ui/switch";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -234,7 +233,7 @@ export default function MessagesPage() {
                   </Label>
                   <Select
                     value={formData.type}
-                    onValueChange={(val: any) =>
+                    onValueChange={(val: ISystemMessage["type"]) =>
                       setFormData({ ...formData, type: val })
                     }
                   >
