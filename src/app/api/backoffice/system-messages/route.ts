@@ -28,6 +28,7 @@ export async function GET(req: Request) {
     });
     return NextResponse.json(messages);
   } catch (error) {
+    console.error("Error fetching messages:", error);
     return NextResponse.json(
       { error: "Error fetching messages" },
       { status: 500 }
@@ -45,6 +46,7 @@ export async function POST(req: Request) {
     const newMessage = await SystemMessage.create(body);
     return NextResponse.json(newMessage, { status: 201 });
   } catch (error) {
+    console.error("Error creating message:", error);
     return NextResponse.json(
       { error: "Error creating message" },
       { status: 500 }
@@ -65,6 +67,7 @@ export async function PUT(req: Request) {
     );
     return NextResponse.json(updatedMessage);
   } catch (error) {
+    console.error("Error updating message:", error);
     return NextResponse.json(
       { error: "Error updating message" },
       { status: 500 }
