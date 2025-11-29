@@ -3,14 +3,36 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import axios from "axios";
-import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
+import {
+  Store,
+  MapPin,
+  Phone,
+  Globe,
+  Save,
+  Edit2,
+  X,
+  ImageIcon,
+  QrCode,
+  Building2,
+} from "lucide-react";
+
 import QRFrameUploader from "@/components/QrFrameUploader";
 import LogoImageUploader from "@/components/LogoImageUploader";
 import GenerateQRSection from "@/components/GenerateQRSection";
+
 interface Business {
   _id: string;
   name: string;
@@ -36,12 +58,14 @@ export default function BusinessProfileForm() {
   const [business, setBusiness] = useState<Business | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<Partial<BusinessFormData>>({});
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!restaurantId) return;
 
     const fetchBusiness = async () => {
       try {
+        setIsLoading(true);
         const { data } = await axios.get(
           `/api/settings/${session.user.restaurantId}`
         );
@@ -49,153 +73,289 @@ export default function BusinessProfileForm() {
         setFormData(data);
       } catch (error) {
         console.error("Error al cargar el negocio:", error);
+        toast.error("Error al cargar la información del negocio");
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchBusiness();
-  }, [session]);
+  }, [session, restaurantId]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSave = async () => {
-    try {
-      const res = await axios.put(
-        `/api/settings/update/${business?._id}`,
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
-      setBusiness(res.data.business);
-      setIsEditing(false);
-      if (res.status === 200) {
-        alert("Datos actualizados correctamente");
-        setIsEditing(false);
-        // Opcional: refresca el estado con los nuevos datos
-        setFormData(res.data.business);
-      } else {
-        alert("Error al actualizar los datos");
+    const promise = axios.put(
+      `/api/settings/update/${business?._id}`,
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
       }
-    } catch (err) {
-      console.error(err);
-      alert("Ocurrió un error al guardar");
-    }
+    );
+
+    toast.promise(promise, {
+      loading: "Guardando cambios...",
+      success: (res) => {
+        setBusiness(res.data.business);
+        setFormData(res.data.business);
+        setIsEditing(false);
+        return "Perfil actualizado correctamente";
+      },
+      error: "Error al actualizar los datos",
+    });
   };
 
-  if (!business) return <p className="text-center py-6">Cargando datos...</p>;
+  const handleCancel = () => {
+    if (business) {
+      setFormData(business);
+    }
+    setIsEditing(false);
+    toast.info("Edición cancelada");
+  };
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto py-10 px-4 max-w-5xl space-y-8">
+        <div className="space-y-4">
+          <Skeleton className="h-12 w-1/3" />
+          <Skeleton className="h-4 w-2/3" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-6">
+            <Skeleton className="h-[400px] w-full rounded-xl" />
+          </div>
+          <div className="space-y-6">
+            <Skeleton className="h-[300px] w-full rounded-xl" />
+            <Skeleton className="h-[200px] w-full rounded-xl" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!business)
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh]">
+        <p className="text-muted-foreground">
+          No se encontró información del negocio.
+        </p>
+      </div>
+    );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#041b15] to-[#143d26] py-16 px-4 flex justify-center items-center">
-      <Card className="w-full max-w-2xl bg-geen-900/30 backdrop-blur-md border border-white/20 shadow-lg rounded-3xl text-white">
-        <CardContent className="space-y-6 p-8">
-          <h2 className="text-3xl font-bold text-center tracking-wide text-white">
+    <div className="container mx-auto py-10 px-4 max-w-5xl space-y-8 pb-24">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b pb-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
+            <Store className="w-8 h-8 text-primary" />
             Perfil del Negocio
-          </h2>
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Administra la información pública, logotipos y códigos QR de tu
+            establecimiento.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          {!isEditing ? (
+            <Button onClick={() => setIsEditing(true)} className="shadow-sm">
+              <Edit2 className="w-4 h-4 mr-2" />
+              Editar Perfil
+            </Button>
+          ) : (
+            <>
+              <Button variant="outline" onClick={handleCancel}>
+                <X className="w-4 h-4 mr-2" />
+                Cancelar
+              </Button>
+              <Button onClick={handleSave}>
+                <Save className="w-4 h-4 mr-2" />
+                Guardar Cambios
+              </Button>
+            </>
+          )}
+        </div>
+      </div>
 
-          {/* Imagen principal */}
-          <div className="flex flex-col items-center justify-center space-y-3">
-            {business.image ? (
-              <div className="relative w-32 h-32 rounded-full overflow-hidden border-2 border-white/40">
-                <Image
-                  src={`/la-k/images/${business.image}`}
-                  alt="Logo del negocio"
-                  fill
-                  className="object-cover"
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Columna Izquierda: Información Principal */}
+        <div className="lg:col-span-2 space-y-6">
+          <Card className={isEditing ? "border-primary/50 shadow-md" : ""}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <Building2 className="w-5 h-5 text-muted-foreground" />
+                Información General
+              </CardTitle>
+              <CardDescription>
+                Estos datos aparecerán en tu carta digital y en los resultados
+                de búsqueda.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Nombre del Negocio</Label>
+                  <div className="relative">
+                    <Store className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="name"
+                      name="name"
+                      value={formData.name || ""}
+                      onChange={handleChange}
+                      disabled={!isEditing}
+                      className="pl-9"
+                      placeholder="Ej. Pizzería La K"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Teléfono de Contacto</Label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="phone"
+                      name="phone"
+                      value={formData.phone || ""}
+                      onChange={handleChange}
+                      disabled={!isEditing}
+                      className="pl-9"
+                      placeholder="+56 9 1234 5678"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="direction">Dirección Física</Label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="direction"
+                    name="direction"
+                    value={formData.direction || ""}
+                    onChange={handleChange}
+                    disabled={!isEditing}
+                    className="pl-9"
+                    placeholder="Av. Principal 123, Ciudad"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="location">Link de Google Maps</Label>
+                <div className="relative">
+                  <Globe className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="location"
+                    name="location"
+                    value={formData.location || ""}
+                    onChange={handleChange}
+                    disabled={!isEditing}
+                    className="pl-9"
+                    placeholder="https://maps.google.com/..."
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description">Descripción del Negocio</Label>
+                <Textarea
+                  id="description"
+                  name="description"
+                  value={formData.description || ""}
+                  onChange={handleChange}
+                  disabled={!isEditing}
+                  rows={4}
+                  placeholder="Cuéntanos sobre tu negocio..."
+                  className="resize-none"
                 />
               </div>
-            ) : (
-              <div className="w-32 h-32 flex items-center justify-center bg-white/10 border border-white/30 rounded-full text-white/60">
-                Sin imagen
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Columna Derecha: Branding y QR */}
+        <div className="space-y-6">
+          {/* Branding Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <ImageIcon className="w-5 h-5 text-muted-foreground" />
+                Identidad Visual
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-3">
+                <Label className="text-xs uppercase text-muted-foreground font-bold">
+                  Logotipo
+                </Label>
+                <div className="bg-muted/30 p-4 rounded-lg border border-dashed flex flex-col items-center justify-center">
+                  <LogoImageUploader
+                    disabled={!isEditing}
+                    existingImageUrl={
+                      business.image
+                        ? `/${business.slug}/images/${business.image}`
+                        : null
+                    }
+                    onFileSelect={(file) =>
+                      setFormData({ ...formData, imageFile: file })
+                    }
+                  />
+                </div>
               </div>
-            )}
-          </div>
 
-          {/* Campos */}
-          {[
-            { label: "Nombre", name: "name" },
-            { label: "Dirección", name: "direction" },
-            { label: "Link de Google Maps", name: "location" },
-            { label: "Teléfono", name: "phone" },
-            { label: "Descripción", name: "description" },
-          ].map(({ label, name }) => (
-            <div key={name}>
-              <Label className="text-sm text-white/80">{label}</Label>
-              <Input
-                name={name}
-                value={formData[name as keyof Business] || ""}
-                onChange={handleChange}
-                disabled={!isEditing}
-                className="mt-1 bg-transparent border border-white/30 text-white placeholder-white/50 rounded-xl focus:ring-2 focus:ring-lime-400 focus:border-lime-400 transition-all"
-              />
+              <div className="space-y-3">
+                <Label className="text-xs uppercase text-muted-foreground font-bold">
+                  Marco QR Personalizado
+                </Label>
+                <div className="bg-muted/30 p-4 rounded-lg border border-dashed flex flex-col items-center justify-center">
+                  <QRFrameUploader
+                    disabled={!isEditing}
+                    existingImageUrl={
+                      business.image
+                        ? `/${business.slug}/images/${business.frameQR}`
+                        : null
+                    }
+                    onFileSelect={(file) =>
+                      setFormData({ ...formData, frameQRFile: file })
+                    }
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* QR Code Card */}
+          <Card className="overflow-hidden border-primary/20">
+            <div className="bg-primary/5 p-2 border-b border-primary/10">
+              <CardHeader className="p-4">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <QrCode className="w-5 h-5 text-primary" />
+                  Código QR Digital
+                </CardTitle>
+                <CardDescription>
+                  Descarga el QR para que tus clientes accedan al menú.
+                </CardDescription>
+              </CardHeader>
             </div>
-          ))}
-          <LogoImageUploader
-            disabled={!isEditing}
-            existingImageUrl={
-              business.image
-                ? `/${business.slug}/images/${business.image}`
-                : null
-            }
-            onFileSelect={(file) =>
-              setFormData({ ...formData, imageFile: file })
-            }
-          />
-
-          {/* Frame QR */}
-          <QRFrameUploader
-            disabled={!isEditing}
-            existingImageUrl={
-              business.image
-                ? `/${business.slug}/images/${business.frameQR}`
-                : null
-            }
-            onFileSelect={(file) =>
-              setFormData({ ...formData, frameQRFile: file })
-            }
-          />
-
-          {/* Botones */}
-          <div className="flex justify-end gap-3 pt-4">
-            {session?.user?.role === "admin" && !isEditing && (
-              <Button
-                onClick={() => setIsEditing(true)}
-                className="bg-lime-500 hover:bg-lime-400 text-[#0f2e1d] font-semibold rounded-xl px-5"
-              >
-                Editar
-              </Button>
-            )}
-            {isEditing && (
-              <>
-                <Button
-                  onClick={handleSave}
-                  className="bg-lime-500 hover:bg-lime-400 text-[#0f2e1d] font-semibold rounded-xl px-5"
-                >
-                  Guardar
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setFormData(business);
-                    setIsEditing(false);
-                  }}
-                  className="border-white/40 text-white hover:bg-white/10 rounded-xl px-5"
-                >
-                  Cancelar
-                </Button>
-              </>
-            )}
-          </div>
-          <GenerateQRSection
-            businessId={business._id}
-            businessSlug={business.slug}
-            existingImageUrl={
-              business.image ? `/${business.slug}/qr/${business.QrCode}` : null
-            }
-          />
-        </CardContent>
-      </Card>
+            <CardContent className="p-6 flex justify-center">
+              <GenerateQRSection
+                businessId={business._id}
+                businessSlug={business.slug}
+                existingImageUrl={
+                  business.image
+                    ? `/${business.slug}/qr/${business.QrCode}`
+                    : null
+                }
+              />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }
