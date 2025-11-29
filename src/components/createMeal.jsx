@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Axios, { AxiosError } from "axios";
 import { Plus, X, Upload, Save, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { revalidateMenu } from "../utils/revalidateMenu";
+import { revalidateMenu } from "./utils/revalidateMenu";
 import { useSession } from "next-auth/react";
 import {
   Dialog,

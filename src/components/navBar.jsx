@@ -1,7 +1,7 @@
 import * as React from "react";
 import Link from "next/link";
-import { Cog, Home, Languages } from "lucide-react";
-import LogoutButton from "./LogoutButton";
+import { Cog, Home, Languages, MessageSquareQuote } from "lucide-react";
+import LogoutButton from "./ui/LogoutButton";
 
 import {
   NavigationMenu,
@@ -53,6 +53,17 @@ export default function NavBar() {
               </Link>
             </NavigationMenuLink>
           </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuLink asChild>
+              <Link
+                href="/backoffice/messages"
+                className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              >
+                <MessageSquareQuote className="h-4 w-4" />
+                Mensajes
+              </Link>
+            </NavigationMenuLink>
+          </NavigationMenuItem>
         </NavigationMenuList>
 
         {/* Right: Logout (and mobile quick icons) */}
@@ -79,6 +90,13 @@ export default function NavBar() {
               aria-label="Config"
             >
               <Languages className="h-4 w-4" />
+            </Link>
+            <Link
+              href="/backoffice/messages"
+              className="p-2 rounded-md text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              aria-label="Config"
+            >
+              <MessageSquareQuote className="h-4 w-4" />
             </Link>
           </div>
 

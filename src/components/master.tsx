@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import CreateMealForm from "@/components/ui/createMeal";
+import CreateMealForm from "@/components/createMeal";
 import { Loader2, ArrowUpDown } from "lucide-react";
 import { useSession } from "next-auth/react";
 interface Meal {

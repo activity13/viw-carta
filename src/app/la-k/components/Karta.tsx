@@ -6,7 +6,7 @@ import DecorativeFrame from "./DecorativeBorder";
 import FloatingActionGroup from "./FloatingActionGroup";
 import Image from "next/image";
 import { LanguageProvider, useLanguage } from "@/hooks/useLanguage";
-import LanguageToggle from "@/components/ui/LanguageToggle";
+import LanguageToggle from "@/components/LanguageToggle";
 
 interface Meal {
   id: string;
@@ -37,19 +37,31 @@ interface KartaData {
 interface KartaProps {
   data: KartaData;
   restaurant: { phone: string };
+  systemMessages?: MessageSystem[];
+}
+
+interface MessageSystem {
+  placement: string;
+  type: "info" | "warning" | "alert" | "promotion";
+  content: string;
+  content_en: string;
+  isActive: boolean;
 }
 
 type MenuType = "principal" | "pizzas";
 
-function KartaContent({ data, restaurant }: KartaProps) {
+function KartaContent({ data, restaurant, systemMessages = [] }: KartaProps) {
   const { language } = useLanguage();
   const [activeMenu, setActiveMenu] = useState<MenuType>("principal");
 
   // Helper de traducción con fallback al ES
   const t = (es?: string, en?: string) =>
     language === "en" && en ? en : es || "";
-  // const tArr = (es?: string[], en?: string[]) =>
-  //   language === "en" && en && en.length ? en : es || [];
+
+  // Helper para obtener mensaje por placement
+  const getMessage = (placement: string) => {
+    return systemMessages.find((m) => m.placement === placement && m.isActive);
+  };
 
   const filteredCategories = data.categories.filter((category) => {
     const joined = `${category.name || ""} ${
@@ -93,7 +105,7 @@ function KartaContent({ data, restaurant }: KartaProps) {
 
       <DecorativeFrame>
         {/* Contenedor del menú dentro del marco */}
-        <div className="w-full mx-auto py-4 md:py-6 overflow-x-hidden">
+        <div className="w-full mx-auto py-4 md:py-6 overflow-x-hidden pb-24 xl:pb-6">
           {filteredCategories.length === 0 ? (
             <div className="text-center py-16">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4">
@@ -155,7 +167,7 @@ function KartaContent({ data, restaurant }: KartaProps) {
                               key={meal.id}
                               className="flex items-start justify-between gap-4 group leading-none active:scale-95 active:bg-secondary-foreground transition-transform duration-150"
                             >
-                              <div className="flex-1 md:flex md:flex-row">
+                              <div className="flex-1 xl:flex">
                                 <h5 className="text-[0.80rem] md:text-lg text-primary uppercase tracking-wide leading-tight m-0 p-0 whitespace-nowrap">
                                   {t(meal.name, meal.name_en)}
                                 </h5>
@@ -175,7 +187,31 @@ function KartaContent({ data, restaurant }: KartaProps) {
                         </div>
 
                         {isPizzas && (
-                          <div className="flex mt-4 sm:mt-20 p-6 justify-center text-center flex-col items-center">
+                          <div className="flex mt-4 sm:mt-1 p-6 justify-end text-center flex-col items-center">
+                            {/* Mensaje del sistema para el footer de pizzas */}
+                            {(() => {
+                              const msg = getMessage("pizza_menu_footer");
+                              if (msg) {
+                                return (
+                                  <div
+                                    className={`mb-6 px-4 py-2 rounded-lg text-xs md:text-base font-extralight
+                                    ${
+                                      msg.type === "info"
+                                        ? "text-primary"
+                                        : msg.type === "warning"
+                                        ? "text-yellow-800 bg-yellow-50"
+                                        : msg.type === "alert"
+                                        ? "text-red-800 bg-red-50"
+                                        : "text-green-800 bg-green-50"
+                                    }`}
+                                  >
+                                    {t(msg.content, msg.content_en)}
+                                  </div>
+                                );
+                              }
+                              return null;
+                            })()}
+
                             <Image
                               src="/la-k/images/la-k-footer-divider.svg"
                               alt="Carta de pizzas la k vichayito"
@@ -210,7 +246,7 @@ function KartaContent({ data, restaurant }: KartaProps) {
                           </div>
                         )}
                         {t(category.description, category.description_en) && (
-                          <p className="whitespace-pre-line text-start text-xs text-secondary-primary">
+                          <p className="whitespace-pre-line text-start text-xs text-secondary-content">
                             {t(category.description, category.description_en)}
                           </p>
                         )}

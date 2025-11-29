@@ -3,6 +3,7 @@ import { connectToDatabase } from "@/lib/mongodb";
 
 import Restaurant from "@/models/restaurants";
 import CategorySchema from "@/models/categories";
+import SystemMessage from "@/models/SystemMessage";
 import MealSchema from "@/models/meals";
 
 export async function GET(
@@ -29,6 +30,12 @@ export async function GET(
       restaurantId: restaurant._id,
       isActive: true,
     }).sort({ order: 1 });
+
+    // 2.1 Buscar mensajes del sistema activos
+    const systemMessages = await SystemMessage.find({
+      restaurantId: restaurant._id,
+      isActive: true,
+    }).sort({ placement: 1, order: 1 });
 
     // 3. Buscar platos del restaurante
     const meals = await MealSchema.find({
@@ -65,10 +72,15 @@ export async function GET(
         })),
       };
     });
-    console.log(
-      "🚀 ~ route.ts:63 ~ GET ~ categoriesWithMeals:",
-      categoriesWithMeals
-    );
+
+    const activeSystemMessages = systemMessages.map((msg) => ({
+      placement: msg.placement,
+      type: msg.type,
+      content: msg.content,
+      content_en: msg.content_en,
+      isActive: msg.isActive,
+    }));
+
     // 5. Respuesta final
     return NextResponse.json(
       {
@@ -83,6 +95,7 @@ export async function GET(
           image: restaurant.image,
         },
         categories: categoriesWithMeals,
+        systemMessages: activeSystemMessages,
       },
       {
         headers: {

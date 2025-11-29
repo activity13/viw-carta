@@ -8,9 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import QRFrameUploader from "@/components/ui/QrFrameUploader";
-import LogoImageUploader from "@/components/ui/LogoImageUploader";
-import GenerateQRSection from "@/components/ui/GenerateQRSection";
+import QRFrameUploader from "@/components/QrFrameUploader";
+import LogoImageUploader from "@/components/LogoImageUploader";
+import GenerateQRSection from "@/components/GenerateQRSection";
 interface Business {
   _id: string;
   name: string;

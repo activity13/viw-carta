@@ -27,11 +27,6 @@ export default async function LaK() {
   }
 
   const data = await res.json();
-  console.log(
-    "Runtime environment:",
-    process.env.NODE_ENV,
-    process.env.VERCEL_URL
-  );
 
   // Encontramos la categoría "Plato del día"
   // const platoDelDiaCategory = data?.categories?.find(
@@ -51,7 +46,11 @@ export default async function LaK() {
           ingredients={platoDelDia.ingredients}
         />
       )} */}
-      <LaKarta data={data} restaurant={data.restaurant} />
+      <LaKarta
+        data={data}
+        restaurant={data.restaurant}
+        systemMessages={data.systemMessages}
+      />
     </div>
   );
 }

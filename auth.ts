@@ -26,7 +26,13 @@ export const {
         );
         if (!isMatch) throw new Error("Invalid credentials");
 
-        return { id: user._id.toString(), email: user.email, name: user.name };
+        return {
+          id: user._id.toString(),
+          email: user.email,
+          name: user.fullName,
+          restaurantId: user.restaurantId.toString(),
+          role: user.role,
+        };
       },
     }),
   ],
@@ -37,12 +43,16 @@ export const {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.restaurantId = user.restaurantId;
+        token.role = user.role;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         (session.user as any).id = token.id;
+        session.user.restaurantId = token.restaurantId as string;
+        session.user.role = token.role as string;
       }
       return session;
     },
