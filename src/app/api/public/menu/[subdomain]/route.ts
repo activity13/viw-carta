@@ -41,7 +41,7 @@ export async function GET(
     const meals = await MealSchema.find({
       restaurantId: restaurant._id,
       "display.showInMenu": true,
-    });
+    }).sort({ "display.order": 1 });
 
     // 4. Agrupar platos en sus categorías
     const categoriesWithMeals = categories.map((cat) => {

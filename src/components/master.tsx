@@ -1,15 +1,8 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, memo } from "react";
 import Axios from "axios";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Reorder, useDragControls } from "motion/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
@@ -23,7 +16,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import CreateMealForm from "@/components/createMeal";
-import { ArrowUpDown, Search, Edit3, Check, X } from "lucide-react";
+import {
+  ArrowUpDown,
+  Search,
+  Edit3,
+  Check,
+  X,
+  GripVertical,
+  Loader2,
+} from "lucide-react";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 
@@ -41,6 +42,7 @@ interface Meal {
   restaurantId: string;
   display: {
     showInMenu: boolean;
+    order: number;
   };
 }
 
@@ -148,6 +150,159 @@ const EditableCell = ({
   );
 };
 
+const DraggableMobileCard = memo(
+  ({
+    meal,
+    handleQuickUpdate,
+    handleToggleAvailable,
+    openFullEdit,
+    loadingId,
+    canDrag,
+  }: {
+    meal: Meal;
+    handleQuickUpdate: (id: string, field: string, value: any) => void;
+    handleToggleAvailable: (id: string, state: boolean) => void;
+    openFullEdit: (id: string) => void;
+    loadingId: string | null;
+    canDrag: boolean;
+  }) => {
+    const controls = useDragControls();
+
+    return (
+      <Reorder.Item
+        value={meal}
+        dragListener={false}
+        dragControls={controls}
+        className="bg-card border rounded-lg p-4 shadow-sm flex flex-col gap-3 touch-none"
+      >
+        <div className="flex justify-between items-start gap-2">
+          <div className="flex items-center gap-2 flex-1 overflow-hidden">
+            {canDrag && (
+              <div
+                onPointerDown={(e) => controls.start(e)}
+                className="cursor-grab active:cursor-grabbing p-1 touch-none"
+              >
+                <GripVertical className="w-5 h-5 text-muted-foreground" />
+              </div>
+            )}
+            <div className="flex-1 overflow-hidden">
+              <EditableCell
+                value={meal.name}
+                onSave={(val) => handleQuickUpdate(meal._id, "name", val)}
+                className="font-medium truncate text-lg"
+              />
+            </div>
+          </div>
+          <div className="flex flex-col items-end">
+            <EditableCell
+              type="number"
+              value={meal.basePrice}
+              onSave={(val) => handleQuickUpdate(meal._id, "basePrice", val)}
+              className="font-bold text-lg w-24 text-right"
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-between items-center pt-2 border-t">
+          <div className="flex items-center gap-2">
+            <Switch
+              checked={meal.display?.showInMenu}
+              onCheckedChange={() =>
+                handleToggleAvailable(meal._id, meal.display?.showInMenu)
+              }
+              disabled={loadingId === meal._id}
+            />
+            <span className="text-xs text-muted-foreground">
+              {meal.display?.showInMenu ? "Visible" : "Oculto"}
+            </span>
+          </div>
+          <button
+            onClick={() => openFullEdit(meal._id)}
+            className="p-2 bg-muted/50 hover:bg-muted rounded-full transition-colors text-muted-foreground hover:text-primary"
+          >
+            <Edit3 className="w-4 h-4" />
+          </button>
+        </div>
+      </Reorder.Item>
+    );
+  }
+);
+
+const DraggableRow = memo(
+  ({
+    meal,
+    handleQuickUpdate,
+    handleToggleAvailable,
+    openFullEdit,
+    loadingId,
+    canDrag,
+  }: {
+    meal: Meal;
+    handleQuickUpdate: (id: string, field: string, value: any) => void;
+    handleToggleAvailable: (id: string, state: boolean) => void;
+    openFullEdit: (id: string) => void;
+    loadingId: string | null;
+    canDrag: boolean;
+  }) => {
+    const controls = useDragControls();
+
+    return (
+      <Reorder.Item
+        value={meal}
+        as="div"
+        dragListener={false}
+        dragControls={controls}
+        className="grid grid-cols-[5%_55%_20%_20%] items-center p-2 border-b bg-background hover:bg-muted/20 transition-colors"
+      >
+        <div className="flex justify-center">
+          {canDrag ? (
+            <div
+              onPointerDown={(e) => controls.start(e)}
+              className="cursor-grab active:cursor-grabbing p-1 touch-none"
+            >
+              <GripVertical className="w-4 h-4 text-muted-foreground" />
+            </div>
+          ) : (
+            <div className="w-4 h-4" />
+          )}
+        </div>
+        <div className="px-2 overflow-hidden">
+          <EditableCell
+            value={meal.name}
+            onSave={(val) => handleQuickUpdate(meal._id, "name", val)}
+            className="truncate block"
+          />
+        </div>
+        <div className="px-2">
+          <EditableCell
+            type="number"
+            value={meal.basePrice}
+            onSave={(val) => handleQuickUpdate(meal._id, "basePrice", val)}
+          />
+        </div>
+        <div className="px-2 flex justify-center items-center gap-2">
+          <div className="flex flex-col items-center">
+            <Switch
+              checked={meal.display?.showInMenu}
+              onCheckedChange={() =>
+                handleToggleAvailable(meal._id, meal.display?.showInMenu)
+              }
+              disabled={loadingId === meal._id}
+            />
+          </div>
+          <button
+            onClick={() => openFullEdit(meal._id)}
+            className="p-2 hover:bg-muted rounded-full transition-colors text-muted-foreground hover:text-primary"
+            title="Edición completa"
+          >
+            <Edit3 className="w-4 h-4" />
+          </button>
+        </div>
+      </Reorder.Item>
+    );
+  }
+);
+
 export default function Master() {
   const { data: session } = useSession();
   const restaurantId = session?.user?.restaurantId;
@@ -166,6 +321,8 @@ export default function Master() {
     "all" | "active" | "inactive"
   >("all");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | null>(null);
+  const [reorderTimer, setReorderTimer] = useState<NodeJS.Timeout | null>(null);
+  const [isSavingOrder, setIsSavingOrder] = useState(false);
 
   // Fetch Data
   const fetchData = async () => {
@@ -267,6 +424,62 @@ export default function Master() {
     setIsDialogEditing(true);
   };
 
+  // Reorder Logic
+  const canReorder =
+    selectedCategories.size === 1 &&
+    searchTerm === "" &&
+    filterStatus === "all" &&
+    sortOrder === null;
+
+  const handleReorder = (newOrder: Meal[]) => {
+    if (!canReorder) return;
+    setMeals(newOrder);
+  };
+
+  useEffect(() => {
+    if (!canReorder) return;
+
+    // Check if order actually changed or needs update
+    const needsUpdate = meals.some(
+      (meal, index) => meal.display.order !== index
+    );
+
+    if (!needsUpdate) return;
+
+    if (reorderTimer) clearTimeout(reorderTimer);
+    setIsSavingOrder(true);
+
+    const timer = setTimeout(async () => {
+      const updatedItems = meals.map((item, index) => ({
+        _id: item._id,
+        order: index,
+      }));
+
+      try {
+        await Axios.put("/api/master/reorder", {
+          items: updatedItems,
+        });
+
+        // Update local state to reflect saved order so effect doesn't run again immediately
+        setMeals((prev) =>
+          prev.map((m, i) => ({ ...m, display: { ...m.display, order: i } }))
+        );
+      } catch (err) {
+        console.error("Reorder failed", err);
+        toast.error("Error al guardar el orden");
+        fetchData(); // Revert
+      } finally {
+        setIsSavingOrder(false);
+      }
+    }, 2000);
+
+    setReorderTimer(timer);
+
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [meals]);
+
   // Filter & Sort
   const filteredMeals = useMemo(() => {
     return meals
@@ -286,10 +499,12 @@ export default function Master() {
         return matchesCategory && matchesSearch && matchesStatus;
       })
       .sort((a, b) => {
-        if (!sortOrder) return 0;
-        return sortOrder === "asc"
-          ? a.basePrice - b.basePrice
-          : b.basePrice - a.basePrice;
+        if (sortOrder) {
+          return sortOrder === "asc"
+            ? a.basePrice - b.basePrice
+            : b.basePrice - a.basePrice;
+        }
+        return (a.display?.order || 0) - (b.display?.order || 0);
       });
   }, [meals, selectedCategories, searchTerm, sortOrder, filterStatus]);
 
@@ -334,7 +549,15 @@ export default function Master() {
       {/* Product List */}
       <Card className="border-none shadow-lg bg-card/50 backdrop-blur-sm">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-          <CardTitle className="text-xl font-bold">Productos</CardTitle>
+          <CardTitle className="text-xl font-bold flex items-center gap-2">
+            Productos
+            {isSavingOrder && (
+              <span className="flex items-center gap-1 text-xs font-normal text-muted-foreground bg-muted px-2 py-1 rounded-full animate-pulse">
+                <Loader2 className="w-3 h-3 animate-spin" />
+                Guardando orden...
+              </span>
+            )}
+          </CardTitle>
           <div className="flex items-center gap-2">
             <Select
               value={filterStatus}
@@ -364,94 +587,82 @@ export default function Master() {
         </CardHeader>
         <CardContent>
           <div className="rounded-md border bg-background">
-            <Table className="table-fixed w-full">
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[60%]">Nombre</TableHead>
-                  <TableHead
-                    className="w-[20%] cursor-pointer hover:bg-muted/50"
-                    onClick={() =>
-                      setSortOrder((prev) =>
-                        prev === "asc" ? "desc" : prev === "desc" ? null : "asc"
-                      )
-                    }
-                  >
-                    <div className="flex items-center gap-2">
-                      Precio
-                      <ArrowUpDown
-                        className={`h-4 w-4 ${
-                          sortOrder ? "text-primary" : "text-muted-foreground"
-                        }`}
-                      />
-                    </div>
-                  </TableHead>
-                  <TableHead className="w-[20%] text-center">
-                    Acciones
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            {/* Desktop View (Table-like Grid) */}
+            <div className="hidden md:block">
+              <div className="grid grid-cols-[5%_55%_20%_20%] bg-muted/50 p-3 font-medium text-sm text-muted-foreground border-b">
+                <div className="text-center">#</div>
+                <div>Nombre</div>
+                <div
+                  className="cursor-pointer hover:text-primary flex items-center gap-1"
+                  onClick={() =>
+                    setSortOrder((prev) =>
+                      prev === "asc" ? "desc" : prev === "desc" ? null : "asc"
+                    )
+                  }
+                >
+                  Precio
+                  <ArrowUpDown
+                    className={`h-3 w-3 ${
+                      sortOrder ? "text-primary" : "text-muted-foreground"
+                    }`}
+                  />
+                </div>
+                <div className="text-center">Acciones</div>
+              </div>
+
+              <Reorder.Group
+                axis="y"
+                values={filteredMeals}
+                onReorder={handleReorder}
+                className="divide-y"
+              >
                 {filteredMeals.length === 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={3}
-                      className="h-24 text-center text-muted-foreground"
-                    >
-                      No se encontraron productos.
-                    </TableCell>
-                  </TableRow>
+                  <div className="p-8 text-center text-muted-foreground">
+                    No se encontraron productos.
+                  </div>
                 ) : (
                   filteredMeals.map((meal) => (
-                    <TableRow key={meal._id}>
-                      <TableCell className="font-medium align-top overflow-hidden">
-                        <EditableCell
-                          value={meal.name}
-                          onSave={(val) =>
-                            handleQuickUpdate(meal._id, "name", val)
-                          }
-                          className="truncate block"
-                        />
-                      </TableCell>
-                      <TableCell className="align-top">
-                        <EditableCell
-                          type="number"
-                          value={meal.basePrice}
-                          onSave={(val) =>
-                            handleQuickUpdate(meal._id, "basePrice", val)
-                          }
-                        />
-                      </TableCell>
-                      <TableCell className="align-top">
-                        <div className="flex items-center justify-center gap-2">
-                          <div className="flex flex-col items-center">
-                            <Switch
-                              checked={meal.display?.showInMenu}
-                              onCheckedChange={() =>
-                                handleToggleAvailable(
-                                  meal._id,
-                                  meal.display?.showInMenu
-                                )
-                              }
-                              disabled={loadingId === meal._id}
-                            />
-                            <span className="text-[10px] text-muted-foreground mt-1">
-                              {meal.display?.showInMenu ? "Visible" : "Oculto"}
-                            </span>
-                          </div>
-                          <button
-                            onClick={() => openFullEdit(meal._id)}
-                            className="p-2 hover:bg-muted rounded-full transition-colors text-muted-foreground hover:text-primary"
-                            title="Edición completa"
-                          >
-                            <Edit3 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
+                    <DraggableRow
+                      key={meal._id}
+                      meal={meal}
+                      handleQuickUpdate={handleQuickUpdate}
+                      handleToggleAvailable={handleToggleAvailable}
+                      openFullEdit={openFullEdit}
+                      loadingId={loadingId}
+                      canDrag={canReorder}
+                    />
                   ))
                 )}
-              </TableBody>
-            </Table>
+              </Reorder.Group>
+            </div>
+
+            {/* Mobile View (Cards) */}
+            <div className="md:hidden p-4 bg-muted/10">
+              <Reorder.Group
+                axis="y"
+                values={filteredMeals}
+                onReorder={handleReorder}
+                className="space-y-3"
+              >
+                {filteredMeals.length === 0 ? (
+                  <div className="p-8 text-center text-muted-foreground">
+                    No se encontraron productos.
+                  </div>
+                ) : (
+                  filteredMeals.map((meal) => (
+                    <DraggableMobileCard
+                      key={meal._id}
+                      meal={meal}
+                      handleQuickUpdate={handleQuickUpdate}
+                      handleToggleAvailable={handleToggleAvailable}
+                      openFullEdit={openFullEdit}
+                      loadingId={loadingId}
+                      canDrag={canReorder}
+                    />
+                  ))
+                )}
+              </Reorder.Group>
+            </div>
           </div>
         </CardContent>
       </Card>
