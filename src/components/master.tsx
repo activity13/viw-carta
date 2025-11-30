@@ -177,61 +177,58 @@ const DraggableMobileCard = memo(
         value={meal}
         dragListener={false}
         dragControls={controls}
-        className="bg-card border rounded-xl shadow-sm overflow-hidden touch-none"
+        className="bg-card border rounded-lg shadow-sm flex overflow-hidden touch-none"
       >
-        <div className="flex items-stretch min-h-[100px]">
-          {/* Drag Handle - Zona táctil grande */}
-          {canDrag && (
-            <div
-              onPointerDown={(e) => controls.start(e)}
-              className="w-16 bg-muted/30 flex items-center justify-center cursor-grab active:cursor-grabbing touch-none border-r active:bg-primary/10 transition-colors"
-            >
-              <GripVertical className="w-8 h-8 text-muted-foreground" />
-            </div>
-          )}
+        {/* Left: Big Drag Handle */}
+        {canDrag && (
+          <div
+            onPointerDown={(e) => controls.start(e)}
+            className="w-14 bg-muted/30 flex items-center justify-center cursor-grab active:cursor-grabbing border-r border-border/50"
+          >
+            <GripVertical className="w-8 h-8 text-muted-foreground/70" />
+          </div>
+        )}
 
-          {/* Contenido */}
-          <div className="flex-1 p-4 flex flex-col justify-between gap-3">
-            {/* Fila 1: Nombre */}
-            <div className="w-full">
+        {/* Right: Content */}
+        <div className="flex-1 p-3 flex flex-col gap-3">
+          {/* Row 1: Name */}
+          <div className="w-full">
+            <EditableCell
+              value={meal.name}
+              onSave={(val) => handleQuickUpdate(meal._id, "name", val)}
+              className="font-medium text-lg truncate"
+            />
+          </div>
+
+          {/* Row 2: Price + Actions */}
+          <div className="flex justify-between items-center">
+            {/* Price */}
+            <div className="flex items-center gap-1">
               <EditableCell
-                value={meal.name}
-                onSave={(val) => handleQuickUpdate(meal._id, "name", val)}
-                className="font-semibold text-lg leading-tight"
+                type="number"
+                value={meal.basePrice}
+                onSave={(val) => handleQuickUpdate(meal._id, "basePrice", val)}
+                className="font-bold text-lg w-20"
               />
             </div>
 
-            {/* Fila 2: Precio y Acciones */}
-            <div className="flex items-center justify-between gap-2 pt-1">
-              <div className="w-28">
-                <EditableCell
-                  type="number"
-                  value={meal.basePrice}
-                  onSave={(val) =>
-                    handleQuickUpdate(meal._id, "basePrice", val)
+            {/* Actions */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <Switch
+                  checked={meal.display?.showInMenu}
+                  onCheckedChange={() =>
+                    handleToggleAvailable(meal._id, meal.display?.showInMenu)
                   }
-                  className="font-bold text-xl"
+                  disabled={loadingId === meal._id}
                 />
               </div>
-
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2">
-                  <Switch
-                    checked={meal.display?.showInMenu}
-                    onCheckedChange={() =>
-                      handleToggleAvailable(meal._id, meal.display?.showInMenu)
-                    }
-                    disabled={loadingId === meal._id}
-                    className="scale-110"
-                  />
-                </div>
-                <button
-                  onClick={() => openFullEdit(meal._id)}
-                  className="p-3 bg-muted hover:bg-primary/10 rounded-full transition-colors text-muted-foreground hover:text-primary"
-                >
-                  <Edit3 className="w-5 h-5" />
-                </button>
-              </div>
+              <button
+                onClick={() => openFullEdit(meal._id)}
+                className="p-2 bg-muted/50 hover:bg-muted rounded-full transition-colors text-muted-foreground hover:text-primary"
+              >
+                <Edit3 className="w-5 h-5" />
+              </button>
             </div>
           </div>
         </div>
@@ -343,6 +340,7 @@ export default function Master() {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | null>(null);
   const [reorderTimer, setReorderTimer] = useState<NodeJS.Timeout | null>(null);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
+  const [lastReorderTime, setLastReorderTime] = useState<number>(0);
 
   // Fetch Data
   const fetchData = async () => {
@@ -453,18 +451,35 @@ export default function Master() {
 
   const handleReorder = (newOrder: Meal[]) => {
     if (!canReorder) return;
-    setMeals(newOrder);
+
+    // 1. Identify indices of the items currently in the view (the ones being reordered)
+    const indicesToUpdate: number[] = [];
+    meals.forEach((meal, index) => {
+      if (selectedCategories.has(meal.categoryId)) {
+        indicesToUpdate.push(index);
+      }
+    });
+
+    // 2. Create new meals array
+    const updatedMeals = [...meals];
+
+    // 3. Place the items from newOrder into the slots
+    indicesToUpdate.forEach((originalIndex, i) => {
+      updatedMeals[originalIndex] = newOrder[i];
+    });
+
+    // 4. Update display.order for ALL items to match their new array index
+    const finalMeals = updatedMeals.map((meal, index) => ({
+      ...meal,
+      display: { ...meal.display, order: index },
+    }));
+
+    setMeals(finalMeals);
+    setLastReorderTime(Date.now());
   };
 
   useEffect(() => {
-    if (!canReorder) return;
-
-    // Check if order actually changed or needs update
-    const needsUpdate = meals.some(
-      (meal, index) => meal.display.order !== index
-    );
-
-    if (!needsUpdate) return;
+    if (lastReorderTime === 0) return;
 
     if (reorderTimer) clearTimeout(reorderTimer);
     setIsSavingOrder(true);
@@ -479,11 +494,7 @@ export default function Master() {
         await Axios.put("/api/master/reorder", {
           items: updatedItems,
         });
-
-        // Update local state to reflect saved order so effect doesn't run again immediately
-        setMeals((prev) =>
-          prev.map((m, i) => ({ ...m, display: { ...m.display, order: i } }))
-        );
+        // No need to update local state here as we did it optimistically in handleReorder
       } catch (err) {
         console.error("Reorder failed", err);
         toast.error("Error al guardar el orden");
@@ -498,7 +509,7 @@ export default function Master() {
     return () => {
       if (timer) clearTimeout(timer);
     };
-  }, [meals]);
+  }, [lastReorderTime]);
 
   // Filter & Sort
   const filteredMeals = useMemo(() => {
