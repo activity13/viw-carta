@@ -177,55 +177,63 @@ const DraggableMobileCard = memo(
         value={meal}
         dragListener={false}
         dragControls={controls}
-        className="bg-card border rounded-lg p-4 shadow-sm flex flex-col gap-3 touch-none"
+        className="bg-card border rounded-xl shadow-sm overflow-hidden touch-none"
       >
-        <div className="flex justify-between items-start gap-2">
-          <div className="flex items-center gap-2 flex-1 overflow-hidden">
-            {canDrag && (
-              <div
-                onPointerDown={(e) => controls.start(e)}
-                className="cursor-grab active:cursor-grabbing p-1 touch-none"
-              >
-                <GripVertical className="w-5 h-5 text-muted-foreground" />
-              </div>
-            )}
-            <div className="flex-1 overflow-hidden">
+        <div className="flex items-stretch min-h-[100px]">
+          {/* Drag Handle - Zona táctil grande */}
+          {canDrag && (
+            <div
+              onPointerDown={(e) => controls.start(e)}
+              className="w-16 bg-muted/30 flex items-center justify-center cursor-grab active:cursor-grabbing touch-none border-r active:bg-primary/10 transition-colors"
+            >
+              <GripVertical className="w-8 h-8 text-muted-foreground" />
+            </div>
+          )}
+
+          {/* Contenido */}
+          <div className="flex-1 p-4 flex flex-col justify-between gap-3">
+            {/* Fila 1: Nombre */}
+            <div className="w-full">
               <EditableCell
                 value={meal.name}
                 onSave={(val) => handleQuickUpdate(meal._id, "name", val)}
-                className="font-medium truncate text-lg"
+                className="font-semibold text-lg leading-tight"
               />
             </div>
-          </div>
-          <div className="flex flex-col items-end">
-            <EditableCell
-              type="number"
-              value={meal.basePrice}
-              onSave={(val) => handleQuickUpdate(meal._id, "basePrice", val)}
-              className="font-bold text-lg w-24 text-right"
-            />
-          </div>
-        </div>
 
-        <div className="flex justify-between items-center pt-2 border-t">
-          <div className="flex items-center gap-2">
-            <Switch
-              checked={meal.display?.showInMenu}
-              onCheckedChange={() =>
-                handleToggleAvailable(meal._id, meal.display?.showInMenu)
-              }
-              disabled={loadingId === meal._id}
-            />
-            <span className="text-xs text-muted-foreground">
-              {meal.display?.showInMenu ? "Visible" : "Oculto"}
-            </span>
+            {/* Fila 2: Precio y Acciones */}
+            <div className="flex items-center justify-between gap-2 pt-1">
+              <div className="w-28">
+                <EditableCell
+                  type="number"
+                  value={meal.basePrice}
+                  onSave={(val) =>
+                    handleQuickUpdate(meal._id, "basePrice", val)
+                  }
+                  className="font-bold text-xl"
+                />
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <Switch
+                    checked={meal.display?.showInMenu}
+                    onCheckedChange={() =>
+                      handleToggleAvailable(meal._id, meal.display?.showInMenu)
+                    }
+                    disabled={loadingId === meal._id}
+                    className="scale-110"
+                  />
+                </div>
+                <button
+                  onClick={() => openFullEdit(meal._id)}
+                  className="p-3 bg-muted hover:bg-primary/10 rounded-full transition-colors text-muted-foreground hover:text-primary"
+                >
+                  <Edit3 className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
           </div>
-          <button
-            onClick={() => openFullEdit(meal._id)}
-            className="p-2 bg-muted/50 hover:bg-muted rounded-full transition-colors text-muted-foreground hover:text-primary"
-          >
-            <Edit3 className="w-4 h-4" />
-          </button>
         </div>
       </Reorder.Item>
     );
@@ -560,7 +568,7 @@ export default function Master() {
 
       {/* Product List */}
       <Card className="border-none shadow-lg bg-card/50 backdrop-blur-sm">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+        <CardHeader className="flex flex-col md:flex-row items-start md:items-center md:justify-between space-y-0 pb-4">
           <CardTitle className="text-xl font-bold flex items-center gap-2">
             Productos
             {isSavingOrder && (
@@ -570,7 +578,7 @@ export default function Master() {
               </span>
             )}
           </CardTitle>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-2">
             <Select
               value={filterStatus}
               onValueChange={(val: "all" | "active" | "inactive") =>
