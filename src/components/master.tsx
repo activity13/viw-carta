@@ -160,7 +160,11 @@ const DraggableMobileCard = memo(
     canDrag,
   }: {
     meal: Meal;
-    handleQuickUpdate: (id: string, field: string, value: any) => void;
+    handleQuickUpdate: (
+      id: string,
+      field: string,
+      value: string | number
+    ) => void;
     handleToggleAvailable: (id: string, state: boolean) => void;
     openFullEdit: (id: string) => void;
     loadingId: string | null;
@@ -228,6 +232,8 @@ const DraggableMobileCard = memo(
   }
 );
 
+DraggableMobileCard.displayName = "DraggableMobileCard";
+
 const DraggableRow = memo(
   ({
     meal,
@@ -238,7 +244,11 @@ const DraggableRow = memo(
     canDrag,
   }: {
     meal: Meal;
-    handleQuickUpdate: (id: string, field: string, value: any) => void;
+    handleQuickUpdate: (
+      id: string,
+      field: string,
+      value: string | number
+    ) => void;
     handleToggleAvailable: (id: string, state: boolean) => void;
     openFullEdit: (id: string) => void;
     loadingId: string | null;
@@ -302,6 +312,8 @@ const DraggableRow = memo(
     );
   }
 );
+
+DraggableRow.displayName = "DraggableRow";
 
 export default function Master() {
   const { data: session } = useSession();
