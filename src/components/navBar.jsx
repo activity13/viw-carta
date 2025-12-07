@@ -79,9 +79,10 @@ export default function NavBar() {
                 <NavigationMenuLink asChild>
                   <Link
                     href="/backoffice/super-admin"
-                    className="flex items-center gap-2 px-3 py-2 rounded-md text-sm bg-gradient-to-r from-yellow-50 to-orange-50 text-orange-700 hover:from-yellow-100 hover:to-orange-100 dark:from-yellow-900/30 dark:to-orange-900/30 dark:text-orange-300 transition"
+                    className="flex items-center gap-2 px-3 py-2 rounded-md text-sm bg-gradient-to-r from-yellow-500 to-orange-500 text-orange-700 
+                    opacity-90 hover:from-yellow-500 hover:to-yellow-600 dark:from-yellow-900/30 dark:to-orange-900/30 dark:text-orange-300 transition"
                   >
-                    <Crown className="h-4 w-4" />
+                    <Crown className="h-4 w-4 text-orange-600" />
                     Super Admin
                   </Link>
                 </NavigationMenuLink>
