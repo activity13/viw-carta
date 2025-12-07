@@ -34,7 +34,7 @@ const userSchema = new Schema(
     // Rol para autorización
     role: {
       type: String,
-      enum: ["admin", "staff", "viewer"],
+      enum: ["superadmin", "admin", "staff", "viewer"],
       default: "viewer",
       required: true,
     },

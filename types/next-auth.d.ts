@@ -27,5 +27,7 @@ declare module "next-auth/jwt" {
     email?: string | null;
     image?: string | null;
     restaurantId?: string;
+    role?: string | null;
+    slug?: string | null;
   }
 }
