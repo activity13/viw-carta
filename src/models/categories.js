@@ -15,14 +15,12 @@ const CategorySchema = new Schema(
     code: {
       type: Number,
       required: [true, "El código de la categoría es obligatorio"],
-      unique: true,
       trim: true,
       maxlength: [10, "El código no puede exceder 10 caracteres"],
     },
     slug: {
       type: String,
       required: [true, "El slug de la categoría es obligatorio"],
-      unique: true,
       lowercase: true,
       trim: true,
     },

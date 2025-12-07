@@ -59,6 +59,25 @@ const RestaurantSchema = new Schema({
     required: false,
     trim: true,
   },
+  // SaaS Fields
+  ownerId: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: false, // Optional for now to support legacy data
+  },
+  plan: {
+    type: String,
+    enum: ["standard", "premium"],
+    default: "standard",
+  },
+  theme: {
+    primaryColor: { type: String, default: "#000000" },
+    secondaryColor: { type: String, default: "#ffffff" },
+    backgroundColor: { type: String, default: "#ffffff" },
+    fontFamily: { type: String, default: "Inter" },
+    logoUrl: { type: String },
+    coverImageUrl: { type: String },
+  },
 });
 
 const Restaurant = models.Restaurant || model("Restaurant", RestaurantSchema);
