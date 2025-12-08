@@ -73,7 +73,7 @@ function OnboardingProductsLoading() {
 }
 
 //Componente princiapl encargado de todo el contenido del onboarding de productos
-export default function OnboardingProductsContent() {
+function OnboardingProductsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const restaurantId = searchParams.get("restaurantId");
@@ -621,7 +621,7 @@ export default function OnboardingProductsContent() {
 }
 
 // Página principal que envuelve el contenido con Suspense
-export function OnboardingProductsPage() {
+export default function OnboardingProducts() {
   return (
     <Suspense fallback={<OnboardingProductsLoading />}>
       <OnboardingProductsContent />

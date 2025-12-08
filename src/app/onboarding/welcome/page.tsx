@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import axios from "axios";
 import {
@@ -46,7 +46,22 @@ interface Restaurant {
   slug: string;
 }
 
-export default function OnboardingWelcome() {
+// Loading component for Suspense fallback
+function OnboardingWelcomeLoading() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100">
+      <Card className="w-full max-w-md">
+        <CardContent className="p-8 text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-green-600" />
+          <p className="text-muted-foreground">Preparando tu bienvenida...</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// Main component content that uses useSearchParams
+function OnboardingWelcomeContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const restaurantId = searchParams.get("restaurantId");
@@ -298,5 +313,14 @@ export default function OnboardingWelcome() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Main component with Suspense boundary
+export default function OnboardingWelcome() {
+  return (
+    <Suspense fallback={<OnboardingWelcomeLoading />}>
+      <OnboardingWelcomeContent />
+    </Suspense>
   );
 }
