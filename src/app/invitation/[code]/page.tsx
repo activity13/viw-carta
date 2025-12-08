@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import axios, { AxiosError } from "axios";
 import {
@@ -142,15 +142,17 @@ export default function InvitationPage() {
         registrationData
       );
 
-      setSuccess(
-        "¡Registro exitoso! Serás redirigido al panel de administración..."
-      );
+      setSuccess("¡Registro exitoso! Serás redirigido al onboarding...");
       toast.success("¡Bienvenido a VIW Carta!");
 
-      // Redirigir al login después de 3 segundos
+      // Redirigir al onboarding
       setTimeout(() => {
-        router.push("/backoffice/login");
-      }, 3000);
+        if (response.data.redirectTo) {
+          router.push(response.data.redirectTo);
+        } else {
+          router.push("/backoffice/login");
+        }
+      }, 2000);
     } catch (error) {
       if (error instanceof AxiosError) {
         setError(error.response?.data?.error || "Error al registrar");
@@ -194,7 +196,7 @@ export default function InvitationPage() {
             <Button
               variant="outline"
               onClick={() => router.push("/")}
-              className="mt-4"
+              className="mt-4 hover:cursor-pointer hover:bg-green-500"
             >
               Volver al inicio
             </Button>
@@ -289,6 +291,7 @@ export default function InvitationPage() {
                     onChange={handleChange}
                     required
                     placeholder="Ej: Pizzería La K"
+                    className="bg-card border-2 border-muted-foreground/20 hover:border-muted-foreground/40 focus:border-primary/60 shadow-sm"
                   />
                 </div>
 
@@ -303,6 +306,7 @@ export default function InvitationPage() {
                     placeholder="ej: pizzeria-la-k"
                     pattern="[a-z0-9-]+"
                     title="Solo letras minúsculas, números y guiones"
+                    className="bg-card border-2 border-muted-foreground/20 hover:border-muted-foreground/40 focus:border-primary/60 shadow-sm font-mono"
                   />
                   <p className="text-xs text-muted-foreground">
                     Tu menú estará disponible en: viw-carta.com/
@@ -319,6 +323,7 @@ export default function InvitationPage() {
                     onChange={handleChange}
                     required
                     placeholder="Av. Principal 123, Ciudad"
+                    className="bg-card border-2 border-muted-foreground/20 hover:border-muted-foreground/40 focus:border-primary/60 shadow-sm"
                   />
                 </div>
 
@@ -331,6 +336,7 @@ export default function InvitationPage() {
                     onChange={handleChange}
                     required
                     placeholder="+51 999 888 777"
+                    className="bg-card border-2 border-muted-foreground/20 hover:border-muted-foreground/40 focus:border-primary/60 shadow-sm"
                   />
                 </div>
 
@@ -344,6 +350,7 @@ export default function InvitationPage() {
                     value={formData.restaurantLocation}
                     onChange={handleChange}
                     placeholder="https://maps.google.com/..."
+                    className="bg-card border-2 border-muted-foreground/20 hover:border-muted-foreground/40 focus:border-primary/60 shadow-sm font-mono text-sm"
                   />
                 </div>
 
@@ -358,6 +365,7 @@ export default function InvitationPage() {
                     onChange={handleChange}
                     rows={3}
                     placeholder="Breve descripción de tu restaurante..."
+                    className="bg-card border-2 border-muted-foreground/20 hover:border-muted-foreground/40 focus:border-primary/60 shadow-sm resize-none"
                   />
                 </div>
               </CardContent>
@@ -381,6 +389,7 @@ export default function InvitationPage() {
                     onChange={handleChange}
                     required
                     placeholder="Juan Pérez"
+                    className="bg-card border-2 border-muted-foreground/20 hover:border-muted-foreground/40 focus:border-primary/60 shadow-sm"
                   />
                 </div>
 
@@ -393,6 +402,7 @@ export default function InvitationPage() {
                     onChange={handleChange}
                     required
                     placeholder="juanperez"
+                    className="bg-card border-2 border-muted-foreground/20 hover:border-muted-foreground/40 focus:border-primary/60 shadow-sm font-mono"
                   />
                 </div>
 
@@ -406,7 +416,7 @@ export default function InvitationPage() {
                     onChange={handleChange}
                     required
                     disabled // Email viene de la invitación
-                    className="bg-gray-50"
+                    className="bg-muted/30 border-2 border-muted-foreground/10 text-muted-foreground cursor-not-allowed"
                   />
                 </div>
 
@@ -420,6 +430,7 @@ export default function InvitationPage() {
                     onChange={handleChange}
                     required
                     placeholder="Mínimo 6 caracteres"
+                    className="bg-card border-2 border-muted-foreground/20 hover:border-muted-foreground/40 focus:border-primary/60 shadow-sm"
                   />
                 </div>
 
@@ -433,6 +444,7 @@ export default function InvitationPage() {
                     onChange={handleChange}
                     required
                     placeholder="Repite tu contraseña"
+                    className="bg-card border-2 border-muted-foreground/20 hover:border-muted-foreground/40 focus:border-primary/60 shadow-sm"
                   />
                 </div>
               </CardContent>

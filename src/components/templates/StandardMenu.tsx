@@ -1,3 +1,7 @@
+"use client";
+
+import React from "react";
+
 import Image from "next/image";
 import { LanguageProvider, useLanguage } from "@/hooks/useLanguage";
 import LanguageToggle from "@/components/LanguageToggle";
@@ -49,7 +53,7 @@ function StandardMenuContent({ data, restaurant }: StandardMenuProps) {
 
   const theme = restaurant.theme || {};
   const primaryColor = theme.primaryColor || "#000000";
-  const secondaryColor = theme.secondaryColor || "#ffffff";
+  // const secondaryColor = theme.secondaryColor || "#ffffff";
   const backgroundColor = theme.backgroundColor || "#f8f9fa";
   const fontFamily = theme.fontFamily || "sans-serif";
 

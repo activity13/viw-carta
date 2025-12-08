@@ -13,10 +13,10 @@ const CategorySchema = new Schema(
       trim: true,
     },
     code: {
-      type: Number,
+      type: String,
       required: [true, "El código de la categoría es obligatorio"],
       trim: true,
-      maxlength: [10, "El código no puede exceder 10 caracteres"],
+      maxlength: [20, "El código no puede exceder 20 caracteres"],
     },
     slug: {
       type: String,
@@ -45,7 +45,6 @@ const CategorySchema = new Schema(
       type: Number,
       required: false,
       default: 999,
-      index: true,
     },
     isActive: {
       type: Boolean,
@@ -68,10 +67,44 @@ const CategorySchema = new Schema(
 );
 
 CategorySchema.index(
-  { restaurantId: 1, code: 1, slug: 1, order: 1 },
-  { unique: true }
-);
+  { restaurantId: 1, slug: 1 },
+  { unique: true, sparse: true }
+); // slug único por restaurante
+CategorySchema.index(
+  { restaurantId: 1, code: 1 },
+  { unique: true, sparse: true }
+); // code único por restaurante
+CategorySchema.index({ restaurantId: 1, order: 1 }, { sparse: true }); // para ordenamiento
 
-const Categories = models.Categories || model("Categories", CategorySchema);
+// Limpiar el modelo del cache si existe para evitar conflictos de schema
+delete models.Categories;
+
+const Categories = model("Categories", CategorySchema);
+
+// Eliminar índices antiguos problemáticos y crear los nuevos
+Categories.collection
+  .dropIndexes()
+  .then(() => {
+    console.log("Índices antiguos eliminados");
+
+    // Crear solo los índices que necesitamos
+    Categories.collection.createIndex(
+      { restaurantId: 1, slug: 1 },
+      { unique: true, name: "restaurant_slug_unique" }
+    );
+
+    Categories.collection.createIndex(
+      { restaurantId: 1, code: 1 },
+      { unique: true, name: "restaurant_code_unique" }
+    );
+
+    Categories.collection.createIndex(
+      { restaurantId: 1, order: 1 },
+      { name: "restaurant_order" }
+    );
+  })
+  .catch((err) => {
+    console.log("Error managing indexes:", err.message);
+  });
 
 export default Categories;

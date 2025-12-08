@@ -158,13 +158,11 @@ const MealSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Restaurant",
       required: true,
-      index: false, //activity
     },
     categoryId: {
       type: Schema.Types.ObjectId,
       ref: "Category",
       required: true,
-      index: true,
     },
 
     // Datos del plato
@@ -358,7 +356,6 @@ const MealSchema = new Schema(
       isAvailable: {
         type: Boolean,
         default: true,
-        index: true,
       },
       availableQuantity: {
         type: Number,
@@ -391,17 +388,14 @@ const MealSchema = new Schema(
       order: {
         type: Number,
         default: 0,
-        index: true,
       }, // orden en la categoría
       isFeatured: {
         type: Boolean,
         default: false,
-        index: true,
       }, // destacado en homepage
       showInMenu: {
         type: Boolean,
         default: true,
-        index: true,
       },
     },
 
@@ -410,7 +404,6 @@ const MealSchema = new Schema(
       type: String,
       enum: ["active", "inactive", "draft", "archived"],
       default: "active",
-      index: true,
     },
 
     // Métricas (se actualizan por separado)

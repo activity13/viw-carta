@@ -13,6 +13,7 @@ import {
 
 export default function NavBar() {
   const { data: session } = useSession();
+  console.log("User session in NavBar:", session);
   const isSuperAdmin = session?.user?.role === "superadmin";
 
   return (

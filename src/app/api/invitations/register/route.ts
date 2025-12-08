@@ -3,7 +3,72 @@ import { connectToDatabase } from "@/lib/mongodb";
 import Invitation from "@/models/invitation";
 import Restaurant from "@/models/restaurants";
 import User from "@/models/user";
+import Categories from "@/models/categories";
+import MealSchema from "@/models/meals";
 import bcrypt from "bcryptjs";
+
+// Función helper para generar códigos de categorías legibles
+const generateCategoryCode = (name: string, order: number) => {
+  const prefix = name.slice(0, 3).toUpperCase();
+  return `${prefix}${order}`;
+};
+
+// Función helper para generar slug limpio
+const generateSlug = (name: string) => {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)+/g, "");
+};
+
+// Datos ejemplo para onboarding
+const DEFAULT_CATEGORIES = [
+  { name: "Entradas", name_en: "Appetizers", order: 1 },
+  { name: "Platos Principales", name_en: "Main Courses", order: 2 },
+  { name: "Bebidas", name_en: "Beverages", order: 3 },
+  { name: "Postres", name_en: "Desserts", order: 4 },
+];
+
+const DEFAULT_MEALS = [
+  {
+    categoryIndex: 0, // Entradas
+    name: "[Agregar tu entrada favorita]",
+    name_en: "[Add your favorite appetizer]",
+    description: "Describe tu entrada aquí",
+    description_en: "Describe your appetizer here",
+    basePrice: 0,
+    isTemplate: true,
+  },
+  {
+    categoryIndex: 1, // Platos Principales
+    name: "[Agregar tu especialidad]",
+    name_en: "[Add your specialty]",
+    description: "Tu plato estrella va aquí",
+    description_en: "Your signature dish goes here",
+    basePrice: 0,
+    isTemplate: true,
+  },
+  {
+    categoryIndex: 2, // Bebidas
+    name: "[Agregar bebida]",
+    name_en: "[Add beverage]",
+    description: "Bebida refrescante",
+    description_en: "Refreshing beverage",
+    basePrice: 0,
+    isTemplate: true,
+  },
+  {
+    categoryIndex: 3, // Postres
+    name: "[Agregar postre]",
+    name_en: "[Add dessert]",
+    description: "Dulce final perfecto",
+    description_en: "Perfect sweet ending",
+    basePrice: 0,
+    isTemplate: true,
+  },
+];
 
 export async function POST(request: Request) {
   try {
@@ -110,14 +175,65 @@ export async function POST(request: Request) {
     // Marcar invitación como usada
     await invitation.markAsUsed(newUser._id);
 
+    // Crear categorías ejemplo
+    const createdCategories = [];
+    for (let i = 0; i < DEFAULT_CATEGORIES.length; i++) {
+      const categoryData = DEFAULT_CATEGORIES[i];
+
+      const category = await Categories.create({
+        name: categoryData.name,
+        name_en: categoryData.name_en,
+        code: generateCategoryCode(categoryData.name, categoryData.order),
+        slug: generateSlug(categoryData.name),
+        restaurantId: newRestaurant._id,
+        order: categoryData.order,
+        isActive: true,
+      });
+      createdCategories.push(category);
+    }
+
+    // Crear productos ejemplo
+    for (const mealData of DEFAULT_MEALS) {
+      const targetCategory = createdCategories[mealData.categoryIndex];
+      await MealSchema.create({
+        name: mealData.name,
+        name_en: mealData.name_en,
+        description: mealData.description,
+        description_en: mealData.description_en,
+        basePrice: mealData.basePrice || 0,
+        restaurantId: newRestaurant._id,
+        categoryId: targetCategory._id,
+        variants: [],
+        availability: {
+          isAvailable: true,
+          schedule: {
+            monday: { isAvailable: true, timeSlots: [] },
+            tuesday: { isAvailable: true, timeSlots: [] },
+            wednesday: { isAvailable: true, timeSlots: [] },
+            thursday: { isAvailable: true, timeSlots: [] },
+            friday: { isAvailable: true, timeSlots: [] },
+            saturday: { isAvailable: true, timeSlots: [] },
+            sunday: { isAvailable: true, timeSlots: [] },
+          },
+        },
+        display: {
+          order: 999,
+          showInMenu: true,
+          isFeatured: false,
+        },
+        isTemplate: mealData.isTemplate,
+      });
+    }
+
     return NextResponse.json(
       {
-        message: "Restaurante y usuario registrados exitosamente",
+        message: "Restaurante registrado exitosamente",
         restaurant: {
           id: newRestaurant._id,
           name: newRestaurant.name,
           slug: newRestaurant.slug,
         },
+        redirectTo: `/onboarding/welcome?restaurantId=${newRestaurant._id}`,
       },
       { status: 201 }
     );
