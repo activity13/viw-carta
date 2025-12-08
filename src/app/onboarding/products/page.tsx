@@ -64,7 +64,6 @@ export default function OnboardingProducts() {
   const restaurantId = searchParams.get("restaurantId");
 
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [meals, setMeals] = useState<Meal[]>([]);
@@ -116,11 +115,11 @@ export default function OnboardingProducts() {
     }
   };
 
-  const getCategoryName = (categoryId: string) => {
-    return (
-      categories.find((cat) => cat._id === categoryId)?.name || "Sin categoría"
-    );
-  };
+  // const getCategoryName = (categoryId: string) => {
+  //   return (
+  //     categories.find((cat) => cat._id === categoryId)?.name || "Sin categoría"
+  //   );
+  // };
 
   const getMealsByCategory = (categoryId: string) => {
     return meals.filter((meal) => meal.categoryId === categoryId);
@@ -175,6 +174,7 @@ export default function OnboardingProducts() {
       cancelEdit();
       toast.success("Producto actualizado");
     } catch (error) {
+      console.error("Error al actualizar producto:", error);
       toast.error("Error al actualizar producto");
     }
   };
@@ -240,6 +240,7 @@ export default function OnboardingProducts() {
       setMeals(meals.filter((meal) => meal._id !== mealId));
       toast.success("Producto eliminado");
     } catch (error) {
+      console.error("Error al eliminar producto:", error);
       toast.error("Error al eliminar producto");
     }
   };

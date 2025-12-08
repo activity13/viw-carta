@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import Image from "next/image";
 export const metadata: Metadata = {
   title: "Brandbook - TikiMart",
   description: "Manual de marca TikiMart - Estilo tropical minimalista",
@@ -38,8 +37,8 @@ export default function BrandbookPage() {
                   Estilo: Tropical Minimalista
                 </h3>
                 <p className="text-lg text-gray-700 leading-relaxed">
-                  Una mezcla entre "tiki" y market rápido, usando formas simples
-                  y limpias.
+                  Una mezcla entre &ldquo;tiki&rdquo; y market rápido, usando
+                  formas simples y limpias.
                 </p>
               </div>
 

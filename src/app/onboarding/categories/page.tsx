@@ -1,8 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { AxiosError } from "axios";
 import { useSearchParams, useRouter } from "next/navigation";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+} from "@hello-pangea/dnd";
 import axios from "axios";
 import {
   Card,
@@ -109,7 +115,7 @@ export default function OnboardingCategories() {
     }
   };
 
-  const handleDragEnd = (result: any) => {
+  const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
 
     const items = Array.from(categories);
@@ -172,6 +178,7 @@ export default function OnboardingCategories() {
       setEditingName("");
       toast.success("Categoría actualizada");
     } catch (error) {
+      console.error("Error al actualizar categoría:", error);
       toast.error("Error al actualizar categoría");
     }
   };
@@ -207,6 +214,7 @@ export default function OnboardingCategories() {
       setNewCategoryDescription("");
       toast.success("Categoría agregada");
     } catch (error) {
+      console.error("Error al agregar categoría:", error);
       toast.error("Error al agregar categoría");
     } finally {
       setIsCreating(false);
@@ -221,6 +229,7 @@ export default function OnboardingCategories() {
       setCategories(categories.filter((cat) => cat._id !== categoryId));
       toast.success("Categoría eliminada");
     } catch (error) {
+      console.error("Error al eliminar categoría:", error);
       toast.error("Error al eliminar categoría");
     }
   };
@@ -240,6 +249,7 @@ export default function OnboardingCategories() {
 
       toast.success("Orden guardado exitosamente");
     } catch (error) {
+      console.error("Error al guardar el orden:", error);
       toast.error("Error al guardar el orden");
     } finally {
       setIsSaving(false);

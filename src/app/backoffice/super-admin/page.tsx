@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { AxiosError } from "axios";
 import AdminGuard from "@/components/AdminGuard";
 import {
   Card,
@@ -24,7 +25,6 @@ import {
   Plus,
   Copy,
   Check,
-  AlertTriangle,
   Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -104,10 +104,21 @@ export default function SuperAdminPage() {
       toast.success(`Invitación creada con código: ${response.data.code}`);
       setNewInvitation({ email: "", restaurantName: "", notes: "" });
       loadData(); // Recargar la lista
-    } catch (error: any) {
-      toast.error(
-        error.response?.data?.error || "Error al crear la invitación"
-      );
+    } catch (error: unknown) {
+      let errorMessage = "Error al crear la invitación";
+
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+
+      if (
+        error instanceof AxiosError &&
+        typeof error.response?.data?.error === "string"
+      ) {
+        errorMessage = error.response.data.error;
+      }
+
+      toast.error(errorMessage);
     } finally {
       setIsCreating(false);
     }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Lilita_One, Nunito } from "next/font/google";
 import styles from "./theme.module.css";
 import "../globals.css";
+import Link from "next/link";
 
 const lilitaOne = Lilita_One({
   variable: "--font-lilita",
@@ -111,31 +112,31 @@ export default function TikiMarketLayout({
                 {/* Navigation Links */}
                 <div className="hidden md:block">
                   <div className="ml-10 flex items-baseline space-x-8">
-                    <a
+                    <Link
                       href="/tikimarket"
                       className="text-[#1A1A1A] hover:text-[#19D3D1] px-3 py-2 rounded-xl text-sm font-medium transition-colors"
                     >
                       Inicio
-                    </a>
-                    <a
+                    </Link>
+                    <Link
                       href="/tikimarket/catalogo"
                       className="text-[#1A1A1A] hover:text-[#19D3D1] px-3 py-2 rounded-xl text-sm font-medium transition-colors"
                     >
                       Catálogo
-                    </a>
-                    <a
+                    </Link>
+                    <Link
                       href="/tikimarket/sobre-nosotros"
                       className="text-[#1A1A1A] hover:text-[#19D3D1] px-3 py-2 rounded-xl text-sm font-medium transition-colors"
                     >
                       Sobre Nosotros
-                    </a>
-                    <a
+                    </Link>
+                    <Link
                       href="https://wa.me/1234567890"
                       target="_blank"
                       className="bg-[#25D366] text-white hover:bg-[#25D366]/90 px-4 py-2 rounded-xl text-sm font-medium transition-colors flex items-center gap-1"
                     >
                       <span>💬</span> WhatsApp
-                    </a>
+                    </Link>
                   </div>
                 </div>
 
@@ -209,37 +210,37 @@ export default function TikiMarketLayout({
                   </h3>
                   <ul className="space-y-3">
                     <li>
-                      <a
+                      <Link
                         href="/tikimarket"
                         className="text-gray-300 hover:text-[#19D3D1] transition-colors"
                       >
                         Inicio
-                      </a>
+                      </Link>
                     </li>
                     <li>
-                      <a
+                      <Link
                         href="/tikimarket/catalogo"
                         className="text-gray-300 hover:text-[#19D3D1] transition-colors"
                       >
                         Catálogo
-                      </a>
+                      </Link>
                     </li>
                     <li>
-                      <a
+                      <Link
                         href="/tikimarket/sobre-nosotros"
                         className="text-gray-300 hover:text-[#19D3D1] transition-colors"
                       >
                         Sobre Nosotros
-                      </a>
+                      </Link>
                     </li>
                     <li>
-                      <a
+                      <Link
                         href="https://wa.me/1234567890"
                         target="_blank"
                         className="text-gray-300 hover:text-[#19D3D1] transition-colors"
                       >
                         WhatsApp
-                      </a>
+                      </Link>
                     </li>
                   </ul>
                 </div>
@@ -265,18 +266,18 @@ export default function TikiMarketLayout({
                   </p>
                   <div className="mt-4 md:mt-0">
                     <div className="flex space-x-6 text-sm text-gray-400">
-                      <a
+                      <Link
                         href="#"
                         className="hover:text-[#19D3D1] transition-colors"
                       >
                         Privacidad
-                      </a>
-                      <a
+                      </Link>
+                      <Link
                         href="#"
                         className="hover:text-[#19D3D1] transition-colors"
                       >
                         Términos
-                      </a>
+                      </Link>
                     </div>
                   </div>
                 </div>
