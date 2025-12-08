@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import axios from "axios";
 import {
@@ -58,7 +58,22 @@ interface NewMeal {
   categoryId: string;
 }
 
-export default function OnboardingProducts() {
+// Loading component for Suspense fallback
+function OnboardingProductsLoading() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      <Card className="w-full max-w-md">
+        <CardContent className="p-8 text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
+          <p className="text-muted-foreground">Cargando productos...</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+//Componente princiapl encargado de todo el contenido del onboarding de productos
+export default function OnboardingProductsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const restaurantId = searchParams.get("restaurantId");
@@ -602,5 +617,14 @@ export default function OnboardingProducts() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Página principal que envuelve el contenido con Suspense
+export function OnboardingProductsPage() {
+  return (
+    <Suspense fallback={<OnboardingProductsLoading />}>
+      <OnboardingProductsContent />
+    </Suspense>
   );
 }
