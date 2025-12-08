@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { AxiosError } from "axios";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   DragDropContext,

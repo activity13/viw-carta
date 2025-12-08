@@ -132,6 +132,7 @@ export default function SuperAdminPage() {
       toast.success("URL de invitación copiada al portapapeles");
       setTimeout(() => setCopiedCode(null), 2000);
     } catch (error) {
+      console.error("Error copying to clipboard:", error);
       toast.error("Error al copiar al portapapeles");
     }
   };
@@ -146,6 +147,7 @@ export default function SuperAdminPage() {
       toast.success("Invitación eliminada");
       loadData();
     } catch (error) {
+      console.error("Error copying to clipboard:", error);
       toast.error("Error al eliminar la invitación");
     }
   };
