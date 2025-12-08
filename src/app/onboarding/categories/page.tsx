@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   DragDropContext,
@@ -43,7 +43,22 @@ interface Category {
   order: number;
 }
 
-export default function OnboardingCategories() {
+// Loading component for Suspense fallback
+function OnboardingCategoriesLoading() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      <Card className="w-full max-w-md">
+        <CardContent className="p-8 text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
+          <p className="text-muted-foreground">Cargando categorías...</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// Main component content that uses useSearchParams
+function OnboardingCategoriesContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const restaurantId = searchParams.get("restaurantId");
@@ -593,5 +608,14 @@ export default function OnboardingCategories() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Main component with Suspense boundary
+export default function OnboardingCategories() {
+  return (
+    <Suspense fallback={<OnboardingCategoriesLoading />}>
+      <OnboardingCategoriesContent />
+    </Suspense>
   );
 }
