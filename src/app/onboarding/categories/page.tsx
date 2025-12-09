@@ -67,7 +67,6 @@ function OnboardingCategoriesContent() {
   const [isSaving, setIsSaving] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [restaurantName, setRestaurantName] = useState<string>("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
   const [newCategoryName, setNewCategoryName] = useState("");
@@ -93,7 +92,6 @@ function OnboardingCategoriesContent() {
         axios.get(`/api/settings/${restaurantId}`),
       ]);
       setCategories(categoriesRes.data);
-      setRestaurantName(restaurantRes.data.name || "");
     } catch (error) {
       console.error("Error cargando categorías:", error);
       setError("Error al cargar las categorías");
