@@ -21,6 +21,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import {
   Utensils,
@@ -28,11 +36,11 @@ import {
   Edit,
   Trash2,
   Save,
-  ArrowRight,
   ArrowLeft,
   Loader2,
   CheckCircle2,
   DollarSign,
+  AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -90,6 +98,12 @@ function OnboardingProductsContent() {
     basePrice: "",
     categoryId: "",
   });
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [mealToDelete, setMealToDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -124,7 +138,10 @@ function OnboardingProductsContent() {
     } catch (error) {
       console.error("Error cargando datos:", error);
       setError("Error al cargar los datos");
-      toast.error("No se pudieron cargar los datos");
+      toast.error("No se pudieron cargar los datos", {
+        description: "Verifica tu conexión e inténtalo nuevamente",
+        duration: 4000,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -157,7 +174,10 @@ function OnboardingProductsContent() {
 
   const saveEdit = async (mealId: string) => {
     if (!editingMeal.name?.trim()) {
-      toast.error("El nombre no puede estar vacío");
+      toast.error("Nombre requerido", {
+        description: "El producto debe tener un nombre",
+        duration: 3000,
+      });
       return;
     }
 
@@ -187,21 +207,34 @@ function OnboardingProductsContent() {
       );
 
       cancelEdit();
-      toast.success("Producto actualizado");
+      toast.success("Producto actualizado", {
+        description: `${editingMeal.name} se actualizó correctamente`,
+        duration: 3000,
+      });
     } catch (error) {
       console.error("Error al actualizar producto:", error);
+      toast.error("Error al actualizar", {
+        description: "No se pudo guardar los cambios del producto",
+        duration: 4000,
+      });
       toast.error("Error al actualizar producto");
     }
   };
 
   const addMeal = async () => {
     if (!newMeal.name.trim()) {
-      toast.error("Ingresa un nombre para el producto");
+      toast.error("Nombre requerido", {
+        description: "Ingresa un nombre para tu producto",
+        duration: 3000,
+      });
       return;
     }
 
     if (!newMeal.categoryId) {
-      toast.error("Selecciona una categoría");
+      toast.error("Categoría requerida", {
+        description: "Selecciona una categoría para organizar tu producto",
+        duration: 3000,
+      });
       return;
     }
 
@@ -238,30 +271,62 @@ function OnboardingProductsContent() {
         categoryId: newMeal.categoryId, // Mantener categoría seleccionada
       });
 
-      toast.success("Producto agregado exitosamente");
+      toast.success("Producto agregado", {
+        description: `${newMeal.name} se agregó a ${
+          categories.find((c) => c._id === newMeal.categoryId)?.name ||
+          "la categoría"
+        }`,
+        duration: 3000,
+      });
     } catch (error) {
       console.error("Error al agregar producto:", error);
-      toast.error("Error al agregar producto");
+      toast.error("Error al agregar", {
+        description: "No se pudo crear el producto. Inténtalo nuevamente",
+        duration: 4000,
+      });
     } finally {
       setIsCreating(false);
     }
   };
 
   const deleteMeal = async (mealId: string) => {
-    if (!confirm("¿Estás seguro de eliminar este producto?")) return;
+    const meal = meals.find((m) => m._id === mealId);
+    if (!meal) return;
+
+    setMealToDelete({ id: mealId, name: meal.name });
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDeleteMeal = async () => {
+    if (!mealToDelete) return;
 
     try {
-      await axios.delete(`/api/master/delete?id=${mealId}`);
-      setMeals(meals.filter((meal) => meal._id !== mealId));
-      toast.success("Producto eliminado");
+      setIsDeleting(true);
+      await axios.delete(`/api/master/delete?id=${mealToDelete.id}`);
+      setMeals(meals.filter((meal) => meal._id !== mealToDelete.id));
+      toast.success("Producto eliminado", {
+        description: `${mealToDelete.name} se eliminó correctamente`,
+        duration: 3000,
+      });
     } catch (error) {
       console.error("Error al eliminar producto:", error);
-      toast.error("Error al eliminar producto");
+      toast.error("Error al eliminar", {
+        description: "No se pudo eliminar el producto. Inténtalo nuevamente",
+        duration: 4000,
+      });
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteDialog(false);
+      setMealToDelete(null);
     }
   };
 
   const finishOnboarding = () => {
-    toast.success("¡Onboarding completado! Redirigiendo al panel...");
+    const customProductsCount = meals.filter((m) => !m.isTemplate).length;
+    toast.success("¡Configuración completada!", {
+      description: `Has creado ${customProductsCount} productos personalizados. Redirigiendo al panel...`,
+      duration: 4000,
+    });
     setTimeout(() => {
       router.push("/backoffice/login");
     }, 1500);
@@ -273,10 +338,10 @@ function OnboardingProductsContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-pink-100">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-green-100">
         <Card className="w-full max-w-md">
           <CardContent className="p-8 text-center">
-            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-purple-600" />
+            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-emerald-600" />
             <p className="text-muted-foreground">Cargando productos...</p>
           </CardContent>
         </Card>
@@ -300,11 +365,11 @@ function OnboardingProductsContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-700/90 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-green-100 py-12 px-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-gradient-to-br from-emerald-600 to-green-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Utensils className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -318,7 +383,7 @@ function OnboardingProductsContent() {
         {/* Progress Bar */}
         <div className="w-full bg-gray-200 rounded-full h-2 mb-8">
           <div
-            className="bg-purple-600 h-2 rounded-full"
+            className="bg-emerald-600 h-2 rounded-full"
             style={{ width: "100%" }}
           ></div>
         </div>
@@ -438,7 +503,7 @@ function OnboardingProductsContent() {
                                     {meal.description}
                                   </p>
                                 )}
-                                <p className="text-sm font-semibold text-purple-600 mt-2">
+                                <p className="text-sm font-semibold text-emerald-600 mt-2">
                                   S/. {meal.basePrice.toFixed(2)}
                                 </p>
                               </div>
@@ -454,7 +519,7 @@ function OnboardingProductsContent() {
                                   size="sm"
                                   variant="ghost"
                                   onClick={() => deleteMeal(meal._id)}
-                                  className="text-destructive hover:text-destructive"
+                                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </Button>
@@ -549,7 +614,7 @@ function OnboardingProductsContent() {
 
                 <Button
                   onClick={addMeal}
-                  className="w-full bg-purple-600 hover:bg-purple-700"
+                  className="w-full bg-emerald-600 hover:bg-emerald-700"
                   disabled={
                     isCreating || !newMeal.name.trim() || !newMeal.categoryId
                   }
@@ -599,23 +664,59 @@ function OnboardingProductsContent() {
             <ArrowLeft className="w-5 h-5 mr-2" />
             Categorías
           </Button>
-
-          <div className="text-center">
-            <p className="text-sm text-gray-600 mb-2">
-              ¡Has agregado {meals.filter((m) => !m.isTemplate).length}{" "}
-              productos personalizados!
-            </p>
-            <Button
-              onClick={finishOnboarding}
-              size="lg"
-              className="bg-purple-600 hover:bg-purple-700"
-            >
-              Completar Onboarding
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
-          </div>
         </div>
       </div>
+
+      {/* Dialog de confirmación para eliminar */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="w-5 h-5" />
+              Confirmar eliminación
+            </DialogTitle>
+            <DialogDescription className="pt-2">
+              ¿Estás seguro de que deseas eliminar{" "}
+              <span className="font-semibold">{mealToDelete?.name}</span>?
+              <br />
+              <span className="text-sm text-muted-foreground mt-2 block">
+                Esta acción no se puede deshacer.
+              </span>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-2 sm:gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowDeleteDialog(false);
+                setMealToDelete(null);
+              }}
+              disabled={isDeleting}
+              className="flex-1"
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDeleteMeal}
+              disabled={isDeleting}
+              className="flex-1"
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Eliminando...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Eliminar
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

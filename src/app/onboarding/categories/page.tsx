@@ -67,6 +67,7 @@ function OnboardingCategoriesContent() {
   const [isSaving, setIsSaving] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [restaurantName, setRestaurantName] = useState<string>("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
   const [newCategoryName, setNewCategoryName] = useState("");
@@ -87,10 +88,12 @@ function OnboardingCategoriesContent() {
   const loadCategories = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get(
-        `/api/categories?restaurantId=${restaurantId}`
-      );
-      setCategories(response.data);
+      const [categoriesRes, restaurantRes] = await Promise.all([
+        axios.get(`/api/categories?restaurantId=${restaurantId}`),
+        axios.get(`/api/settings/${restaurantId}`),
+      ]);
+      setCategories(categoriesRes.data);
+      setRestaurantName(restaurantRes.data.name || "");
     } catch (error) {
       console.error("Error cargando categorías:", error);
       setError("Error al cargar las categorías");
@@ -107,13 +110,27 @@ function OnboardingCategoriesContent() {
   };
 
   // Función para generar slug automáticamente
-  const generateSlug = (name: string) => {
-    return name
+  const generateSlug = (
+    name: string,
+    existingCategories: Category[] = categories
+  ) => {
+    let baseSlug = name
       .toLowerCase()
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)+/g, "");
+
+    // Verificar unicidad dentro del restaurante
+    let finalSlug = baseSlug;
+    let counter = 1;
+
+    while (existingCategories.some((cat) => cat.slug === finalSlug)) {
+      finalSlug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+
+    return finalSlug;
   };
 
   // Actualizar code y slug cuando cambia el nombre
@@ -410,13 +427,13 @@ function OnboardingCategoriesContent() {
                                     </Button>
                                   </div>
                                 ) : (
-                                  <div className="flex-1">
-                                    <div className="flex items-center justify-between">
-                                      <div>
-                                        <span className="font-semibold text-lg">
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                                      <div className="flex-1 min-w-0">
+                                        <span className="font-semibold text-lg block truncate">
                                           {category.name}
                                         </span>
-                                        <div className="flex gap-3 mt-1">
+                                        <div className="flex gap-2 mt-1 flex-wrap">
                                           <Badge
                                             variant="secondary"
                                             className="text-xs"
@@ -429,13 +446,13 @@ function OnboardingCategoriesContent() {
                                             variant="outline"
                                             className="text-xs"
                                           >
-                                            <span className="font-mono">
+                                            <span className="font-mono text-xs break-all">
                                               {category.slug}
                                             </span>
                                           </Badge>
                                         </div>
                                       </div>
-                                      <div className="flex gap-2">
+                                      <div className="flex gap-2 flex-shrink-0">
                                         <Button
                                           size="sm"
                                           variant="ghost"

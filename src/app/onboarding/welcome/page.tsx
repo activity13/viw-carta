@@ -22,6 +22,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
+import Link from "next/link";
 
 interface Category {
   _id: string;
@@ -202,15 +203,22 @@ function OnboardingWelcomeContent() {
             </CardContent>
           </Card>
 
-          <Card className="border-purple-200 bg-purple-50/50">
+          <Card className="border-emerald-200 bg-emerald-50/50">
             <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <CheckCircle className="w-6 h-6 text-purple-600" />
+              <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <CheckCircle className="w-6 h-6 text-emerald-600" />
               </div>
-              <h3 className="font-semibold text-purple-800">Menú Online</h3>
-              <p className="text-sm text-purple-600">
-                viw-carta.com/{restaurant?.slug}
-              </p>
+              <h3 className="font-semibold text-emerald-800">
+                Subdominio Único
+              </h3>
+              <Link
+                href={`https://${restaurant?.slug}.viw-carta.com`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-emerald-600 hover:underline hover:text-emerald-800 hover:font-bold"
+              >
+                {restaurant?.slug}.viw-carta.com
+              </Link>
             </CardContent>
           </Card>
         </div>

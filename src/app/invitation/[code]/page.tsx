@@ -31,6 +31,7 @@ interface InvitationData {
   email: string;
   restaurantName: string;
   expiresAt: string;
+  notes?: string;
 }
 
 export default function InvitationPage() {
@@ -253,6 +254,12 @@ export default function InvitationPage() {
                   Invitación para: {invitation?.restaurantName}
                 </p>
                 <p className="text-sm text-emerald-600">{invitation?.email}</p>
+                {invitation?.notes && (
+                  <p className="text-sm text-emerald-700 mt-2 bg-emerald-100/50 p-2 rounded border border-emerald-200">
+                    <span className="font-medium">Mensaje:</span>{" "}
+                    {invitation.notes}
+                  </p>
+                )}
               </div>
               <div className="text-right">
                 <Badge
@@ -290,27 +297,27 @@ export default function InvitationPage() {
                     value={formData.restaurantName}
                     onChange={handleChange}
                     required
-                    placeholder="Ej: Pizzería La K"
+                    placeholder="Ej: Restaurante El Buen Sabor"
                     className="bg-card border-2 border-muted-foreground/20 hover:border-muted-foreground/40 focus:border-primary/60 shadow-sm"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="restaurantSlug">Slug único (URL)</Label>
+                  <Label htmlFor="restaurantSlug">Subdominio único (URL)</Label>
                   <Input
                     id="restaurantSlug"
                     name="restaurantSlug"
                     value={formData.restaurantSlug}
                     onChange={handleChange}
                     required
-                    placeholder="ej: pizzeria-la-k"
+                    placeholder="ej: restaurante-mar-azul"
                     pattern="[a-z0-9-]+"
                     title="Solo letras minúsculas, números y guiones"
                     className="bg-card border-2 border-muted-foreground/20 hover:border-muted-foreground/40 focus:border-primary/60 shadow-sm font-mono"
                   />
                   <p className="text-xs text-muted-foreground">
-                    Tu menú estará disponible en: viw-carta.com/
-                    {formData.restaurantSlug}
+                    Tu menú estará disponible en: {formData.restaurantSlug}
+                    .viw-carta.com
                   </p>
                 </div>
 
@@ -322,7 +329,7 @@ export default function InvitationPage() {
                     value={formData.restaurantDirection}
                     onChange={handleChange}
                     required
-                    placeholder="Av. Principal 123, Ciudad"
+                    placeholder="Av. Los Olivos 456, Centro"
                     className="bg-card border-2 border-muted-foreground/20 hover:border-muted-foreground/40 focus:border-primary/60 shadow-sm"
                   />
                 </div>
@@ -388,7 +395,7 @@ export default function InvitationPage() {
                     value={formData.fullName}
                     onChange={handleChange}
                     required
-                    placeholder="Juan Pérez"
+                    placeholder="María Pérez"
                     className="bg-card border-2 border-muted-foreground/20 hover:border-muted-foreground/40 focus:border-primary/60 shadow-sm"
                   />
                 </div>
@@ -401,7 +408,7 @@ export default function InvitationPage() {
                     value={formData.username}
                     onChange={handleChange}
                     required
-                    placeholder="juanperez"
+                    placeholder="mariaperez"
                     className="bg-card border-2 border-muted-foreground/20 hover:border-muted-foreground/40 focus:border-primary/60 shadow-sm font-mono"
                   />
                 </div>

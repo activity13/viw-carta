@@ -47,6 +47,7 @@ export async function GET(
         email: invitation.email,
         restaurantName: invitation.restaurantName,
         expiresAt: invitation.expiresAt,
+        notes: invitation.notes,
       },
       { status: 200 }
     );
