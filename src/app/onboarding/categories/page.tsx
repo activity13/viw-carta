@@ -87,7 +87,7 @@ function OnboardingCategoriesContent() {
   const loadCategories = async () => {
     try {
       setIsLoading(true);
-      const [categoriesRes, restaurantRes] = await Promise.all([
+      const [categoriesRes] = await Promise.all([
         axios.get(`/api/categories?restaurantId=${restaurantId}`),
         axios.get(`/api/settings/${restaurantId}`),
       ]);
@@ -112,7 +112,7 @@ function OnboardingCategoriesContent() {
     name: string,
     existingCategories: Category[] = categories
   ) => {
-    let baseSlug = name
+    const baseSlug = name
       .toLowerCase()
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
