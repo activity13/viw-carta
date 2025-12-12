@@ -71,9 +71,23 @@ const RestaurantSchema = new Schema({
     default: "standard",
   },
   theme: {
-    primaryColor: { type: String, default: "#000000" },
-    secondaryColor: { type: String, default: "#ffffff" },
-    backgroundColor: { type: String, default: "#ffffff" },
+    palette: {
+      type: String,
+      default: "viw",
+      enum: ["classic", "ocean", "forest", "sunset", "royal", "viw"],
+    },
+    customColors: {
+      primary: { type: String },
+      secondary: { type: String },
+      accent: { type: String },
+      background: { type: String },
+      text: { type: String },
+      muted: { type: String },
+    },
+    // Legacy fields - mantained for backward compatibility
+    primaryColor: { type: String },
+    secondaryColor: { type: String },
+    backgroundColor: { type: String },
     fontFamily: { type: String, default: "Inter" },
     logoUrl: { type: String },
     coverImageUrl: { type: String },

@@ -21,9 +21,19 @@ export async function PUT(
     );
 
     for (const [key, value] of entries) {
+      console.log("🔵 Procesando campo:", key, typeof value);
       if (typeof value === "string") {
-        // Campos de texto
-        updateData[key] = value.trim();
+        // Handle theme object specially
+        if (key === "theme") {
+          try {
+            updateData[key] = JSON.parse(value.trim());
+          } catch {
+            updateData[key] = value.trim();
+          }
+        } else {
+          // Campos de texto
+          updateData[key] = value.trim();
+        }
       } else if (value instanceof Blob) {
         const file = value as File;
         if (file.size > 0) {

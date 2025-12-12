@@ -27,11 +27,14 @@ import {
   ImageIcon,
   QrCode,
   Building2,
+  Palette,
 } from "lucide-react";
 
 import QRFrameUploader from "@/components/QrFrameUploader";
 import LogoImageUploader from "@/components/LogoImageUploader";
 import GenerateQRSection from "@/components/GenerateQRSection";
+import { ColorPaletteSelector } from "@/components/ColorPaletteSelector";
+import { type RestaurantTheme } from "@/utils/colorPalettes";
 
 interface Business {
   _id: string;
@@ -44,11 +47,30 @@ interface Business {
   image?: string;
   frameQR?: string;
   QrCode?: string;
+  theme?: {
+    palette?: string;
+    customColors?: {
+      primary?: string;
+      secondary?: string;
+      accent?: string;
+      background?: string;
+      text?: string;
+      muted?: string;
+    };
+    // Legacy fields
+    primaryColor?: string;
+    secondaryColor?: string;
+    backgroundColor?: string;
+    fontFamily?: string;
+    logoUrl?: string;
+    coverImageUrl?: string;
+  };
 }
 
 interface BusinessFormData extends Business {
   frameQRFile?: File | null;
   imageFile?: File | null;
+  selectedTheme?: RestaurantTheme;
 }
 
 export default function BusinessProfileForm() {
@@ -58,6 +80,9 @@ export default function BusinessProfileForm() {
   const [business, setBusiness] = useState<Business | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<Partial<BusinessFormData>>({});
+  const [selectedTheme, setSelectedTheme] = useState<RestaurantTheme>({
+    palette: "viw",
+  });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -71,6 +96,16 @@ export default function BusinessProfileForm() {
         );
         setBusiness(data);
         setFormData(data);
+
+        // Initialize theme from database or use default
+        if (data.theme?.palette) {
+          setSelectedTheme({
+            palette: data.theme.palette,
+            customColors: data.theme.customColors,
+          });
+        } else {
+          setSelectedTheme({ palette: "viw" });
+        }
       } catch (error) {
         console.error("Error al cargar el negocio:", error);
         toast.error("Error al cargar la información del negocio");
@@ -89,9 +124,45 @@ export default function BusinessProfileForm() {
   };
 
   const handleSave = async () => {
+    const formDataToSend = new FormData();
+
+    // 1. Agregar campos de texto básicos (excluyendo archivos y objetos complejos)
+    Object.entries(formData).forEach(([key, value]) => {
+      if (
+        key === "theme" ||
+        key === "frameQRFile" ||
+        key === "imageFile" ||
+        key === "selectedTheme" ||
+        key === "_id" || // No enviar ID
+        key === "slug" || // No enviar slug si no es editable
+        value === undefined ||
+        value === null
+      ) {
+        return;
+      }
+      formDataToSend.append(key, String(value));
+    });
+
+    // 2. Agregar el tema como JSON string
+    if (selectedTheme.palette) {
+      const themeData = {
+        palette: selectedTheme.palette,
+        customColors: selectedTheme.customColors,
+      };
+      formDataToSend.append("theme", JSON.stringify(themeData));
+    }
+
+    // 3. Agregar archivos si existen
+    if (formData.frameQRFile) {
+      formDataToSend.append("frameQRFile", formData.frameQRFile);
+    }
+    if (formData.imageFile) {
+      formDataToSend.append("imageFile", formData.imageFile);
+    }
+
     const promise = axios.put(
       `/api/settings/update/${business?._id}`,
-      formData,
+      formDataToSend,
       {
         headers: { "Content-Type": "multipart/form-data" },
       }
@@ -112,6 +183,15 @@ export default function BusinessProfileForm() {
   const handleCancel = () => {
     if (business) {
       setFormData(business);
+      // Reset theme to original values
+      if (business.theme?.palette) {
+        setSelectedTheme({
+          palette: business.theme.palette,
+          customColors: business.theme.customColors,
+        });
+      } else {
+        setSelectedTheme({ palette: "viw" });
+      }
     }
     setIsEditing(false);
     toast.info("Edición cancelada");
@@ -274,6 +354,33 @@ export default function BusinessProfileForm() {
                   className="resize-none"
                 />
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Theme Selection Card */}
+          <Card
+            className={
+              isEditing
+                ? "border-primary/50 shadow-md bg-white text-slate-950"
+                : "bg-white text-slate-950"
+            }
+          >
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <Palette className="w-5 h-5 text-muted-foreground" />
+                Paleta de Colores
+              </CardTitle>
+              <CardDescription>
+                Selecciona los colores que mejor representen tu marca en la
+                carta digital.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ColorPaletteSelector
+                selectedTheme={selectedTheme}
+                onThemeChange={setSelectedTheme}
+                disabled={!isEditing}
+              />
             </CardContent>
           </Card>
         </div>

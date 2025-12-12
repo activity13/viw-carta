@@ -1,74 +1,100 @@
-# Carta Visualizer - AI Agent Instructions
+# Carta Visualizer (Viw) - AI Agent Instructions
 
-This document provides essential information for AI agents working with the Carta Visualizer codebase (`viw-carta`), a Next.js 15 application for restaurant menu management.
+This document provides essential context and coding standards for the VIW-CARTA codebase (`viw-carta`), a SaaS platform for digital menu management.
 
-## Tech Stack & Environment
+## 1. Tech Stack & Environment
 
-- **Framework**: Next.js 15 (App Router), React 19
-- **Styling**: Tailwind CSS v4, shadcn/ui (Radix UI), `lucide-react` icons
-- **Database**: MongoDB with Mongoose (Schemas in `src/models/`)
-- **Auth**: NextAuth.js v4
-- **State**: React Query (`@tanstack/react-query`), React Context
-- **Package Manager**: npm
+- **Core**: Next.js 15.3+ (App Router), React 19.0.1
+- **Styling**: Tailwind CSS v4, shadcn/ui (Radix UI), `lucide-react` icons.
+- **Database**: MongoDB with Mongoose.
+- **State Management**: React Query (`@tanstack/react-query`) for Backoffice, React Context for global UI state.
+- **Emails**: Resend API.
+- **Forms**: React Hook Form + Zod (recommended).
 
-## Project Architecture
+## 2. Project Architecture
 
-### Core Components
+### A. Public Views (The Menu)
 
-- **Menu Visualization**: `src/app/la-k/` contains the tenant-specific logic (e.g., "La K").
-  - `page.tsx`: Server Component. Fetches data from internal API (`/api/public/menu/...`). Uses `force-dynamic`.
-  - `components/Karta.tsx`: Main Client Component. Handles:
-    - **Dual Mode**: Toggles between "principal" (regular menu) and "pizzas" views.
-    - **I18n**: Uses `LanguageProvider` to switch between Spanish (default) and English (`name_en`, `description_en`).
-    - **Layout**: Responsive grid (1 col mobile, 2 cols desktop for principal, 1 col for pizzas).
-- **Shared UI**: `src/components/ui/` (shadcn/ui components).
-- **API Routes**: `src/app/api/` handles data fetching and updates.
-  - `api/public/menu/[subdomain]`: Aggregates restaurant, categories, and meals data.
+The application supports two types of menu rendering:
 
-### Data Models (`src/models/`)
+1.  **Standard Menu (`StandardMenu.tsx`)**:
+    - Used by generic tenants.
+      **Estructura interna**:
+    - instrucciones para el menu estandar:
+      - Header with Restaurant Name & Logo.
+      - Category List with Meals.
+      - sticky sidebar with category navigation.
+      - action buttons (Call Waiter, Order Online, toggle language).
+      - Footer with Contact Info & Social Links.
+    - **Dynamic Theming**: Uses a Color Palette system (Classic, Ocean, Forest, Sunset, Royal).
+    - **Implementation**: Applies CSS variables via `useRestaurantTheme` hook based on `restaurant.theme`.
+2.  **Custom Tenants (e.g., `src/app/la-k/`, `src/app/tikimarket/`)**:
+    - Have dedicated folders and layouts.
+    - Use specific CSS Modules (e.g., `theme.module.css`) or hardcoded Tailwind themes.
+    - **Do NOT** use the dynamic Color Palette system.
 
-- **Meal (`Meal.js`)**: Complex schema including:
-  - **I18n**: `name`/`name_en`, `description`/`description_en`.
-  - **Variants**: `variants` array with `VariantGroupSchema` (single/multiple choice).
-  - **Availability**: `availability.schedule` (weekly slots), `isAvailable`.
-  - **Nutrition & Allergens**: `nutrition` sub-schema, `allergens` array.
-  - **Display**: `display.order`, `display.isFeatured`.
-- **Category**: Groups meals.
-- **Restaurant**: Tenant configuration.
+### B. Backoffice (`src/app/backoffice/`)
 
-## Key Workflows & Patterns
+- **Theme**: Uses an **Emerald/Green** color scheme (`emerald-600`, `green-50`) to convey a "Matrix/Terminal" or clean tech vibe. Avoid Purple/Pink themes.
+- **Components**: heavily relies on `shadcn/ui` (Card, Dialog, Form, Input).
+- **Features**: Business Profile, Menu Management, QR Generation.
+
+### C. Application Comercial Home Page (`src/app/(home)/`)
+
+- **Purpose**: Marketing site for attracting new businesses.
+- **Theme**: Uses a vibrant **Emerald/Green** color scheme (`emerald-600 `, `green-50`).
+- **Components**: heavily relies on `shadcn/ui` (Card, Dialog, Form, Input).
+- **Features**: Landing pages, pricing, Our Partners, Form to get a try.
+
+## 3. Data Models (`src/models/`)
+
+### Restaurant
+
+- **Theme Object**:
+  ```typescript
+  theme: {
+    palette: 'classic' | 'ocean' | 'forest' | 'sunset' | 'royal'; // For Standard Menus
+    customColors?: { primary, secondary, accent, background };
+  }
+  ```
+
+### Category
+
+- **Uniqueness**: `code` and `slug` must be unique **per restaurant** (Compound Index), not globally.
+- **Fields**:
+  - `code`: **String** (e.g., "ENT1", "BEB2"). Do NOT use Numbers.
+  - `slug`: String (normalized, e.g., "entradas-main").
+  - `order`: Number.
+
+### Meal (Product)
+
+- **Availability**: `availability.schedule` is an **Object** (Monday, Tuesday...), NOT an Array.
+- **Pricing**: `basePrice` (Number).
+- **I18n**: Fields with `_en` suffix (e.g., `name_en`, `description_en`).
+
+## 4. Key Workflows & Patterns
+
+### Theming System (Standard Menu)
+
+- **Selection**: Users choose a palette in `BusinessProfileForm`.
+- **Storage**: Saved in `Restaurant.theme`.
+- **Application**: The API (`/api/public/menu/[subdomain]`) returns the theme. The frontend applies it to CSS variables (`--primary`, `--background`).
 
 ### Data Fetching
 
-1. **Server-Side**: `page.tsx` calls internal API.
-   ```typescript
-   const res = await fetch(`${baseUrl}/api/public/menu/${subdomain}`, {
-     next: { tags: [`menu-${subdomain}`] },
-   });
-   ```
-2. **Client-Side**: Data passed as props to `Karta.tsx`.
+- **Public**: Server Components fetch via internal API with `force-dynamic` or revalidation tags.
+- **Backoffice**: Client Components use `useQuery` / `useMutation`.
 
-### Internationalization (I18n)
+### UI/UX Guidelines
 
-- **Data Level**: Models have `_en` suffix fields (e.g., `name_en`).
-- **Component Level**: `useLanguage` hook provides `language` context.
-- **Helper**: `t(es, en)` function in components selects string based on current language.
+- **Feedback**: Use `sonner` or `toast` for notifications.
+- **Loading**: Use `Loader2` from lucide-react with `animate-spin`.
+- **Confirmations**: Use custom Dialog components for destructive actions (Delete), not `window.confirm()`.
+- **Inputs**: Ensure high contrast for inputs in dark/light modes (avoid `bg-transparent`).
 
-### Styling & Layout
+## 5. Directory Structure
 
-- **Mobile-First**: Extensive use of Tailwind breakpoints (`md:`, `xl:`).
-- **Scroll Behavior**: Smooth scrolling to category anchors (`id="cat-${id}"`).
-- **Theming**: `globals.css` and `theme.module.css` (in tenant folders).
-
-## Development Guidelines
-
-- **Run Dev**: `npm run dev --turbopack`
-- **Database**: Ensure `MONGODB_URI` is set. Connection logic in `src/lib/mongodb.ts`.
-- **New Components**: Prefer "use client" only when interaction is needed. Use `shadcn/ui` patterns.
-- **Type Safety**: Use TypeScript interfaces matching Mongoose schemas (see `Karta.tsx` interfaces).
-
-## Directory Structure
-
-- `src/app/la-k/`: Specific implementation for "La K" restaurant.
-- `src/models/`: Mongoose schemas (Note: mix of `.js` and `.ts`).
-- `src/lib/`: Utilities (`mongodb.ts`, `auth.ts`).
+- `src/app/backoffice/`: Admin panel (Protected).
+- `src/app/api/`: API Routes (Public & Private).
+- `src/components/templates/`: Reusable menu layouts (e.g., `StandardMenu`).
+- `src/utils/`: Helpers for colors, slugs, and formatting.

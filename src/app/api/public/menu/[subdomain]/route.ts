@@ -93,6 +93,7 @@ export async function GET(
           location: restaurant.location,
           phone: restaurant.phone,
           image: restaurant.image,
+          theme: restaurant.theme, // Include theme data
         },
         categories: categoriesWithMeals,
         systemMessages: activeSystemMessages,
