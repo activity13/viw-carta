@@ -53,7 +53,7 @@ export async function GET(
     }
 
     // 🔽 Responder como archivo descargable
-    return new NextResponse(new Blob([fileBuffer]), {
+    return new NextResponse(new Blob([fileBuffer as unknown as Uint8Array]), {
       headers: {
         "Content-Type": "image/png",
         "Content-Disposition": `attachment; filename="${business.slug}-qr.png"`,
