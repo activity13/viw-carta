@@ -3,6 +3,7 @@ import path from "path";
 import fs from "fs";
 import { connectToDatabase } from "@/lib/mongodb";
 import Restaurant from "@/models/restaurants";
+import { Readable } from "stream";
 
 export async function GET(
   request: NextRequest,
@@ -19,7 +20,7 @@ export async function GET(
       );
     }
 
-    let fileBuffer: Buffer;
+    let arrayBuffer: ArrayBuffer;
 
     // Check if QrCode is a URL (UploadThing)
     if (business.QrCode && business.QrCode.startsWith("http")) {
@@ -30,8 +31,7 @@ export async function GET(
           { status: 404 }
         );
       }
-      const arrayBuffer = await response.arrayBuffer();
-      fileBuffer = Buffer.from(arrayBuffer);
+      arrayBuffer = await response.arrayBuffer();
     } else {
       // Legacy: Local file
       const qrPath = path.join(
@@ -49,11 +49,15 @@ export async function GET(
         );
       }
 
-      fileBuffer = fs.readFileSync(qrPath);
+      const fileBuffer = fs.readFileSync(qrPath);
+      arrayBuffer = fileBuffer.buffer.slice(
+        fileBuffer.byteOffset,
+        fileBuffer.byteOffset + fileBuffer.byteLength
+      );
     }
 
-    // 🔽 Responder como archivo descargable
-    return new Response(fileBuffer, {
+    // 🔽 Responder como archivo descargable usando ArrayBuffer directamente
+    return new Response(arrayBuffer, {
       headers: {
         "Content-Type": "image/png",
         "Content-Disposition": `attachment; filename="${business.slug}-qr.png"`,
