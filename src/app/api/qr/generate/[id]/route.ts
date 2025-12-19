@@ -94,7 +94,7 @@ export async function GET(
       throw new Error(response[0].error.message);
     }
 
-    const uploadedUrl = response[0].data.url;
+    const uploadedUrl = response[0].data.ufsUrl;
 
     // 4️⃣ Guardar URL en BD
     business.QrCode = uploadedUrl;

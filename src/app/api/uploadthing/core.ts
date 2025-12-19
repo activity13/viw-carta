@@ -10,7 +10,7 @@ const utapi = new UTApi();
 
 export const ourFileRouter = {
   imageUploader: f({ image: { maxFileSize: "4MB", maxFileCount: 1 } })
-    .middleware(async ({ req }) => {
+    .middleware(async () => {
       const session = await getServerSession(authOptions);
 
       if (!session || !session.user) throw new Error("Unauthorized");
@@ -22,7 +22,7 @@ export const ourFileRouter = {
         "Logo Upload complete for restaurant:",
         metadata.restaurantId
       );
-      console.log("File URL:", file.url);
+      console.log("File URL:", file.ufsUrl);
 
       try {
         await connectToDatabase();
@@ -37,7 +37,7 @@ export const ourFileRouter = {
             (oldImageUrl.includes("ufs.sh") ||
               oldImageUrl.includes("utfs.io") ||
               oldImageUrl.includes("uploadthing")) &&
-            oldImageUrl !== file.url
+            oldImageUrl !== file.ufsUrl
           ) {
             const key = oldImageUrl.split("/").pop();
             if (key) {
@@ -47,7 +47,7 @@ export const ourFileRouter = {
           }
 
           // Actualizar con la nueva imagen
-          restaurant.image = file.url;
+          restaurant.image = file.ufsUrl;
           await restaurant.save();
         }
       } catch (error) {
@@ -68,7 +68,7 @@ export const ourFileRouter = {
         "Frame Upload complete for restaurant:",
         metadata.restaurantId
       );
-      console.log("File URL:", file.url);
+      console.log("File URL:", file.ufsUrl);
 
       try {
         await connectToDatabase();
@@ -83,7 +83,7 @@ export const ourFileRouter = {
             (oldFrameUrl.includes("ufs.sh") ||
               oldFrameUrl.includes("utfs.io") ||
               oldFrameUrl.includes("uploadthing")) &&
-            oldFrameUrl !== file.url
+            oldFrameUrl !== file.ufsUrl
           ) {
             const key = oldFrameUrl.split("/").pop();
             if (key) {
@@ -93,7 +93,7 @@ export const ourFileRouter = {
           }
 
           // Actualizar con el nuevo frame
-          restaurant.frameQR = file.url;
+          restaurant.frameQR = file.ufsUrl;
           await restaurant.save();
         }
       } catch (error) {
