@@ -289,8 +289,8 @@ export default function BusinessProfileForm() {
                       value={formData.name || ""}
                       onChange={handleChange}
                       disabled={!isEditing}
-                      className="pl-9"
-                      placeholder="Ej. Pizzería La K"
+                      className="pl-9 border-gray-300/30"
+                      placeholder="Ej. Pizzería El Buen Vino"
                     />
                   </div>
                 </div>
@@ -304,7 +304,7 @@ export default function BusinessProfileForm() {
                       value={formData.phone || ""}
                       onChange={handleChange}
                       disabled={!isEditing}
-                      className="pl-9"
+                      className="pl-9 border-gray-300/30"
                       placeholder="+56 9 1234 5678"
                     />
                   </div>
@@ -321,7 +321,7 @@ export default function BusinessProfileForm() {
                     value={formData.direction || ""}
                     onChange={handleChange}
                     disabled={!isEditing}
-                    className="pl-9"
+                    className="pl-9 border-gray-300/30"
                     placeholder="Av. Principal 123, Ciudad"
                   />
                 </div>
@@ -337,7 +337,7 @@ export default function BusinessProfileForm() {
                     value={formData.location || ""}
                     onChange={handleChange}
                     disabled={!isEditing}
-                    className="pl-9"
+                    className="pl-9 border-gray-300/30"
                     placeholder="https://maps.google.com/..."
                   />
                 </div>
@@ -353,7 +353,7 @@ export default function BusinessProfileForm() {
                   disabled={!isEditing}
                   rows={4}
                   placeholder="Cuéntanos sobre tu negocio..."
-                  className="resize-none"
+                  className="resize-none border-gray-300/30"
                 />
               </div>
             </CardContent>
@@ -363,8 +363,8 @@ export default function BusinessProfileForm() {
           <Card
             className={
               isEditing
-                ? "border-primary/50 shadow-md bg-white text-slate-950"
-                : "bg-white text-slate-950"
+                ? "border-primary/50 shadow-md bg-accent text-slate-950"
+                : "bg-accent text-slate-950"
             }
           >
             <CardHeader>
@@ -416,15 +416,16 @@ export default function BusinessProfileForm() {
                       className="object-cover"
                       unoptimized
                     />
-                    <Button
-                      variant="destructive"
-                      size="icon"
-                      className="absolute top-1 right-1 h-6 w-6"
-                      onClick={() => setFormData({ ...formData, image: "" })}
-                      disabled={!isEditing}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
+                    {isEditing && (
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-1 right-1 h-6 w-6"
+                        onClick={() => setFormData({ ...formData, image: "" })}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    )}
                   </div>
                 )}
 

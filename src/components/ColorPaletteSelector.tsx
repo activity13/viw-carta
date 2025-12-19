@@ -58,7 +58,7 @@ export function ColorPaletteSelector({
                 key={key}
                 onClick={() => handlePaletteSelect(key)}
                 className={cn(
-                  "relative cursor-pointer rounded-lg border-2 p-4 transition-all duration-200",
+                  "relative bg-white cursor-pointer rounded-lg border-2 p-4 transition-all duration-200",
                   "hover:shadow-md",
                   isSelected
                     ? "border-primary ring-2 ring-primary/20 shadow-md"
@@ -144,7 +144,7 @@ export function ColorPaletteSelector({
                 key={key}
                 onClick={() => handleFontSelect(key)}
                 className={cn(
-                  "relative cursor-pointer rounded-lg border-2 p-4 transition-all duration-200",
+                  "relative bg-white cursor-pointer rounded-lg border-2 p-4 transition-all duration-200",
                   "hover:shadow-md flex flex-col gap-2",
                   isSelected
                     ? "border-primary ring-2 ring-primary/20 shadow-md"
