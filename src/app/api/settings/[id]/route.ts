@@ -10,8 +10,6 @@ export async function GET(
   await connectToDatabase();
   const { id } = await params;
   try {
-    console.log("🚀 ~ route.ts:13 ~ GET ~ id:", id);
-
     const restaurant = await Restaurant.findById(id);
 
     if (!restaurant) {
@@ -21,6 +19,7 @@ export async function GET(
       );
     }
 
+    console.debug("🚀 ~ route.ts:23 ~ GET ~ restaurant cargado", restaurant);
     return NextResponse.json(restaurant, { status: 200 });
   } catch (error) {
     console.error("Error al obtener restaurante:", error);

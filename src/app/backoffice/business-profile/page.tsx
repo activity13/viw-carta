@@ -30,8 +30,10 @@ import {
   Palette,
 } from "lucide-react";
 
-import QRFrameUploader from "@/components/QrFrameUploader";
-import LogoImageUploader from "@/components/LogoImageUploader";
+import Image from "next/image";
+
+import { LogoUploader } from "@/components/LogoUploader";
+import { FrameUploader } from "@/components/FrameUploader";
 import GenerateQRSection from "@/components/GenerateQRSection";
 import { ColorPaletteSelector } from "@/components/ColorPaletteSelector";
 import { type RestaurantTheme } from "@/utils/colorPalettes";
@@ -396,42 +398,115 @@ export default function BusinessProfileForm() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="space-y-3">
-                <Label className="text-xs uppercase text-muted-foreground font-bold">
-                  Logotipo
-                </Label>
-                <div className="bg-muted/30 p-4 rounded-lg border border-dashed flex flex-col items-center justify-center">
-                  <LogoImageUploader
-                    disabled={!isEditing}
-                    existingImageUrl={
-                      business.image
-                        ? `/${business.slug}/images/${business.image}`
-                        : null
-                    }
-                    onFileSelect={(file) =>
-                      setFormData({ ...formData, imageFile: file })
-                    }
-                  />
-                </div>
+              <div className="space-y-4">
+                <label className="text-sm font-medium">
+                  Logo del Restaurante
+                </label>
+
+                {formData.image && (
+                  <div className="relative w-32 h-32 rounded-lg overflow-hidden border bg-muted/10">
+                    <Image
+                      src={
+                        formData.image.startsWith("http")
+                          ? formData.image
+                          : `/${formData.slug}/images/${formData.image}`
+                      }
+                      alt="Logo"
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-1 right-1 h-6 w-6"
+                      onClick={() => setFormData({ ...formData, image: "" })}
+                      disabled={!isEditing}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                )}
+
+                <LogoUploader
+                  slug={business?.slug || "business"}
+                  onUploadComplete={(url) => {
+                    setBusiness((prev) =>
+                      prev ? { ...prev, image: url } : null
+                    );
+                    setFormData((prev) => ({ ...prev, image: url }));
+                  }}
+                />
               </div>
 
               <div className="space-y-3">
                 <Label className="text-xs uppercase text-muted-foreground font-bold">
                   Marco QR Personalizado
                 </Label>
-                <div className="bg-muted/30 p-4 rounded-lg border border-dashed flex flex-col items-center justify-center">
-                  <QRFrameUploader
-                    disabled={!isEditing}
-                    existingImageUrl={
-                      business.image
-                        ? `/${business.slug}/images/${business.frameQR}`
-                        : null
+
+                {formData.frameQR && (
+                  <div className="relative w-32 h-32 rounded-lg overflow-hidden border bg-muted/10 mb-2">
+                    <Image
+                      src={
+                        formData.frameQR.startsWith("http")
+                          ? formData.frameQR
+                          : `/${formData.slug}/images/${formData.frameQR}`
+                      }
+                      alt="Marco QR"
+                      fill
+                      className="object-contain"
+                      unoptimized
+                    />
+                    {isEditing && (
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-1 right-1 h-6 w-6"
+                        onClick={() =>
+                          setFormData({ ...formData, frameQR: "" })
+                        }
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    )}
+                  </div>
+                )}
+
+                <FrameUploader
+                  slug={business?.slug || "business"}
+                  onUploadComplete={async (url) => {
+                    setBusiness((prev) =>
+                      prev ? { ...prev, frameQR: url } : null
+                    );
+                    setFormData((prev) => ({ ...prev, frameQR: url }));
+
+                    // 🔄 Auto-regenerate QR when frame changes
+                    if (business?._id) {
+                      try {
+                        toast.info(
+                          "Actualizando código QR con el nuevo marco..."
+                        );
+                        const res = await fetch(
+                          `/api/qr/generate/${business._id}`
+                        );
+                        const data = await res.json();
+                        if (res.ok && data.qrPath) {
+                          setBusiness((prev) =>
+                            prev ? { ...prev, QrCode: data.qrPath } : null
+                          );
+                          toast.success(
+                            "Código QR actualizado automáticamente"
+                          );
+                        }
+                      } catch (error) {
+                        console.error("Error auto-regenerating QR:", error);
+                        toast.error(
+                          "El marco se subió, pero hubo un error actualizando el QR final."
+                        );
+                      }
                     }
-                    onFileSelect={(file) =>
-                      setFormData({ ...formData, frameQRFile: file })
-                    }
-                  />
-                </div>
+                  }}
+                />
               </div>
             </CardContent>
           </Card>
@@ -454,8 +529,10 @@ export default function BusinessProfileForm() {
                 businessId={business._id}
                 businessSlug={business.slug}
                 existingImageUrl={
-                  business.image
-                    ? `/${business.slug}/qr/${business.QrCode}`
+                  business.QrCode
+                    ? business.QrCode.startsWith("http")
+                      ? business.QrCode
+                      : `/${business.slug}/qr/${business.QrCode}`
                     : null
                 }
               />

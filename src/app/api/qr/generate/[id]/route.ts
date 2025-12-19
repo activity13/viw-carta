@@ -5,6 +5,9 @@ import path from "path";
 import fs from "fs";
 import { connectToDatabase } from "@/lib/mongodb";
 import Restaurant from "@/models/restaurants";
+import { UTApi } from "uploadthing/server";
+
+const utapi = new UTApi();
 
 export async function GET(
   request: NextRequest,
@@ -21,28 +24,34 @@ export async function GET(
       );
     }
 
-    // 📍 Rutas de archivos
-    const publicDir = path.join(process.cwd(), "public");
-    const framePath = path.join(
-      publicDir,
-      business.slug,
-      "images",
-      business.frameQR
-    );
-    const outputDir = path.join(publicDir, business.slug, "qr");
-    const outputPath = path.join(outputDir, "qr-final.png");
+    let frameBuffer: Buffer;
 
-    if (!fs.existsSync(framePath)) {
-      return NextResponse.json(
-        { error: "No existe el marco QR" },
-        { status: 400 }
+    // 📍 Obtener el marco (URL o Local)
+    if (business.frameQR && business.frameQR.startsWith("http")) {
+      const response = await fetch(business.frameQR);
+      if (!response.ok) throw new Error("No se pudo descargar el marco QR");
+      const arrayBuffer = await response.arrayBuffer();
+      frameBuffer = Buffer.from(arrayBuffer);
+    } else {
+      // Legacy: Archivo local
+      const publicDir = path.join(process.cwd(), "public");
+      const framePath = path.join(
+        publicDir,
+        business.slug,
+        "images",
+        business.frameQR
       );
+
+      if (!fs.existsSync(framePath)) {
+        return NextResponse.json(
+          { error: "No existe el marco QR" },
+          { status: 400 }
+        );
+      }
+      frameBuffer = fs.readFileSync(framePath);
     }
 
-    // Crear directorio de salida si no existe
-    if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
-
-    // 1️⃣ Generar QR temporal (por ejemplo, con la URL del menú del negocio)
+    // 1️⃣ Generar QR temporal
     const qrData = `https://${business.slug}.viw-carta.com`;
     const qrBuffer = await QRCode.toBuffer(qrData, {
       width: 600,
@@ -50,23 +59,56 @@ export async function GET(
     });
 
     // 2️⃣ Combinar con el marco usando Sharp
-    await sharp(framePath)
+    const finalQrBuffer = await sharp(frameBuffer)
       .composite([{ input: qrBuffer, gravity: "center" }]) // centra el QR sobre el marco
-      .toFile(outputPath);
+      .png()
+      .toBuffer();
 
-    // 3️⃣ Guardar nombre del archivo en BD
-    business.QrCode = "qr-final.png";
+    // 3️⃣ Subir a UploadThing
+    const file = new File(
+      [new Uint8Array(finalQrBuffer)],
+      `qr-${business.slug}.png`,
+      {
+        type: "image/png",
+      }
+    );
+
+    // 🗑️ Eliminar QR anterior si existe en UploadThing
+    if (
+      business.QrCode &&
+      business.QrCode.startsWith("http") &&
+      (business.QrCode.includes("ufs.sh") ||
+        business.QrCode.includes("utfs.io") ||
+        business.QrCode.includes("uploadthing"))
+    ) {
+      const oldKey = business.QrCode.split("/").pop();
+      if (oldKey) {
+        await utapi.deleteFiles(oldKey);
+        console.log("Deleted old QR:", oldKey);
+      }
+    }
+
+    const response = await utapi.uploadFiles([file]);
+
+    if (response[0].error) {
+      throw new Error(response[0].error.message);
+    }
+
+    const uploadedUrl = response[0].data.url;
+
+    // 4️⃣ Guardar URL en BD
+    business.QrCode = uploadedUrl;
     await business.save();
 
     return NextResponse.json({
       success: true,
-      message: "QR generado correctamente",
-      qrPath: `/${business.slug}/qr/qr-final.png`,
+      message: "QR generado y subido correctamente",
+      qrPath: uploadedUrl,
     });
   } catch (err) {
     console.error("❌ Error generando el QR:", err);
     return NextResponse.json(
-      { error: "Error interno del servidor" },
+      { error: "Error interno del servidor: " + (err as Error).message },
       { status: 500 }
     );
   }

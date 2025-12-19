@@ -19,22 +19,38 @@ export async function GET(
       );
     }
 
-    const qrPath = path.join(
-      process.cwd(),
-      "public",
-      business.slug,
-      "qr",
-      business.QrCode || "qr-final.png"
-    );
+    let fileBuffer: Buffer;
 
-    if (!fs.existsSync(qrPath)) {
-      return NextResponse.json(
-        { error: "El QR aún no ha sido generado" },
-        { status: 404 }
+    // Check if QrCode is a URL (UploadThing)
+    if (business.QrCode && business.QrCode.startsWith("http")) {
+      const response = await fetch(business.QrCode);
+      if (!response.ok) {
+        return NextResponse.json(
+          { error: "No se pudo descargar el QR remoto" },
+          { status: 404 }
+        );
+      }
+      const arrayBuffer = await response.arrayBuffer();
+      fileBuffer = Buffer.from(arrayBuffer);
+    } else {
+      // Legacy: Local file
+      const qrPath = path.join(
+        process.cwd(),
+        "public",
+        business.slug,
+        "qr",
+        business.QrCode || "qr-final.png"
       );
-    }
 
-    const fileBuffer = fs.readFileSync(qrPath);
+      if (!fs.existsSync(qrPath)) {
+        return NextResponse.json(
+          { error: "El QR aún no ha sido generado" },
+          { status: 404 }
+        );
+      }
+
+      fileBuffer = fs.readFileSync(qrPath);
+    }
 
     // 🔽 Responder como archivo descargable
     return new NextResponse(fileBuffer, {

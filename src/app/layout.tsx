@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
+import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
+import { extractRouterConfig } from "uploadthing/server";
+import { ourFileRouter } from "@/app/api/uploadthing/core";
 import { Orbitron, JetBrains_Mono } from "next/font/google";
 import QueryProvider from "@/providers/QueryProvider";
+import { ThemeProvider } from "@/providers/ThemeProvider";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 const orbitron = Orbitron({
@@ -25,11 +30,30 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
+    <html lang="es" suppressHydrationWarning>
       <body
         className={`${orbitron.variable} ${jetBrainsMono.variable} antialiased`}
       >
-        <QueryProvider>{children}</QueryProvider>
+        <NextSSRPlugin
+          /**
+           * The `extractRouterConfig` will extract **only** the route configs
+           * from the router to prevent additional information from being
+           * leaked to the client. The data passed to the client is the same
+           * as if you were to fetch `/api/uploadthing` directly.
+           */
+          routerConfig={extractRouterConfig(ourFileRouter)}
+        />
+        <QueryProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+            <Toaster />
+          </ThemeProvider>
+        </QueryProvider>
         <Analytics />
       </body>
     </html>

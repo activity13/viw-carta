@@ -3,6 +3,9 @@ import { connectToDatabase } from "@/lib/mongodb";
 import fs from "fs";
 import Restaurant from "@/models/restaurants";
 import path from "path";
+import { UTApi } from "uploadthing/server";
+
+const utapi = new UTApi();
 
 export async function PUT(
   req: Request,
@@ -14,6 +17,8 @@ export async function PUT(
     const { id } = await params;
     const entries = Array.from(formData.entries());
     const updateData: Record<string, string> = {};
+
+    const currentBusiness = await Restaurant.findById(id);
 
     console.log(
       "🟡 Campos recibidos:",
@@ -62,6 +67,46 @@ export async function PUT(
           updateData[key.replace("File", "")] = file.name;
         } else {
           console.log("⚠️ Archivo vacío, no guardado:", key);
+        }
+      }
+    }
+
+    // Handle deletions from UploadThing
+    if (currentBusiness) {
+      // Check image
+      if (
+        updateData.image !== undefined &&
+        updateData.image !== currentBusiness.image
+      ) {
+        if (
+          currentBusiness.image &&
+          (currentBusiness.image.includes("ufs.sh") ||
+            currentBusiness.image.includes("utfs.io") ||
+            currentBusiness.image.includes("uploadthing"))
+        ) {
+          const key = currentBusiness.image.split("/").pop();
+          if (key) {
+            await utapi.deleteFiles(key);
+            console.log("Deleted old logo via API:", key);
+          }
+        }
+      }
+      // Check frameQR
+      if (
+        updateData.frameQR !== undefined &&
+        updateData.frameQR !== currentBusiness.frameQR
+      ) {
+        if (
+          currentBusiness.frameQR &&
+          (currentBusiness.frameQR.includes("ufs.sh") ||
+            currentBusiness.frameQR.includes("utfs.io") ||
+            currentBusiness.frameQR.includes("uploadthing"))
+        ) {
+          const key = currentBusiness.frameQR.split("/").pop();
+          if (key) {
+            await utapi.deleteFiles(key);
+            console.log("Deleted old frame via API:", key);
+          }
         }
       }
     }
