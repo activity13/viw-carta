@@ -53,12 +53,7 @@ export async function GET(
     }
 
     // 🔽 Responder como archivo descargable
-    const uint8Array = new Uint8Array(
-      fileBuffer.buffer,
-      fileBuffer.byteOffset,
-      fileBuffer.byteLength
-    );
-    return new NextResponse(uint8Array, {
+    return new Response(fileBuffer, {
       headers: {
         "Content-Type": "image/png",
         "Content-Disposition": `attachment; filename="${business.slug}-qr.png"`,
