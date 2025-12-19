@@ -3,7 +3,6 @@ import path from "path";
 import fs from "fs";
 import { connectToDatabase } from "@/lib/mongodb";
 import Restaurant from "@/models/restaurants";
-import { Readable } from "stream";
 
 export async function GET(
   request: NextRequest,
