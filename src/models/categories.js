@@ -12,6 +12,10 @@ const CategorySchema = new Schema(
       type: String,
       trim: true,
     },
+    name_en_manual: {
+      type: Boolean,
+      default: false,
+    },
     code: {
       type: String,
       required: [true, "El código de la categoría es obligatorio"],
@@ -35,6 +39,10 @@ const CategorySchema = new Schema(
       trim: true,
       maxlength: [300, "La descripción no puede exceder 300 caracteres"],
       default: "",
+    },
+    description_en_manual: {
+      type: Boolean,
+      default: false,
     },
     restaurantId: {
       type: Schema.Types.ObjectId,

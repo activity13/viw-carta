@@ -24,8 +24,10 @@ import {
   X,
   GripVertical,
   Loader2,
+  Settings2,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 import { toast } from "sonner";
 
 interface Category {
@@ -372,6 +374,12 @@ export default function Master() {
 
   // Category Logic
   const toggleCategory = (id: string) => {
+    // Si todas están seleccionadas, seleccionar solo la clickeada
+    if (selectedCategories.size === categories.length) {
+      setSelectedCategories(new Set([id]));
+      return;
+    }
+
     const newSet = new Set(selectedCategories);
     if (newSet.has(id)) {
       newSet.delete(id);
@@ -382,11 +390,8 @@ export default function Master() {
   };
 
   const toggleAllCategories = () => {
-    if (selectedCategories.size === categories.length) {
-      setSelectedCategories(new Set());
-    } else {
-      setSelectedCategories(new Set(categories.map((c) => c._id)));
-    }
+    // Solo habilitar todas, no deshabilitar
+    setSelectedCategories(new Set(categories.map((c) => c._id)));
   };
 
   // Quick Update Logic
@@ -545,9 +550,18 @@ export default function Master() {
       <div className="flex flex-col gap-2">
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-semibold">Categorías</h3>
-          <span className="text-xs text-muted-foreground">
-            {selectedCategories.size} de {categories.length} visibles
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-muted-foreground">
+              {selectedCategories.size} de {categories.length} visibles
+            </span>
+            <Link
+              href="/backoffice/categories"
+              className="flex items-center gap-1 text-xs text-primary hover:underline"
+            >
+              <Settings2 className="w-3.5 h-3.5" />
+              Editar
+            </Link>
+          </div>
         </div>
         <div className="flex flex-wrap gap-2 p-4 bg-muted/20 rounded-xl border border-border/50">
           {categories.map((cat) => {
@@ -573,7 +587,7 @@ export default function Master() {
           )}
         </div>
         <p className="text-[10px] text-muted-foreground text-right">
-          * Doble click para seleccionar/deseleccionar todas
+          * Doble click para seleccionar todas
         </p>
       </div>
 

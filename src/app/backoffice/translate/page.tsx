@@ -21,6 +21,7 @@ import {
   Utensils,
   LayoutGrid,
   AlertCircle,
+  Loader2,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -67,6 +68,8 @@ export default function TranslationPage() {
   const [editingCategoryId, setEditingCategoryId] = useState<string | null>(
     null
   );
+  const [savingCategoryId, setSavingCategoryId] = useState<string | null>(null);
+  const [savingMealId, setSavingMealId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>("categories");
 
   // -------------------------------
@@ -128,7 +131,7 @@ export default function TranslationPage() {
   // -------------------------------
   const saveSingleCategory = async (category: Category) => {
     try {
-      toast.loading("Guardando categoría...");
+      setSavingCategoryId(category.id);
       const payload = {
         categories: [
           {
@@ -142,14 +145,14 @@ export default function TranslationPage() {
         `/api/internationalization/update-menu/${restaurantId}`,
         payload
       );
-      toast.dismiss();
       toast.success("Categoría actualizada");
       setEditingCategoryId(null);
       await refreshMenu();
     } catch (err) {
-      toast.dismiss();
       toast.error("Error al guardar la categoría");
       console.error(err);
+    } finally {
+      setSavingCategoryId(null);
     }
   };
 
@@ -158,7 +161,7 @@ export default function TranslationPage() {
   // -------------------------------
   const saveSingleMeal = async (meal: Meal) => {
     try {
-      toast.loading("Guardando plato...");
+      setSavingMealId(meal.id);
       const payload = {
         meals: [
           {
@@ -173,14 +176,14 @@ export default function TranslationPage() {
         `/api/internationalization/update-menu/${restaurantId}`,
         payload
       );
-      toast.dismiss();
       toast.success("Plato actualizado");
       setEditingMealId(null);
       await refreshMenu();
     } catch (err) {
-      toast.dismiss();
       toast.error("Error al guardar el plato");
       console.error(err);
+    } finally {
+      setSavingMealId(null);
     }
   };
 
@@ -340,6 +343,7 @@ export default function TranslationPage() {
                             setEditingCategoryId(null);
                             await refreshMenu();
                           }}
+                          disabled={savingCategoryId === cat.id}
                         >
                           <X className="w-4 h-4 mr-2" />
                           Cancelar
@@ -347,9 +351,16 @@ export default function TranslationPage() {
                         <Button
                           size="sm"
                           onClick={() => saveSingleCategory(cat)}
+                          disabled={savingCategoryId === cat.id}
                         >
-                          <Save className="w-4 h-4 mr-2" />
-                          Guardar
+                          {savingCategoryId === cat.id ? (
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          ) : (
+                            <Save className="w-4 h-4 mr-2" />
+                          )}
+                          {savingCategoryId === cat.id
+                            ? "Guardando..."
+                            : "Guardar"}
                         </Button>
                       </div>
                     )}
@@ -629,14 +640,23 @@ export default function TranslationPage() {
                                       setEditingMealId(null);
                                       await refreshMenu();
                                     }}
+                                    disabled={savingMealId === meal.id}
                                   >
                                     Cancelar
                                   </Button>
                                   <Button
                                     size="sm"
                                     onClick={() => saveSingleMeal(meal)}
+                                    disabled={savingMealId === meal.id}
                                   >
-                                    Guardar
+                                    {savingMealId === meal.id ? (
+                                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    ) : (
+                                      <Save className="w-4 h-4 mr-2" />
+                                    )}
+                                    {savingMealId === meal.id
+                                      ? "Guardando..."
+                                      : "Guardar"}
                                   </Button>
                                 </div>
                               )}
