@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
-import Providers from "../Providers";
 import NavBarWrapper from "@/components/ui/NavBarWrapper";
+import { ActionProvider } from "@/providers/ActionProvider";
+import { SmartFAB } from "@/components/ui/smart-fab";
+
 export const metadata: Metadata = {
-  title: "VIWCarta",
+  title: "VIWCarta - Backoffice",
   description: "Administra tu carta con VIWCarta",
 };
 
@@ -12,13 +14,14 @@ export default function BackOfficeLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
-      <body>
-        <Providers>
-          <NavBarWrapper />
+    <ActionProvider>
+      <div className="min-h-screen bg-background">
+        <NavBarWrapper />
+        <main className="relative">
           {children}
-        </Providers>
-      </body>
-    </html>
+          <SmartFAB />
+        </main>
+      </div>
+    </ActionProvider>
   );
 }

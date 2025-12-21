@@ -6,6 +6,7 @@ export async function POST(request: Request) {
   try {
     await connectToDatabase();
     const body = await request.json();
+    console.log("🚀 ~ route.ts:9 ~ POST ~ body:", body);
     const { name, code, slug, description, restaurantId, order } = body;
 
     // Validación básica

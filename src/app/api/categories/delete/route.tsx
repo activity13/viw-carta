@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import CategorySchema from "@/models/categories";
+import MealSchema from "@/models/meals";
 
 export async function DELETE(request: Request) {
   try {
@@ -12,6 +13,23 @@ export async function DELETE(request: Request) {
       return NextResponse.json(
         { error: "Faltan datos obligatorios" },
         { status: 400 }
+      );
+    }
+
+    // 1. VERIFICACIÓN DE SEGURIDAD: ¿Tiene productos asociados?
+    const hasMeals = await MealSchema.exists({
+      categoryId: id,
+      restaurantId: restaurantId,
+    });
+
+    if (hasMeals) {
+      return NextResponse.json(
+        {
+          error: "No se puede eliminar una categoría que contiene productos.",
+          details:
+            "Te recomendamos deshabilitarla o mover los productos a otra categoría antes de eliminarla.",
+        },
+        { status: 409 }
       );
     }
 

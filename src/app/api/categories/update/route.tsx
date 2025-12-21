@@ -9,6 +9,7 @@ export async function PUT(request: Request) {
     const { id, name, code, slug, description, restaurantId, order } = body;
 
     if (!id || !restaurantId) {
+      console.error("Faltan datos obligatorios: id o restaurantId");
       return NextResponse.json(
         { error: "Faltan datos obligatorios" },
         { status: 400 }
@@ -19,13 +20,13 @@ export async function PUT(request: Request) {
     const exists = await CategorySchema.findOne({
       _id: { $ne: id },
       restaurantId,
-      $or: [{ code }, { slug }, { order }],
+      $or: [{ code }, { slug }],
     });
     if (exists) {
       return NextResponse.json(
         {
           error:
-            "Ya existe una categoría con ese código, slug u orden en el restaurante",
+            "Ya existe una categoría con ese código o slug en el restaurante",
         },
         { status: 400 }
       );

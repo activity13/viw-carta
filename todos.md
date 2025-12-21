@@ -12,6 +12,7 @@ Funcionalidades y pendientes:
 # Seguridad
 
 - Asegurar en el backend los endpoints sensibles que no deben ser publicos, pues /api esta abierto.
+- Cuando no hay una sesión, la pagina sin importar eso carga los datos y no redirige a login hasta que se intenta una acción que llame al chequeo de session.
 
 # Rendimiento
 
@@ -38,8 +39,8 @@ Funcionalidades y pendientes:
 
 # Traducciones
 
-- Loaders pendientes: Traducciones individuales de categorías y platos.
-- Las traducciones de categorías editadas a mano son sobrescritas cuando se ejecuta la traducción automática, corregier ese comportamiento.
+<!-- - Loaders pendientes: Traducciones individuales de categorías y platos.
+- Las traducciones de categorías editadas a mano son sobrescritas cuando se ejecuta la traducción automática, corregier ese comportamiento. -->
 
 ## Centro de Super Admin
 
@@ -49,19 +50,18 @@ Funcionalidades y pendientes:
 
 # Categorías
 
-- Agregar botón de ir a editor de categorías
-- En categorías agregar toasts de errores y exitos. Agregar loaders. Cambiar slug por algo más entendible. Pulir la interfaz.
+- En la página dedicada a las categorías agregar: toasts para mensajes de información de operación. Agregar Loaders. Aqui se sigue usando el término slug para indicarle al usuario que agregue uno para la descr. cambiar por un término amigable para el usuario. Refactorizar la UI basado en los ultimos diseños de la marca viwpowered.
+- CONSIDERAR si en la seleccion de categorias del master, al deseleccionar todas que el comportamiento sea seleccionar todas.
+- Al crear catgerpias: que se recomiende un Código, que se recomiende
 
-# Filtro de master
-
-- Cambiar en el selector de categoria de master que cuando se selecciones una categoria estando todas habilitadas, se seleccione sola esa y que las dempas se deseleccionen.
-
-// - la elección de la paleta de colores es solo para cartas genéricas.
-// - El sistema de generación qr debe mirarse: deberia generarse una sola vez el QR, se puede inhabilitar el botón o trsladar module para operaciones del staff.
-//- la palabra slug debería redefinirse como subdominio, o que termino usar que no sea slug.
-//- Los placeholders no deben mencionar ni referir a negocios de la zona, todos los placeholders deben ser ficticios, y ante cualquier casualidad yo te informaré.
-//- menu online debería ser subodminio, indicando la posesión de un subdominio unico.
-//- en onboarding/categorías, cuando el nombre de la categoría es muy largo los botones de edit y eliminar se salen de la tarjeta.
-//- Mejor el slug generator de las categorías, podría ponerse el nombre del negocio al final?
-//- en onboarding/productos, cambiar el color del tema a otro más xvre.
-//- el botón de eliminar plato no sirve.
+  // - Cambiar en el selector de categoria de master que cuando se seleccione una categoria estando todas habilitadas, se seleccione sola esa y que las demás se deseleccionen. se mantendrá el comportamiento de doble click para habilitar todas, pero no el doble click para deshabilitar todas.
+  // - Agregar botón para ir a la página de editor de categorías /backoffice/categories
+  // - la elección de la paleta de colores es solo para cartas genéricas.
+  // - El sistema de generación qr debe mirarse: deberia generarse una sola vez el QR, se puede inhabilitar el botón o trsladar module para operaciones del staff.
+  //- la palabra slug debería redefinirse como subdominio, o que termino usar que no sea slug.
+  //- Los placeholders no deben mencionar ni referir a negocios de la zona, todos los placeholders deben ser ficticios, y ante cualquier casualidad yo te informaré.
+  //- menu online debería ser subodminio, indicando la posesión de un subdominio unico.
+  //- en onboarding/categorías, cuando el nombre de la categoría es muy largo los botones de edit y eliminar se salen de la tarjeta.
+  //- Mejor el slug generator de las categorías, podría ponerse el nombre del negocio al final?
+  //- en onboarding/productos, cambiar el color del tema a otro más xvre.
+  //- el botón de eliminar plato no sirve.
