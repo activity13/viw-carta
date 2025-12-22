@@ -25,10 +25,12 @@ import {
   GripVertical,
   Loader2,
   Settings2,
+  Plus,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { useFab } from "@/providers/ActionProvider";
 
 interface Category {
   _id: string;
@@ -323,6 +325,7 @@ const DraggableRow = memo(
 DraggableRow.displayName = "DraggableRow";
 
 export default function Master() {
+  const { setActions } = useFab();
   const { data: session } = useSession();
   const restaurantId = session?.user?.restaurantId;
 
@@ -343,6 +346,21 @@ export default function Master() {
   const [reorderTimer, setReorderTimer] = useState<NodeJS.Timeout | null>(null);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
   const [lastReorderTime, setLastReorderTime] = useState<number>(0);
+
+  // Register FAB Actions
+  useEffect(() => {
+    setActions([
+      {
+        label: "Nuevo Plato",
+        icon: Plus,
+        onClick: () => {
+          setProductId(null);
+          setIsDialogEditing(true);
+        },
+      },
+    ]);
+    return () => setActions([]);
+  }, [setActions]);
 
   // Fetch Data
   const fetchData = async () => {

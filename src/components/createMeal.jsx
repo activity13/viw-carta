@@ -171,6 +171,15 @@ const CreateMealForm = ({
 
   const { data: session } = useSession();
   const slug = session?.user?.slug;
+
+  // Reset form when opening in create mode
+  useEffect(() => {
+    if (isOpen && !mealId) {
+      setFormData(initialFormData);
+      setEditMode(false);
+    }
+  }, [isOpen, mealId]);
+
   // Handlers
   const handleInputChange = (field, value) => {
     if (field.includes(".")) {
@@ -227,8 +236,28 @@ const CreateMealForm = ({
         params: { id },
       });
       setFormData({
+        ...initialFormData,
         ...response.data,
         categoryId: response.data.categoryId?.toString() || "",
+        name: response.data.name || "",
+        description: response.data.description || "",
+        shortDescription: response.data.shortDescription || "",
+        ingredients: response.data.ingredients || [""],
+        allergens: response.data.allergens || [],
+        dietaryTags: response.data.dietaryTags || [],
+        searchTags: response.data.searchTags || [""],
+        availability: {
+          ...initialFormData.availability,
+          ...(response.data.availability || {}),
+        },
+        preparationTime: {
+          ...initialFormData.preparationTime,
+          ...(response.data.preparationTime || {}),
+        },
+        display: {
+          ...initialFormData.display,
+          ...(response.data.display || {}),
+        },
       });
     } catch (error) {
       console.error("Error fetching product:", error);
@@ -294,7 +323,7 @@ const CreateMealForm = ({
         const res = await Axios.get("/api/categories/get", {
           params: { restaurantId },
         });
-        setCategories(res.data);
+        setCategories(res.data || []);
       } catch (error) {
         setCategories([]);
         console.error("Error fetching categories:", error);
@@ -316,21 +345,6 @@ const CreateMealForm = ({
   }, [mealId]);
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogTrigger asChild>
-        <div className="fixed bottom-4 right-4 z-50">
-          <Button
-            className="bg-green-700 hover:bg-green-600 rounded-full h-12 w-12 text-white shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200"
-            size="icon"
-            aria-label="Add new item"
-            onClick={() => {
-              setFormData(initialFormData);
-              setEditMode(false);
-            }}
-          >
-            <h1 className="text-2xl">+</h1>
-          </Button>
-        </div>
-      </DialogTrigger>
       <DialogContent className="w-full max-w-[95vw] sm:max-w-[85vw] md:max-w-3xl lg:max-w-4xl mx-auto p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-lg sm:text-xl">
@@ -382,7 +396,7 @@ const CreateMealForm = ({
                       <SelectContent>
                         <SelectGroup>
                           <SelectLabel>Categorías</SelectLabel>
-                          {categories.length === 0 && (
+                          {categories?.length === 0 && (
                             <SelectItem value="no-categories" disabled>
                               No hay categorías disponibles
                             </SelectItem>
@@ -414,7 +428,7 @@ const CreateMealForm = ({
                     required
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    {formData.name.length}/100 caracteres
+                    {(formData.name || "").length}/100 caracteres
                   </p>
                 </div>
                 <div>
@@ -432,7 +446,7 @@ const CreateMealForm = ({
                     placeholder="Descripción detallada del plato..."
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    {formData.description.length}/500 caracteres
+                    {(formData.description || "").length}/500 caracteres
                   </p>
                 </div>
                 <div>
@@ -450,7 +464,7 @@ const CreateMealForm = ({
                     placeholder="Descripción breve..."
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    {formData.shortDescription.length}/100 caracteres
+                    {(formData.shortDescription || "").length}/100 caracteres
                   </p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

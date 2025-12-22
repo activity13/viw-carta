@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import { AnimatePresence, motion } from "motion/react";
 import { Plus, ExternalLink, Loader2 } from "lucide-react";
 import { useFab } from "@/providers/ActionProvider";
@@ -13,6 +14,7 @@ import {
 } from "@/components/ui/tooltip";
 
 export function SmartFAB() {
+  const { data: session } = useSession();
   const { actions } = useFab();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -24,9 +26,13 @@ export function SmartFAB() {
       label: "Ver mi carta",
       icon: ExternalLink,
       onClick: () => {
-        // Logic to open the menu in a new tab
-        // Ideally this URL should come from a config or context, but for now we'll use a placeholder or just the root
-        window.open("/", "_blank");
+        const slug = session?.user?.slug;
+        if (slug) {
+          const protocol = window.location.protocol;
+          const host = window.location.host;
+          const rootDomain = host.replace("app.", "");
+          window.open(`${protocol}//${slug}.${rootDomain}`, "_blank");
+        }
       },
       variant: "secondary" as const,
     },

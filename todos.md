@@ -48,20 +48,27 @@ Funcionalidades y pendientes:
 
 ## Home
 
+## Form Section de platos/productos.
+
+- Distinguir entre comidas, bienes y servicios y segun se indique mostrar un modelo de datos determinado.
+- Hacer funcional el formulario en su totalidad: almacenado de todos los campos segun se desee y subida de hasta 3 imágenes por producto.
+
 # Categorías
 
-- En la página dedicada a las categorías agregar: toasts para mensajes de información de operación. Agregar Loaders. Aqui se sigue usando el término slug para indicarle al usuario que agregue uno para la descr. cambiar por un término amigable para el usuario. Refactorizar la UI basado en los ultimos diseños de la marca viwpowered.
 - CONSIDERAR si en la seleccion de categorias del master, al deseleccionar todas que el comportamiento sea seleccionar todas.
-- Al crear catgerpias: que se recomiende un Código, que se recomiende
+- Al crear categorías: mejorar la generación de recomendación de código.
+- Hay un error al cancelar la eliminación de una categoría.
 
-  // - Cambiar en el selector de categoria de master que cuando se seleccione una categoria estando todas habilitadas, se seleccione sola esa y que las demás se deseleccionen. se mantendrá el comportamiento de doble click para habilitar todas, pero no el doble click para deshabilitar todas.
-  // - Agregar botón para ir a la página de editor de categorías /backoffice/categories
-  // - la elección de la paleta de colores es solo para cartas genéricas.
-  // - El sistema de generación qr debe mirarse: deberia generarse una sola vez el QR, se puede inhabilitar el botón o trsladar module para operaciones del staff.
-  //- la palabra slug debería redefinirse como subdominio, o que termino usar que no sea slug.
-  //- Los placeholders no deben mencionar ni referir a negocios de la zona, todos los placeholders deben ser ficticios, y ante cualquier casualidad yo te informaré.
-  //- menu online debería ser subodminio, indicando la posesión de un subdominio unico.
-  //- en onboarding/categorías, cuando el nombre de la categoría es muy largo los botones de edit y eliminar se salen de la tarjeta.
-  //- Mejor el slug generator de las categorías, podría ponerse el nombre del negocio al final?
-  //- en onboarding/productos, cambiar el color del tema a otro más xvre.
-  //- el botón de eliminar plato no sirve.
+// - En la página dedicada a las categorías agregar: toasts para mensajes de información de operación. Agregar Loaders. Aqui se sigue usando el término slug para indicarle al usuario que agregue uno para la descr. cambiar por un término amigable para el usuario. Refactorizar la UI basado en los ultimos diseños de la marca viwpowered.
+
+// - Cambiar en el selector de categoria de master que cuando se seleccione una categoria estando todas habilitadas, se seleccione sola esa y que las demás se deseleccionen. se mantendrá el comportamiento de doble click para habilitar todas, pero no el doble click para deshabilitar todas.
+// - Agregar botón para ir a la página de editor de categorías /backoffice/categories
+// - la elección de la paleta de colores es solo para cartas genéricas.
+// - El sistema de generación qr debe mirarse: deberia generarse una sola vez el QR, se puede inhabilitar el botón o trsladar module para operaciones del staff.
+//- la palabra slug debería redefinirse como subdominio, o que termino usar que no sea slug.
+//- Los placeholders no deben mencionar ni referir a negocios de la zona, todos los placeholders deben ser ficticios, y ante cualquier casualidad yo te informaré.
+//- menu online debería ser subodminio, indicando la posesión de un subdominio unico.
+//- en onboarding/categorías, cuando el nombre de la categoría es muy largo los botones de edit y eliminar se salen de la tarjeta.
+//- Mejor el slug generator de las categorías, podría ponerse el nombre del negocio al final?
+//- en onboarding/productos, cambiar el color del tema a otro más xvre.
+//- el botón de eliminar plato no sirve.
