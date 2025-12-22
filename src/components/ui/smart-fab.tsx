@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { Plus, X, ExternalLink, Loader2 } from "lucide-react";
+import { Plus, ExternalLink, Loader2 } from "lucide-react";
 import { useFab } from "@/providers/ActionProvider";
 import { Button } from "@/components/ui/button";
 import {
@@ -63,7 +63,10 @@ export function SmartFAB() {
                           // Optional: close on click
                           // setIsOpen(false);
                         }}
-                        disabled={"disabled" in action && (action.disabled || action.loading)}
+                        disabled={
+                          "disabled" in action &&
+                          (action.disabled || action.loading)
+                        }
                       >
                         {"loading" in action && action.loading ? (
                           <Loader2 className="h-5 w-5 animate-spin" />
