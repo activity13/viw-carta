@@ -39,15 +39,15 @@ export default function LandingPage() {
               <Button size="lg" className="w-full sm:w-auto text-lg h-12 px-8">
                 Empezar Ahora <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="w-full sm:w-auto text-lg h-12 px-8"
-              >
-                <Link href="https://la-k.viw-carta.com" target="_blank">
+              <Link href="https://la-k.viw-carta.com" target="_blank">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="w-full sm:w-auto text-lg h-12 px-8"
+                >
                   Ver Demo
-                </Link>
-              </Button>
+                </Button>
+              </Link>
             </div>
 
             {/* Hero Image Placeholder */}
