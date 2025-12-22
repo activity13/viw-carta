@@ -276,7 +276,9 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
   }, [categories, isSavingOrder, setActions]);
 
   // Create category logic (reused by both forms)
-  const createCategory = async (data: typeof form) => {
+  const createCategory = async (
+    data: Omit<typeof form, "order"> & { order?: number }
+  ) => {
     if (!data.name || !data.code || !data.slug) {
       toast.warning("Por favor completa los campos obligatorios");
       return;
@@ -353,13 +355,13 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
       toast.dismiss(toastId);
       toast.success("Categoría eliminada");
       setCategories((prev) => prev.filter((c) => c._id !== id));
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
       toast.dismiss(toastId);
-      if (error.response && error.response.status === 409) {
+      if (Axios.isAxiosError(error) && error.response?.status === 409) {
         toast.error("No se puede eliminar", {
           description:
-            error.response.data.details ||
+            error.response.data?.details ||
             "La categoría tiene productos asociados.",
           duration: 5000,
         });
