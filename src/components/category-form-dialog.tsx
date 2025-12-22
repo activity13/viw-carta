@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Loader2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,10 +14,17 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 
+interface CategoryFormData {
+  name: string;
+  code: string;
+  slug: string;
+  description: string;
+}
+
 interface CategoryFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: any) => Promise<void>;
+  onSubmit: (data: CategoryFormData) => Promise<void>;
   loading: boolean;
 }
 
