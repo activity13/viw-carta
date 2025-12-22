@@ -1,0 +1,17 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "append_marketing_theme",
+			"type": "shell",
+			"command": "Add-Content",
+			"args": [
+				"src/app/globals.css",
+				"\n/* --- MARKETING THEME: LUMINOUS --- */\n.marketing-theme {\n  /* Base: Clean / Bright */\n  --background: oklch(0.99 0.005 150); /* White with very slight cool tint */\n  --foreground: oklch(0.2 0.03 150); /* Dark green/grey text */\n\n  /* Surfaces */\n  --card: oklch(1 0 0); /* Pure white */\n  --card-foreground: oklch(0.2 0.03 150);\n\n  --popover: oklch(1 0 0);\n  --popover-foreground: oklch(0.2 0.03 150);\n\n  /* Primary: Emerald Green (Trust/Growth) */\n  --primary: oklch(0.55 0.18 145); /* Solid Emerald */\n  --primary-foreground: oklch(0.99 0.005 150); /* White text */\n\n  /* Secondary: Soft Green */\n  --secondary: oklch(0.96 0.02 145);\n  --secondary-foreground: oklch(0.3 0.05 145);\n  --secondary-content: var(--secondary-foreground);\n\n  /* Muted */\n  --muted: oklch(0.96 0.01 150);\n  --muted-foreground: oklch(0.5 0.02 150);\n\n  /* Accent */\n  --accent: oklch(0.94 0.03 145);\n  --accent-foreground: oklch(0.25 0.05 145);\n\n  /* Destructive */\n  --destructive: oklch(0.6 0.15 25);\n  --destructive-foreground: oklch(0.98 0.01 150);\n\n  /* Borders */\n  --border: oklch(0.92 0.01 150);\n  --input: oklch(0.92 0.01 150);\n  --ring: oklch(0.55 0.18 145);\n}\n"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "edit"
+		}
+	]
+}

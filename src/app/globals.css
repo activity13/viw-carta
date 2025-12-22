@@ -141,3 +141,32 @@
     text-transform: uppercase;
   }
 }
+
+/* --- MARKETING THEME: LUMINOUS --- */
+[data-theme="marketing"] {
+  /* Force Light Theme Variables */
+  --background: oklch(0.99 0.005 150) !important;
+  --foreground: oklch(0.2 0.03 150) !important;
+  --card: oklch(1 0 0) !important;
+  --card-foreground: oklch(0.2 0.03 150) !important;
+  --popover: oklch(1 0 0) !important;
+  --popover-foreground: oklch(0.2 0.03 150) !important;
+  --primary: oklch(0.55 0.18 145) !important;
+  --primary-foreground: oklch(0.99 0.005 150) !important;
+  --secondary: oklch(0.96 0.02 145) !important;
+  --secondary-foreground: oklch(0.3 0.05 145) !important;
+  --secondary-content: var(--secondary-foreground) !important;
+  --muted: oklch(0.96 0.01 150) !important;
+  --muted-foreground: oklch(0.5 0.02 150) !important;
+  --accent: oklch(0.94 0.03 145) !important;
+  --accent-foreground: oklch(0.25 0.05 145) !important;
+  --destructive: oklch(0.6 0.15 25) !important;
+  --destructive-foreground: oklch(0.98 0.01 150) !important;
+  --border: oklch(0.92 0.01 150) !important;
+  --input: oklch(0.92 0.01 150) !important;
+  --ring: oklch(0.55 0.18 145) !important;
+
+  /* Force application on the root element of the marketing layout */
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
+}
