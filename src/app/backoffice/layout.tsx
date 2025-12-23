@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import NavBarWrapper from "@/components/ui/NavBarWrapper";
 import { ActionProvider } from "@/providers/ActionProvider";
 import { SmartFAB } from "@/components/ui/smart-fab";
@@ -16,15 +17,17 @@ export default function BackOfficeLayout({
 }>) {
   return (
     <ActionProvider>
-      <SessionGuard>
-        <div className="min-h-screen bg-background">
-          <NavBarWrapper />
-          <main className="relative">
-            {children}
-            <SmartFAB />
-          </main>
-        </div>
-      </SessionGuard>
+      <Suspense>
+        <SessionGuard>
+          <div className="min-h-screen bg-background">
+            <NavBarWrapper />
+            <main className="relative">
+              {children}
+              <SmartFAB />
+            </main>
+          </div>
+        </SessionGuard>
+      </Suspense>
     </ActionProvider>
   );
 }
