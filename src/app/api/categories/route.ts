@@ -4,7 +4,7 @@ import Categories from "@/models/categories";
 
 import { requireAuth, handleAuthError } from "@/lib/auth-helpers";
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const session = await requireAuth("staff");
     const secureRestaurantId = session.user.restaurantId;
