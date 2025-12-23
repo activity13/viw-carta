@@ -25,13 +25,6 @@ export async function GET(req: Request) {
     return NextResponse.json(meal, { status: 200 });
   } catch (error) {
     console.error("Error interno en el servidor", error);
-    return NextResponse.json(
-      {
-        error: "Ha ocurrido un problema. Por favor, intenta nuevamente",
-        error_message:
-          error instanceof Error ? error.message : "Error desconocido",
-      },
-      { status: 500 }
-    );
+    return handleAuthError(error);
   }
 }

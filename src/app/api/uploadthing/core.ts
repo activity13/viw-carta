@@ -19,7 +19,8 @@ export const ourFileRouter = {
     .onUploadComplete(async ({ metadata, file }) => {
       // Solo devolvemos la URL, no guardamos en DB aquí
       // El frontend se encargará de asociarla al plato
-      console.log("Meal image uploaded:", file.ufsUrl);
+      console.log("Meal image uploaded for restaurant:", metadata.restaurantId);
+      console.log("File URL:", file.ufsUrl);
       return { url: file.ufsUrl };
     }),
 

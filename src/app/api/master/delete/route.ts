@@ -38,14 +38,7 @@ export async function DELETE(request: Request) {
     );
   } catch (error) {
     console.error("Error al eliminar producto:", error);
-    return NextResponse.json(
-      {
-        error: "Ha ocurrido un problema. Por favor, intenta nuevamente",
-        error_message:
-          error instanceof Error ? error.message : "Error desconocido",
-      },
-      { status: 500 }
-    );
+    return handleAuthError(error);
   }
 }
 
@@ -83,13 +76,6 @@ export async function POST(request: Request) {
     );
   } catch (error) {
     console.error("Error al eliminar producto:", error);
-    return NextResponse.json(
-      {
-        error: "Ha ocurrido un problema. Por favor, intenta nuevamente",
-        error_message:
-          error instanceof Error ? error.message : "Error desconocido",
-      },
-      { status: 500 }
-    );
+    return handleAuthError(error);
   }
 }

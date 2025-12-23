@@ -156,9 +156,6 @@ export async function POST(
     return NextResponse.json({ success: true, results }, { status: 200 });
   } catch (error) {
     console.error("Error actualizando menú:", error);
-    return NextResponse.json(
-      { error: "Error interno del servidor" },
-      { status: 500 }
-    );
+    return handleAuthError(error);
   }
 }

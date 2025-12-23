@@ -119,9 +119,6 @@ export async function GET(
     });
   } catch (err) {
     console.error("❌ Error generando el QR:", err);
-    return NextResponse.json(
-      { error: "Error interno del servidor: " + (err as Error).message },
-      { status: 500 }
-    );
+    return handleAuthError(err);
   }
 }

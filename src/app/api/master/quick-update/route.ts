@@ -48,9 +48,6 @@ export async function POST(request: Request) {
     );
   } catch (error) {
     console.error("Error en quick-update:", error);
-    return NextResponse.json(
-      { error: "Error interno del servidor" },
-      { status: 500 }
-    );
+    return handleAuthError(error);
   }
 }
