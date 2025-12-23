@@ -11,8 +11,8 @@ Funcionalidades y pendientes:
 
 # Seguridad
 
-- Asegurar en el backend los endpoints sensibles que no deben ser publicos, pues /api esta abierto.
-- Cuando no hay una sesión, la pagina sin importar eso carga los datos y no redirige a login hasta que se intenta una acción que llame al chequeo de session.
+- [x] Asegurar en el backend los endpoints sensibles que no deben ser publicos, pues /api esta abierto.
+- [x] Cuando no hay una sesión, la pagina sin importar eso carga los datos y no redirige a login hasta que se intenta una acción que llame al chequeo de session.
 
 # Rendimiento
 
@@ -39,6 +39,7 @@ Funcionalidades y pendientes:
 
 # Traducciones
 
+- La traducción automática no esta funcionando sobre los mensajes.
 <!-- - Loaders pendientes: Traducciones individuales de categorías y platos.
 - Las traducciones de categorías editadas a mano son sobrescritas cuando se ejecuta la traducción automática, corregier ese comportamiento. -->
 

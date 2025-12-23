@@ -3,13 +3,25 @@ import path from "path";
 import fs from "fs";
 import { connectToDatabase } from "@/lib/mongodb";
 import Restaurant from "@/models/restaurants";
+import { requireAuth, handleAuthError } from "@/lib/auth-helpers";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
   try {
+    const session = await requireAuth("staff");
+    const secureRestaurantId = session.user.restaurantId;
+
+    const { id } = await params;
+
+    if (id !== secureRestaurantId) {
+      return NextResponse.json(
+        { error: "No tienes permiso para descargar este QR" },
+        { status: 403 }
+      );
+    }
+
     await connectToDatabase();
     const business = await Restaurant.findById(id);
     if (!business) {

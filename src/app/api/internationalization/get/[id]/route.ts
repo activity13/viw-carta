@@ -4,14 +4,27 @@ import { connectToDatabase } from "@/lib/mongodb";
 import Restaurant from "@/models/restaurants";
 import CategorySchema from "@/models/categories";
 import MealSchema from "@/models/meals";
+import SystemMessage from "@/models/SystemMessage";
+import { requireAuth, handleAuthError } from "@/lib/auth-helpers";
 
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await requireAuth("staff");
+    const secureRestaurantId = session.user.restaurantId;
+
     const { id } = await params; // ✅ resolver promesa
     await connectToDatabase();
+
+    // Security Check
+    if (id !== secureRestaurantId) {
+      return NextResponse.json(
+        { error: "No tienes permiso para ver este restaurante" },
+        { status: 403 }
+      );
+    }
 
     // 1️⃣ Buscar restaurante
     const restaurant = await Restaurant.findById(id);
@@ -33,9 +46,14 @@ export async function GET(
       "display.showInMenu": true,
     });
 
-    // 4️⃣ Estructurar respuesta separada
+    // 4️⃣ Buscar mensajes del sistema
+    const messages = await SystemMessage.find({
+      restaurantId: restaurant._id,
+    }).sort({ order: 1 });
+
+    // 5️⃣ Estructurar respuesta separada
     const formattedCategories = categories.map((cat) => ({
-      id: cat._id.toString(), // ✅ asegurar tipo string
+      id: cat._id.toString(),
       name: cat.name,
       name_en: cat.name_en,
       description: cat.description,
@@ -54,7 +72,16 @@ export async function GET(
       ingredients_en: meal.ingredients_en,
     }));
 
-    // 5️⃣ Respuesta final separada
+    const formattedMessages = messages.map((msg) => ({
+      id: msg._id.toString(),
+      placement: msg.placement,
+      type: msg.type,
+      content: msg.content,
+      content_en: msg.content_en,
+      isActive: msg.isActive,
+    }));
+
+    // 6️⃣ Respuesta final separada
     return NextResponse.json(
       {
         restaurant: {
@@ -63,6 +90,7 @@ export async function GET(
         },
         categories: formattedCategories,
         meals: formattedMeals,
+        messages: formattedMessages,
       },
       { status: 200 }
     );

@@ -22,6 +22,7 @@ import {
   LayoutGrid,
   AlertCircle,
   Loader2,
+  MessageSquare,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -48,10 +49,20 @@ interface Meal {
   tags?: string[];
 }
 
+interface SystemMessage {
+  id: string;
+  placement: string;
+  type: "info" | "warning" | "alert" | "promotion";
+  content: string;
+  content_en?: string;
+  isActive: boolean;
+}
+
 interface MenuResponse {
   restaurant: { id: string; name: string };
   categories: Category[];
   meals: Meal[];
+  messages: SystemMessage[];
 }
 
 // -------------------------------
@@ -68,8 +79,10 @@ export default function TranslationPage() {
   const [editingCategoryId, setEditingCategoryId] = useState<string | null>(
     null
   );
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [savingCategoryId, setSavingCategoryId] = useState<string | null>(null);
   const [savingMealId, setSavingMealId] = useState<string | null>(null);
+  const [savingMessageId, setSavingMessageId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>("categories");
 
   // -------------------------------
@@ -188,6 +201,35 @@ export default function TranslationPage() {
   };
 
   // -------------------------------
+  // Guardar un mensaje
+  // -------------------------------
+  const saveSingleMessage = async (message: SystemMessage) => {
+    try {
+      setSavingMessageId(message.id);
+      const payload = {
+        messages: [
+          {
+            id: message.id,
+            content_en: message.content_en ?? "",
+          },
+        ],
+      };
+      await axios.post(
+        `/api/internationalization/update-menu/${restaurantId}`,
+        payload
+      );
+      toast.success("Mensaje actualizado");
+      setEditingMessageId(null);
+      await refreshMenu();
+    } catch (err) {
+      toast.error("Error al guardar el mensaje");
+      console.error(err);
+    } finally {
+      setSavingMessageId(null);
+    }
+  };
+
+  // -------------------------------
   // Handlers para categorías
   // -------------------------------
   const handleCategoryFieldChange = (
@@ -236,8 +278,28 @@ export default function TranslationPage() {
     });
   };
 
+  // -------------------------------
+  // Handlers para mensajes
+  // -------------------------------
+  const handleMessageFieldChange = (
+    messageId: string,
+    field: keyof SystemMessage,
+    value: string
+  ) => {
+    setMenuData((prev) => {
+      if (!prev) return prev;
+      const messages = prev.messages.map((msg) =>
+        msg.id === messageId ? { ...msg, [field]: value } : msg
+      );
+      return { ...prev, messages };
+    });
+  };
+
   // Verificar si hay alguna edición activa
-  const isAnyEditActive = editingMealId !== null || editingCategoryId !== null;
+  const isAnyEditActive =
+    editingMealId !== null ||
+    editingCategoryId !== null ||
+    editingMessageId !== null;
 
   // -------------------------------
   // Render
@@ -290,11 +352,15 @@ export default function TranslationPage() {
             <Utensils className="w-3.5 h-3.5 mr-2" />
             {menuData.meals.length} Platos
           </Badge>
+          <Badge variant="outline" className="px-3 py-1">
+            <MessageSquare className="w-3.5 h-3.5 mr-2" />
+            {menuData.messages?.length || 0} Mensajes
+          </Badge>
         </div>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-2 mb-8">
+        <TabsList className="grid w-full max-w-lg grid-cols-3 mb-8">
           <TabsTrigger value="categories" className="flex items-center gap-2">
             <LayoutGrid className="w-4 h-4" />
             Categorías
@@ -302,6 +368,10 @@ export default function TranslationPage() {
           <TabsTrigger value="meals" className="flex items-center gap-2">
             <Utensils className="w-4 h-4" />
             Platos
+          </TabsTrigger>
+          <TabsTrigger value="messages" className="flex items-center gap-2">
+            <MessageSquare className="w-4 h-4" />
+            Mensajes
           </TabsTrigger>
         </TabsList>
 
@@ -678,6 +748,163 @@ export default function TranslationPage() {
             </div>
           )}
         </TabsContent>
+
+        {/* PESTAÑA DE MENSAJES */}
+        <TabsContent value="messages" className="space-y-6">
+          {menuData.messages && menuData.messages.length > 0 ? (
+            menuData.messages.map((msg) => {
+              const isEditingThis = editingMessageId === msg.id;
+              return (
+                <Card
+                  key={msg.id}
+                  className={`transition-all duration-200 ${
+                    isEditingThis
+                      ? "ring-2 ring-primary shadow-lg"
+                      : "hover:shadow-md"
+                  }`}
+                >
+                  <CardHeader className="pb-4 border-b bg-muted/30">
+                    <div className="flex justify-between items-center">
+                      <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                        <MessageSquare className="w-4 h-4 text-muted-foreground" />
+                        {msg.placement}
+                        <Badge
+                          variant={
+                            msg.type === "warning"
+                              ? "destructive"
+                              : msg.type === "alert"
+                              ? "destructive"
+                              : msg.type === "promotion"
+                              ? "default"
+                              : "secondary"
+                          }
+                          className="ml-2 text-xs"
+                        >
+                          {msg.type}
+                        </Badge>
+                      </CardTitle>
+                      {!isEditingThis ? (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setEditingMessageId(msg.id)}
+                          disabled={isAnyEditActive}
+                        >
+                          <Edit2 className="w-4 h-4 mr-2" />
+                          Editar
+                        </Button>
+                      ) : (
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={async () => {
+                              setEditingMessageId(null);
+                              await refreshMenu();
+                            }}
+                            disabled={savingMessageId === msg.id}
+                          >
+                            <X className="w-4 h-4 mr-2" />
+                            Cancelar
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => saveSingleMessage(msg)}
+                            disabled={savingMessageId === msg.id}
+                          >
+                            {savingMessageId === msg.id ? (
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            ) : (
+                              <Save className="w-4 h-4 mr-2" />
+                            )}
+                            {savingMessageId === msg.id
+                              ? "Guardando..."
+                              : "Guardar"}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      {/* Español */}
+                      <div className="space-y-4 p-4 rounded-lg bg-muted/20 border border-dashed">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge variant="secondary" className="text-xs">
+                            ES
+                          </Badge>
+                          <span className="text-sm font-medium text-muted-foreground">
+                            Original
+                          </span>
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs font-medium text-muted-foreground uppercase">
+                            Contenido
+                          </label>
+                          <p className="font-medium text-foreground whitespace-pre-wrap">
+                            {msg.content}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Inglés */}
+                      <div
+                        className={`space-y-4 p-4 rounded-lg border transition-colors ${
+                          isEditingThis
+                            ? "bg-background border-primary/20"
+                            : "bg-muted/10 border-transparent"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge className="text-xs bg-blue-100 text-blue-700 hover:bg-blue-200 border-blue-200">
+                            EN
+                          </Badge>
+                          <span className="text-sm font-medium text-muted-foreground">
+                            Traducción
+                          </span>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-xs font-medium text-muted-foreground uppercase">
+                            Contenido (EN)
+                          </label>
+                          <Textarea
+                            value={msg.content_en || ""}
+                            onChange={(e) =>
+                              handleMessageFieldChange(
+                                msg.id,
+                                "content_en",
+                                e.target.value
+                              )
+                            }
+                            placeholder="Message content in English"
+                            disabled={!isEditingThis}
+                            rows={4}
+                            className={`resize-none ${
+                              !isEditingThis
+                                ? "border-transparent bg-transparent px-0 min-h-0 shadow-none text-muted-foreground"
+                                : ""
+                            }`}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })
+          ) : (
+            <div className="text-center py-16 border-2 border-dashed rounded-xl">
+              <MessageSquare className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-lg font-medium">
+                No hay mensajes configurados
+              </h3>
+              <p className="text-sm text-muted-foreground mt-2">
+                Los mensajes del sistema se pueden crear desde la configuración
+                del restaurante.
+              </p>
+            </div>
+          )}
+        </TabsContent>
       </Tabs>
 
       {/* Barra flotante de acciones */}
@@ -709,6 +936,7 @@ export default function TranslationPage() {
               onClick={async () => {
                 setEditingMealId(null);
                 setEditingCategoryId(null);
+                setEditingMessageId(null);
               }}
               title="Cancelar edición"
             >

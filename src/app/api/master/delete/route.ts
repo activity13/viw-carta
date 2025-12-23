@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import Meal from "@/models/meals";
+import { requireAuth, handleAuthError } from "@/lib/auth-helpers";
 
 export async function DELETE(request: Request) {
   try {
+    const session = await requireAuth("staff");
     await connectToDatabase();
 
     const { searchParams } = new URL(request.url);
@@ -17,8 +19,8 @@ export async function DELETE(request: Request) {
     }
 
     // Soft delete by setting status to inactive
-    const meal = await Meal.findByIdAndUpdate(
-      id,
+    const meal = await Meal.findOneAndUpdate(
+      { _id: id, restaurantId: session.user.restaurantId },
       { status: "inactive" },
       { new: true }
     );
@@ -49,6 +51,7 @@ export async function DELETE(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const session = await requireAuth("staff");
     await connectToDatabase();
 
     const { id } = await request.json();
@@ -61,8 +64,8 @@ export async function POST(request: Request) {
     }
 
     // Soft delete by setting status to inactive
-    const meal = await Meal.findByIdAndUpdate(
-      id,
+    const meal = await Meal.findOneAndUpdate(
+      { _id: id, restaurantId: session.user.restaurantId },
       { status: "inactive" },
       { new: true }
     );

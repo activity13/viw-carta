@@ -9,6 +9,20 @@ const f = createUploadthing();
 const utapi = new UTApi();
 
 export const ourFileRouter = {
+  // Ruta para imágenes de platos (Meals)
+  mealImage: f({ image: { maxFileSize: "2MB", maxFileCount: 1 } })
+    .middleware(async () => {
+      const session = await getServerSession(authOptions);
+      if (!session || !session.user) throw new Error("Unauthorized");
+      return { restaurantId: session.user.restaurantId };
+    })
+    .onUploadComplete(async ({ metadata, file }) => {
+      // Solo devolvemos la URL, no guardamos en DB aquí
+      // El frontend se encargará de asociarla al plato
+      console.log("Meal image uploaded:", file.ufsUrl);
+      return { url: file.ufsUrl };
+    }),
+
   imageUploader: f({ image: { maxFileSize: "4MB", maxFileCount: 1 } })
     .middleware(async () => {
       const session = await getServerSession(authOptions);

@@ -1,16 +1,20 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import Categories from "@/models/categories";
+import { requireAuth, handleAuthError } from "@/lib/auth-helpers";
 
 export async function PUT(request: Request) {
   try {
+    const session = await requireAuth("staff");
+    const secureRestaurantId = session.user.restaurantId;
+
     await connectToDatabase();
 
-    const { categories, restaurantId } = await request.json();
+    const { categories } = await request.json();
 
-    if (!categories || !Array.isArray(categories) || !restaurantId) {
+    if (!categories || !Array.isArray(categories)) {
       return NextResponse.json(
-        { error: "categories (array) y restaurantId son obligatorios" },
+        { error: "categories (array) es obligatorio" },
         { status: 400 }
       );
     }
@@ -18,7 +22,7 @@ export async function PUT(request: Request) {
     // Update each category's order
     const updatePromises = categories.map((category, index) => {
       return Categories.findOneAndUpdate(
-        { _id: category.id, restaurantId },
+        { _id: category.id, restaurantId: secureRestaurantId },
         { order: index + 1 },
         { new: true }
       );
@@ -28,16 +32,13 @@ export async function PUT(request: Request) {
 
     // Return the updated categories
     const updatedCategories = await Categories.find({
-      restaurantId,
+      restaurantId: secureRestaurantId,
       isActive: true,
     }).sort({ order: 1 });
 
     return NextResponse.json(updatedCategories, { status: 200 });
   } catch (error) {
     console.error("Error al reordenar categorías:", error);
-    return NextResponse.json(
-      { error: "Error interno del servidor" },
-      { status: 500 }
-    );
+    return handleAuthError(error);
   }
 }

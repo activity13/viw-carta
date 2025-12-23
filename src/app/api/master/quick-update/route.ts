@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import MealSchema from "@/models/meals";
+import { requireAuth, handleAuthError } from "@/lib/auth-helpers";
 
 export async function POST(request: Request) {
   try {
+    const session = await requireAuth("staff");
     await connectToDatabase();
     const { id, field, value } = await request.json();
 
@@ -29,7 +31,7 @@ export async function POST(request: Request) {
     const updateData = { [field]: value };
 
     const result = await MealSchema.updateOne(
-      { _id: id },
+      { _id: id, restaurantId: session.user.restaurantId },
       { $set: updateData }
     );
 

@@ -85,34 +85,8 @@ CategorySchema.index(
 CategorySchema.index({ restaurantId: 1, order: 1 }, { sparse: true }); // para ordenamiento
 
 // Limpiar el modelo del cache si existe para evitar conflictos de schema
-delete models.Categories;
+// delete models.Categories;
 
-const Categories = model("Categories", CategorySchema);
-
-// Eliminar índices antiguos problemáticos y crear los nuevos
-Categories.collection
-  .dropIndexes()
-  .then(() => {
-    console.log("Índices antiguos eliminados");
-
-    // Crear solo los índices que necesitamos
-    Categories.collection.createIndex(
-      { restaurantId: 1, slug: 1 },
-      { unique: true, name: "restaurant_slug_unique" }
-    );
-
-    Categories.collection.createIndex(
-      { restaurantId: 1, code: 1 },
-      { unique: true, name: "restaurant_code_unique" }
-    );
-
-    Categories.collection.createIndex(
-      { restaurantId: 1, order: 1 },
-      { name: "restaurant_order" }
-    );
-  })
-  .catch((err) => {
-    console.log("Error managing indexes:", err.message);
-  });
+const Categories = models.Categories || model("Categories", CategorySchema);
 
 export default Categories;

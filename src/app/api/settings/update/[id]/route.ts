@@ -4,6 +4,7 @@ import fs from "fs";
 import Restaurant from "@/models/restaurants";
 import path from "path";
 import { UTApi } from "uploadthing/server";
+import { requireAuth, handleAuthError } from "@/lib/auth-helpers";
 
 const utapi = new UTApi();
 
@@ -12,9 +13,21 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await requireAuth("admin"); // Settings usually require admin
+    const secureRestaurantId = session.user.restaurantId;
+
     await connectToDatabase();
     const formData = await req.formData();
     const { id } = await params;
+
+    // Security Check: Ensure user owns the restaurant
+    if (id !== secureRestaurantId) {
+      return NextResponse.json(
+        { error: "No tienes permiso para editar este restaurante" },
+        { status: 403 }
+      );
+    }
+
     const entries = Array.from(formData.entries());
     const updateData: Record<string, string> = {};
 

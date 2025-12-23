@@ -2,31 +2,50 @@ import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import CategorySchema from "@/models/categories";
 import MealSchema from "@/models/meals";
+import SystemMessage from "@/models/SystemMessage";
+import { requireAuth, handleAuthError } from "@/lib/auth-helpers";
 
 export async function POST(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await requireAuth("staff");
+    const secureRestaurantId = session.user.restaurantId;
+
     const { id: restaurantId } = await params;
+
+    if (restaurantId !== secureRestaurantId) {
+      return NextResponse.json(
+        { error: "No tienes permiso para actualizar este menú" },
+        { status: 403 }
+      );
+    }
+
     const body = await req.json();
 
     await connectToDatabase();
 
-    // Validar si contiene meals o categories
+    // Validar si contiene meals, categories o messages
     const hasMeals = Array.isArray(body.meals);
     const hasCategories = Array.isArray(body.categories);
+    const hasMessages = Array.isArray(body.messages);
 
-    if (!hasMeals && !hasCategories) {
+    if (!hasMeals && !hasCategories && !hasMessages) {
       return NextResponse.json(
-        { error: "No se enviaron categorías ni platos válidos." },
+        { error: "No se enviaron categorías, platos ni mensajes válidos." },
         { status: 400 }
       );
     }
 
-    const results: { updatedMeals: unknown[]; updatedCategories: unknown[] } = {
+    const results: {
+      updatedMeals: unknown[];
+      updatedCategories: unknown[];
+      updatedMessages: unknown[];
+    } = {
       updatedMeals: [],
       updatedCategories: [],
+      updatedMessages: [],
     };
 
     // 🔹 Actualizar categorías si vienen
@@ -104,6 +123,33 @@ export async function POST(
         );
 
         if (updated) results.updatedMeals.push(updated);
+      }
+    }
+
+    // 🔹 Actualizar mensajes si vienen
+    if (hasMessages) {
+      for (const msg of body.messages) {
+        if (!msg.id) continue;
+
+        const updateFields: Record<string, unknown> = {};
+        const manualFlags: Record<string, unknown> = {};
+
+        if (msg.content !== undefined) {
+          updateFields.content = msg.content;
+          manualFlags.content_manual = true;
+        }
+        if (msg.content_en !== undefined) {
+          updateFields.content_en = msg.content_en;
+          manualFlags.content_en_manual = true;
+        }
+
+        const updated = await SystemMessage.findOneAndUpdate(
+          { _id: msg.id, restaurantId },
+          { $set: { ...updateFields, ...manualFlags } },
+          { new: true }
+        );
+
+        if (updated) results.updatedMessages.push(updated);
       }
     }
 

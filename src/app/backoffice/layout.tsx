@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import NavBarWrapper from "@/components/ui/NavBarWrapper";
 import { ActionProvider } from "@/providers/ActionProvider";
 import { SmartFAB } from "@/components/ui/smart-fab";
+import SessionGuard from "@/components/SessionGuard";
 
 export const metadata: Metadata = {
   title: "VIWCarta - Backoffice",
@@ -15,13 +16,15 @@ export default function BackOfficeLayout({
 }>) {
   return (
     <ActionProvider>
-      <div className="min-h-screen bg-background">
-        <NavBarWrapper />
-        <main className="relative">
-          {children}
-          <SmartFAB />
-        </main>
-      </div>
+      <SessionGuard>
+        <div className="min-h-screen bg-background">
+          <NavBarWrapper />
+          <main className="relative">
+            {children}
+            <SmartFAB />
+          </main>
+        </div>
+      </SessionGuard>
     </ActionProvider>
   );
 }

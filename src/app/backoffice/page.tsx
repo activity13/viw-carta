@@ -5,7 +5,6 @@ import { useSession } from "next-auth/react";
 
 export default function DashboardPage() {
   const { data: session } = useSession();
-  console.log("🚀 ~ page.tsx:8 ~ DashboardPage ~ session:", session);
   return (
     <div className="min-h-screen bg-background p-6 md:p-10">
       <div className="flex flex-col gap-6">

@@ -2,61 +2,46 @@ import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import Categories from "@/models/categories";
 
+import { requireAuth, handleAuthError } from "@/lib/auth-helpers";
+
 export async function GET(request: Request) {
   try {
+    const session = await requireAuth("staff");
+    const secureRestaurantId = session.user.restaurantId;
     await connectToDatabase();
 
-    const { searchParams } = new URL(request.url);
-    const restaurantId = searchParams.get("restaurantId");
-
-    if (!restaurantId) {
-      return NextResponse.json(
-        { error: "restaurantId es obligatorio" },
-        { status: 400 }
-      );
-    }
-
     const categories = await Categories.find({
-      restaurantId,
+      restaurantId: secureRestaurantId,
       isActive: true,
     }).sort({ order: 1 });
 
     return NextResponse.json(categories, { status: 200 });
   } catch (error) {
     console.error("Error al obtener categorías:", error);
-    return NextResponse.json(
-      { error: "Error interno del servidor" },
-      { status: 500 }
-    );
+    return handleAuthError(error);
   }
 }
 
 export async function POST(request: Request) {
   try {
+    const session = await requireAuth("staff");
+    const secureRestaurantId = session.user.restaurantId;
     await connectToDatabase();
 
     const body = await request.json();
-    const {
-      name,
-      name_en,
-      description,
-      description_en,
-      restaurantId,
-      order,
-      code,
-      slug,
-    } = body;
+    const { name, name_en, description, description_en, order, code, slug } =
+      body;
 
-    if (!name || !restaurantId) {
+    if (!name) {
       return NextResponse.json(
-        { error: "name y restaurantId son obligatorios" },
+        { error: "Nombre es obligatorio" },
         { status: 400 }
       );
     }
 
     // Get the highest order number for this restaurant if order not provided
     const maxOrderCategory = await Categories.findOne(
-      { restaurantId, isActive: true },
+      { restaurantId: secureRestaurantId, isActive: true },
       {},
       { sort: { order: -1 } }
     );
@@ -71,7 +56,7 @@ export async function POST(request: Request) {
       code,
       slug,
       description_en,
-      restaurantId,
+      restaurantId: secureRestaurantId,
       order: newOrder,
       isActive: true,
     });
@@ -90,6 +75,8 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
+    const session = await requireAuth("staff");
+    const secureRestaurantId = session.user.restaurantId;
     await connectToDatabase();
 
     const body = await request.json();
@@ -102,10 +89,14 @@ export async function PUT(request: Request) {
       );
     }
 
-    const category = await Categories.findByIdAndUpdate(id, updates, {
-      new: true,
-      runValidators: true,
-    });
+    const category = await Categories.findOneAndUpdate(
+      { _id: id, restaurantId: secureRestaurantId },
+      updates,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
     if (!category) {
       return NextResponse.json(
@@ -126,6 +117,8 @@ export async function PUT(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
+    const session = await requireAuth("staff");
+    const secureRestaurantId = session.user.restaurantId;
     await connectToDatabase();
 
     const { searchParams } = new URL(request.url);
@@ -139,8 +132,8 @@ export async function DELETE(request: Request) {
     }
 
     // Soft delete by setting isActive to false
-    const category = await Categories.findByIdAndUpdate(
-      id,
+    const category = await Categories.findOneAndUpdate(
+      { _id: id, restaurantId: secureRestaurantId },
       { isActive: false },
       { new: true }
     );

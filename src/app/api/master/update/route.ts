@@ -1,17 +1,29 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import MealSchema from "@/models/meals";
+import { requireAuth, handleAuthError } from "@/lib/auth-helpers";
+
 export async function POST(request: Request) {
   try {
+    const session = await requireAuth("staff");
     await connectToDatabase();
+
     const { params, formData } = await request.json();
+
+    // Asegurar que solo se actualice si pertenece al restaurante del usuario
     const mealUpdated = await MealSchema.updateOne(
-      { _id: params.id },
+      {
+        _id: params.id,
+        restaurantId: session.user.restaurantId,
+      },
       {
         $set: {
           name: formData.name,
+          name_en: formData.name_en || "",
           description: formData.description,
+          description_en: formData.description_en || "",
           shortDescription: formData.shortDescription,
+          shortDescription_en: formData.shortDescription_en || "",
 
           // Información básica
           categoryId: formData?.categoryId,
@@ -21,40 +33,40 @@ export async function POST(request: Request) {
           comparePrice: formData?.comparePrice,
 
           // Imágenes
-          images: [],
+          images: formData?.images || [],
 
           // Ingredientes y alérgenos
           ingredients: formData?.ingredients || [],
-          allergens: [],
-          dietaryTags: [],
+          allergens: formData?.allergens || [],
+          dietaryTags: formData?.dietaryTags || [],
 
           // Variantes (simplificado)
-          variants: [],
+          variants: formData?.variants || [],
 
           // Disponibilidad
-          availability: {
+          availability: formData?.availability || {
             isAvailable: true,
             availableQuantity: "",
           },
 
           // Tiempo de preparación
-          preparationTime: {
+          preparationTime: formData?.preparationTime || {
             min: "",
             max: "",
           },
 
           // Configuración de visualización
-          display: {
+          display: formData?.display || {
             order: "",
             isFeatured: false,
             showInMenu: true,
           },
 
           // Estado
-          status: "active",
+          status: formData?.status || "active",
 
           // SEO
-          searchTags: [""],
+          searchTags: formData?.searchTags || [""],
         },
       }
     );

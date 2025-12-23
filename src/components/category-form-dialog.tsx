@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2, Plus, Globe, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,9 +16,11 @@ import {
 
 interface CategoryFormData {
   name: string;
+  name_en: string;
   code: string;
   slug: string;
   description: string;
+  description_en: string;
 }
 
 interface CategoryFormDialogProps {
@@ -36,10 +38,13 @@ export function CategoryFormDialog({
 }: CategoryFormDialogProps) {
   const [form, setForm] = useState({
     name: "",
+    name_en: "",
     code: "",
     slug: "",
     description: "",
+    description_en: "",
   });
+  const [showTranslation, setShowTranslation] = useState(false);
 
   const generateSlug = (text: string): string => {
     return text
@@ -59,10 +64,13 @@ export function CategoryFormDialog({
     // Reset form on success (parent handles closing)
     setForm({
       name: "",
+      name_en: "",
       code: "",
       slug: "",
       description: "",
+      description_en: "",
     });
+    setShowTranslation(false);
   };
 
   return (
@@ -140,6 +148,53 @@ export function CategoryFormDialog({
               rows={3}
               className="resize-none"
             />
+          </div>
+
+          {/* Sección de Traducción (Colapsable) */}
+          <div className="border rounded-lg">
+            <button
+              type="button"
+              onClick={() => setShowTranslation(!showTranslation)}
+              className="w-full flex items-center justify-between p-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <Globe className="w-4 h-4" />
+                Traducción (Inglés)
+              </span>
+              <ChevronDown
+                className={`w-4 h-4 transition-transform ${
+                  showTranslation ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+            {showTranslation && (
+              <div className="px-3 pb-3 space-y-3 border-t pt-3">
+                <div className="space-y-2">
+                  <Label htmlFor="name_en">Nombre en Inglés</Label>
+                  <Input
+                    id="name_en"
+                    placeholder="Ej. Starters"
+                    value={form.name_en}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, name_en: e.target.value }))
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="description_en">Descripción en Inglés</Label>
+                  <Textarea
+                    id="description_en"
+                    placeholder="Brief description..."
+                    value={form.description_en}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, description_en: e.target.value }))
+                    }
+                    rows={2}
+                    className="resize-none"
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <Button type="submit" className="w-full" disabled={loading}>

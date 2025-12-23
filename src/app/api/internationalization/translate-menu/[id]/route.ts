@@ -3,6 +3,8 @@ import translate from "google-translate-api-x";
 import { connectToDatabase } from "@/lib/mongodb";
 import CategorySchema from "@/models/categories";
 import MealSchema from "@/models/meals";
+import { requireAuth, handleAuthError } from "@/lib/auth-helpers";
+
 // Config
 // Node.js runtime for server-side operations
 export const runtime = "nodejs";
@@ -48,16 +50,27 @@ async function translateBatch(
 }
 
 export async function POST(req: Request) {
-  // Extraer id desde la URL
-  const url = new URL(req.url);
-  const parts = url.pathname.split("/").filter(Boolean);
-  const id = parts[parts.length - 1];
-  if (!id) return badRequest("Invalid 'id' in URL.");
-
-  // Body: { to?: string, from?: string, save?: boolean }
-  let body: { to?: string; from?: string; save?: boolean } = {};
   try {
-    body = await req.json();
+    const session = await requireAuth("staff");
+    const secureRestaurantId = session.user.restaurantId;
+
+    // Extraer id desde la URL
+    const url = new URL(req.url);
+    const parts = url.pathname.split("/").filter(Boolean);
+    const id = parts[parts.length - 1];
+    if (!id) return badRequest("Invalid 'id' in URL.");
+
+    if (id !== secureRestaurantId) {
+      return NextResponse.json(
+        { error: "No tienes permiso para traducir este menú" },
+        { status: 403 }
+      );
+    }
+
+    // Body: { to?: string, from?: string, save?: boolean }
+    let body: { to?: string; from?: string; save?: boolean } = {};
+    try {
+      body = await req.json();
   } catch {
     body = {};
   }

@@ -6,6 +6,7 @@ import { Plus, X, Upload, Save, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { revalidateMenu } from "./utils/revalidateMenu";
 import { useSession } from "next-auth/react";
+import { UploadButton } from "@/utils/uploadthing";
 import {
   Dialog,
   DialogClose,
@@ -37,8 +38,11 @@ const CreateMealForm = ({
     restaurantId: "",
     categoryId: "",
     name: "",
+    name_en: "",
     description: "",
+    description_en: "",
     shortDescription: "",
+    shortDescription_en: "",
 
     // Precios
     basePrice: Number(),
@@ -91,8 +95,11 @@ const CreateMealForm = ({
     restaurantId: "",
     categoryId: "",
     name: "",
+    name_en: "",
     description: "",
+    description_en: "",
     shortDescription: "",
+    shortDescription_en: "",
 
     // Precios
     basePrice: Number(),
@@ -240,8 +247,13 @@ const CreateMealForm = ({
         ...response.data,
         categoryId: response.data.categoryId?.toString() || "",
         name: response.data.name || "",
+        name_en: response.data.name_en || "",
         description: response.data.description || "",
+        description_en: response.data.description_en || "",
         shortDescription: response.data.shortDescription || "",
+        shortDescription_en: response.data.shortDescription_en || "",
+        basePrice: response.data.basePrice ?? "",
+        comparePrice: response.data.comparePrice ?? "",
         ingredients: response.data.ingredients || [""],
         allergens: response.data.allergens || [],
         dietaryTags: response.data.dietaryTags || [],
@@ -249,14 +261,19 @@ const CreateMealForm = ({
         availability: {
           ...initialFormData.availability,
           ...(response.data.availability || {}),
+          availableQuantity:
+            response.data.availability?.availableQuantity ?? "",
         },
         preparationTime: {
           ...initialFormData.preparationTime,
           ...(response.data.preparationTime || {}),
+          min: response.data.preparationTime?.min ?? "",
+          max: response.data.preparationTime?.max ?? "",
         },
         display: {
           ...initialFormData.display,
           ...(response.data.display || {}),
+          order: response.data.display?.order ?? "",
         },
       });
     } catch (error) {
@@ -313,6 +330,7 @@ const CreateMealForm = ({
     { id: "basic", label: "Información Básica" },
     { id: "media", label: "Imágenes" },
     { id: "ingredients", label: "Ingredientes" },
+    { id: "translation", label: "🌐 Traducción" },
     { id: "availability", label: "Disponibilidad" },
     { id: "display", label: "Configuración" },
   ];
@@ -338,7 +356,6 @@ const CreateMealForm = ({
     }
 
     if (mealId && mealId.length === 24) {
-      console.log("Editing meal with ID:", mealId.length);
       setEditMode(true);
       fetchEditProduct(mealId);
     }
@@ -553,21 +570,97 @@ const CreateMealForm = ({
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                     Imágenes del Plato
                   </label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                    <Upload className="mx-auto h-10 w-10 text-gray-400 mb-3" />
-                    <p className="text-gray-600 text-sm mb-2">
-                      Arrastra y suelta imágenes aquí o
+
+                  {/* Lista de imágenes existentes */}
+                  {formData.images && formData.images.length > 0 ? (
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      {formData.images.map((img, idx) => (
+                        <div
+                          key={idx}
+                          className="relative group aspect-square rounded-lg overflow-hidden border border-gray-200"
+                        >
+                          <img
+                            src={img.url}
+                            alt={`Imagen ${idx + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              try {
+                                // Eliminar del servidor UploadThing
+                                await Axios.post("/api/uploadthing/delete", {
+                                  url: img.url,
+                                });
+
+                                // Eliminar del estado local
+                                const newImages = [...formData.images];
+                                newImages.splice(idx, 1);
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  images: newImages,
+                                }));
+                              } catch (error) {
+                                console.error("Error deleting image:", error);
+                                alert("Error al eliminar la imagen");
+                              }
+                            }}
+                            className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                            title="Eliminar imagen"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+
+                  {/* Uploader */}
+                  {!formData.images || formData.images.length < 1 ? (
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-gray-50">
+                      <UploadButton
+                        endpoint="mealImage"
+                        onClientUploadComplete={(res) => {
+                          if (res && res[0]) {
+                            const newImage = {
+                              url: res[0].url,
+                              alt: formData.name || "Imagen del plato",
+                              isPrimary: formData.images.length === 0,
+                            };
+                            setFormData((prev) => ({
+                              ...prev,
+                              images: [...prev.images, newImage],
+                            }));
+                            console.log("Files: ", res);
+                          }
+                        }}
+                        onUploadError={(error) => {
+                          alert(`ERROR! ${error.message}`);
+                        }}
+                        appearance={{
+                          button:
+                            "bg-blue-500 text-white hover:bg-blue-600 ut-uploading:cursor-not-allowed rounded-md px-4 py-2",
+                          allowedContent: "text-gray-500 text-xs mt-2",
+                        }}
+                        content={{
+                          button({ ready }) {
+                            if (ready) return "Subir Imagen";
+                            return "Cargando...";
+                          },
+                          allowedContent({ ready, fileTypes, isUploading }) {
+                            if (!ready) return "Verificando...";
+                            if (isUploading) return "Subiendo...";
+                            return `Máx 2MB. Formatos: ${fileTypes.join(", ")}`;
+                          },
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-500 text-center italic">
+                      Límite de 1 imagen alcanzado. Elimina la actual para subir
+                      otra.
                     </p>
-                    <button
-                      type="button"
-                      className="bg-blue-500 text-white px-3 py-1.5 rounded-lg hover:bg-blue-600 transition-colors text-sm"
-                    >
-                      Seleccionar Archivos
-                    </button>
-                    <p className="text-xs text-gray-500 mt-2">
-                      PNG, JPG hasta 5MB cada una
-                    </p>
-                  </div>
+                  )}
                 </div>
               </div>
             )}
@@ -655,6 +748,71 @@ const CreateMealForm = ({
                       </label>
                     ))}
                   </div>
+                </div>
+              </div>
+            )}
+            {/* Traducción (Inglés) */}
+            {activeTab === "translation" && (
+              <div className="space-y-4">
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-sm text-blue-700">
+                    🌐 Agrega las traducciones en inglés para que tu menú sea
+                    bilingüe.
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-xs sm:text-sm font-medium text-white mb-1">
+                    Nombre en Inglés
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.name_en || ""}
+                    onChange={(e) =>
+                      handleInputChange("name_en", e.target.value)
+                    }
+                    maxLength={100}
+                    className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Ej: Mixed Ceviche"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    {(formData.name_en || "").length}/100 caracteres
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-xs sm:text-sm font-medium text-white mb-1">
+                    Descripción en Inglés
+                  </label>
+                  <textarea
+                    value={formData.description_en || ""}
+                    onChange={(e) =>
+                      handleInputChange("description_en", e.target.value)
+                    }
+                    maxLength={500}
+                    rows={4}
+                    className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Detailed description of the dish in English..."
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    {(formData.description_en || "").length}/500 caracteres
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-xs sm:text-sm font-medium text-white mb-1">
+                    Descripción Corta en Inglés (para móviles)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.shortDescription_en || ""}
+                    onChange={(e) =>
+                      handleInputChange("shortDescription_en", e.target.value)
+                    }
+                    maxLength={100}
+                    className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Brief description..."
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    {(formData.shortDescription_en || "").length}/100 caracteres
+                  </p>
                 </div>
               </div>
             )}
