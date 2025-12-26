@@ -43,7 +43,7 @@ interface Meal {
   name: string;
   description?: string;
   price: number;
-  comparePrice?: number;
+  comparePrice: number;
   images?: { url: string; alt?: string }[];
   categoryId: string;
   isHighlight?: boolean;
@@ -87,13 +87,24 @@ export default function MarketView({ data }: MarketViewProps) {
   }, [allCategoryIds, selectedCategoryIds.length]);
 
   const allMeals = useMemo(() => {
-    if (data.meals && data.meals.length > 0) return data.meals as Meal[];
-    return categories.flatMap((cat) =>
-      (cat.meals || []).map(
-        (meal: Record<string, unknown>) =>
+    if (data.meals && data.meals.length > 0) {
+      return data.meals.map(
+        (meal: Meal) =>
           ({
             ...meal,
-            id: (meal.id as string) || (meal._id as string),
+            _id: meal._id || meal.id || "",
+            id: meal.id || meal._id || "",
+          } as Meal)
+      );
+    }
+
+    return categories.flatMap((cat) =>
+      (cat.meals || []).map(
+        (meal: Meal) =>
+          ({
+            ...meal,
+            _id: meal._id || meal.id || "",
+            id: meal.id || meal._id || "",
             categoryId: cat._id,
           } as Meal)
       )
@@ -227,7 +238,7 @@ export default function MarketView({ data }: MarketViewProps) {
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                     {categoryMeals.map((meal) => (
                       <ProductCard
-                        key={meal._id}
+                        key={meal.id || meal._id}
                         meal={meal}
                         onClick={() => setSelectedMeal(meal)}
                       />
