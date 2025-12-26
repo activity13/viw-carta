@@ -18,7 +18,7 @@ export const generateWhatsAppLink = (
   message += `Me gustaría pedir:\n`;
 
   items.forEach((item) => {
-    message += `• ${item.quantity}x ${item.name} -S/.$${(
+    message += `• ${item.quantity}x ${item.name} -S/.${(
       item.price * item.quantity
     ).toFixed(2)}\n`;
   });

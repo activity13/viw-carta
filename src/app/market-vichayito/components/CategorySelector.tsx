@@ -59,7 +59,7 @@ export default function CategorySelector({
         {/* Categories List */}
         <div
           ref={scrollRef}
-          className="flex overflow-x-auto gap-2 px-4 scrollbar-none snap-x justify-start md:justify-center"
+          className="flex items-center overflow-x-auto overflow-y-hidden gap-2 px-4 scrollbar-none snap-x justify-start md:justify-center"
         >
           {categories.map((category) => {
             const isSelected = selectedCategories.includes(category._id);
@@ -69,7 +69,7 @@ export default function CategorySelector({
                 onClick={() => onToggleCategory(category._id)}
                 onDoubleClick={() => onSelectAll()}
                 className={cn(
-                  "flex-none px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 snap-start border shadow-sm hover:shadow-md active:scale-95",
+                  "flex-none px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 snap-start border shadow-sm hover:shadow-md active:scale-95 whitespace-nowrap",
                   isSelected
                     ? "bg-blue-600 text-white border-blue-600 scale-105"
                     : "bg-white text-slate-600 border-slate-200 hover:border-blue-300 hover:text-blue-600"

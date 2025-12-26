@@ -26,7 +26,7 @@ export const OrderFloatingButton = ({
           size="lg"
           className={cn(
             "h-14 rounded-full shadow-lg flex items-center gap-3 px-6",
-            "bg-secondary-content text-primary-foreground hover:bg-secondary-content/90"
+            "bg-blue-400 text-primary-foreground hover:bg-blue-400/90"
           )}
           onClick={() => setIsModalOpen(true)}
         >

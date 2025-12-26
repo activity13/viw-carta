@@ -45,7 +45,7 @@ export const OrderSummaryModal = ({
           <DialogTitle className="flex flex-col gap-2">
             <span>Tu Pedido</span>
             {identity && (
-              <span className="text-sm font-normal text-muted-foreground bg-muted px-2 py-1 rounded-md self-start">
+              <span className="text-sm font-normal text-muted bg-blue-400 px-2 py-1 rounded-md self-start">
                 #{identity.shortId} • {identity.codeName}
               </span>
             )}
@@ -117,7 +117,11 @@ export const OrderSummaryModal = ({
             </span>
           </div>
           <div className="flex gap-2 w-full">
-            <Button variant="outline" className="flex-1" onClick={clearCart}>
+            <Button
+              variant="outline"
+              className="flex-1 bg-blue-800"
+              onClick={clearCart}
+            >
               Limpiar
             </Button>
             <Button

@@ -4,6 +4,14 @@ import styles from "./theme.module.css";
 import "../globals.css";
 import Link from "next/link";
 
+// Base URL for metadata (used by Next.js to resolve absolute OG/Twitter image URLs)
+export const metadataBase = new URL(
+  process.env.NEXT_PUBLIC_SITE_URL ||
+    (process.env.NODE_ENV === "development"
+      ? "http://localhost:3000"
+      : "https://vichayito-market.viw-carta.com")
+);
+
 const lilitaOne = Lilita_One({
   variable: "--font-lilita",
   subsets: ["latin"],
@@ -50,6 +58,9 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title: "Market Vichayito - El Mejor Market Digital de la Costanera",
+    icons: {
+      icon: `/market-vichayito/images/favicon.ico`,
+    },
     description:
       "El Market o Market Vichayito es la V1 del mejor market digital con catálogo 100% dinámico para toda la costanera de Vichayito y Las Pocitas. Descubre productos frescos, variedad y entrega rápida.",
     keywords:
@@ -112,11 +123,16 @@ export default async function MarketLayout({
   children: React.ReactNode;
 }>) {
   const data = await getData();
-  const restaurant = data?.restaurant || {
-    name: "Market Vichayito",
-    phone: "123456789",
-    email: "contacto@marketvichayito.com",
-  };
+  // Normalize phone: remove non-digit characters to use in wa.me links
+  const rawPhone = data?.restaurant?.phone || "123456789";
+  const normalizedPhone = String(rawPhone).replace(/\D/g, "");
+
+  const restaurant = {
+    ...(data?.restaurant || {}),
+    name: data?.restaurant?.name || "Market Vichayito",
+    phone: normalizedPhone,
+    email: data?.restaurant?.email || "contacto@marketvichayito.com",
+  } as const;
 
   return (
     <html lang="es" className="scroll-smooth">

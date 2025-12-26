@@ -61,21 +61,23 @@ export default function ProductCard({ meal, onClick }: ProductCardProps) {
                 {formatPrice(meal.price)}
               </span>
             )}
-            {meal.comparePrice ? (
-              <span className="font-bold text-blue-600 text-sm">
-                {formatPrice(meal.comparePrice)}
-              </span>
-            ) : (
-              <span className="font-bold text-blue-600 text-sm">
-                {formatPrice(meal.price)}
-              </span>
-            )}
+            <span className="font-bold text-blue-600 text-sm">
+              {formatPrice(
+                meal.comparePrice && meal.comparePrice < meal.price
+                  ? meal.comparePrice
+                  : meal.price
+              )}
+            </span>
           </div>
+          {/* choose comparePrice if it's lower than base price */}
           <AddToCartButton
             meal={{
               id: meal.id || meal._id,
               name: meal.name,
-              price: meal.price,
+              price:
+                meal.comparePrice && meal.comparePrice < meal.price
+                  ? meal.comparePrice
+                  : meal.price,
             }}
             className="h-8"
           />
