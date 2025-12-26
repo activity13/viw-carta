@@ -3,6 +3,34 @@ import MarketView from "@/app/market-vichayito/components/MarketView";
 export const dynamic = "force-dynamic";
 export const revalidate = 60;
 
+export const metadataBase = new URL(
+  process.env.NEXT_PUBLIC_SITE_URL ||
+    (process.env.NODE_ENV === "development"
+      ? "http://localhost:3000"
+      : "https://vichayito-market.viw-carta.com")
+);
+
+export const metadata = {
+  title: "Market Vichayito — Embed",
+  description:
+    "Catálogo embebible de Market Vichayito — productos frescos y pedidos por WhatsApp.",
+  openGraph: {
+    title: "Market Vichayito — Embed",
+    description:
+      "Catálogo embebible de Market Vichayito — productos frescos y pedidos por WhatsApp.",
+    url:
+      process.env.NEXT_PUBLIC_SITE_URL ||
+      (process.env.NODE_ENV === "development"
+        ? "http://localhost:3000"
+        : "https://vichayito-market.viw-carta.com"),
+    images: [
+      process.env.NEXT_PUBLIC_SITE_URL
+        ? `${process.env.NEXT_PUBLIC_SITE_URL}/market-vichayito/default-og.jpg`
+        : "/default-market-image.jpg",
+    ],
+  },
+};
+
 async function getData() {
   const subdomain = "market-vichayito";
   const baseUrl =
