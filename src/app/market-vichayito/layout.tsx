@@ -50,14 +50,59 @@ export async function generateMetadata(): Promise<Metadata> {
   const restaurantName = data?.restaurant?.name || "Market Vichayito";
 
   return {
-    title: `${restaurantName} - Market & Delivery`,
-    description: `Bienvenido a ${restaurantName}. Encuentra los mejores productos seleccionados para ti. Calidad, variedad y servicio de primera.`,
-    keywords: "market, delivery, productos, calidad, vichayito, compras online",
+    title: "Market Vichayito - El Mejor Market Digital de la Costanera",
+    description:
+      "El Market o Market Vichayito es la V1 del mejor market digital con catálogo 100% dinámico para toda la costanera de Vichayito y Las Pocitas. Descubre productos frescos, variedad y entrega rápida.",
+    keywords:
+      "market vichayito, market digital, catálogo dinámico, costanera vichayito, las pocitas, compras online, delivery, productos frescos, tienda online",
+    authors: [{ name: "Viw Carta" }],
+    creator: "Viw Carta",
+    publisher: "Viw Carta",
+    formatDetection: {
+      email: false,
+      address: false,
+      telephone: false,
+    },
     openGraph: {
-      title: `${restaurantName} - Market & Delivery`,
+      title: "Market Vichayito - Catálogo Digital 100% Dinámico",
       description:
-        "La mejor selección de productos directamente a tu ubicación.",
+        "Descubre el mejor market digital de la costanera de Vichayito y Las Pocitas. Catálogo dinámico con productos frescos y entrega rápida.",
+      url: "https://vichayito-market.viw-carta.com",
+      siteName: "Market Vichayito",
+      images: [
+        {
+          url: data?.restaurant?.image || "/default-market-image.jpg",
+          width: 1200,
+          height: 630,
+          alt: "Market Vichayito - Catálogo Digital",
+        },
+      ],
+      locale: "es_PE",
       type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Market Vichayito - El Mejor Market Digital",
+      description:
+        "Catálogo 100% dinámico para la costanera de Vichayito y Las Pocitas. Productos frescos y delivery rápido.",
+      images: [data?.restaurant?.image || "/default-market-image.jpg"],
+      creator: "@viwcarta",
+    },
+    robots: {
+      index: true,
+      follow: true,
+      nocache: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        noimageindex: false,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
+    verification: {
+      google: "tu-codigo-de-verificacion-google",
     },
   };
 }

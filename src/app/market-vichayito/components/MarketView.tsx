@@ -5,9 +5,13 @@ import CategorySelector from "./CategorySelector";
 import PromoCarousel from "./PromoCarousel";
 import ProductCard from "./ProductCard";
 import ProductModal from "./ProductModal";
+import { cn } from "@/lib/utils";
+import { CartProvider } from "@/providers/CartProvider";
+import { OrderFloatingButton } from "@/components/cart/OrderFloatingButton";
 
 interface Category {
   _id: string;
+  id?: string;
   name: string;
   slug: string;
   meals?: Meal[];
@@ -15,6 +19,7 @@ interface Category {
 
 interface Meal {
   _id: string;
+  id?: string;
   name: string;
   description?: string;
   price: number;
@@ -62,9 +67,12 @@ export default function MarketView({ data }: MarketViewProps) {
   }, [allCategoryIds, selectedCategoryIds.length]);
 
   const allMeals = useMemo(() => {
-    if (data.meals && data.meals.length > 0) return data.meals;
+    if (data.meals && data.meals.length > 0) return data.meals as Meal[];
     return categories.flatMap((cat) =>
-      (cat.meals || []).map((meal) => ({ ...meal, categoryId: cat._id }))
+      (cat.meals || []).map(
+        (meal: any) =>
+          ({ ...meal, id: meal.id || meal._id, categoryId: cat._id } as Meal)
+      )
     );
   }, [data.meals, categories]);
 
@@ -150,71 +158,74 @@ export default function MarketView({ data }: MarketViewProps) {
   }, [categories, selectedCategoryIds, searchQuery, allMeals]);
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20">
-      <CategorySelector
-        categories={categories}
-        selectedCategories={selectedCategoryIds}
-        onToggleCategory={handleToggleCategory}
-        onSearch={setSearchQuery}
-        onSelectAll={handleSelectAll}
-      />
+    <CartProvider>
+      <div className="min-h-screen bg-slate-50 pb-20">
+        <CategorySelector
+          categories={categories}
+          selectedCategories={selectedCategoryIds}
+          onToggleCategory={handleToggleCategory}
+          onSearch={setSearchQuery}
+          onSelectAll={handleSelectAll}
+        />
 
-      {selectedCategoryIds.length === categories.length &&
-        !searchQuery &&
-        highlights.length > 0 && <PromoCarousel promos={highlights} />}
+        {selectedCategoryIds.length === categories.length &&
+          !searchQuery &&
+          highlights.length > 0 && <PromoCarousel promos={highlights} />}
 
-      <div className="px-4 mt-6 space-y-8">
-        {filteredCategories.length > 0 ? (
-          filteredCategories.map((category) => {
-            // Resolve meals for display
-            const categoryMeals =
-              category.meals && category.meals.length > 0
-                ? category.meals
-                : allMeals.filter(
-                    (meal) =>
-                      meal.categoryId &&
-                      category._id &&
-                      meal.categoryId === category._id
-                  );
+        <div className="px-4 mt-6 space-y-8">
+          {filteredCategories.length > 0 ? (
+            filteredCategories.map((category) => {
+              // Resolve meals for display
+              const categoryMeals =
+                category.meals && category.meals.length > 0
+                  ? category.meals
+                  : allMeals.filter(
+                      (meal) =>
+                        meal.categoryId &&
+                        category._id &&
+                        meal.categoryId === category._id
+                    );
 
-            if (!categoryMeals || categoryMeals.length === 0) return null;
+              if (!categoryMeals || categoryMeals.length === 0) return null;
 
-            return (
-              <div key={category._id}>
-                <div className="flex items-center justify-between mb-3">
-                  <h2 className="font-bold text-slate-800 text-lg">
-                    {category.name}
-                  </h2>
-                  {searchQuery && (
-                    <span className="text-xs text-slate-400">
-                      {categoryMeals.length} resultados
-                    </span>
-                  )}
+              return (
+                <div key={category._id}>
+                  <div className="flex items-center justify-between mb-3">
+                    <h2 className="font-bold text-slate-800 text-lg">
+                      {category.name}
+                    </h2>
+                    {searchQuery && (
+                      <span className="text-xs text-slate-400">
+                        {categoryMeals.length} resultados
+                      </span>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                    {categoryMeals.map((meal) => (
+                      <ProductCard
+                        key={meal._id}
+                        meal={meal}
+                        onClick={() => setSelectedMeal(meal)}
+                      />
+                    ))}
+                  </div>
                 </div>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                  {categoryMeals.map((meal) => (
-                    <ProductCard
-                      key={meal._id}
-                      meal={meal}
-                      onClick={() => setSelectedMeal(meal)}
-                    />
-                  ))}
-                </div>
-              </div>
-            );
-          })
-        ) : (
-          <div className="py-20 text-center text-slate-400">
-            <p>No se encontraron productos.</p>
-          </div>
-        )}
+              );
+            })
+          ) : (
+            <div className="py-20 text-center text-slate-400">
+              <p>No se encontraron productos.</p>
+            </div>
+          )}
+        </div>
+
+        <ProductModal
+          meal={selectedMeal}
+          isOpen={!!selectedMeal}
+          onClose={() => setSelectedMeal(null)}
+        />
+        <OrderFloatingButton restaurantPhone={data.restaurant.phone} />
       </div>
-
-      <ProductModal
-        meal={selectedMeal}
-        isOpen={!!selectedMeal}
-        onClose={() => setSelectedMeal(null)}
-      />
-    </div>
+    </CartProvider>
   );
 }

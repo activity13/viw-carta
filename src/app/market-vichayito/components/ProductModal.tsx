@@ -10,9 +10,11 @@ import {
 import Image from "next/image";
 import { formatPrice } from "@/lib/utils";
 import { X } from "lucide-react";
+import { AddToCartButton } from "@/components/cart/AddToCartButton";
 
 interface Meal {
   _id: string;
+  id?: string;
   name: string;
   description?: string;
   price: number;
@@ -89,9 +91,17 @@ export default function ProductModal({
               </span>
             </div>
 
-            <button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors shadow-lg shadow-blue-200">
-              Agregar
-            </button>
+            <AddToCartButton
+              meal={{
+                id: meal.id || meal._id,
+                name: meal.name,
+                price:
+                  meal.comparePrice && meal.comparePrice < meal.price
+                    ? meal.comparePrice
+                    : meal.price,
+              }}
+              className="h-12 px-6 rounded-xl"
+            />
           </div>
         </div>
       </DialogContent>

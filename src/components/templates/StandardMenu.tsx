@@ -23,6 +23,9 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CartProvider } from "@/providers/CartProvider";
+import { AddToCartButton } from "@/components/cart/AddToCartButton";
+import { OrderFloatingButton } from "@/components/cart/OrderFloatingButton";
 
 // Interfaces
 interface Meal {
@@ -182,7 +185,7 @@ function StandardMenuContent({ data, restaurant }: StandardMenuProps) {
         <div className="absolute inset-0 bg-black/30" />
 
         {/* Restaurant Info Overlay */}
-        <div className="absolute bottom-0 left-0 w-full p-4 md:p-8 bg-gradient-to-t from-black/80 to-transparent text-white">
+        <div className="absolute bottom-0 left-0 w-full p-4 md:p-8 bg-linear-to-t from-black/80 to-transparent text-white">
           <div className="container mx-auto flex items-end gap-4 md:gap-6">
             <div className="w-20 h-20 md:w-32 md:h-32 rounded-full border-4 border-background bg-background overflow-hidden shadow-lg shrink-0 relative -mb-8 md:-mb-12 z-10">
               {restaurant.image ? (
@@ -259,7 +262,7 @@ function StandardMenuContent({ data, restaurant }: StandardMenuProps) {
           </aside>
 
           {/* Mobile Category Bar */}
-          <div className="lg:hidden sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b -mx-4 px-4 py-3 flex items-center justify-between gap-4 overflow-x-auto">
+          <div className="lg:hidden sticky top-0 z-40 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 border-b -mx-4 px-4 py-3 flex items-center justify-between gap-4 overflow-x-auto">
             <Button
               variant="ghost"
               size="sm"
@@ -359,10 +362,14 @@ function StandardMenuContent({ data, restaurant }: StandardMenuProps) {
                           </span>
                         </div>
                         {t(meal.description, meal.description_en) && (
-                          <p className="text-sm text-muted-foreground line-clamp-3 flex-1">
+                          <p className="text-sm text-muted-foreground line-clamp-3 flex-1 mb-4">
                             {t(meal.description, meal.description_en)}
                           </p>
                         )}
+                        <AddToCartButton
+                          meal={meal}
+                          className="w-full mt-auto"
+                        />
                       </div>
                     </div>
                   ))}
@@ -435,11 +442,12 @@ function StandardMenuContent({ data, restaurant }: StandardMenuProps) {
       </footer>
 
       {/* Floating Action Button (Mobile) */}
-      <div className="fixed bottom-6 right-6 z-50 lg:hidden flex flex-col gap-3">
+      {/* <div className="fixed bottom-6 right-6 z-50 lg:hidden flex flex-col gap-3">
         <Button size="icon" className="rounded-full shadow-lg h-12 w-12">
           <BellRing className="w-5 h-5" />
         </Button>
-      </div>
+      </div> */}
+      <OrderFloatingButton restaurantPhone={restaurant.phone} />
     </div>
   );
 }
@@ -447,7 +455,9 @@ function StandardMenuContent({ data, restaurant }: StandardMenuProps) {
 export default function StandardMenu(props: StandardMenuProps) {
   return (
     <LanguageProvider>
-      <StandardMenuContent {...props} />
+      <CartProvider>
+        <StandardMenuContent {...props} />
+      </CartProvider>
     </LanguageProvider>
   );
 }

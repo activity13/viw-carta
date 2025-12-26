@@ -6,7 +6,7 @@ interface Meal {
   name: string;
   description?: string;
   price: number;
-  comparePrice?: number;
+  comparePrice: number;
   images?: { url: string; alt?: string }[];
 }
 
@@ -46,11 +46,11 @@ export default function PromoCarousel({ promos }: PromoCarouselProps) {
                   <div className="mt-auto">
                     {meal.comparePrice && (
                       <span className="text-xs text-blue-200 line-through block">
-                        {formatPrice(meal.comparePrice)}
+                        {formatPrice(meal.price)}
                       </span>
                     )}
                     <span className="font-bold text-xl">
-                      {formatPrice(meal.price)}
+                      {formatPrice(meal.comparePrice)}
                     </span>
                   </div>
                 </div>

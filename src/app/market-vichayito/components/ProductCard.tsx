@@ -1,8 +1,10 @@
 import Image from "next/image";
 import { formatPrice } from "@/lib/utils";
+import { AddToCartButton } from "@/components/cart/AddToCartButton";
 
 interface Meal {
   _id: string;
+  id?: string;
   name: string;
   description?: string;
   price: number;
@@ -69,22 +71,14 @@ export default function ProductCard({ meal, onClick }: ProductCardProps) {
               </span>
             )}
           </div>
-          <button className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-colors">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M5 12h14" />
-              <path d="M12 5v14" />
-            </svg>
-          </button>
+          <AddToCartButton
+            meal={{
+              id: meal.id || meal._id,
+              name: meal.name,
+              price: meal.price,
+            }}
+            className="h-8"
+          />
         </div>
       </div>
     </div>
