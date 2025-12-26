@@ -28,6 +28,7 @@ async function getData() {
 
     return await res.json();
   } catch (e) {
+    console.error("Error fetching market data:", e);
     return null;
   }
 }
