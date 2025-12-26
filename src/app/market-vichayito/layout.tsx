@@ -47,7 +47,6 @@ async function getData() {
 
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getData();
-  const restaurantName = data?.restaurant?.name || "Market Vichayito";
 
   return {
     title: "Market Vichayito - El Mejor Market Digital de la Costanera",

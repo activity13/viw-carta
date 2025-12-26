@@ -5,9 +5,29 @@ import CategorySelector from "./CategorySelector";
 import PromoCarousel from "./PromoCarousel";
 import ProductCard from "./ProductCard";
 import ProductModal from "./ProductModal";
-import { cn } from "@/lib/utils";
 import { CartProvider } from "@/providers/CartProvider";
 import { OrderFloatingButton } from "@/components/cart/OrderFloatingButton";
+
+interface Restaurant {
+  name: string;
+  slug: string;
+  phone: string;
+  direction?: string;
+  location?: string;
+  description?: string;
+  image: string;
+  theme?: {
+    palette?: string;
+    customColors?: {
+      primary?: string;
+      secondary?: string;
+      accent?: string;
+      background?: string;
+      text?: string;
+      muted?: string;
+    };
+  };
+}
 
 interface Category {
   _id: string;
@@ -30,7 +50,7 @@ interface Meal {
 }
 
 interface MarketData {
-  restaurant: any;
+  restaurant: Restaurant;
   categories: Category[];
   meals?: Meal[];
 }
@@ -43,10 +63,10 @@ export default function MarketView({ data }: MarketViewProps) {
   // Ensure categories have valid IDs and are stable
   const categories = useMemo(() => {
     return data.categories
-      .filter((c) => c._id || (c as any).id)
+      .filter((c) => c._id || c.id)
       .map((c) => ({
         ...c,
-        _id: c._id || (c as any).id,
+        _id: c._id || c.id || "",
       }));
   }, [data.categories]);
 
@@ -70,8 +90,12 @@ export default function MarketView({ data }: MarketViewProps) {
     if (data.meals && data.meals.length > 0) return data.meals as Meal[];
     return categories.flatMap((cat) =>
       (cat.meals || []).map(
-        (meal: any) =>
-          ({ ...meal, id: meal.id || meal._id, categoryId: cat._id } as Meal)
+        (meal: Record<string, unknown>) =>
+          ({
+            ...meal,
+            id: (meal.id as string) || (meal._id as string),
+            categoryId: cat._id,
+          } as Meal)
       )
     );
   }, [data.meals, categories]);

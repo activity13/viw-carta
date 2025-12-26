@@ -3,7 +3,7 @@
 import React from "react";
 import { useCart } from "@/providers/CartProvider";
 import { Button } from "@/components/ui/button";
-import { Minus, Plus, ShoppingCart } from "lucide-react";
+import { Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AddToCartButtonProps {
