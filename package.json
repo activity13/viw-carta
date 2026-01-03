@@ -6,7 +6,8 @@
     "dev": "set NODE_OPTIONS=--trace-warnings && next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "docs:pdf": "node scripts/docs/pdf.mjs"
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
@@ -58,6 +59,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.3.6",
+    "md-to-pdf": "^5.2.4",
     "tailwindcss": "^4.1.8",
     "tw-animate-css": "^1.3.4",
     "typescript": "^5"

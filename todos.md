@@ -12,7 +12,9 @@ Funcionalidades y pendientes:
 # Seguridad
 
 - [x] Asegurar en el backend los endpoints sensibles que no deben ser publicos, pues /api esta abierto.
-- [x] Cuando no hay una sesión, la pagina sin importar eso carga los datos y no redirige a login hasta que se intenta una acción que llame al chequeo de session.
+- [x] Cuando no hay una sesión, la pagina sin importar eso aacede a la ruta, no redirige a login hasta que se intenta una acción que llame al chequeo de session.
+- Probar la implementación de cambio de contraseña. Iniciar sesión en dos pestañas, cambiar la contraseña en una, revisar si los cambios surtieron efecto, refrescar la segunda a pestaña.
+-
 
 # Rendimiento
 
@@ -53,14 +55,14 @@ Funcionalidades y pendientes:
 
 - Distinguir entre comidas, bienes y servicios y segun se indique mostrar un modelo de datos determinado.
 - Hacer funcional el formulario en su totalidad: almacenado de todos los campos segun se desee y subida de hasta 3 imágenes por producto.
-- Establecer un loadre para el botón de crear/guardar producto.
+<!-- - Establecer un loader para el botón de crear/guardar producto. -->
 
 # Categorías
 
-- CONSIDERAR si en la seleccion de categorias del master, al deseleccionar todas que el comportamiento sea seleccionar todas.
 - Al crear categorías: mejorar la generación de recomendación de código de categoria.
 - Hay un error al cancelar la eliminación de una categoría.
 
+// - CONSIDERAR si en la seleccion de categorias del master, al deseleccionar todas que el comportamiento sea seleccionar todas.
 // - En la página dedicada a las categorías agregar: toasts para mensajes de información de operación. Agregar Loaders. Aqui se sigue usando el término slug para indicarle al usuario que agregue uno para la descr. cambiar por un término amigable para el usuario. Refactorizar la UI basado en los ultimos diseños de la marca viwpowered.
 
 // - Cambiar en el selector de categoria de master que cuando se seleccione una categoria estando todas habilitadas, se seleccione sola esa y que las demás se deseleccionen. se mantendrá el comportamiento de doble click para habilitar todas, pero no el doble click para deshabilitar todas.

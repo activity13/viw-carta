@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { AnimatePresence, motion } from "motion/react";
-import { Plus, ExternalLink, Loader2 } from "lucide-react";
+import { Sparkles, ExternalLink, Loader2 } from "lucide-react";
 import { useFab } from "@/providers/ActionProvider";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,8 +17,33 @@ export function SmartFAB() {
   const { data: session } = useSession();
   const { actions } = useFab();
   const [isOpen, setIsOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement | null>(null);
 
   const toggleOpen = () => setIsOpen(!isOpen);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const onPointerDownCapture = (event: PointerEvent) => {
+      const root = rootRef.current;
+      if (!root) return;
+
+      const targetNode = event.target as Node | null;
+      if (targetNode && !root.contains(targetNode)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", onPointerDownCapture, {
+      capture: true,
+    });
+
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDownCapture, {
+        capture: true,
+      } as AddEventListenerOptions);
+    };
+  }, [isOpen]);
 
   // Fixed actions
   const fixedActions = [
@@ -40,8 +65,38 @@ export function SmartFAB() {
 
   const allActions = [...actions, ...fixedActions];
 
+  const toggleButtonVariants = {
+    open: {
+      scale: [1, 1.12, 1.05],
+      rotate: [0, 6, -6, 0],
+      transition: { duration: 0.35 },
+    },
+    closed: {
+      scale: [1.05, 0.98, 1],
+      rotate: [0, -4, 4, 0],
+      transition: { duration: 0.28 },
+    },
+  };
+
+  const toggleIconVariants = {
+    open: {
+      rotate: [0, 18, 0],
+      scale: [1, 1.18, 1],
+      opacity: [1, 0.85, 1],
+      transition: { duration: 0.35 },
+    },
+    closed: {
+      rotate: [0, -10, 0],
+      scale: [1, 0.92, 1],
+      transition: { duration: 0.25 },
+    },
+  };
+
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+    <div
+      ref={rootRef}
+      className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3"
+    >
       <AnimatePresence>
         {isOpen && (
           <div className="flex flex-col items-end gap-3 mb-2">
@@ -92,15 +147,24 @@ export function SmartFAB() {
         )}
       </AnimatePresence>
 
-      <Button
-        size="icon"
-        className={`h-14 w-14 rounded-full shadow-xl transition-transform duration-300 ${
-          isOpen ? "rotate-45" : "rotate-0"
-        }`}
-        onClick={toggleOpen}
+      <motion.div
+        variants={toggleButtonVariants}
+        animate={isOpen ? "open" : "closed"}
+        whileHover={{ scale: 1.06 }}
+        whileTap={{ scale: 0.98 }}
       >
-        <Plus className="h-6 w-6" />
-      </Button>
+        <Button
+          size="icon"
+          className="h-14 w-14 rounded-full shadow-xl"
+          onClick={toggleOpen}
+          aria-expanded={isOpen}
+          aria-label={isOpen ? "Cerrar acciones" : "Abrir acciones"}
+        >
+          <motion.span variants={toggleIconVariants}>
+            <Sparkles className="h-6 w-6" />
+          </motion.span>
+        </Button>
+      </motion.div>
     </div>
   );
 }

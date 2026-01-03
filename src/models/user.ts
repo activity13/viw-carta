@@ -24,6 +24,8 @@ const userSchema = new Schema(
     },
     password: { type: String, required: true, select: false },
 
+    passwordChangedAt: { type: Date, default: null, select: false },
+
     // NextAuth multi-restaurante: referencia al restaurante
     restaurantId: {
       type: Schema.Types.ObjectId,

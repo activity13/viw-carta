@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Axios, { AxiosError } from "axios";
-import { Plus, X, Upload, Save, Eye } from "lucide-react";
+import { Plus, X, Upload, Save, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { revalidateMenu } from "./utils/revalidateMenu";
 import { useSession } from "next-auth/react";
@@ -89,6 +89,7 @@ const CreateMealForm = ({
   const [activeTab, setActiveTab] = useState("basic");
   const [editMode, setEditMode] = useState(false);
   const [id, setId] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const initialFormData = {
     // Información básica
@@ -282,6 +283,7 @@ const CreateMealForm = ({
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
       if (editMode) {
@@ -308,6 +310,7 @@ const CreateMealForm = ({
         console.log("Response from backend:", actionResponse.data);
         fetchMeals();
         setFormData(initialFormData);
+        onClose();
       }
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -322,6 +325,8 @@ const CreateMealForm = ({
           setError("Error al configurar la solicitud");
         }
       }
+    } finally {
+      setLoading(false);
     }
     // Aquí enviarías los datos al backend
   };
@@ -380,7 +385,7 @@ const CreateMealForm = ({
                   onClick={() => setActiveTab(tab.id)}
                   className={`py-2 px-2 sm:px-3 border-b-2 font-medium text-xs sm:text-sm transition-colors ${
                     activeTab === tab.id
-                      ? "border-blue-500 text-blue-600"
+                      ? "border-emerald-600 text-emerald-600"
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                   }`}
                 >
@@ -396,7 +401,7 @@ const CreateMealForm = ({
               <div className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs sm:text-sm font-medium text-white mb-1">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                       Categoría *
                     </label>
 
@@ -407,7 +412,7 @@ const CreateMealForm = ({
                       }
                       required
                     >
-                      <SelectTrigger className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                      <SelectTrigger className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
                         <SelectValue placeholder="Seleccionar categoría" />
                       </SelectTrigger>
                       <SelectContent>
@@ -432,7 +437,7 @@ const CreateMealForm = ({
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs sm:text-sm font-medium text-white mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     Nombre del Plato *
                   </label>
                   <input
@@ -440,7 +445,7 @@ const CreateMealForm = ({
                     value={formData.name}
                     onChange={(e) => handleInputChange("name", e.target.value)}
                     maxLength={100}
-                    className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="Ej: Ceviche Mixto"
                     required
                   />
@@ -449,7 +454,7 @@ const CreateMealForm = ({
                   </p>
                 </div>
                 <div>
-                  <label className="block text-xs sm:text-sm font-medium text-white mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     Descripción
                   </label>
                   <textarea
@@ -459,7 +464,7 @@ const CreateMealForm = ({
                     }
                     maxLength={500}
                     rows={4}
-                    className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="Descripción detallada del plato..."
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -467,7 +472,7 @@ const CreateMealForm = ({
                   </p>
                 </div>
                 <div>
-                  <label className="block text-xs sm:text-sm font-medium text-white mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     Descripción Corta (para móviles)
                   </label>
                   <input
@@ -477,7 +482,7 @@ const CreateMealForm = ({
                       handleInputChange("shortDescription", e.target.value)
                     }
                     maxLength={100}
-                    className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="Descripción breve..."
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -486,7 +491,7 @@ const CreateMealForm = ({
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs sm:text-sm font-medium text-white mb-1">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                       Precio Base *
                     </label>
                     <div className="relative">
@@ -501,14 +506,14 @@ const CreateMealForm = ({
                         onChange={(e) =>
                           handleInputChange("basePrice", e.target.value)
                         }
-                        className="w-full pl-8 sm:pl-10 pr-2 sm:pr-3 py-2 sm:py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full pl-8 sm:pl-10 pr-2 sm:pr-3 py-2 sm:py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                         placeholder="0.00"
                         required
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs sm:text-sm font-medium text-white mb-1">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                       Precio Comparativo (precio tachado)
                     </label>
                     <div className="relative">
@@ -523,7 +528,7 @@ const CreateMealForm = ({
                         onChange={(e) =>
                           handleInputChange("comparePrice", e.target.value)
                         }
-                        className="w-full pl-8 sm:pl-10 pr-2 sm:pr-3 py-2 sm:py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full pl-8 sm:pl-10 pr-2 sm:pr-3 py-2 sm:py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                         placeholder="0.00"
                       />
                     </div>
@@ -531,7 +536,7 @@ const CreateMealForm = ({
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs sm:text-sm font-medium text-white mb-1">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                       Tiempo de Preparación Mínimo (minutos)
                     </label>
                     <input
@@ -541,12 +546,12 @@ const CreateMealForm = ({
                       onChange={(e) =>
                         handleInputChange("preparationTime.min", e.target.value)
                       }
-                      className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                       placeholder="10"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs sm:text-sm font-medium text-white mb-1">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                       Tiempo de Preparación Máximo (minutos)
                     </label>
                     <input
@@ -556,7 +561,7 @@ const CreateMealForm = ({
                       onChange={(e) =>
                         handleInputChange("preparationTime.max", e.target.value)
                       }
-                      className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                       placeholder="15"
                     />
                   </div>
@@ -639,7 +644,7 @@ const CreateMealForm = ({
                         }}
                         appearance={{
                           button:
-                            "bg-blue-500 text-white hover:bg-blue-600 ut-uploading:cursor-not-allowed rounded-md px-4 py-2",
+                            "bg-emerald-600 text-white hover:bg-emerald-700 ut-uploading:cursor-not-allowed rounded-md px-4 py-2",
                           allowedContent: "text-gray-500 text-xs mt-2",
                         }}
                         content={{
@@ -683,7 +688,7 @@ const CreateMealForm = ({
                             e.target.value
                           )
                         }
-                        className="flex-1 p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="flex-1 p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                         placeholder="Ej: Pescado fresco"
                       />
                       <button
@@ -698,7 +703,7 @@ const CreateMealForm = ({
                   <button
                     type="button"
                     onClick={() => handleArrayAdd("ingredients")}
-                    className="flex items-center gap-2 text-blue-500 hover:text-blue-600 font-medium text-sm"
+                    className="flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-medium text-sm"
                   >
                     <Plus className="h-4 w-4" />
                     Agregar Ingrediente
@@ -720,7 +725,7 @@ const CreateMealForm = ({
                           onChange={() =>
                             handleMultiSelect("allergens", allergen)
                           }
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
                         />
                         <span className="text-xs sm:text-sm text-gray-700 capitalize">
                           {allergen}
@@ -740,7 +745,7 @@ const CreateMealForm = ({
                           type="checkbox"
                           checked={formData.dietaryTags.includes(tag)}
                           onChange={() => handleMultiSelect("dietaryTags", tag)}
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
                         />
                         <span className="text-xs sm:text-sm text-gray-700 capitalize">
                           {tag.replace("-", " ")}
@@ -754,14 +759,14 @@ const CreateMealForm = ({
             {/* Traducción (Inglés) */}
             {activeTab === "translation" && (
               <div className="space-y-4">
-                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <p className="text-sm text-blue-700">
+                <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+                  <p className="text-sm text-emerald-700">
                     🌐 Agrega las traducciones en inglés para que tu menú sea
                     bilingüe.
                   </p>
                 </div>
                 <div>
-                  <label className="block text-xs sm:text-sm font-medium text-white mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     Nombre en Inglés
                   </label>
                   <input
@@ -771,7 +776,7 @@ const CreateMealForm = ({
                       handleInputChange("name_en", e.target.value)
                     }
                     maxLength={100}
-                    className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="Ej: Mixed Ceviche"
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -779,7 +784,7 @@ const CreateMealForm = ({
                   </p>
                 </div>
                 <div>
-                  <label className="block text-xs sm:text-sm font-medium text-white mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     Descripción en Inglés
                   </label>
                   <textarea
@@ -789,7 +794,7 @@ const CreateMealForm = ({
                     }
                     maxLength={500}
                     rows={4}
-                    className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="Detailed description of the dish in English..."
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -797,7 +802,7 @@ const CreateMealForm = ({
                   </p>
                 </div>
                 <div>
-                  <label className="block text-xs sm:text-sm font-medium text-white mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     Descripción Corta en Inglés (para móviles)
                   </label>
                   <input
@@ -807,7 +812,7 @@ const CreateMealForm = ({
                       handleInputChange("shortDescription_en", e.target.value)
                     }
                     maxLength={100}
-                    className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="Brief description..."
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -830,7 +835,7 @@ const CreateMealForm = ({
                         e.target.checked
                       )
                     }
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
                   />
                   <label
                     htmlFor="isAvailable"
@@ -840,7 +845,7 @@ const CreateMealForm = ({
                   </label>
                 </div>
                 <div>
-                  <label className="block text-xs sm:text-sm font-medium text-white mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     Cantidad Disponible (opcional)
                   </label>
                   <input
@@ -853,7 +858,7 @@ const CreateMealForm = ({
                         e.target.value
                       )
                     }
-                    className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     placeholder="Dejar vacío para disponibilidad ilimitada"
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -867,7 +872,7 @@ const CreateMealForm = ({
               <div className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs sm:text-sm font-medium text-white mb-1">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                       Orden en la Categoría
                     </label>
                     <input
@@ -877,12 +882,12 @@ const CreateMealForm = ({
                       onChange={(e) =>
                         handleInputChange("display.order", e.target.value)
                       }
-                      className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                       placeholder="0"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs sm:text-sm font-medium text-white mb-1">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                       Estado
                     </label>
                     <select
@@ -890,7 +895,7 @@ const CreateMealForm = ({
                       onChange={(e) =>
                         handleInputChange("status", e.target.value)
                       }
-                      className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                     >
                       {statusOptions.map((option) => (
                         <option key={option.value} value={option.value}>
@@ -912,7 +917,7 @@ const CreateMealForm = ({
                           e.target.checked
                         )
                       }
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
                     />
                     <label
                       htmlFor="isFeatured"
@@ -932,7 +937,7 @@ const CreateMealForm = ({
                           e.target.checked
                         )
                       }
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
                     />
                     <label
                       htmlFor="showInMenu"
@@ -954,7 +959,7 @@ const CreateMealForm = ({
                         onChange={(e) =>
                           handleArrayUpdate("searchTags", index, e.target.value)
                         }
-                        className="flex-1 p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="flex-1 p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                         placeholder="Ej: ceviche, pescado, limón"
                       />
                       <button
@@ -969,7 +974,7 @@ const CreateMealForm = ({
                   <button
                     type="button"
                     onClick={() => handleArrayAdd("searchTags")}
-                    className="flex items-center gap-2 text-blue-500 hover:text-blue-600 font-medium text-sm"
+                    className="flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-medium text-sm"
                   >
                     <Plus className="h-4 w-4" />
                     Agregar Etiqueta
@@ -978,34 +983,31 @@ const CreateMealForm = ({
               </div>
             )}
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row justify-between items-center pt-4 border-t border-gray-200 gap-3">
-              <Button
-                variant={"outline"}
-                className="flex items-center gap-2 px-3 py-1.5 text-gray-600 hover:text-gray-800 transition-colors text-sm"
-              >
-                <Eye className="h-4 w-4" />
-                Vista Previa
-              </Button>
+            <div className="flex flex-col sm:flex-row justify-end items-center pt-4 border-t border-gray-200 gap-3">
               <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                 <DialogClose asChild>
                   <Button
                     onClick={onClose}
-                    variant={"destructive"}
-                    className="px-4 py-2 border border-gray-300 text-white hover:text-gray-800 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                    variant={"outline"}
+                    className="px-4 py-2 border border-gray-300 text-gray-700 hover:text-gray-900 rounded-lg hover:bg-gray-50 transition-colors text-sm"
                   >
                     Cancelar
                   </Button>
                 </DialogClose>
 
-                <button
+                <Button
                   type="submit"
-                  variant={"primary"}
-                  className="flex items-center hover:cursor-pointer gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
+                  disabled={loading}
+                  className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm"
                   onClick={handleSubmit}
                 >
-                  <Save className="h-4 w-4" />
+                  {loading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4" />
+                  )}
                   {editMode ? "Guardar Cambios" : "Crear Plato"}
-                </button>
+                </Button>
               </div>
             </div>
           </div>

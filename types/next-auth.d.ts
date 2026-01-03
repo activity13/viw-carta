@@ -7,6 +7,7 @@ declare module "next-auth" {
       name?: string | null;
       email?: string | null;
       image?: string | null;
+      username?: string | null;
       restaurantId?: string;
       slug?: string | null;
       role?: string | null;
@@ -15,6 +16,7 @@ declare module "next-auth" {
 
   interface User extends DefaultUser {
     id: string;
+    username?: string | null;
     restaurantId?: string;
     role?: string | null;
   }
@@ -26,6 +28,7 @@ declare module "next-auth/jwt" {
     name?: string | null;
     email?: string | null;
     image?: string | null;
+    username?: string | null;
     restaurantId?: string;
     role?: string | null;
     slug?: string | null;

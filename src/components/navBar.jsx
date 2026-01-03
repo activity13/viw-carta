@@ -1,6 +1,13 @@
 import * as React from "react";
 import Link from "next/link";
-import { Cog, Home, Languages, MessageSquareQuote, Crown } from "lucide-react";
+import {
+  Cog,
+  Home,
+  Languages,
+  MessageSquareQuote,
+  Crown,
+  User,
+} from "lucide-react";
 import LogoutButton from "./ui/LogoutButton";
 import { useSession } from "next-auth/react";
 
@@ -72,6 +79,17 @@ export default function NavBar() {
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink asChild>
+                <Link
+                  href="/backoffice/user-profile"
+                  className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                >
+                  <User className="h-4 w-4" />
+                  Perfil
+                </Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
 
             {/* Super Admin link - solo visible para superadmins */}
             {isSuperAdmin && (
@@ -79,7 +97,7 @@ export default function NavBar() {
                 <NavigationMenuLink asChild>
                   <Link
                     href="/backoffice/super-admin"
-                    className="flex items-center gap-2 px-3 py-2 rounded-md text-sm bg-gradient-to-r from-yellow-500 to-orange-500 text-orange-700 
+                    className="flex items-center gap-2 px-3 py-2 rounded-md text-sm bg-linear-to-r from-yellow-500 to-orange-500 text-orange-700 
                     opacity-90 hover:from-yellow-500 hover:to-yellow-600 dark:from-yellow-900/30 dark:to-orange-900/30 dark:text-orange-300 transition"
                   >
                     <Crown className="h-4 w-4 text-orange-600" />
@@ -127,7 +145,7 @@ export default function NavBar() {
               {isSuperAdmin && (
                 <Link
                   href="/backoffice/super-admin"
-                  className="p-2 rounded-md bg-gradient-to-r from-yellow-50 to-orange-50 text-orange-700 hover:from-yellow-100 hover:to-orange-100 transition"
+                  className="p-2 rounded-md bg-linear-to-r from-yellow-50 to-orange-50 text-orange-700 hover:from-yellow-100 hover:to-orange-100 transition"
                   aria-label="Super Admin"
                 >
                   <Crown className="h-4 w-4" />

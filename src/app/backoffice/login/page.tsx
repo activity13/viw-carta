@@ -46,7 +46,7 @@ export default function Login() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-950 via-black to-green-900">
+    <div className="flex items-center justify-center min-h-screen bg-linear-to-br from-green-950 via-black to-green-900">
       <Card className="w-full max-w-md mx-auto bg-green-950/90 border-4 border-green-900 rounded-2xl shadow-2xl backdrop-blur-lg">
         <CardHeader>
           <CardTitle className="text-white text-3xl font-extrabold tracking-wide uppercase drop-shadow-lg text-center">
@@ -101,7 +101,7 @@ export default function Login() {
                 </p>
               )}
               <Button
-                className="bg-gradient-to-r from-green-900 via-green-800 to-green-700 border-2 border-green-300 text-yellow-300 font-bold text-xl px-6 py-3 rounded-xl shadow-lg tracking-wide uppercase hover:bg-green-700 hover:text-white hover:border-yellow-300 transition-all duration-150 focus:outline-none focus:ring-4 focus:ring-green-700 flex items-center justify-center gap-2"
+                className="bg-linear-to-r from-green-900 via-green-800 to-green-700 border-2 border-green-300 text-yellow-300 font-bold text-xl px-6 py-3 rounded-xl shadow-lg tracking-wide uppercase hover:bg-green-700 hover:text-white hover:border-yellow-300 transition-all duration-150 focus:outline-none focus:ring-4 focus:ring-green-700 flex items-center justify-center gap-2"
                 disabled={loading}
                 type="submit"
               >

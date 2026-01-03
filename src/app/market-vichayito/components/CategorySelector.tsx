@@ -27,7 +27,7 @@ export default function CategorySelector({
   const scrollRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="w-full sticky top-0 z-30 bg-slate-50/95 backdrop-blur supports-backdrop-filter:bg-slate-50/80 py-4 border-b border-slate-200 shadow-sm transition-all duration-300">
+    <div className="w-full  sticky top-0 z-30 bg-slate-50/95 backdrop-blur supports-backdrop-filter:bg-slate-50/80 py-4 border-b border-slate-200 shadow-sm transition-all duration-300">
       <div className="max-w-7xl mx-auto flex flex-col gap-4">
         {/* Search Bar */}
         <div className="px-4 w-full max-w-md mx-auto">
@@ -59,7 +59,7 @@ export default function CategorySelector({
         {/* Categories List */}
         <div
           ref={scrollRef}
-          className="flex items-center overflow-x-auto overflow-y-hidden gap-2 px-4 scrollbar-none snap-x justify-start md:justify-center"
+          className="flex items-center lg:items overflow-x-auto overflow-y-hidden gap-2 px-4 scrollbar-none snap-x justify-start md:justify-center"
         >
           {categories.map((category) => {
             const isSelected = selectedCategories.includes(category._id);

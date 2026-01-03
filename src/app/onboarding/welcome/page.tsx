@@ -50,7 +50,7 @@ interface Restaurant {
 // Loading component for Suspense fallback
 function OnboardingWelcomeLoading() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-green-50 to-emerald-100">
       <Card className="w-full max-w-md">
         <CardContent className="p-8 text-center">
           <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-green-600" />
@@ -123,7 +123,7 @@ function OnboardingWelcomeContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-green-100">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-emerald-50 to-green-100">
         <Card className="w-full max-w-md">
           <CardContent className="p-8 text-center">
             <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-emerald-600" />
@@ -136,7 +136,7 @@ function OnboardingWelcomeContent() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-rose-100">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-red-50 to-rose-100">
         <Card className="w-full max-w-md border-destructive/20">
           <CardContent className="p-8 text-center">
             <p className="text-destructive">{error}</p>
@@ -158,11 +158,11 @@ function OnboardingWelcomeContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-green-100 py-12 px-4">
+    <div className="min-h-screen bg-linear-to-br from-emerald-50 to-green-100 py-12 px-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-green-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
+          <div className="w-20 h-20 bg-linear-to-br from-emerald-500 to-green-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
             <PartyPopper className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-3">

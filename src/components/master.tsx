@@ -95,7 +95,7 @@ const EditableCell = ({
             onBlur={handleSave}
             onKeyDown={handleKeyDown}
             autoFocus
-            className="min-h-[80px] pr-8"
+            className="min-h-20 pr-8"
           />
           <div className="absolute right-1 top-1 flex flex-col gap-1">
             <button
@@ -392,9 +392,18 @@ export default function Master() {
 
   // Category Logic
   const toggleCategory = (id: string) => {
+    if (categories.length === 0) return;
+
     // Si todas están seleccionadas, seleccionar solo la clickeada
     if (selectedCategories.size === categories.length) {
       setSelectedCategories(new Set([id]));
+      return;
+    }
+
+    // Si el usuario hace click en la ÚNICA categoría seleccionada,
+    // en vez de quedar en 0 seleccionadas, seleccionamos todas.
+    if (selectedCategories.size === 1 && selectedCategories.has(id)) {
+      setSelectedCategories(new Set(categories.map((c) => c._id)));
       return;
     }
 
@@ -404,6 +413,13 @@ export default function Master() {
     } else {
       newSet.add(id);
     }
+
+    // Safety net: si por alguna razón quedamos con 0, seleccionamos todas.
+    if (newSet.size === 0) {
+      setSelectedCategories(new Set(categories.map((c) => c._id)));
+      return;
+    }
+
     setSelectedCategories(newSet);
   };
 
