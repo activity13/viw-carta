@@ -1,16 +1,17 @@
 import MarketView from "@/app/market-vichayito/components/MarketView";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 60;
 
-export const metadataBase = new URL(
+const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ||
-    (process.env.NODE_ENV === "development"
-      ? "http://localhost:3000"
-      : "https://vichayito-market.viw-carta.com")
-);
+  (process.env.NODE_ENV === "development"
+    ? "http://localhost:3000"
+    : "https://vichayito-market.viw-carta.com");
 
-export const metadata = {
+export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "Market Vichayito — Embed",
   description:
     "Catálogo embebible de Market Vichayito — productos frescos y pedidos por WhatsApp.",
@@ -18,14 +19,10 @@ export const metadata = {
     title: "Market Vichayito — Embed",
     description:
       "Catálogo embebible de Market Vichayito — productos frescos y pedidos por WhatsApp.",
-    url:
-      process.env.NEXT_PUBLIC_SITE_URL ||
-      (process.env.NODE_ENV === "development"
-        ? "http://localhost:3000"
-        : "https://vichayito-market.viw-carta.com"),
+    url: siteUrl,
     images: [
       process.env.NEXT_PUBLIC_SITE_URL
-        ? `${process.env.NEXT_PUBLIC_SITE_URL}/market-vichayito/default-og.jpg`
+        ? `${siteUrl}/market-vichayito/default-og.jpg`
         : "/default-market-image.jpg",
     ],
   },
