@@ -19,7 +19,6 @@ interface ProductCardProps {
 
 export default function ProductCard({ meal, onClick }: ProductCardProps) {
   const image = meal.images?.find((img) => img.url) || meal.images?.[0];
-  console.log(meal);
   return (
     <div
       onClick={onClick}

@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 60;
 
 export default async function MarketVichayitoPage() {
-  const subdomain = "market-vichayito"; // TODO: Confirm this subdomain exists or use a fallback for dev
+  const subdomain = "fast-market"; // TODO: Confirm this subdomain exists or use a fallback for dev
 
   const baseUrl =
     process.env.API_INTERNAL_URL ||
@@ -51,7 +51,7 @@ export default async function MarketVichayitoPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 text-slate-400">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-2">Market Vichayito</h1>
+          <h1 className="text-2xl font-bold mb-2">Fast Market</h1>
           <p>Próximamente. (Error cargando datos)</p>
         </div>
       </div>

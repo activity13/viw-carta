@@ -22,14 +22,14 @@ export const metadata: Metadata = {
     url: siteUrl,
     images: [
       process.env.NEXT_PUBLIC_SITE_URL
-        ? `${siteUrl}/market-vichayito/default-og.jpg`
-        : "/default-market-image.jpg",
+        ? `${siteUrl}/fast-market/default-og.jpeg`
+        : "/default-fastmarket-image.jpeg",
     ],
   },
 };
 
 async function getData() {
-  const subdomain = "market-vichayito";
+  const subdomain = "fast-market";
   const baseUrl =
     process.env.API_INTERNAL_URL ||
     (process.env.NODE_ENV === "development"

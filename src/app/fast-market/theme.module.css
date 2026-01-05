@@ -1,0 +1,221 @@
+/* Fast Market theme as a CSS Module.
+  We expose `.themeFastMarket` (new) and keep `.themeTikiMart` (legacy) so
+  existing layouts/components don't break.
+*/
+
+.themeTikiMart,
+.themeFastMarket {
+  /* Base: Blanco/Negro + Azul Link + Arena */
+  --brand-white: oklch(1 0 0);
+  --brand-black: oklch(0.15 0 0);
+  --brand-blue: oklch(0.5731 0.2145 258.25); /* Azul link */
+  --brand-sand: oklch(0.92 0.06 85); /* Arena */
+
+  --background: var(--brand-white);
+  --foreground: var(--brand-black);
+
+  /* Surfaces */
+  --card: var(--brand-white);
+  --card-foreground: var(--brand-black);
+
+  --popover: var(--brand-white);
+  --popover-foreground: var(--brand-black);
+
+  /* Primary: Azul link */
+  --primary: var(--brand-blue);
+  --primary-foreground: var(--brand-white);
+
+  /* Secondary: Arena suave */
+  --secondary: var(--brand-sand);
+  --secondary-foreground: var(--brand-black);
+  --secondary-content: var(--brand-black);
+
+  /* Muted: grises limpios (para fondos/inputs) */
+  --muted: oklch(0.96 0.005 85);
+  --muted-foreground: oklch(0.5 0.01 85);
+
+  /* Accent: Arena */
+  --accent: var(--brand-sand);
+  --accent-foreground: var(--brand-black);
+
+  /* Destructive */
+  --destructive: oklch(0.62 0.18 25);
+  --destructive-foreground: var(--brand-white);
+
+  /* Borders */
+  --border: oklch(0.9 0.01 85);
+  --input: oklch(0.9 0.01 85);
+  --ring: var(--brand-blue);
+
+  /* Map shadcn/Tailwind color tokens (safety: ensure utilities pick up local values) */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary-content: var(--secondary-content);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Radius */
+  --radius: 0.7rem;
+
+  /* Font variables mapping (expects `--font-lilita` and `--font-nunito` to be set by layout) */
+  --font-mono: var(--font-nunito);
+  --font-orbitron: var(--font-lilita);
+  --font-sans: var(--font-nunito);
+
+  /* Ensure the theme root uses the nunito font variable as fallback */
+  font-family: var(--font-nunito);
+}
+
+/* Headings use Lilita One */
+.themeTikiMart :global(h1),
+.themeTikiMart :global(h2),
+.themeTikiMart :global(h3),
+.themeTikiMart :global(h4),
+.themeFastMarket :global(h1),
+.themeFastMarket :global(h2),
+.themeFastMarket :global(h3),
+.themeFastMarket :global(h4) {
+  font-family: var(--font-lilita);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+/* Brand variables for components inside the themed layout */
+.themeTikiMart,
+.themeFastMarket {
+  /* Fast Market specific tokens */
+  --fast-blue: var(--brand-blue);
+  --fast-sand: var(--brand-sand);
+  --fast-black: var(--brand-black);
+  --fast-white: var(--brand-white);
+
+  /* Legacy compatibility tokens (some components might still reference these) */
+  --tiki-turquesa: var(--fast-blue);
+  --tiki-amarillo: var(--fast-sand);
+  --tiki-coral: var(--destructive);
+  --tiki-menta: var(--muted);
+  --tiki-negro: var(--fast-black);
+
+  /* Subtle gradients (kept because existing utility classes rely on them) */
+  --gradient-tropical: linear-gradient(
+    135deg,
+    var(--fast-blue) 0%,
+    oklch(0.72 0.16 255) 100%
+  );
+  --gradient-sunset: linear-gradient(
+    135deg,
+    var(--fast-sand) 0%,
+    oklch(0.88 0.07 85) 100%
+  );
+  --gradient-ocean: linear-gradient(
+    135deg,
+    var(--fast-blue) 0%,
+    oklch(0.72 0.16 255) 50%,
+    var(--fast-blue) 100%
+  );
+}
+
+/* Button variants */
+.themeTikiMart .btn-tropical,
+.themeFastMarket .btn-tropical {
+  background: var(--gradient-tropical);
+  color: var(--fast-white);
+  border: none;
+  border-radius: var(--radius);
+  font-family: var(--font-nunito);
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.themeTikiMart .btn-tropical:hover,
+.themeFastMarket .btn-tropical:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px color-mix(in oklab, var(--fast-blue) 30%, transparent);
+}
+
+.themeTikiMart .btn-sunset,
+.themeFastMarket .btn-sunset {
+  background: var(--gradient-sunset);
+  color: var(--fast-black);
+  border: none;
+  border-radius: var(--radius);
+  font-family: var(--font-nunito);
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.themeTikiMart .btn-sunset:hover,
+.themeFastMarket .btn-sunset:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px color-mix(in oklab, var(--fast-sand) 45%, transparent);
+}
+
+/* Card styles */
+.themeTikiMart .card-tropical,
+.themeFastMarket .card-tropical {
+  background: white;
+  border: 1px solid color-mix(in oklab, var(--fast-sand) 55%, var(--border));
+  border-radius: calc(var(--radius) * 1.5);
+  box-shadow: 0 4px 20px color-mix(in oklab, var(--fast-black) 10%, transparent);
+  transition: all 0.3s ease;
+}
+
+.themeTikiMart .card-tropical:hover,
+.themeFastMarket .card-tropical:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px color-mix(in oklab, var(--fast-black) 16%, transparent);
+  border-color: var(--fast-blue);
+}
+
+/* Badge styles */
+.themeTikiMart .badge-turquesa,
+.themeFastMarket .badge-turquesa {
+  background: var(--fast-blue);
+  color: var(--fast-white);
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.themeTikiMart .badge-amarillo,
+.themeFastMarket .badge-amarillo {
+  background: var(--fast-sand);
+  color: var(--fast-black);
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.themeTikiMart .badge-coral,
+.themeFastMarket .badge-coral {
+  background: var(--destructive);
+  color: var(--fast-white);
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.themeTikiMart .badge-menta,
+.themeFastMarket .badge-menta {
+  background: var(--muted);
+  color: var(--fast-black);
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}

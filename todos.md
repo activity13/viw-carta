@@ -3,7 +3,17 @@ Funcionalidades y pendientes:
 - Arreglar el redireccionamiento de la página 404
 - Cambiar de nombre a la colección, 'restaurants' por 'business'.
 
--------------------------------- POST PRODUCTION --------------------------------------------------------
+---------------------------------------- FAST MARKET --------------------------------------------------------------------------------
+
+# Estilo
+
+- El custom style de fast-market no está aplicando sobre los modals de carrito y detalles del producto.
+
+# Carrito
+
+-
+
+---------------------------------------- POST PRODUCTION --------------------------------------------------------------------------------
 
 [para hoy]
 
@@ -34,10 +44,15 @@ Funcionalidades y pendientes:
 
 <!-- - los bordes de los inputs deben contrastar con su fondo. -->
 
-- Al editar los datos del perfil, el botón de guardado solo debe mostrarse si ocurren cambios.
 - El botón de acción guardar/editar debe estar anexado al botón viw de acción.
+- Si el usuario es premium el componente de selección tema/fuente no se debe mostrar.
 
 ## Textos (considerar renombrar esta herramienta principal)
+
+# Mensajes
+
+- EL modulo de mensajes me parece que debería cambiar de nombre, mensajes me suena como a que ahi me escribiran y yo podre de alguna manera responder. La palabra no encaja con la funcionalidad que es la de informar a traves de textos marketeados o informativos colocados estrategicamente en la carta custom del cliente. Propongo que el módulo se renombre a Textos (por favor, haz un análisis sobre cuál sería la palabra más adecuada para este módulo)
+- Se debe permitir eliminar textos, al hacerlo un confir m salta para advertir que
 
 # Traducciones
 
