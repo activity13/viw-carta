@@ -46,7 +46,7 @@ export const OrderSummaryModal = ({
             <span>Tu Pedido</span>
             {identity && (
               <span className="text-sm font-normal bg-secondary text-secondary-foreground px-2 py-1 rounded-md self-start">
-                #{identity.shortId} • {identity.codeName}
+                Pedido #{identity.shortId}
               </span>
             )}
           </DialogTitle>

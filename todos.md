@@ -7,7 +7,7 @@ Funcionalidades y pendientes:
 
 # Estilo
 
-- El custom style de fast-market no está aplicando sobre los modals de carrito y detalles del producto.
+- [x] El custom style de fast-market no está aplicando sobre los modals de carrito y detalles del producto.
 
 # Escaparate
 
@@ -21,7 +21,7 @@ Funcionalidades y pendientes:
 
 # Ordenes Express
 
-- Vamos a dar por terminada la funcionalidad de nombre clave: Refactorizar todos los componentes que tratan este tema. ELiminar archivos que hayan estado dedicados completamente a la función.
+- [x] Vamos a dar por terminada la funcionalidad de nombre clave: Refactorizar todos los componentes que tratan este tema. ELiminar archivos que hayan estado dedicados completamente a la función.
 
 ---------------------------------------- POST PRODUCTION --------------------------------------------------------------------------------
 

@@ -12,9 +12,7 @@ export const generateWhatsAppLink = (
   // Clean phone number (remove spaces, dashes, +, etc)
   const cleanPhone = phone.replace(/\D/g, "");
 
-  let message = `Hola! Soy *${identity?.codeName || "Cliente"}* (Pedido #${
-    identity?.shortId || "0000"
-  })\n\n`;
+  let message = `Hola! Pedido #${identity?.shortId || "0000"}\n\n`;
   message += `Me gustaría pedir:\n`;
 
   items.forEach((item) => {

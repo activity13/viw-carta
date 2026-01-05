@@ -139,7 +139,7 @@ export default async function MarketLayout({
     ...(data?.restaurant || {}),
     name: data?.restaurant?.name || "Fast Market",
     phone: normalizedPhone,
-    email: data?.restaurant?.email || "contacto@marketvichayito.com",
+    email: data?.restaurant?.email || "contacto@viw-carta.com",
   } as const;
 
   return (
