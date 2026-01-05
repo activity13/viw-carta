@@ -27,14 +27,14 @@ export default function CategorySelector({
   const scrollRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="w-full  sticky top-0 z-30 bg-slate-50/95 backdrop-blur supports-backdrop-filter:bg-slate-50/80 py-4 border-b border-slate-200 shadow-sm transition-all duration-300">
+    <div className="w-full sticky top-0 z-30 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80 py-4 border-b border-border shadow-sm transition-all duration-300">
       <div className="max-w-7xl mx-auto flex flex-col gap-4">
         {/* Search Bar */}
         <div className="px-4 w-full max-w-md mx-auto">
           <div className="relative group">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <svg
-                className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors"
+                className="h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors"
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
                 fill="currentColor"
@@ -51,7 +51,7 @@ export default function CategorySelector({
               type="text"
               placeholder="Buscar productos..."
               onChange={(e) => onSearch(e.target.value)}
-              className="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-xl leading-5 bg-white placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all duration-200 shadow-sm hover:shadow-md"
+              className="block w-full pl-10 pr-3 py-2 border border-border rounded-xl leading-5 bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring sm:text-sm transition-all duration-200 shadow-sm hover:shadow-md"
             />
           </div>
         </div>
@@ -59,26 +59,28 @@ export default function CategorySelector({
         {/* Categories List */}
         <div
           ref={scrollRef}
-          className="flex items-center lg:items overflow-x-auto overflow-y-hidden gap-2 px-4 scrollbar-none snap-x justify-start md:justify-center"
+          className="overflow-x-auto overflow-y-hidden px-4 md:px-8 scrollbar-none scroll-px-4 md:scroll-px-8"
         >
-          {categories.map((category) => {
-            const isSelected = selectedCategories.includes(category._id);
-            return (
-              <button
-                key={category._id}
-                onClick={() => onToggleCategory(category._id)}
-                onDoubleClick={() => onSelectAll()}
-                className={cn(
-                  "flex-none px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 snap-start border shadow-sm hover:shadow-md active:scale-95 whitespace-nowrap",
-                  isSelected
-                    ? "bg-blue-600 text-white border-blue-600 scale-105"
-                    : "bg-white text-slate-600 border-slate-200 hover:border-blue-300 hover:text-blue-600"
-                )}
-              >
-                {category.name}
-              </button>
-            );
-          })}
+          <div className="flex items-center gap-4 w-max mx-auto py-1">
+            {categories.map((category) => {
+              const isSelected = selectedCategories.includes(category._id);
+              return (
+                <button
+                  key={category._id}
+                  onClick={() => onToggleCategory(category._id)}
+                  onDoubleClick={() => onSelectAll()}
+                  className={cn(
+                    "flex-none px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 snap-start border shadow-sm hover:shadow-md active:scale-95 whitespace-nowrap",
+                    isSelected
+                      ? "bg-primary text-primary-foreground border-primary scale-105"
+                      : "bg-card text-muted-foreground border-border hover:border-primary/40 hover:text-primary"
+                  )}
+                >
+                  {category.name}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>

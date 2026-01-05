@@ -40,17 +40,17 @@ export const OrderSummaryModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-xl bg-white text-slate-900 z-100 p-6">
+      <DialogContent className="sm:max-w-xl bg-background text-foreground z-100 p-6 border border-border font-sans">
         <DialogHeader>
           <DialogTitle className="flex flex-col gap-2">
             <span>Tu Pedido</span>
             {identity && (
-              <span className="text-sm font-normal text-muted bg-blue-400 px-2 py-1 rounded-md self-start">
+              <span className="text-sm font-normal bg-secondary text-secondary-foreground px-2 py-1 rounded-md self-start">
                 #{identity.shortId} • {identity.codeName}
               </span>
             )}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-muted-foreground">
             Revisa tu selección antes de enviar el pedido por WhatsApp.
           </DialogDescription>
         </DialogHeader>
@@ -65,7 +65,7 @@ export const OrderSummaryModal = ({
               {items.map((item) => (
                 <div
                   key={item.mealId}
-                  className="flex items-center justify-between border-b pb-2 last:border-0"
+                  className="flex items-center justify-between border-b border-border pb-2 last:border-0"
                 >
                   <div className="flex flex-col flex-1">
                     <span className="font-medium">{item.name}</span>
@@ -75,7 +75,7 @@ export const OrderSummaryModal = ({
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1 bg-white rounded-full p-1">
+                    <div className="flex items-center gap-1 bg-card text-card-foreground border border-border rounded-full p-1">
                       <Button
                         variant="ghost"
                         size="icon"
@@ -117,15 +117,11 @@ export const OrderSummaryModal = ({
             </span>
           </div>
           <div className="flex gap-2 w-full">
-            <Button
-              variant="outline"
-              className="flex-1 bg-blue-800"
-              onClick={clearCart}
-            >
+            <Button variant="outline" className="flex-1" onClick={clearCart}>
               Limpiar
             </Button>
             <Button
-              className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+              className="flex-1"
               onClick={handleSendOrder}
               disabled={items.length === 0}
             >

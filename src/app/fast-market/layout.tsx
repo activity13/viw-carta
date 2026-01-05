@@ -4,6 +4,7 @@ import styles from "./theme.module.css";
 import Link from "next/link";
 import SmoothScrollToTopLink from "./SmoothScrollToTopLink";
 import Image from "next/image";
+import ThemeClient from "./ThemeClient";
 // Base URL for metadata (used by Next.js to resolve absolute OG/Twitter image URLs)
 export const metadataBase = new URL(
   process.env.NEXT_PUBLIC_SITE_URL ||
@@ -142,170 +143,181 @@ export default async function MarketLayout({
   } as const;
 
   return (
-    <main
-      className={`${lilitaOne.variable} ${nunito.variable} ${styles.themeFastMarket} font-nunito antialiased bg-background text-foreground`}
-    >
-      <div id="top" className="min-h-screen flex flex-col">
-        {/* Header Navigation */}
-        <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border shadow-sm">
-          <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              {/* Logo */}
-              <div className="flex items-center">
-                <Link
-                  href="/fast-market"
-                  className="flex items-center gap-3 group"
-                >
-                  <Image
-                    src={`/${restaurant.slug}/images/logo.jpeg`}
-                    alt={`${restaurant.name} Logo`}
-                    width={40}
-                    height={40}
-                    className="rounded-xl"
-                  />
-                  <span className="font-lilita text-2xl text-foreground group-hover:text-primary transition-colors">
-                    {restaurant.name}
-                  </span>
-                </Link>
-              </div>
-
-              {/* Navigation Links */}
-              <div className="hidden md:block">
-                <div className="ml-10 flex items-baseline space-x-8">
-                  <SmoothScrollToTopLink
-                    href="/fast-market"
-                    className="text-muted-foreground hover:text-primary px-3 py-2 rounded-xl text-sm font-medium transition-colors"
-                  >
-                    Inicio
-                  </SmoothScrollToTopLink>
+    <>
+      <ThemeClient
+        fontVariableClasses={`${lilitaOne.variable} ${nunito.variable}`}
+      />
+      <main
+        className={`${lilitaOne.variable} ${nunito.variable} ${styles.themeFastMarket} font-nunito antialiased bg-background text-foreground`}
+      >
+        <div id="top" className="min-h-screen flex flex-col">
+          {/* Header Navigation */}
+          <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border shadow-sm">
+            <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex items-center justify-between h-16">
+                {/* Logo */}
+                <div className="flex items-center">
                   <Link
-                    href="#"
-                    className="text-muted-foreground hover:text-primary px-3 py-2 rounded-xl text-sm font-medium transition-colors"
+                    href="/fast-market"
+                    className="flex items-center gap-3 group"
                   >
-                    Nosotros
-                  </Link>
-                  {restaurant.phone && (
-                    <Link
-                      href={`https://wa.me/${restaurant.phone}`}
-                      target="_blank"
-                      className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-xl text-sm font-medium transition-colors flex items-center gap-2 shadow-md hover:shadow-lg"
-                    >
-                      <span>💬</span> WhatsApp
-                    </Link>
-                  )}
-                </div>
-              </div>
-
-              {/* Mobile menu button placeholder - functionality would need client component */}
-              <div className="md:hidden">
-                <button
-                  type="button"
-                  className="text-muted-foreground hover:text-primary p-2"
-                >
-                  <span className="sr-only">Abrir menú</span>
-                  <svg
-                    className="block h-6 w-6"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 6h16M4 12h16M4 18h16"
+                    <Image
+                      src={`/${restaurant.slug}/images/logo.jpeg`}
+                      alt={`${restaurant.name} Logo`}
+                      width={40}
+                      height={40}
+                      className="rounded-xl"
                     />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </nav>
-        </header>
-
-        {/* Main Content */}
-        <main className="flex-1">{children}</main>
-
-        {/* Footer */}
-        <footer className="bg-foreground text-background/80">
-          <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-              {/* Logo & Description */}
-              <div className="col-span-1 md:col-span-2">
-                <div className="flex items-center gap-3 mb-4">
-                  <Image
-                    src={`/${restaurant.slug}/images/logo.jpeg`}
-                    alt={`${restaurant.name} Logo`}
-                    width={40}
-                    height={40}
-                    className="rounded-xl"
-                  />
-                  <span className="font-lilita text-xl text-background">
-                    {restaurant.name}
-                  </span>
+                    <span className="font-lilita text-2xl text-foreground group-hover:text-primary transition-colors">
+                      {restaurant.name}
+                    </span>
+                  </Link>
                 </div>
-                <p className="text-background/70 mb-4 max-w-md text-sm leading-relaxed">
-                  Comprometidos con la calidad y el servicio. Llevamos los
-                  mejores productos directamente a tu puerta, garantizando
-                  frescura y satisfacción en cada entrega.
-                </p>
-              </div>
 
-              {/* Quick Links */}
-              <div>
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4">
-                  Explorar
-                </h3>
-                <ul className="space-y-3 text-sm">
-                  <li>
+                {/* Navigation Links */}
+                <div className="hidden md:block">
+                  <div className="ml-10 flex items-baseline space-x-8">
                     <SmoothScrollToTopLink
                       href="/fast-market"
-                      className="hover:text-primary transition-colors"
+                      className="text-muted-foreground hover:text-primary px-3 py-2 rounded-xl text-sm font-medium transition-colors"
                     >
-                      Catálogo Completo
+                      Inicio
                     </SmoothScrollToTopLink>
-                  </li>
-                  <li>
                     <Link
                       href="#"
-                      className="hover:text-primary transition-colors"
+                      className="text-muted-foreground hover:text-primary px-3 py-2 rounded-xl text-sm font-medium transition-colors"
                     >
-                      Zona de Reparto
+                      Nosotros
                     </Link>
-                  </li>
-                </ul>
+                    {restaurant.phone && (
+                      <Link
+                        href={`https://wa.me/${restaurant.phone}`}
+                        target="_blank"
+                        className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-xl text-sm font-medium transition-colors flex items-center gap-2 shadow-md hover:shadow-lg"
+                      >
+                        <span>💬</span> WhatsApp
+                      </Link>
+                    )}
+                  </div>
+                </div>
+
+                {/* Mobile menu button placeholder - functionality would need client component */}
+                <div className="md:hidden">
+                  <button
+                    type="button"
+                    className="text-muted-foreground hover:text-primary p-2"
+                  >
+                    <span className="sr-only">Abrir menú</span>
+                    <svg
+                      className="block h-6 w-6"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 6h16M4 12h16M4 18h16"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </nav>
+          </header>
+
+          {/* Main Content */}
+          <main className="flex-1">{children}</main>
+
+          {/* Footer */}
+          <footer className="bg-foreground text-background/80">
+            <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                {/* Logo & Description */}
+                <div className="col-span-1 md:col-span-2">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Image
+                      src={`/${restaurant.slug}/images/logo.jpeg`}
+                      alt={`${restaurant.name} Logo`}
+                      width={40}
+                      height={40}
+                      className="rounded-xl"
+                    />
+                    <span className="font-lilita text-xl text-background">
+                      {restaurant.name}
+                    </span>
+                  </div>
+                  <p className="text-background/70 mb-4 max-w-md text-sm leading-relaxed">
+                    Comprometidos con la calidad y el servicio. Llevamos los
+                    mejores productos directamente a tu puerta, garantizando
+                    frescura y satisfacción en cada entrega.
+                  </p>
+                </div>
+
+                {/* Quick Links */}
+                <div>
+                  <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4">
+                    Explorar
+                  </h3>
+                  <ul className="space-y-3 text-sm">
+                    <li>
+                      <SmoothScrollToTopLink
+                        href="/fast-market"
+                        className="hover:text-primary transition-colors"
+                      >
+                        Catálogo Completo
+                      </SmoothScrollToTopLink>
+                    </li>
+                    <li>
+                      <Link
+                        href="#"
+                        className="hover:text-primary transition-colors"
+                      >
+                        Zona de Reparto
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Contact Info */}
+                <div>
+                  <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4">
+                    Contacto
+                  </h3>
+                  <ul className="space-y-3 text-sm text-background/70">
+                    {restaurant.phone && <li>WhatsApp: {restaurant.phone}</li>}
+                    {restaurant.email && <li>Email: {restaurant.email}</li>}
+                    <li>Atención al cliente</li>
+                  </ul>
+                </div>
               </div>
 
-              {/* Contact Info */}
-              <div>
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4">
-                  Contacto
-                </h3>
-                <ul className="space-y-3 text-sm text-background/70">
-                  {restaurant.phone && <li>WhatsApp: {restaurant.phone}</li>}
-                  {restaurant.email && <li>Email: {restaurant.email}</li>}
-                  <li>Atención al cliente</li>
-                </ul>
+              <div className="mt-12 pt-8 border-t border-background/20 text-xs text-background/60 flex flex-col md:flex-row justify-between items-center">
+                <p>
+                  © {new Date().getFullYear()} {restaurant.name}. Todos los
+                  derechos reservados.
+                </p>
+                <div className="mt-4 md:mt-0 flex space-x-6">
+                  <Link
+                    href="#"
+                    className="hover:text-primary transition-colors"
+                  >
+                    Privacidad
+                  </Link>
+                  <Link
+                    href="#"
+                    className="hover:text-primary transition-colors"
+                  >
+                    Términos y Condiciones
+                  </Link>
+                </div>
               </div>
             </div>
-
-            <div className="mt-12 pt-8 border-t border-background/20 text-xs text-background/60 flex flex-col md:flex-row justify-between items-center">
-              <p>
-                © {new Date().getFullYear()} {restaurant.name}. Todos los
-                derechos reservados.
-              </p>
-              <div className="mt-4 md:mt-0 flex space-x-6">
-                <Link href="#" className="hover:text-primary transition-colors">
-                  Privacidad
-                </Link>
-                <Link href="#" className="hover:text-primary transition-colors">
-                  Términos y Condiciones
-                </Link>
-              </div>
-            </div>
-          </div>
-        </footer>
-      </div>
-    </main>
+          </footer>
+        </div>
+      </main>
+    </>
   );
 }

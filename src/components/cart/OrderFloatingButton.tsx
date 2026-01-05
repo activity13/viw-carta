@@ -26,13 +26,13 @@ export const OrderFloatingButton = ({
           size="lg"
           className={cn(
             "h-14 rounded-full shadow-lg flex items-center gap-3 px-6",
-            "bg-blue-400 text-primary-foreground hover:bg-blue-400/90"
+            "bg-primary text-primary-foreground hover:bg-primary/90"
           )}
           onClick={() => setIsModalOpen(true)}
         >
           <div className="relative">
             <Receipt className="h-6 w-6" />
-            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+            <span className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
               {totalItems}
             </span>
           </div>

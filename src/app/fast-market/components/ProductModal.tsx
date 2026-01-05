@@ -11,6 +11,17 @@ import Image from "next/image";
 import { formatPrice } from "@/lib/utils";
 import { X } from "lucide-react";
 import { AddToCartButton } from "@/components/cart/AddToCartButton";
+import { Lilita_One, Nunito } from "next/font/google";
+
+const lilitaOne = Lilita_One({
+  subsets: ["latin"],
+  weight: "400",
+});
+
+const nunito = Nunito({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+});
 
 interface Meal {
   _id: string;
@@ -40,7 +51,7 @@ export default function ProductModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
-        className="sm:max-w-md p-0 overflow-hidden bg-white border-none shadow-xl"
+        className={`sm:max-w-md p-0 overflow-hidden bg-white border-none shadow-xl ${nunito.className}`}
         showCloseButton={false}
       >
         <div className="relative w-full h-64 sm:h-72 bg-slate-50">
@@ -67,7 +78,9 @@ export default function ProductModal({
 
         <div className="p-6">
           <DialogHeader className="mb-4 text-left">
-            <DialogTitle className="text-xl font-bold text-slate-900 mb-2">
+            <DialogTitle
+              className={`text-xl font-bold text-slate-900 mb-2 ${lilitaOne.className}`}
+            >
               {meal.name}
             </DialogTitle>
             <DialogDescription className="text-slate-600 text-sm leading-relaxed">

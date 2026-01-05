@@ -34,7 +34,9 @@ export const AddToCartButton = ({ meal, className }: AddToCartButtonProps) => {
         >
           <Minus className="h-4 w-4" />
         </Button>
-        <span className="w-4 text-center font-medium">{quantity}</span>
+        <span className="w-4 text-center text-black font-medium">
+          {quantity}
+        </span>
         <Button
           variant="outline"
           size="icon"

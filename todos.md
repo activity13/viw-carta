@@ -9,9 +9,19 @@ Funcionalidades y pendientes:
 
 - El custom style de fast-market no está aplicando sobre los modals de carrito y detalles del producto.
 
-# Carrito
+# Escaparate
 
--
+- Será un nuevo componente de la sección de la página que mostrará los productos highlighteados, alguna información especial y relevante, algun anuncio, etc. Se mostrará como un slider minimalista y muy bien hecho. La idea es que la primera impresión sea la de ver este escaparate y justo abajo muy bien puesto se mostrará fila de categorías.
+- Dale un nombre a este componente de la página.
+
+# Categorias
+
+- [x] El como se muestran las categorías está mal. Para empezar se debe agregar espacio entre ellas.
+- [x] En vista de tablet/escritorio el ancho del componente corta las primeras y últimas categorías dando una mala imagen.
+
+# Ordenes Express
+
+- Vamos a dar por terminada la funcionalidad de nombre clave: Refactorizar todos los componentes que tratan este tema. ELiminar archivos que hayan estado dedicados completamente a la función.
 
 ---------------------------------------- POST PRODUCTION --------------------------------------------------------------------------------
 
