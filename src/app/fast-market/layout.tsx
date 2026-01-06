@@ -170,14 +170,14 @@ export default async function MarketLayout({
                       height={40}
                       className="rounded-xl"
                     />
-                    <span className="font-lilita text-2xl text-foreground group-hover:text-primary transition-colors">
+                    <span className="hidden md:inline font-lilita text-2xl text-foreground group-hover:text-primary transition-colors">
                       {restaurant.name}
                     </span>
                   </Link>
                 </div>
 
                 {/* Search */}
-                <div className="hidden md:flex flex-1 justify-center px-6">
+                <div className="flex flex-1 min-w-0 justify-center px-3 sm:px-6">
                   <Suspense
                     fallback={
                       <div className="w-full max-w-md h-10 rounded-xl bg-muted" />
@@ -213,41 +213,6 @@ export default async function MarketLayout({
                     )}
                   </div>
                 </div>
-
-                {/* Mobile menu button placeholder - functionality would need client component */}
-                <div className="md:hidden">
-                  <button
-                    type="button"
-                    className="text-muted-foreground hover:text-primary p-2"
-                  >
-                    <span className="sr-only">Abrir menú</span>
-                    <svg
-                      className="block h-6 w-6"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 6h16M4 12h16M4 18h16"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-              {/* Mobile Search */}
-              <div className="md:hidden pb-4">
-                <Suspense
-                  fallback={
-                    <div className="w-full max-w-md h-10 rounded-xl bg-muted" />
-                  }
-                >
-                  <NavbarSearch />
-                </Suspense>
               </div>
             </nav>
           </header>

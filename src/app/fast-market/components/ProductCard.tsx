@@ -19,6 +19,13 @@ interface ProductCardProps {
 
 export default function ProductCard({ meal, onClick }: ProductCardProps) {
   const image = meal.images?.find((img) => img.url) || meal.images?.[0];
+  const comparePrice =
+    typeof meal.comparePrice === "number" ? meal.comparePrice : undefined;
+  const isDiscount =
+    typeof comparePrice === "number" &&
+    comparePrice > 0 &&
+    comparePrice < meal.price;
+
   return (
     <div
       onClick={onClick}
@@ -38,7 +45,7 @@ export default function ProductCard({ meal, onClick }: ProductCardProps) {
             <span className="text-xs">Sin imagen</span>
           </div>
         )}
-        {meal.comparePrice && meal.comparePrice < meal.price && (
+        {isDiscount && (
           <div className="absolute top-2 right-2 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-full">
             OFERTA
           </div>
@@ -55,17 +62,13 @@ export default function ProductCard({ meal, onClick }: ProductCardProps) {
 
         <div className="flex items-center justify-between mt-auto">
           <div className="flex flex-col">
-            {meal.comparePrice && meal.comparePrice < meal.price && (
+            {isDiscount && (
               <span className="text-[10px] text-slate-400 line-through">
                 {formatPrice(meal.price)}
               </span>
             )}
             <span className="font-bold text-blue-600 text-sm">
-              {formatPrice(
-                meal.comparePrice && meal.comparePrice < meal.price
-                  ? meal.comparePrice
-                  : meal.price
-              )}
+              {formatPrice(isDiscount ? comparePrice! : meal.price)}
             </span>
           </div>
           {/* choose comparePrice if it's lower than base price */}
@@ -73,10 +76,7 @@ export default function ProductCard({ meal, onClick }: ProductCardProps) {
             meal={{
               id: meal.id || meal._id,
               name: meal.name,
-              price:
-                meal.comparePrice && meal.comparePrice < meal.price
-                  ? meal.comparePrice
-                  : meal.price,
+              price: isDiscount ? meal.comparePrice! : meal.price,
             }}
             className="h-8"
           />
