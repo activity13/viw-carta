@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import CategorySelector from "./CategorySelector";
-import PromoCarousel from "./PromoCarousel";
+import ShowcaseCarousel from "./ShowcaseCarousel";
 import ProductCard from "./ProductCard";
 import ProductModal from "./ProductModal";
 import { CartProvider } from "@/providers/CartProvider";
@@ -60,6 +61,8 @@ interface MarketViewProps {
 }
 
 export default function MarketView({ data }: MarketViewProps) {
+  const searchParams = useSearchParams();
+
   // Ensure categories have valid IDs and are stable
   const categories = useMemo(() => {
     return data.categories
@@ -76,15 +79,45 @@ export default function MarketView({ data }: MarketViewProps) {
   );
 
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
+
+  const searchQuery = (searchParams.get("q") ?? "").trim();
+
+  const prevSearchQueryRef = useRef<string>("");
+  const selectionBeforeSearchRef = useRef<string[] | null>(null);
 
   // Sync: Initialize with all categories selected
   useEffect(() => {
-    if (allCategoryIds.length > 0 && selectedCategoryIds.length === 0) {
+    if (
+      allCategoryIds.length > 0 &&
+      selectedCategoryIds.length === 0 &&
+      !searchQuery
+    ) {
       setSelectedCategoryIds(allCategoryIds);
     }
-  }, [allCategoryIds, selectedCategoryIds.length]);
+  }, [allCategoryIds, selectedCategoryIds.length, searchQuery]);
+
+  // When text search is active, force all categories selected (search across all products)
+  useEffect(() => {
+    const prev = prevSearchQueryRef.current;
+    const isEnteringSearch = !prev && !!searchQuery;
+    const isLeavingSearch = !!prev && !searchQuery;
+
+    if (isEnteringSearch) {
+      selectionBeforeSearchRef.current = selectedCategoryIds;
+      setSelectedCategoryIds(allCategoryIds);
+    }
+
+    if (isLeavingSearch) {
+      const prevSelection = selectionBeforeSearchRef.current;
+      if (prevSelection && prevSelection.length > 0) {
+        setSelectedCategoryIds(prevSelection);
+      }
+      selectionBeforeSearchRef.current = null;
+    }
+
+    prevSearchQueryRef.current = searchQuery;
+  }, [searchQuery, allCategoryIds, selectedCategoryIds]);
 
   const allMeals = useMemo(() => {
     if (data.meals && data.meals.length > 0) {
@@ -195,17 +228,16 @@ export default function MarketView({ data }: MarketViewProps) {
   return (
     <CartProvider>
       <div className="min-h-screen bg-slate-50 pb-20">
+        {selectedCategoryIds.length === categories.length &&
+          !searchQuery &&
+          highlights.length > 0 && <ShowcaseCarousel items={highlights} />}
+
         <CategorySelector
           categories={categories}
           selectedCategories={selectedCategoryIds}
           onToggleCategory={handleToggleCategory}
-          onSearch={setSearchQuery}
           onSelectAll={handleSelectAll}
         />
-
-        {selectedCategoryIds.length === categories.length &&
-          !searchQuery &&
-          highlights.length > 0 && <PromoCarousel promos={highlights} />}
 
         <div className="px-4 mt-6 space-y-8">
           {filteredCategories.length > 0 ? (

@@ -5,6 +5,7 @@ import Link from "next/link";
 import SmoothScrollToTopLink from "./SmoothScrollToTopLink";
 import Image from "next/image";
 import ThemeClient from "./ThemeClient";
+import NavbarSearch from "./components/NavbarSearch";
 // Base URL for metadata (used by Next.js to resolve absolute OG/Twitter image URLs)
 export const metadataBase = new URL(
   process.env.NEXT_PUBLIC_SITE_URL ||
@@ -174,6 +175,11 @@ export default async function MarketLayout({
                   </Link>
                 </div>
 
+                {/* Search */}
+                <div className="hidden md:flex flex-1 justify-center px-6">
+                  <NavbarSearch />
+                </div>
+
                 {/* Navigation Links */}
                 <div className="hidden md:block">
                   <div className="ml-10 flex items-baseline space-x-8">
@@ -224,6 +230,11 @@ export default async function MarketLayout({
                     </svg>
                   </button>
                 </div>
+              </div>
+
+              {/* Mobile Search */}
+              <div className="md:hidden pb-4">
+                <NavbarSearch />
               </div>
             </nav>
           </header>
