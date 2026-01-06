@@ -1,4 +1,4 @@
-import MarketView from "@/app/market-vichayito/components/MarketView";
+import MarketView from "@/app/fast-market/components/MarketView";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
@@ -8,17 +8,22 @@ const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ||
   (process.env.NODE_ENV === "development"
     ? "http://localhost:3000"
-    : "https://vichayito-market.viw-carta.com");
+    : "https://fast-market.viw-carta.com");
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "Market Vichayito — Embed",
+  title: "Fast Market Vichayito",
   description:
-    "Catálogo embebible de Market Vichayito — productos frescos y pedidos por WhatsApp.",
+    "Catálogo embebible de Fast Market Vichayito — productos frescos y pedidos por WhatsApp.",
+  icons: [
+    {
+      url: "/fast-market/images/favicon.ico",
+    },
+  ],
   openGraph: {
-    title: "Market Vichayito — Embed",
+    title: "Fast Market Vichayito — Embed",
     description:
-      "Catálogo embebible de Market Vichayito — productos frescos y pedidos por WhatsApp.",
+      "Catálogo embebible de Fast Market Vichayito — productos frescos y pedidos por WhatsApp.",
     url: siteUrl,
     images: [
       process.env.NEXT_PUBLIC_SITE_URL
