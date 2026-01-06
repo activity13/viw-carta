@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Lilita_One, Nunito } from "next/font/google";
+import { Suspense } from "react";
 import styles from "./theme.module.css";
 import Link from "next/link";
 import SmoothScrollToTopLink from "./SmoothScrollToTopLink";
@@ -177,7 +178,13 @@ export default async function MarketLayout({
 
                 {/* Search */}
                 <div className="hidden md:flex flex-1 justify-center px-6">
-                  <NavbarSearch />
+                  <Suspense
+                    fallback={
+                      <div className="w-full max-w-md h-10 rounded-xl bg-muted" />
+                    }
+                  >
+                    <NavbarSearch />
+                  </Suspense>
                 </div>
 
                 {/* Navigation Links */}
@@ -234,7 +241,13 @@ export default async function MarketLayout({
 
               {/* Mobile Search */}
               <div className="md:hidden pb-4">
-                <NavbarSearch />
+                <Suspense
+                  fallback={
+                    <div className="w-full max-w-md h-10 rounded-xl bg-muted" />
+                  }
+                >
+                  <NavbarSearch />
+                </Suspense>
               </div>
             </nav>
           </header>
