@@ -55,7 +55,7 @@ export const OrderSummaryModal = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-4 py-8">
+        <div className="flex flex-col gap-2 py-2 max-h-96 overflow-y-auto">
           {items.length === 0 ? (
             <p className="text-center text-muted-foreground">
               Tu carrito está vacío.
