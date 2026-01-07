@@ -7,7 +7,7 @@ import ThemeClient from "./ThemeClient";
 import NavbarSearch from "./components/NavbarSearch";
 import Link from "next/link";
 // Base URL for metadata (used by Next.js to resolve absolute OG/Twitter image URLs)
-export const metadataBase = new URL(
+const metadataBase = new URL(
   process.env.NEXT_PUBLIC_SITE_URL ||
     (process.env.NODE_ENV === "development"
       ? "http://localhost:3000"
@@ -62,6 +62,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const data = await getData();
 
   return {
+    metadataBase,
     title: "Fast Market - Tu Market Digital de la Costanera",
     icons: {
       icon: `/fast-market/images/favicon.ico`,
