@@ -367,7 +367,7 @@ const CreateMealForm = ({
   }, [mealId]);
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-[95vw] sm:max-w-[85vw] md:max-w-3xl lg:max-w-4xl mx-auto p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-full max-w-[95vw] sm:max-w-[85vw] md:max-w-3xl lg:max-w-4xl mx-auto p-4 sm:p-6 max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="text-lg sm:text-xl">
             Crear Nuevo Plato
@@ -376,26 +376,27 @@ const CreateMealForm = ({
             Completa el formulario para agregar un nuevo plato al menú.
           </DialogDescription>
         </DialogHeader>
-        <div>
-          <div className="border-b border-gray-200 mb-4">
-            <nav className="flex flex-wrap gap-2 sm:gap-4 overflow-x-auto">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`py-2 px-2 sm:px-3 border-b-2 font-medium text-xs sm:text-sm transition-colors ${
-                    activeTab === tab.id
-                      ? "border-emerald-600 text-emerald-600"
-                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </nav>
-          </div>
-          {/* Form Content */}
-          <div className="space-y-6">
+        <div className="flex-1 overflow-y-auto pr-1">
+          <div>
+            <div className="border-b border-gray-200 mb-4">
+              <nav className="flex flex-wrap gap-2 sm:gap-4 overflow-x-auto">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`py-2 px-2 sm:px-3 border-b-2 font-medium text-xs sm:text-sm transition-colors ${
+                      activeTab === tab.id
+                        ? "border-emerald-600 text-emerald-600"
+                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </nav>
+            </div>
+            {/* Form Content */}
+            <div className="space-y-6">
             {/* Información Básica */}
             {activeTab === "basic" && (
               <div className="space-y-4">
@@ -982,33 +983,37 @@ const CreateMealForm = ({
                 </div>
               </div>
             )}
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row justify-end items-center pt-4 border-t border-gray-200 gap-3">
-              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                <DialogClose asChild>
-                  <Button
-                    onClick={onClose}
-                    variant={"outline"}
-                    className="px-4 py-2 border border-gray-300 text-gray-700 hover:text-gray-900 rounded-lg hover:bg-gray-50 transition-colors text-sm"
-                  >
-                    Cancelar
-                  </Button>
-                </DialogClose>
+            </div>
+          </div>
+        </div>
 
+        {/* Action Buttons (sticky footer) */}
+        <div className="shrink-0 pt-4 border-t border-gray-200">
+          <div className="flex flex-col sm:flex-row justify-end items-center gap-3">
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+              <DialogClose asChild>
                 <Button
-                  type="submit"
-                  disabled={loading}
-                  className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm"
-                  onClick={handleSubmit}
+                  onClick={onClose}
+                  variant={"outline"}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 hover:text-gray-900 rounded-lg hover:bg-gray-50 transition-colors text-sm"
                 >
-                  {loading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Save className="h-4 w-4" />
-                  )}
-                  {editMode ? "Guardar Cambios" : "Crear Plato"}
+                  Cancelar
                 </Button>
-              </div>
+              </DialogClose>
+
+              <Button
+                type="submit"
+                disabled={loading}
+                className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm"
+                onClick={handleSubmit}
+              >
+                {loading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4" />
+                )}
+                {editMode ? "Guardar Cambios" : "Crear Plato"}
+              </Button>
             </div>
           </div>
         </div>

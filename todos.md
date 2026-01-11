@@ -1,7 +1,81 @@
-Funcionalidades y pendientes:
+# Nuevas funcionalidas
 
-- Arreglar el redireccionamiento de la página 404
 - Cambiar de nombre a la colección, 'restaurants' por 'business'.
+
+  # Sistema de control de suscripciones y manejo de clientes
+
+  Posibles soluciones:
+
+  - Agregar un apartado a la super-admin page
+  - Agregar una subruta que se accede desde la super-admin page
+  - Agregar una ruta nueva dedicada al manejo de clientes y sus suscripciones
+
+  ¿Que debe hacer?
+
+  - Ver una lista de los clientes registrados en VIW-CARTA
+  - Caja de herramientas básica para control de clientes
+  - Perfil del cliente donde se pueda ver con más detalles dicho cliente.
+
+  MISIÓN: Desde un perfil de experto en maquetación MongoDB (mongoose) define la mejor solución. Revisar lo que yo propongo que haga, y complementar y/o corregir lo que debe hacer una pagina de este tipo con funciones básicas de control.
+
+  # Sistema de generación de ventas.
+
+  Contexto: Dado que viw-carta cuenta con un plan premium, me gustaria integrar un sistema de pedidos/ordenes básico y super útil. QUe ayude al usuario del negocio a generar pedidos y poder anotarlos y cobrarlos rápido.
+
+  Solución propuesta:
+
+  El inicio de la backoffice muestra la lista de platos, podemos usar esa mismo esquema de visualización de datos para agregar una opción de agregar al pedido. Previamente el botón de generación de pedido estará integrado en el smart-fab y será tan simple como apretarlo para generar una orden/pedido. El sistema no estará basado en stock por lo que la venta multi device es un requerimiento muy facil de lograr. El sistema debe tener un botón de orden en espera que permita almacenarlo en espera por si hay otra cuenta que cobrar al mismo tiempo.
+
+  Los datos importantes, por lo menos los que se me ocurren en este momento son:
+
+  - identificador facil de recordar de pedido.
+  - nombre de cliente
+  - tipo y numero de documento si se requiere (pasaporte, dni, ci, carné de conducir, CE)
+  - lista de platos/productos de la orden con un input para editar las cantidades y un selector de +- para agregar o quitar una unidad.
+  - forma de pago que sea un array de par tipo/cantidad con logica para llegar al total de la cuenta
+  - botón de pagar cuenta cuando se haya registrado el pago.
+
+    # Proximos pasos:
+
+    - Agregar logica de validación de documentos de identidad según parametros de peru.
+    - Agregar campo para número de mesa en la orden.
+    - Un checkbox para delivery que sume el precio de los recipientes para llevar.
+    - sistema de cuentas de credito para clientes especiales.
+
+    # Observaciones de desarrollo
+
+       <!-- - Las notificaciones están cubriendo el fab button haciendo que se pierda tiempo en la espera que desaparezcan para volver a apretar el fab button.  -->
+       <!-- -  A medida que incrementa la lista de productos el modal baja y se vuelve inaccesible accionar. -->
+       <!-- - Al poner orden activa le botón fab sigue mostrando el botoón de ordenes en espera y no podemos seguir con la venta hasta que se refresca y carga el botón de orden activa.   -->
+
+    Experimento:
+
+    1. Genero una orden y la pongo en espera.
+    2. Genero una segunda orden y la pongo en espera.
+    3. Refresco la página
+    4. Activo la primera orden.
+    5. Refresco la página
+    6. La vulevo a poner en espera.
+    7. Genero una tercera orden.
+
+    # Modo de Uso
+
+    Paso 1. Pulsar el botón de botón de acción.
+    Paso 2. Pulsar el botón de Nueva Orden.
+    Paso 3. Registrar al cliente y guardar sus datos.
+    Paso 4. Agregar los productos desde la lista general pulsando sobre el botón "+"
+    Paso 5. Registrar las formas de pago que igualen la cuenta total.
+    Paso 6. Finalizar pulsando el botón de pago.
+
+    Casos especiales.
+    Poner una orden en espera.
+    Paso 1. Pulsar el botón abajo a la izquierda "Orden en espera"
+    Paso 2. Pulsar el botón de botón de acción.
+    Paso 3. Pulsar el botón de Ordenes.
+    Paso 4. Activar la orden deseada
+    Paso 5. Pulsar el botón de acción.
+    Paso 6. Seguir con la venta.
+    Paso 7. Para activar otra orden se debe poner en espera la activa y repetir los pasos.
 
 ---------------------------------------- FAST MARKET --------------------------------------------------------------------------------
 
@@ -23,10 +97,6 @@ Funcionalidades y pendientes:
 # Ordenes Express
 
 - [x] Vamos a dar por terminada la funcionalidad de nombre clave: Refactorizar todos los componentes que tratan este tema. ELiminar archivos que hayan estado dedicados completamente a la función.
-
----------------------------------------- POST PRODUCTION --------------------------------------------------------------------------------
-
-[para hoy]
 
 ## Funcionalidades generales
 
