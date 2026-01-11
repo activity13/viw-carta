@@ -27,13 +27,13 @@ function calculateTotal(items: Array<{ unitPrice: number; qty: number }>) {
 
 export async function GET(
   _request: Request,
-  { params }: { params: { orderId: string } }
+  { params }: { params: Promise<{ orderId: string }> }
 ) {
   try {
     const session = await requireAuth("staff");
     await connectToDatabase();
 
-    const { orderId } = params;
+    const { orderId } = await params;
 
     const order = await Order.findOne({
       _id: orderId,
@@ -55,13 +55,13 @@ export async function GET(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { orderId: string } }
+  { params }: { params: Promise<{ orderId: string }> }
 ) {
   try {
     const session = await requireAuth("staff");
     await connectToDatabase();
 
-    const { orderId } = params;
+    const { orderId } = await params;
     const body = (await request.json().catch(() => ({}))) as Record<
       string,
       unknown
