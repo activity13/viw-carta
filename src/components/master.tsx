@@ -106,6 +106,246 @@ function calculateOrderTotal(order: Pick<Order, "items">): number {
   return order.items.reduce((acc, item) => acc + item.unitPrice * item.qty, 0);
 }
 
+function escapeHtml(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function paymentLabel(type: PaymentType): string {
+  switch (type) {
+    case "cash":
+      return "Efectivo";
+    case "card":
+      return "Tarjeta";
+    case "transfer":
+      return "Transferencia";
+    default:
+      return "Otro";
+  }
+}
+
+type TicketMode = "prebill" | "paid";
+
+type TicketBrand = {
+  name?: string;
+  logoUrl?: string;
+};
+
+function buildTicketHtml(
+  order: Order,
+  mode: TicketMode,
+  brand?: TicketBrand
+): string {
+  const createdAt = new Date();
+  const dateStr = createdAt.toLocaleString("es-PE");
+
+  const customerName = order.customer?.name?.trim() ?? "";
+  const docType = (order.customer?.documentType as DocumentType | undefined) ?? "none";
+  const docNumber = order.customer?.documentNumber?.trim() ?? "";
+
+  const total = calculateOrderTotal(order);
+  const payments = mode === "paid" ? order.payments ?? [] : [];
+  const paidSum = payments.reduce((acc, p) => acc + (Number.isFinite(p.amount) ? p.amount : 0), 0);
+
+  const itemsHtml = order.items
+    .map((i) => {
+      const name = escapeHtml(i.name);
+      const qty = Number.isFinite(i.qty) ? i.qty : 0;
+      const unit = Number.isFinite(i.unitPrice) ? i.unitPrice : 0;
+      const line = unit * qty;
+      return `
+        <tr>
+          <td class="name">${name}</td>
+          <td class="qty">${qty}</td>
+          <td class="money">S/. ${unit.toFixed(2)}</td>
+          <td class="money">S/. ${line.toFixed(2)}</td>
+        </tr>
+      `;
+    })
+    .join("");
+
+  const paymentsHtml = payments.length
+    ? payments
+        .map(
+          (p) => `
+        <tr>
+          <td class="name">${escapeHtml(paymentLabel(p.type))}</td>
+          <td class="money" colspan="3">S/. ${Number(p.amount || 0).toFixed(2)}</td>
+        </tr>
+      `
+        )
+        .join("")
+    : "";
+
+  const docLine =
+    docType !== "none" && docNumber
+      ? `${escapeHtml(docType.toUpperCase())}: ${escapeHtml(docNumber)}`
+      : "";
+
+  const title = mode === "paid" ? "Comprobante interno" : "Precuenta";
+  const subtitle = mode === "paid" ? "PAGADO" : "NO PAGADO";
+
+  const brandName = brand?.name?.trim() ?? "";
+  const brandLogoUrl = brand?.logoUrl?.trim() ?? "";
+
+  const brandHtml =
+    brandName || brandLogoUrl
+      ? `
+          <div class="brand">
+            ${brandLogoUrl ? `<img class="brand-logo" src="${escapeHtml(brandLogoUrl)}" alt="${escapeHtml(brandName || "Logo")}" />` : ""}
+            ${brandName ? `<div class="brand-name">${escapeHtml(brandName)}</div>` : ""}
+          </div>
+        `
+      : "";
+
+  return `<!doctype html>
+  <html>
+    <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <title>Orden #${order.orderNumber}</title>
+      <style>
+        @page { size: 80mm auto; margin: 4mm; }
+        html, body { padding: 0; margin: 0; }
+        body { width: 72mm; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; color: #000; }
+        .center { text-align: center; }
+        .muted { opacity: 0.75; }
+        .hr { border-top: 1px dashed #000; margin: 6px 0; }
+        h1 { font-size: 14px; margin: 0; }
+        .brand { display: flex; flex-direction: column; align-items: center; gap: 2px; margin-bottom: 4px; }
+        .brand-logo { max-width: 48mm; max-height: 18mm; object-fit: contain; }
+        .brand-name { font-size: 12px; font-weight: 700; }
+        .meta { font-size: 11px; line-height: 1.3; }
+        table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        td { padding: 2px 0; vertical-align: top; }
+        .name { width: 44mm; }
+        .qty { width: 6mm; text-align: right; padding-right: 2mm; }
+        .money { width: 22mm; text-align: right; white-space: nowrap; }
+        .total { font-size: 12px; font-weight: 700; }
+        .wrap { word-break: break-word; }
+      </style>
+    </head>
+    <body>
+      <div class="center">
+        ${brandHtml}
+        <h1>${escapeHtml(title)}</h1>
+        <div class="meta muted">Orden #${order.orderNumber}</div>
+        <div class="meta"><strong>${escapeHtml(subtitle)}</strong></div>
+        <div class="meta muted">${escapeHtml(dateStr)}</div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="meta">
+        <div class="wrap"><strong>Cliente:</strong> ${escapeHtml(customerName || "Sin cliente")}</div>
+        ${docLine ? `<div class="wrap"><strong>Doc:</strong> ${docLine}</div>` : ""}
+      </div>
+
+      <div class="hr"></div>
+
+      <table>
+        <thead>
+          <tr>
+            <td class="name muted">Producto</td>
+            <td class="qty muted">Cant</td>
+            <td class="money muted">PU</td>
+            <td class="money muted">Imp</td>
+          </tr>
+        </thead>
+        <tbody>
+          ${itemsHtml || `<tr><td class="muted" colspan="4">(Sin productos)</td></tr>`}
+        </tbody>
+      </table>
+
+      <div class="hr"></div>
+
+      <table>
+        <tbody>
+          <tr>
+            <td class="name total">TOTAL</td>
+            <td class="money total" colspan="3">S/. ${total.toFixed(2)}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      ${paymentsHtml
+        ? `
+          <div class="hr"></div>
+          <div class="meta"><strong>Pagos</strong></div>
+          <table><tbody>${paymentsHtml}</tbody></table>
+          <table><tbody>
+            <tr>
+              <td class="name muted">Pagado</td>
+              <td class="money" colspan="3">S/. ${paidSum.toFixed(2)}</td>
+            </tr>
+          </tbody></table>
+        `
+        : ""}
+
+      <div class="hr"></div>
+      <div class="center meta muted">Gracias</div>
+    </body>
+  </html>`;
+}
+
+function printHtmlTicket(html: string) {
+  const iframe = document.createElement("iframe");
+  iframe.setAttribute("aria-hidden", "true");
+  iframe.style.position = "fixed";
+  iframe.style.right = "0";
+  iframe.style.bottom = "0";
+  iframe.style.width = "0";
+  iframe.style.height = "0";
+  iframe.style.border = "0";
+  iframe.style.visibility = "hidden";
+
+  iframe.onload = () => {
+    const win = iframe.contentWindow;
+    const doc = iframe.contentDocument;
+
+    const waitForImages = async () => {
+      const images = Array.from(doc?.images ?? []);
+      if (images.length === 0) return;
+
+      await Promise.race([
+        Promise.all(
+          images.map(
+            (img) =>
+              new Promise<void>((resolve) => {
+                if (img.complete) return resolve();
+                img.onload = () => resolve();
+                img.onerror = () => resolve();
+              })
+          )
+        ),
+        new Promise<void>((resolve) => setTimeout(resolve, 900)),
+      ]);
+    };
+
+    (async () => {
+      try {
+        await waitForImages();
+        win?.focus();
+        win?.print();
+      } catch {
+        // ignore
+      } finally {
+        // Cleanup after the print dialog is triggered.
+        setTimeout(() => iframe.remove(), 1000);
+      }
+    })();
+  };
+
+  // Use srcdoc to avoid document.write restrictions/popup blockers.
+  // Some browsers require the iframe in DOM before load triggers.
+  iframe.srcdoc = html;
+  document.body.appendChild(iframe);
+}
+
 function getAxiosStatus(error: unknown): number | undefined {
   return Axios.isAxiosError(error) ? error.response?.status : undefined;
 }
@@ -410,6 +650,8 @@ export default function Master() {
   const restaurantId = session?.user?.restaurantId;
   const userId = session?.user?.id;
 
+  const [ticketBrand, setTicketBrand] = useState<TicketBrand | null>(null);
+
   const [meals, setMeals] = useState<Meal[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(
@@ -447,6 +689,32 @@ export default function Master() {
   const [paymentsDraft, setPaymentsDraft] = useState<OrderPayment[]>([
     { type: "cash", amount: 0 },
   ]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchBrand = async () => {
+      if (!restaurantId) return;
+      try {
+        const res = await Axios.get<{ name?: string; image?: string }>(
+          `/api/settings/${restaurantId}`
+        );
+        if (cancelled) return;
+        setTicketBrand({
+          name: res.data?.name,
+          logoUrl: res.data?.image,
+        });
+      } catch {
+        if (cancelled) return;
+        setTicketBrand(null);
+      }
+    };
+
+    fetchBrand();
+    return () => {
+      cancelled = true;
+    };
+  }, [restaurantId]);
 
   const syncDraftsFromOrder = (order: Order) => {
     setCustomerDraft({
@@ -593,6 +861,15 @@ export default function Master() {
     }
   };
 
+  const handlePrintPrebill = () => {
+    if (!activeOrder) {
+      toast.error("No hay orden activa");
+      return;
+    }
+    const html = buildTicketHtml(activeOrder, "prebill", ticketBrand ?? undefined);
+    printHtmlTicket(html);
+  };
+
   const handlePayOrder = async () => {
     if (!activeOrder) return;
 
@@ -617,10 +894,21 @@ export default function Master() {
 
     setIsOrderBusy(true);
     try {
-      await Axios.patch<Order>(`/api/orders/${activeOrder._id}`, {
+      const res = await Axios.patch<Order>(`/api/orders/${activeOrder._id}`, {
         action: "pay",
         payments: paymentsDraft,
       });
+
+      const paidOrder: Order = {
+        ...res.data,
+        customer: res.data.customer ?? activeOrder.customer,
+        items: res.data.items ?? activeOrder.items,
+        payments: res.data.payments ?? paymentsDraft,
+      };
+
+      const html = buildTicketHtml(paidOrder, "paid", ticketBrand ?? undefined);
+      printHtmlTicket(html);
+
       toast.success("Orden pagada");
       setIsOrderModalOpen(false);
       setActiveOrder(null);
@@ -1384,6 +1672,13 @@ export default function Master() {
           <DialogFooter className="shrink-0">
             <div className="flex w-full flex-col-reverse sm:flex-row sm:justify-between gap-2">
               <div className="flex gap-2">
+                <button
+                  onClick={handlePrintPrebill}
+                  disabled={!activeOrder || isOrderBusy}
+                  className="px-3 py-2 text-sm rounded-md border hover:bg-muted disabled:opacity-60"
+                >
+                  Precuenta
+                </button>
                 <button
                   onClick={handleHoldOrder}
                   disabled={!activeOrder || isOrderBusy}
