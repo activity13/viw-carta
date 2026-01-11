@@ -4,6 +4,19 @@ import { handleAuthError, requireAuth } from "@/lib/auth-helpers";
 import Meal from "@/models/meals";
 import Order from "@/models/order";
 
+type UnknownRecord = Record<string, unknown>;
+
+function isRecord(value: unknown): value is UnknownRecord {
+  return typeof value === "object" && value !== null;
+}
+
+type OrderItemDoc = {
+  mealId: string;
+  name?: string;
+  unitPrice?: number;
+  qty: number;
+};
+
 function round2(value: number) {
   return Math.round(value * 100) / 100;
 }
@@ -129,11 +142,15 @@ export async function PATCH(
         );
       }
 
-      const existing = order.items.find((i: any) => i.mealId === mealId);
+      const items = order.items as unknown as OrderItemDoc[];
+
+      const existing = items.find((i) => i.mealId === mealId);
       if (existing) {
         existing.qty = Math.max(0, (existing.qty ?? 0) + qtyDelta);
         if (existing.qty === 0) {
-          order.items = order.items.filter((i: any) => i.mealId !== mealId);
+          order.items = items.filter(
+            (i) => i.mealId !== mealId
+          ) as unknown as typeof order.items;
         }
       } else {
         if (qtyDelta > 0) {
@@ -165,7 +182,8 @@ export async function PATCH(
         return NextResponse.json({ error: "qty inválido" }, { status: 400 });
       }
 
-      const existing = order.items.find((i: any) => i.mealId === mealId);
+      const items = order.items as unknown as OrderItemDoc[];
+      const existing = items.find((i) => i.mealId === mealId);
       if (!existing) {
         return NextResponse.json(
           { error: "Item no encontrado" },
@@ -174,7 +192,9 @@ export async function PATCH(
       }
 
       if (qty === 0) {
-        order.items = order.items.filter((i: any) => i.mealId !== mealId);
+        order.items = items.filter(
+          (i) => i.mealId !== mealId
+        ) as unknown as typeof order.items;
       } else {
         existing.qty = qty;
       }
@@ -230,8 +250,9 @@ export async function PATCH(
 
       const total = round2(calculateTotal(order.items));
       const sum = round2(
-        payments.reduce((acc: number, p: any) => {
-          const amount = typeof p?.amount === "number" ? p.amount : 0;
+        payments.reduce((acc: number, p: unknown) => {
+          const rec = isRecord(p) ? p : {};
+          const amount = typeof rec.amount === "number" ? rec.amount : 0;
           return acc + (Number.isFinite(amount) ? amount : 0);
         }, 0)
       );
@@ -244,10 +265,13 @@ export async function PATCH(
       }
 
       // Basic sanitization
-      order.payments = payments.map((p: any) => ({
-        type: typeof p?.type === "string" ? p.type : "other",
-        amount: typeof p?.amount === "number" ? p.amount : 0,
-      }));
+      order.payments = payments.map((p: unknown) => {
+        const rec = isRecord(p) ? p : {};
+        return {
+          type: typeof rec.type === "string" ? rec.type : "other",
+          amount: typeof rec.amount === "number" ? rec.amount : 0,
+        };
+      }) as unknown as typeof order.payments;
 
       order.status = "paid";
       order.paidAt = new Date();

@@ -106,6 +106,10 @@ function calculateOrderTotal(order: Pick<Order, "items">): number {
   return order.items.reduce((acc, item) => acc + item.unitPrice * item.qty, 0);
 }
 
+function getAxiosStatus(error: unknown): number | undefined {
+  return Axios.isAxiosError(error) ? error.response?.status : undefined;
+}
+
 // Componente para edición rápida
 const EditableCell = ({
   value,
@@ -495,8 +499,8 @@ export default function Master() {
       setIsOrderModalOpen(true);
       toast.success(`Orden #${res.data.orderNumber} creada`);
       await fetchHoldOrders();
-    } catch (error: any) {
-      const status = error?.response?.status;
+    } catch (error: unknown) {
+      const status = getAxiosStatus(error);
       if (status === 409) {
         toast.error("Ya tienes una orden activa");
         await fetchActiveOrder();
@@ -654,8 +658,8 @@ export default function Master() {
       setIsOrderModalOpen(true);
 
       await fetchHoldOrders();
-    } catch (error: any) {
-      const status = error?.response?.status;
+    } catch (error: unknown) {
+      const status = getAxiosStatus(error);
       if (status === 409) {
         toast.error("Ya tienes una orden activa");
         await fetchActiveOrder();
