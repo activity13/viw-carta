@@ -144,12 +144,16 @@ function buildTicketHtml(
   const dateStr = createdAt.toLocaleString("es-PE");
 
   const customerName = order.customer?.name?.trim() ?? "";
-  const docType = (order.customer?.documentType as DocumentType | undefined) ?? "none";
+  const docType =
+    (order.customer?.documentType as DocumentType | undefined) ?? "none";
   const docNumber = order.customer?.documentNumber?.trim() ?? "";
 
   const total = calculateOrderTotal(order);
   const payments = mode === "paid" ? order.payments ?? [] : [];
-  const paidSum = payments.reduce((acc, p) => acc + (Number.isFinite(p.amount) ? p.amount : 0), 0);
+  const paidSum = payments.reduce(
+    (acc, p) => acc + (Number.isFinite(p.amount) ? p.amount : 0),
+    0
+  );
 
   const itemsHtml = order.items
     .map((i) => {
@@ -174,7 +178,9 @@ function buildTicketHtml(
           (p) => `
         <tr>
           <td class="name">${escapeHtml(paymentLabel(p.type))}</td>
-          <td class="money" colspan="3">S/. ${Number(p.amount || 0).toFixed(2)}</td>
+          <td class="money" colspan="3">S/. ${Number(p.amount || 0).toFixed(
+            2
+          )}</td>
         </tr>
       `
         )
@@ -196,8 +202,18 @@ function buildTicketHtml(
     brandName || brandLogoUrl
       ? `
           <div class="brand">
-            ${brandLogoUrl ? `<img class="brand-logo" src="${escapeHtml(brandLogoUrl)}" alt="${escapeHtml(brandName || "Logo")}" />` : ""}
-            ${brandName ? `<div class="brand-name">${escapeHtml(brandName)}</div>` : ""}
+            ${
+              brandLogoUrl
+                ? `<img class="brand-logo" src="${escapeHtml(
+                    brandLogoUrl
+                  )}" alt="${escapeHtml(brandName || "Logo")}" />`
+                : ""
+            }
+            ${
+              brandName
+                ? `<div class="brand-name">${escapeHtml(brandName)}</div>`
+                : ""
+            }
           </div>
         `
       : "";
@@ -241,8 +257,14 @@ function buildTicketHtml(
       <div class="hr"></div>
 
       <div class="meta">
-        <div class="wrap"><strong>Cliente:</strong> ${escapeHtml(customerName || "Sin cliente")}</div>
-        ${docLine ? `<div class="wrap"><strong>Doc:</strong> ${docLine}</div>` : ""}
+        <div class="wrap"><strong>Cliente:</strong> ${escapeHtml(
+          customerName || "Sin cliente"
+        )}</div>
+        ${
+          docLine
+            ? `<div class="wrap"><strong>Doc:</strong> ${docLine}</div>`
+            : ""
+        }
       </div>
 
       <div class="hr"></div>
@@ -257,7 +279,10 @@ function buildTicketHtml(
           </tr>
         </thead>
         <tbody>
-          ${itemsHtml || `<tr><td class="muted" colspan="4">(Sin productos)</td></tr>`}
+          ${
+            itemsHtml ||
+            `<tr><td class="muted" colspan="4">(Sin productos)</td></tr>`
+          }
         </tbody>
       </table>
 
@@ -272,8 +297,9 @@ function buildTicketHtml(
         </tbody>
       </table>
 
-      ${paymentsHtml
-        ? `
+      ${
+        paymentsHtml
+          ? `
           <div class="hr"></div>
           <div class="meta"><strong>Pagos</strong></div>
           <table><tbody>${paymentsHtml}</tbody></table>
@@ -284,7 +310,8 @@ function buildTicketHtml(
             </tr>
           </tbody></table>
         `
-        : ""}
+          : ""
+      }
 
       <div class="hr"></div>
       <div class="center meta muted">Gracias</div>
@@ -292,7 +319,56 @@ function buildTicketHtml(
   </html>`;
 }
 
-function printHtmlTicket(html: string) {
+type PrintTicketOptions = {
+  preOpenedWindow?: Window | null;
+};
+
+function isMobileUserAgent(): boolean {
+  if (typeof navigator === "undefined") return false;
+  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
+function injectAutoPrint(html: string): string {
+  const script = `
+    <script>
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          try { window.focus(); } catch (e) {}
+          try { window.print(); } catch (e) {}
+        }, 150);
+      });
+      window.onafterprint = () => {
+        try { window.close(); } catch (e) {}
+      };
+    </script>
+  `;
+
+  if (html.includes("</body>"))
+    return html.replace("</body>", `${script}</body>`);
+  return html + script;
+}
+
+function printHtmlTicket(html: string, opts?: PrintTicketOptions) {
+  // Mobile browsers often ignore iframe printing and show preview for the whole app page.
+  // For mobile, print from a standalone document instead.
+  if (isMobileUserAgent()) {
+    const htmlWithPrint = injectAutoPrint(html);
+    const blob = new Blob([htmlWithPrint], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+
+    const win = opts?.preOpenedWindow ?? window.open("", "_blank");
+    if (!win) {
+      toast.error("El navegador bloqueó la ventana de impresión");
+      URL.revokeObjectURL(url);
+      return;
+    }
+
+    // Navigate the pre-opened tab/window to the printable document.
+    win.location.href = url;
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    return;
+  }
+
   const iframe = document.createElement("iframe");
   iframe.setAttribute("aria-hidden", "true");
   iframe.style.position = "fixed";
@@ -866,7 +942,11 @@ export default function Master() {
       toast.error("No hay orden activa");
       return;
     }
-    const html = buildTicketHtml(activeOrder, "prebill", ticketBrand ?? undefined);
+    const html = buildTicketHtml(
+      activeOrder,
+      "prebill",
+      ticketBrand ?? undefined
+    );
     printHtmlTicket(html);
   };
 
@@ -892,6 +972,10 @@ export default function Master() {
       return;
     }
 
+    // On mobile, opening a print window after an async request can be blocked.
+    const mobilePrintWindow = isMobileUserAgent()
+      ? window.open("", "_blank")
+      : null;
     setIsOrderBusy(true);
     try {
       const res = await Axios.patch<Order>(`/api/orders/${activeOrder._id}`, {
@@ -907,13 +991,14 @@ export default function Master() {
       };
 
       const html = buildTicketHtml(paidOrder, "paid", ticketBrand ?? undefined);
-      printHtmlTicket(html);
+      printHtmlTicket(html, { preOpenedWindow: mobilePrintWindow });
 
       toast.success("Orden pagada");
       setIsOrderModalOpen(false);
       setActiveOrder(null);
       await fetchHoldOrders();
     } catch (error) {
+      if (mobilePrintWindow) mobilePrintWindow.close();
       console.error("Error paying order:", error);
       toast.error("No se pudo registrar el pago");
     } finally {
@@ -1442,13 +1527,15 @@ export default function Master() {
 
       {/* Order Modal */}
       <Dialog open={isOrderModalOpen} onOpenChange={setIsOrderModalOpen}>
-        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
+        <DialogContent
+          className="sm:max-w-2xl max-h-[85vh] overflow-hidden flex flex-col"
+          onOpenAutoFocus={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle>
               {activeOrder ? `Orden #${activeOrder.orderNumber}` : "Orden"}
             </DialogTitle>
           </DialogHeader>
-
           <div className="flex-1 overflow-y-auto pr-1">
             {!activeOrder ? (
               <div className="text-sm text-muted-foreground">
@@ -1582,12 +1669,11 @@ export default function Master() {
                       ))}
                     </div>
                   )}
-
                 </div>
 
-                  <div className="flex justify-end text-sm font-semibold">
-                    Total: S/. {calculateOrderTotal(activeOrder).toFixed(2)}
-                  </div>
+                <div className="flex justify-end text-sm font-semibold">
+                  Total: S/. {calculateOrderTotal(activeOrder).toFixed(2)}
+                </div>
                 {/* Payments */}
                 <div className="space-y-3">
                   <div className="text-sm font-medium">Pago</div>
