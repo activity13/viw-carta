@@ -73,6 +73,14 @@ type DocumentType =
 
 type PaymentType = "cash" | "card" | "transfer" | "other";
 
+type AdjustmentKind = "discount" | "surcharge";
+
+type OrderAdjustment = {
+  kind: AdjustmentKind;
+  percent: number;
+  note?: string;
+};
+
 interface OrderItem {
   mealId: string;
   name: string;
@@ -95,15 +103,44 @@ interface Order {
   _id: string;
   orderNumber: number;
   status: OrderStatus;
+  tableNumber?: string;
   customer?: Partial<OrderCustomer>;
   items: OrderItem[];
+  adjustment?: OrderAdjustment | null;
   payments?: OrderPayment[];
   createdAt?: string;
   updatedAt?: string;
 }
 
-function calculateOrderTotal(order: Pick<Order, "items">): number {
-  return order.items.reduce((acc, item) => acc + item.unitPrice * item.qty, 0);
+function round2(value: number): number {
+  return Math.round(value * 100) / 100;
+}
+
+function calculateSubtotal(order: Pick<Order, "items">): number {
+  return round2(
+    order.items.reduce((acc, item) => acc + item.unitPrice * item.qty, 0)
+  );
+}
+
+function calculateAdjustmentAmount(
+  order: Pick<Order, "items" | "adjustment">
+): number {
+  const subtotal = calculateSubtotal(order);
+  const adj = order.adjustment;
+  if (!adj) return 0;
+  const percent = Number.isFinite(adj.percent) ? adj.percent : 0;
+  if (percent <= 0) return 0;
+
+  const amount = round2((subtotal * percent) / 100);
+  return adj.kind === "discount" ? -amount : amount;
+}
+
+function calculateOrderTotal(
+  order: Pick<Order, "items" | "adjustment">
+): number {
+  const subtotal = calculateSubtotal(order);
+  const adjustment = calculateAdjustmentAmount(order);
+  return round2(subtotal + adjustment);
 }
 
 function escapeHtml(value: string): string {
@@ -132,7 +169,7 @@ type TicketMode = "prebill" | "paid";
 
 type TicketBrand = {
   name?: string;
-  logoUrl?: string;
+  image?: string;
 };
 
 function buildTicketHtml(
@@ -148,12 +185,22 @@ function buildTicketHtml(
     (order.customer?.documentType as DocumentType | undefined) ?? "none";
   const docNumber = order.customer?.documentNumber?.trim() ?? "";
 
+  const tableNumber = order.tableNumber?.trim() ?? "";
+
+  const subtotal = calculateSubtotal(order);
+  const adjustmentAmount = calculateAdjustmentAmount(order);
   const total = calculateOrderTotal(order);
   const payments = mode === "paid" ? order.payments ?? [] : [];
   const paidSum = payments.reduce(
     (acc, p) => acc + (Number.isFinite(p.amount) ? p.amount : 0),
     0
   );
+
+  const adj = order.adjustment;
+  const adjustmentLabel =
+    adj && Number.isFinite(adj.percent) && adj.percent > 0
+      ? `${adj.kind === "discount" ? "Descuento" : "Recargo"} (${adj.percent}%)`
+      : "";
 
   const itemsHtml = order.items
     .map((i) => {
@@ -196,7 +243,7 @@ function buildTicketHtml(
   const subtitle = mode === "paid" ? "PAGADO" : "NO PAGADO";
 
   const brandName = brand?.name?.trim() ?? "";
-  const brandLogoUrl = brand?.logoUrl?.trim() ?? "";
+  const brandLogoUrl = brand?.image?.trim() ?? "";
 
   const brandHtml =
     brandName || brandLogoUrl
@@ -261,6 +308,13 @@ function buildTicketHtml(
           customerName || "Sin cliente"
         )}</div>
         ${
+          tableNumber
+            ? `<div class="wrap"><strong>Mesa:</strong> ${escapeHtml(
+                tableNumber
+              )}</div>`
+            : ""
+        }
+        ${
           docLine
             ? `<div class="wrap"><strong>Doc:</strong> ${docLine}</div>`
             : ""
@@ -290,6 +344,24 @@ function buildTicketHtml(
 
       <table>
         <tbody>
+          <tr>
+            <td class="name muted">SUBTOTAL</td>
+            <td class="money" colspan="3">S/. ${subtotal.toFixed(2)}</td>
+          </tr>
+          ${
+            adjustmentLabel
+              ? `
+          <tr>
+            <td class="name muted">${escapeHtml(
+              adjustmentLabel.toUpperCase()
+            )}</td>
+            <td class="money" colspan="3">S/. ${adjustmentAmount.toFixed(
+              2
+            )}</td>
+          </tr>
+          `
+              : ""
+          }
           <tr>
             <td class="name total">TOTAL</td>
             <td class="money total" colspan="3">S/. ${total.toFixed(2)}</td>
@@ -762,6 +834,12 @@ export default function Master() {
     documentType: "none",
     documentNumber: "",
   });
+  const [tableNumberDraft, setTableNumberDraft] = useState<string>("");
+  const [adjustmentDraft, setAdjustmentDraft] = useState<OrderAdjustment>({
+    kind: "discount",
+    percent: 0,
+    note: "",
+  });
   const [paymentsDraft, setPaymentsDraft] = useState<OrderPayment[]>([
     { type: "cash", amount: 0 },
   ]);
@@ -778,7 +856,7 @@ export default function Master() {
         if (cancelled) return;
         setTicketBrand({
           name: res.data?.name,
-          logoUrl: res.data?.image,
+          image: res.data?.image,
         });
       } catch {
         if (cancelled) return;
@@ -798,6 +876,11 @@ export default function Master() {
       documentType: (order.customer?.documentType as DocumentType) ?? "none",
       documentNumber: order.customer?.documentNumber ?? "",
     });
+
+    setTableNumberDraft(order.tableNumber ?? "");
+    setAdjustmentDraft(
+      order.adjustment ?? { kind: "discount", percent: 0, note: "" }
+    );
 
     const existingPayments = order.payments ?? [];
     setPaymentsDraft(
@@ -865,12 +948,59 @@ export default function Master() {
       const res = await Axios.patch<Order>(`/api/orders/${activeOrder._id}`, {
         action: "setCustomer",
         customer: customerDraft,
+        tableNumber: tableNumberDraft,
       });
       setActiveOrder(res.data);
+      syncDraftsFromOrder(res.data);
       toast.success("Datos del cliente guardados");
     } catch (error) {
       console.error("Error saving customer:", error);
       toast.error("No se pudo guardar el cliente");
+    } finally {
+      setIsOrderBusy(false);
+    }
+  };
+
+  const handleSaveAdjustment = async () => {
+    if (!activeOrder) return;
+    setIsOrderBusy(true);
+    try {
+      const adjustmentToSend =
+        Number.isFinite(adjustmentDraft.percent) && adjustmentDraft.percent > 0
+          ? adjustmentDraft
+          : null;
+
+      const res = await Axios.patch<Order>(`/api/orders/${activeOrder._id}`, {
+        action: "setAdjustment",
+        adjustment: adjustmentToSend,
+      });
+
+      setActiveOrder(res.data);
+      syncDraftsFromOrder(res.data);
+      toast.success("Ajuste guardado");
+    } catch (error) {
+      console.error("Error saving adjustment:", error);
+      toast.error("No se pudo guardar el ajuste");
+    } finally {
+      setIsOrderBusy(false);
+    }
+  };
+
+  const handleRemoveAdjustment = async () => {
+    if (!activeOrder) return;
+    setIsOrderBusy(true);
+    try {
+      const res = await Axios.patch<Order>(`/api/orders/${activeOrder._id}`, {
+        action: "setAdjustment",
+        adjustment: null,
+      });
+
+      setActiveOrder(res.data);
+      syncDraftsFromOrder(res.data);
+      toast.success("Ajuste eliminado");
+    } catch (error) {
+      console.error("Error removing adjustment:", error);
+      toast.error("No se pudo eliminar el ajuste");
     } finally {
       setIsOrderBusy(false);
     }
@@ -953,19 +1083,20 @@ export default function Master() {
   const handlePayOrder = async () => {
     if (!activeOrder) return;
 
+    const subtotal = calculateSubtotal(activeOrder);
     const total = calculateOrderTotal(activeOrder);
     const paymentSum = paymentsDraft.reduce(
       (acc, p) => acc + (Number.isFinite(p.amount) ? p.amount : 0),
       0
     );
 
-    if (total <= 0) {
+    if (subtotal <= 0) {
       toast.error("La orden está vacía");
       return;
     }
 
-    const roundedTotal = Math.round(total * 100) / 100;
-    const roundedPayment = Math.round(paymentSum * 100) / 100;
+    const roundedTotal = round2(total);
+    const roundedPayment = round2(paymentSum);
 
     if (roundedPayment !== roundedTotal) {
       toast.error("El pago debe igualar el total");
@@ -1544,9 +1675,9 @@ export default function Master() {
             ) : (
               <div className="space-y-5">
                 {/* Customer */}
-                <div className="space-y-3">
+                <div className="rounded-lg border bg-background p-4 space-y-3">
                   <div className="text-sm font-medium">Cliente</div>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                     <div className="sm:col-span-2">
                       <Input
                         placeholder="Nombre del cliente"
@@ -1584,7 +1715,14 @@ export default function Master() {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="sm:col-span-3">
+                    <div>
+                      <Input
+                        placeholder="Mesa"
+                        value={tableNumberDraft}
+                        onChange={(e) => setTableNumberDraft(e.target.value)}
+                      />
+                    </div>
+                    <div className="sm:col-span-4">
                       <Input
                         placeholder="Número de documento"
                         value={customerDraft.documentNumber}
@@ -1610,7 +1748,7 @@ export default function Master() {
                 </div>
 
                 {/* Items */}
-                <div className="space-y-3">
+                <div className="rounded-lg border bg-background p-4 space-y-3">
                   <div className="text-sm font-medium">Productos</div>
 
                   {activeOrder.items.length === 0 ? (
@@ -1622,7 +1760,7 @@ export default function Master() {
                       {activeOrder.items.map((item) => (
                         <div
                           key={item.mealId}
-                          className="flex items-center justify-between gap-3 border rounded-md p-3"
+                          className="flex items-center justify-between gap-3 border rounded-md p-3 bg-accent/80"
                         >
                           <div className="min-w-0">
                             <div className="text-sm font-medium truncate">
@@ -1671,11 +1809,107 @@ export default function Master() {
                   )}
                 </div>
 
-                <div className="flex justify-end text-sm font-semibold">
-                  Total: S/. {calculateOrderTotal(activeOrder).toFixed(2)}
+                {/* Prices */}
+                <div className="rounded-lg border bg-background p-4 space-y-3">
+                  <div className="text-sm font-medium">Precios</div>
+
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Subtotal</span>
+                    <span className="font-medium">
+                      S/. {calculateSubtotal(activeOrder).toFixed(2)}
+                    </span>
+                  </div>
+
+                  {activeOrder.adjustment ? (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">
+                        {activeOrder.adjustment.kind === "discount"
+                          ? "Descuento"
+                          : "Recargo"}{" "}
+                        ({activeOrder.adjustment.percent}%)
+                      </span>
+                      <span className="font-medium">
+                        S/. {calculateAdjustmentAmount(activeOrder).toFixed(2)}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="text-xs text-muted-foreground">
+                      Sin descuento/recargo
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-3 gap-2">
+                    <Select
+                      value={adjustmentDraft.kind}
+                      onValueChange={(val: AdjustmentKind) =>
+                        setAdjustmentDraft((prev) => ({ ...prev, kind: val }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Tipo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="discount">Descuento</SelectItem>
+                        <SelectItem value="surcharge">Recargo</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <div className="col-span-2 flex items-center gap-2">
+                      <Input
+                        type="number"
+                        placeholder="%"
+                        min={0}
+                        max={100}
+                        step={0.01}
+                        value={adjustmentDraft.percent}
+                        onChange={(e) =>
+                          setAdjustmentDraft((prev) => ({
+                            ...prev,
+                            percent: Number(e.target.value),
+                          }))
+                        }
+                      />
+                      <Input
+                        placeholder="Observación"
+                        value={adjustmentDraft.note ?? ""}
+                        onChange={(e) =>
+                          setAdjustmentDraft((prev) => ({
+                            ...prev,
+                            note: e.target.value,
+                          }))
+                        }
+                      />
+                      <button
+                        onClick={handleSaveAdjustment}
+                        disabled={isOrderBusy}
+                        className="px-3 py-2 text-xs rounded-md border hover:bg-muted disabled:opacity-60"
+                        title="Guardar descuento/recargo"
+                      >
+                        Guardar
+                      </button>
+                      {activeOrder.adjustment && (
+                        <button
+                          onClick={handleRemoveAdjustment}
+                          disabled={isOrderBusy}
+                          className="px-3 py-2 text-xs rounded-md border hover:bg-muted disabled:opacity-60"
+                          title="Quitar descuento/recargo"
+                        >
+                          Quitar
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between text-sm font-semibold pt-2 border-t border-border/50">
+                    <span>Total</span>
+                    <span>
+                      S/. {calculateOrderTotal(activeOrder).toFixed(2)}
+                    </span>
+                  </div>
                 </div>
+
                 {/* Payments */}
-                <div className="space-y-3">
+                <div className="rounded-lg border bg-background p-4 space-y-3">
                   <div className="text-sm font-medium">Pago</div>
                   <div className="space-y-2">
                     {paymentsDraft.map((p, idx) => (
@@ -1761,14 +1995,14 @@ export default function Master() {
                 <button
                   onClick={handlePrintPrebill}
                   disabled={!activeOrder || isOrderBusy}
-                  className="px-3 py-2 text-sm rounded-md border hover:bg-muted disabled:opacity-60"
+                  className="px-3 py-2 text-sm rounded-md border bg-background hover:bg-muted disabled:opacity-60"
                 >
                   Precuenta
                 </button>
                 <button
                   onClick={handleHoldOrder}
                   disabled={!activeOrder || isOrderBusy}
-                  className="px-3 py-2 text-sm rounded-md border hover:bg-muted disabled:opacity-60"
+                  className="px-3 py-2 text-sm rounded-md border bg-background hover:bg-muted disabled:opacity-60"
                 >
                   Poner en espera
                 </button>
@@ -1819,6 +2053,9 @@ export default function Master() {
                       <div className="min-w-0">
                         <div className="text-sm font-medium truncate">
                           Orden #{o.orderNumber}
+                        </div>
+                        <div className="text-sm font-medium truncate">
+                          Mesa #{o.tableNumber}
                         </div>
                         <div className="text-xs text-muted-foreground truncate">
                           {o.customer?.name ? o.customer.name : "Sin cliente"} ·

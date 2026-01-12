@@ -17,12 +17,61 @@ type OrderItemDoc = {
   qty: number;
 };
 
+type OrderAdjustmentDoc = {
+  kind: "discount" | "surcharge";
+  percent: number;
+  note?: string;
+};
+
 function round2(value: number) {
   return Math.round(value * 100) / 100;
 }
 
 function calculateTotal(items: Array<{ unitPrice: number; qty: number }>) {
   return items.reduce((acc, item) => acc + item.unitPrice * item.qty, 0);
+}
+
+function toFiniteNumber(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function normalizePercent(value: unknown): number | null {
+  const num =
+    toFiniteNumber(value) ??
+    (typeof value === "string" && value.trim() !== ""
+      ? toFiniteNumber(Number(value))
+      : null);
+  if (num === null) return null;
+  if (num <= 0) return null;
+  return Math.min(100, Math.max(0, num));
+}
+
+function normalizeAdjustment(value: unknown): OrderAdjustmentDoc | null {
+  if (!isRecord(value)) return null;
+  const kind = value.kind;
+  if (kind !== "discount" && kind !== "surcharge") return null;
+  const percent = normalizePercent(value.percent);
+  if (percent === null) return null;
+
+  const noteRaw = value.note;
+  const note = typeof noteRaw === "string" ? noteRaw.trim() : "";
+  // Keep it short to avoid huge documents / tickets
+  const safeNote = note.length > 120 ? note.slice(0, 120) : note;
+
+  return safeNote ? { kind, percent, note: safeNote } : { kind, percent };
+}
+
+function calculateAdjustedTotal(order: {
+  items: Array<{ unitPrice: number; qty: number }>;
+  adjustment?: OrderAdjustmentDoc | null;
+}) {
+  const subtotal = round2(calculateTotal(order.items));
+  const adj = order.adjustment;
+  if (!adj) return subtotal;
+
+  const amount = round2((subtotal * adj.percent) / 100);
+  const total = adj.kind === "discount" ? subtotal - amount : subtotal + amount;
+  return round2(total);
 }
 
 export async function GET(
@@ -100,6 +149,10 @@ export async function PATCH(
         );
       }
 
+      if (typeof body.tableNumber === "string") {
+        order.tableNumber = body.tableNumber;
+      }
+
       order.customer = {
         name: typeof customer.name === "string" ? customer.name : "",
         documentType:
@@ -111,6 +164,16 @@ export async function PATCH(
             ? customer.documentNumber
             : "",
       };
+
+      await order.save();
+      return NextResponse.json(order, { status: 200 });
+    }
+
+    if (action === "setAdjustment") {
+      const adjustment = normalizeAdjustment(body.adjustment);
+
+      // Allow clearing by sending percent <= 0 or invalid payload
+      order.adjustment = adjustment as unknown as typeof order.adjustment;
 
       await order.save();
       return NextResponse.json(order, { status: 200 });
@@ -247,7 +310,11 @@ export async function PATCH(
         );
       }
 
-      const total = round2(calculateTotal(order.items));
+      const total = calculateAdjustedTotal({
+        items: order.items,
+        adjustment: (order.adjustment ??
+          null) as unknown as OrderAdjustmentDoc | null,
+      });
       const sum = round2(
         payments.reduce((acc: number, p: unknown) => {
           const rec = isRecord(p) ? p : {};

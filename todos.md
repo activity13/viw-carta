@@ -38,9 +38,8 @@
     # Proximos pasos:
 
     - Agregar logica de validación de documentos de identidad según parametros de peru.
-    - Agregar campo para número de mesa en la orden.
-    - Un checkbox para delivery que sume el precio de los recipientes para llevar.
-    - sistema de cuentas de credito para clientes especiales.
+    <!-- - Agregar campo para número de mesa en la orden. -->
+    - sistema de cuentas de crédito para clientes especiales.
 
     # Observaciones de desarrollo
 

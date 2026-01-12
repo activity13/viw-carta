@@ -65,8 +65,10 @@ export async function POST() {
       createdByUserId: userId,
       orderNumber,
       status: "active",
+      tableNumber: "",
       customer: { name: "", documentType: "none", documentNumber: "" },
       items: [],
+      adjustment: null,
       payments: [],
     });
 

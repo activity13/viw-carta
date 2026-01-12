@@ -35,6 +35,19 @@ const OrderPaymentSchema = new Schema(
   { _id: false }
 );
 
+const OrderAdjustmentSchema = new Schema(
+  {
+    kind: {
+      type: String,
+      enum: ["discount", "surcharge"],
+      required: true,
+    },
+    percent: { type: Number, required: true, min: 0, max: 100 },
+    note: { type: String, trim: true, default: "" },
+  },
+  { _id: false }
+);
+
 const OrderSchema = new Schema(
   {
     restaurantId: {
@@ -57,8 +70,11 @@ const OrderSchema = new Schema(
       default: "active",
       index: true,
     },
+    tableNumber: { type: String, trim: true, default: "" },
     customer: { type: OrderCustomerSchema, default: () => ({}) },
     items: { type: [OrderItemSchema], default: [] },
+    // Discounts / surcharges (percentage)
+    adjustment: { type: OrderAdjustmentSchema, default: null },
     payments: { type: [OrderPaymentSchema], default: [] },
     heldAt: { type: Date, default: null },
     paidAt: { type: Date, default: null },
@@ -75,6 +91,27 @@ OrderSchema.index(
   { restaurantId: 1, createdByUserId: 1, status: 1 },
   { unique: true, partialFilterExpression: { status: "active" } }
 );
+
+// In Next.js dev with HMR, mongoose models can be cached with an older schema.
+// If schema evolves (e.g., new fields like tableNumber/adjustment), rebuild the model.
+const existingModel = models.Order as
+  | (typeof models.Order & { schema?: { path?: (name: string) => unknown } })
+  | undefined;
+
+const adjustmentPath = existingModel?.schema?.path?.("adjustment") as
+  | { schema?: { path?: (name: string) => unknown } }
+  | undefined;
+
+const needsRebuild =
+  process.env.NODE_ENV !== "production" &&
+  !!existingModel &&
+  (!existingModel.schema?.path?.("tableNumber") ||
+    !existingModel.schema?.path?.("adjustment") ||
+    !adjustmentPath?.schema?.path?.("note"));
+
+if (needsRebuild) {
+  delete models.Order;
+}
 
 const Order = models.Order || model("Order", OrderSchema);
 
