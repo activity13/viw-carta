@@ -1,13 +1,6 @@
 import * as React from "react";
 import Link from "next/link";
-import {
-  Cog,
-  Home,
-  Languages,
-  MessageSquareQuote,
-  Crown,
-  User,
-} from "lucide-react";
+import { Cog, Languages, MessageSquareQuote, Crown, User } from "lucide-react";
 import LogoutButton from "./ui/LogoutButton";
 import { useSession } from "next-auth/react";
 
@@ -24,147 +17,154 @@ export default function NavBar() {
 
   return (
     <>
-      {/* Spacer div to prevent content from hiding behind fixed navbar */}
-      <div className="h-20 w-full" />
-
       <NavigationMenu
-        className="fixed top-4 left-4 right-4 z-50 bg-white/70 dark:bg-gray-900/60 backdrop-blur-md border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg px-4 py-3"
+        viewport={false}
+        className="w-screen border-b bg-background/80 backdrop-blur supports-backdrop-filter:bg-background/60"
         aria-label="Barra de navegación"
       >
-        <div className="flex items-center justify-between gap-4">
-          {/* Center: Navigation links */}
-          <NavigationMenuList className="hidden sm:flex items-center gap-1">
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link
-                  href="/backoffice"
-                  className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-                >
-                  <Home className="h-4 w-4" />
-                  Home
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link
-                  href="/backoffice/business-profile"
-                  className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-                >
-                  <Cog className="h-4 w-4" />
-                  Config
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link
-                  href="/backoffice/translate"
-                  className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-                >
-                  <Languages className="h-4 w-4" />
-                  Traductor
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link
-                  href="/backoffice/messages"
-                  className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-                >
-                  <MessageSquareQuote className="h-4 w-4" />
-                  Mensajes
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link
-                  href="/backoffice/user-profile"
-                  className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-                >
-                  <User className="h-4 w-4" />
-                  Perfil
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-
-            {/* Super Admin link - solo visible para superadmins */}
-            {isSuperAdmin && (
-              <NavigationMenuItem>
+        <div className="mx-auto flex h-16 items-center justify-between px-4">
+          {/* Left side: primary navigation */}
+          <div className="flex items-center gap-2">
+            {/* Desktop navigation */}
+            <NavigationMenuList className="hidden sm:flex flex-none items-center justify-start gap-1">
+              {/* Logo */}
+              <NavigationMenuItem className="mr-1">
                 <NavigationMenuLink asChild>
                   <Link
-                    href="/backoffice/super-admin"
-                    className="flex items-center gap-2 px-3 py-2 rounded-md text-sm bg-linear-to-r from-yellow-500 to-orange-500 text-orange-700 
-                    opacity-90 hover:from-yellow-500 hover:to-yellow-600 dark:from-yellow-900/30 dark:to-orange-900/30 dark:text-orange-300 transition"
+                    href="/backoffice"
+                    className="flex items-center px-2 py-1"
                   >
-                    <Crown className="h-4 w-4 text-orange-600" />
-                    Super Admin
+                    <img src="/logo-h.svg" alt="Logo" className="h-7 w-auto" />
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
-            )}
-          </NavigationMenuList>
 
-          {/* Right: Logout (and mobile quick icons) */}
-          <div className="flex items-center gap-2">
-            {/* Mobile: compact icons */}
-            <div className="flex items-center gap-1 sm:hidden">
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link
+                    href="/backoffice/business-profile"
+                    className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground/80 hover:bg-accent hover:text-foreground transition-colors"
+                  >
+                    <Cog className="h-4 w-4 text-muted-foreground" />
+                    Negocio
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link
+                    href="/backoffice/translate"
+                    className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground/80 hover:bg-accent hover:text-foreground transition-colors"
+                  >
+                    <Languages className="h-4 w-4 text-muted-foreground" />
+                    Traductor
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link
+                    href="/backoffice/messages"
+                    className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground/80 hover:bg-accent hover:text-foreground transition-colors"
+                  >
+                    <MessageSquareQuote className="h-4 w-4 text-muted-foreground" />
+                    Textos
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+
+            {/* Mobile quick actions (left) */}
+            <div className="flex items-center gap-2 sm:hidden">
               <Link
                 href="/backoffice"
-                className="p-2 rounded-md text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-                aria-label="Home"
+                className="p-2 rounded-md hover:bg-accent transition-colors"
+                aria-label="Inicio"
               >
-                <Home className="h-4 w-4" />
+                <img src="/logo-c.svg" alt="Logo" className="h-7 w-7" />
               </Link>
               <Link
                 href="/backoffice/business-profile"
-                className="p-2 rounded-md text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-                aria-label="Config"
+                className="p-2 rounded-md hover:bg-accent transition-colors"
+                aria-label="Negocio"
               >
-                <Cog className="h-4 w-4" />
+                <Cog className="h-4 w-4 text-muted-foreground" />
               </Link>
               <Link
                 href="/backoffice/translate"
-                className="p-2 rounded-md text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-                aria-label="Config"
+                className="p-2 rounded-md hover:bg-accent transition-colors"
+                aria-label="Traductor"
               >
-                <Languages className="h-4 w-4" />
+                <Languages className="h-4 w-4 text-muted-foreground" />
               </Link>
               <Link
                 href="/backoffice/messages"
-                className="p-2 rounded-md text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-                aria-label="Config"
+                className="p-2 rounded-md hover:bg-accent transition-colors"
+                aria-label="Textos"
               >
-                <MessageSquareQuote className="h-4 w-4" />
+                <MessageSquareQuote className="h-4 w-4 text-muted-foreground" />
               </Link>
+            </div>
+          </div>
 
-              {/* Super Admin mobile icon */}
+          {/* Right side: perfil + super admin + logout */}
+          <div className="flex items-center gap-2">
+            {/* Desktop right items */}
+            <NavigationMenuList className="hidden sm:flex items-center justify-end gap-1">
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link
+                    href="/backoffice/user-profile"
+                    className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground/80 hover:bg-accent hover:text-foreground transition-colors"
+                  >
+                    <User className="h-4 w-4 text-muted-foreground" />
+                    Perfil
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+
+              {isSuperAdmin && (
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild>
+                    <Link
+                      href="/backoffice/super-admin"
+                      className="flex items-center gap-2 rounded-md px-3 py-2 text-sm bg-amber-500/15 text-amber-700 hover:bg-amber-500/20 dark:text-amber-300 transition-colors"
+                    >
+                      <Crown className="h-4 w-4" />
+                      Super Admin
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              )}
+
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <div className="flex items-center">
+                    <LogoutButton className="flex items-center gap-2 px-3 py-2 rounded-md text-sm bg-rose-500/10 text-rose-700 hover:bg-rose-500/15 dark:text-rose-300 transition-colors" />
+                  </div>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+
+            {/* Mobile right items */}
+            <div className="flex items-center gap-2 sm:hidden">
+              <Link
+                href="/backoffice/user-profile"
+                className="p-2 rounded-md hover:bg-accent transition-colors"
+                aria-label="Perfil"
+              >
+                <User className="h-4 w-4 text-muted-foreground" />
+              </Link>
               {isSuperAdmin && (
                 <Link
                   href="/backoffice/super-admin"
-                  className="p-2 rounded-md bg-linear-to-r from-yellow-50 to-orange-50 text-orange-700 hover:from-yellow-100 hover:to-orange-100 transition"
+                  className="p-2 rounded-md bg-amber-500/15 text-amber-700 hover:bg-amber-500/20 transition-colors"
                   aria-label="Super Admin"
                 >
                   <Crown className="h-4 w-4" />
                 </Link>
               )}
-            </div>
-
-            {/* Logout button */}
-            <div className="ml-1">
-              <NavigationMenuList>
-                <NavigationMenuItem>
-                  <NavigationMenuLink asChild>
-                    {/* LogoutButton component handles sign-out; keep styling wrapper */}
-                    <div className="flex items-center">
-                      <LogoutButton className="flex items-center gap-2 px-3 py-2 rounded-md text-sm bg-rose-50 text-rose-700 hover:bg-rose-100 dark:bg-rose-900/30 dark:text-rose-300 transition" />
-                    </div>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-              </NavigationMenuList>
+              <LogoutButton className="flex items-center gap-2 px-3 py-2 rounded-md text-sm bg-rose-500/10 text-rose-700 hover:bg-rose-500/15 dark:text-rose-300 transition-colors" />
             </div>
           </div>
         </div>

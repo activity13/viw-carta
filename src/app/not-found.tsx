@@ -14,7 +14,7 @@ export default function NotFound() {
         <Link href="/" passHref>
           <button
             className="
-              bg-gradient-to-r from-green-900 via-green-800 to-green-700
+              bg-linear-to-r from-green-900 via-green-800 to-green-700
               border-2 border-green-300
               text-yellow-300 font-bold text-xl px-6 py-3 rounded-xl
               shadow-lg tracking-wide uppercase

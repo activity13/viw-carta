@@ -5,6 +5,15 @@ import { ChevronDownIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
+/**
+ * UI wrapper around Radix `@radix-ui/react-navigation-menu`.
+ *
+ * This file follows the shadcn/ui pattern:
+ * - Re-export Radix primitives as app-friendly components.
+ * - Centralize Tailwind classNames and variants.
+ * - Add small ergonomics (e.g., optional viewport).
+ */
+
 function NavigationMenu({
   className,
   children,
@@ -14,16 +23,19 @@ function NavigationMenu({
   viewport?: boolean;
 }) {
   return (
+    // Root container for the navigation menu.
+    // `data-viewport` is used to toggle styling for dropdown positioning.
     <NavigationMenuPrimitive.Root
       data-slot="navigation-menu"
       data-viewport={viewport}
       className={cn(
-        "group/navigation-menu relative flex max-w-max flex-1 items-center justify-center",
+        "group/navigation-menu relative flex flex-1 items-center justify-center",
         className
       )}
       {...props}
     >
       {children}
+      {/* The Radix viewport renders animated dropdown content sizing/positioning */}
       {viewport && <NavigationMenuViewport />}
     </NavigationMenuPrimitive.Root>
   );
@@ -34,6 +46,7 @@ function NavigationMenuList({
   ...props
 }: React.ComponentProps<typeof NavigationMenuPrimitive.List>) {
   return (
+    // Wrapper around Radix List, responsible for horizontal layout of items.
     <NavigationMenuPrimitive.List
       data-slot="navigation-menu-list"
       className={cn(
@@ -50,6 +63,7 @@ function NavigationMenuItem({
   ...props
 }: React.ComponentProps<typeof NavigationMenuPrimitive.Item>) {
   return (
+    // Wrapper around Radix Item. This is the per-entry container.
     <NavigationMenuPrimitive.Item
       data-slot="navigation-menu-item"
       className={cn("relative", className)}
@@ -68,6 +82,8 @@ function NavigationMenuTrigger({
   ...props
 }: React.ComponentProps<typeof NavigationMenuPrimitive.Trigger>) {
   return (
+    // Trigger button that opens/closes a dropdown section.
+    // Includes the chevron icon and rotates it when open.
     <NavigationMenuPrimitive.Trigger
       data-slot="navigation-menu-trigger"
       className={cn(navigationMenuTriggerStyle(), "group", className)}
@@ -75,7 +91,7 @@ function NavigationMenuTrigger({
     >
       {children}{" "}
       <ChevronDownIcon
-        className="relative top-[1px] ml-1 size-3 transition duration-300 group-data-[state=open]:rotate-180"
+        className="relative top-px ml-1 size-3 transition duration-300 group-data-[state=open]:rotate-180"
         aria-hidden="true"
       />
     </NavigationMenuPrimitive.Trigger>
@@ -87,6 +103,7 @@ function NavigationMenuContent({
   ...props
 }: React.ComponentProps<typeof NavigationMenuPrimitive.Content>) {
   return (
+    // Dropdown panel content. Radix adds motion attributes; we style them with Tailwind.
     <NavigationMenuPrimitive.Content
       data-slot="navigation-menu-content"
       className={cn(
@@ -104,6 +121,8 @@ function NavigationMenuViewport({
   ...props
 }: React.ComponentProps<typeof NavigationMenuPrimitive.Viewport>) {
   return (
+    // The viewport is the animated container Radix uses to size/position dropdown content.
+    // We wrap it in a div so it can be centered under the menu.
     <div
       className={cn(
         "absolute top-full left-0 isolate z-50 flex justify-center"
@@ -112,7 +131,7 @@ function NavigationMenuViewport({
       <NavigationMenuPrimitive.Viewport
         data-slot="navigation-menu-viewport"
         className={cn(
-          "origin-top-center bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-90 relative mt-1.5 h-[var(--radix-navigation-menu-viewport-height)] w-full overflow-hidden rounded-md border shadow md:w-[var(--radix-navigation-menu-viewport-width)]",
+          "origin-top-center bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-90 relative mt-1.5 h-(--radix-navigation-menu-viewport-height) w-full overflow-hidden rounded-md border shadow md:w-(--radix-navigation-menu-viewport-width)",
           className
         )}
         {...props}
@@ -126,6 +145,8 @@ function NavigationMenuLink({
   ...props
 }: React.ComponentProps<typeof NavigationMenuPrimitive.Link>) {
   return (
+    // A styled link used inside dropdown content.
+    // If you pass `asChild`, ensure it receives exactly ONE React element child.
     <NavigationMenuPrimitive.Link
       data-slot="navigation-menu-link"
       className={cn(
@@ -142,10 +163,11 @@ function NavigationMenuIndicator({
   ...props
 }: React.ComponentProps<typeof NavigationMenuPrimitive.Indicator>) {
   return (
+    // Little triangle indicator that points to the open trigger.
     <NavigationMenuPrimitive.Indicator
       data-slot="navigation-menu-indicator"
       className={cn(
-        "data-[state=visible]:animate-in data-[state=hidden]:animate-out data-[state=hidden]:fade-out data-[state=visible]:fade-in top-full z-[1] flex h-1.5 items-end justify-center overflow-hidden",
+        "data-[state=visible]:animate-in data-[state=hidden]:animate-out data-[state=hidden]:fade-out data-[state=visible]:fade-in top-full z-1 flex h-1.5 items-end justify-center overflow-hidden",
         className
       )}
       {...props}

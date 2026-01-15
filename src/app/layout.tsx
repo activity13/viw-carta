@@ -23,6 +23,9 @@ const jetBrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "VIWCarta",
   description: "Administra tu carta con VIWCarta",
+  icons: {
+    icon: "/logo-c.svg",
+  },
 };
 
 export default function RootLayout({

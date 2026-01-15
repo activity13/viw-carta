@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { AxiosError } from "axios";
 import AdminGuard from "@/components/AdminGuard";
+import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -19,6 +20,7 @@ import {
   Crown,
   Users,
   Building2,
+  UserCog,
   Mail,
   Calendar,
   Clock,
@@ -175,9 +177,9 @@ export default function SuperAdminPage() {
     <AdminGuard>
       <div className="container mx-auto py-10 px-4 max-w-7xl space-y-8">
         {/* Header */}
-        <div className="flex items-center gap-4 border-b pb-6">
+        <div className="flex items-center justify-between gap-4 border-b pb-6">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-linear-to-br from-yellow-400 to-orange-500 rounded-lg flex items-center justify-center">
               <Crown className="w-6 h-6 text-white" />
             </div>
             <div>
@@ -189,6 +191,13 @@ export default function SuperAdminPage() {
               </p>
             </div>
           </div>
+
+          <Link href="/backoffice/super-admin/customers">
+            <Button variant="outline" className="gap-2">
+              <UserCog className="w-4 h-4" />
+              Clientes
+            </Button>
+          </Link>
         </div>
 
         {/* Stats Cards */}

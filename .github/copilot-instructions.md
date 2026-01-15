@@ -2,6 +2,8 @@
 
 This document provides essential context and coding standards for the VIW-CARTA codebase (`viw-carta`), a SaaS platform for digital menu management.
 
+## Note: its important to not use any type declarations in any file because nextjs build system does not admmit them.
+
 ## 1. Tech Stack & Environment
 
 - **Core**: Next.js 15.3+ (App Router), React 19.0.1

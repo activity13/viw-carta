@@ -18,6 +18,68 @@
 
   MISIÓN: Desde un perfil de experto en maquetación MongoDB (mongoose) define la mejor solución. Revisar lo que yo propongo que haga, y complementar y/o corregir lo que debe hacer una pagina de este tipo con funciones básicas de control.
 
+  ## Solución recomendada (arquitectura)
+
+  - Mantener `/backoffice/super-admin` como **Dashboard** (stats + invitaciones).
+  - Agregar una **subruta dedicada**: `/backoffice/super-admin/customers`.
+  - Agregar un **perfil por cliente**: `/backoffice/super-admin/customers/[restaurantId]`.
+
+  Motivo: el dashboard actual ya existe y crece rápido; separar “Clientes/Suscripciones” evita una página monolítica y permite permisos/queries dedicadas.
+
+  ## Definición de “cliente” (tenant)
+
+  - Cliente = `Restaurant` (tenant) + sus `User` asociados (`User.restaurantId`).
+  - `Restaurant.ownerId` debe representar el usuario “principal” cuando exista (si es null, resolverlo buscando el `admin` del tenant).
+
+  ## Modelo de suscripción (Mongoose)
+
+  Estado actual: `Restaurant.plan` solo distingue `standard|premium`.
+
+  Propuesta mínima y escalable: agregar `Restaurant.subscription` (subdocumento) y mantener `plan` por compatibilidad:
+
+  - `subscription.plan`: `standard|premium` (fuente de verdad a futuro)
+  - `subscription.status`: `trialing|active|past_due|canceled|paused` (o el set que prefieras)
+  - `subscription.startedAt`, `trialEndsAt`, `currentPeriodEnd`
+  - `subscription.provider`: `manual|stripe` (u otros)
+  - `subscription.providerCustomerId`, `subscription.providerSubscriptionId` (opcionales)
+  - `subscription.notes`: notas internas
+  - `subscription.audit[]`: { at, byUserId, change, note } (historial mínimo de cambios)
+
+  Índices sugeridos:
+
+  - `slug` unique (ya existe)
+  - `plan` y/o `subscription.plan`
+  - `subscription.status`
+  - `subscription.currentPeriodEnd`
+
+  ## ¿Qué debe hacer la UI? (funciones básicas)
+
+  **Lista de clientes** (`/backoffice/super-admin/customers`)
+
+  - Buscar por `name`, `slug`, email de owner (via lookup a `User`).
+  - Mostrar: nombre, slug, plan/estado, owner, #usuarios activos.
+  - Acciones rápidas: abrir perfil, cambiar plan/estado (si es manual), desactivar acceso.
+
+  **Perfil del cliente** (`/backoffice/super-admin/customers/[id]`)
+
+  - Resumen del negocio (name/slug/contacto).
+  - Caja “Suscripción”: editar plan/estado/fechas/notas.
+  - Usuarios del tenant: listar y permitir `activar/desactivar` + cambiar rol.
+  - Métricas mínimas (si existen colecciones): #categorías, #platos, #órdenes.
+
+  ## API admin (backend)
+
+  - `GET /api/admin/customers`: lista + búsqueda + paginación.
+  - `GET /api/admin/customers/[id]`: detalle (Restaurant + Users + counts).
+  - `PATCH /api/admin/customers/[id]`: actualizar `subscription` (y sincronizar `plan` legacy si aplica).
+  - `PATCH /api/admin/users/[id]`: toggles básicos (`isActive`, `role`).
+  - Todo protegido por `getServerSession(authOptions)` y rol `superadmin`.
+
+  ## Backfill / Migración
+
+  - Para tenants existentes: `subscription.plan = plan`, `subscription.status = active` por defecto.
+  - Si falta `ownerId`: asignar el primer usuario `admin` del tenant.
+
   # Sistema de generación de ventas.
 
   Contexto: Dado que viw-carta cuenta con un plan premium, me gustaria integrar un sistema de pedidos/ordenes básico y super útil. QUe ayude al usuario del negocio a generar pedidos y poder anotarlos y cobrarlos rápido.
@@ -76,35 +138,44 @@
     Paso 6. Seguir con la venta.
     Paso 7. Para activar otra orden se debe poner en espera la activa y repetir los pasos.
 
----------------------------------------- FAST MARKET --------------------------------------------------------------------------------
+# Sistema de control de suscripciones
+
+- Este sistema se maneja desde el superadmin. cuando un usuario registra el pago de suscripción, el equipo de viw-carta muy diligentemente registraán y activaran la suscripción del cliente.
+- El sistema debe ser capaz de habilitar/inhabilitar funciones y accesos a rutas.
+- El sistema debe alertar a los clientes sobre estados de membresía, proxima facturación: fecha y monto y un enlace para que vea como pagar.
+- El sistema también debe alertar a los clientes morosos que que sus suscripción está cerca a la fecha de corte y deben pagar. LLegada la fecha de corte y el no pago, en el backoffice solo se podrá logear y acceder a la pagina de billing y la carta mostrara el anuncio de negocio disponible en este momento.
+  ---------------------------------------- FAST MARKET --------------------------------------------------------------------------------
 
 # Estilo
 
-- [x] El custom style de fast-market no está aplicando sobre los modals de carrito y detalles del producto.
+<!-- - [x] El custom style de fast-market no está aplicando sobre los modals de carrito y detalles del producto. -->
 
 # Destacados
 
-- [x] Será un nuevo componente de la sección de la página que mostrará los productos highlighteados, alguna información especial y relevante, algun anuncio, etc. Se mostrará como un slider minimalista y muy bien hecho. La idea es que la primera impresión sea la de ver este escaparate y justo abajo muy bien puesto se mostrará fila de categorías.
-- [x] Nombre del componente: ShowcaseCarousel.
+<!-- - [x] Será un nuevo componente de la sección de la página que mostrará los productos highlighteados, alguna información especial y relevante, algun anuncio, etc. Se mostrará como un slider minimalista y muy bien hecho. La idea es que la primera impresión sea la de ver este escaparate y justo abajo muy bien puesto se mostrará fila de categorías.
+- [x] Nombre del componente: ShowcaseCarousel. -->
 
 # Categorias
 
-- [x] El como se muestran las categorías está mal. Para empezar se debe agregar espacio entre ellas.
+<!-- - [x] El como se muestran las categorías está mal. Para empezar se debe agregar espacio entre ellas.
 - [x] En vista de tablet/escritorio el ancho del componente corta las primeras y últimas categorías dando una mala imagen.
-- [x] Separar la barra de busqueda de las categorias. La barra debe ir directo en el navbar (que actualemnte esta en integrada en el layout de la pagina). La busqueda debe cumplir la misma función que ahora hace.
+- [x] Separar la barra de busqueda de las categorias. La barra debe ir directo en el navbar (que actualemnte esta en integrada en el layout de la pagina). La busqueda debe cumplir la misma función que ahora hace. -->
 
 # Ordenes Express
 
-- [x] Vamos a dar por terminada la funcionalidad de nombre clave: Refactorizar todos los componentes que tratan este tema. ELiminar archivos que hayan estado dedicados completamente a la función.
+<!-- - [x] Vamos a dar por terminada la funcionalidad de nombre clave: Refactorizar todos los componentes que tratan este tema. ELiminar archivos que hayan estado dedicados completamente a la función. -->
+
+----- GEneral ------
 
 ## Funcionalidades generales
 
-# Seguridad
+# Seguridad y sistemas de redirección
 
-- [x] Asegurar en el backend los endpoints sensibles que no deben ser publicos, pues /api esta abierto.
+<!-- - [x] Asegurar en el backend los endpoints sensibles que no deben ser publicos, pues /api esta abierto.
 - [x] Cuando no hay una sesión, la pagina sin importar eso aacede a la ruta, no redirige a login hasta que se intenta una acción que llame al chequeo de session.
 - Probar la implementación de cambio de contraseña. Iniciar sesión en dos pestañas, cambiar la contraseña en una, revisar si los cambios surtieron efecto, refrescar la segunda a pestaña.
--
+- [x] Al visitar viw-carta.com me manda al login. Comportamiento esperado: que cargue la landing page para mostrar el producto a cualquier persona.
+- [x] app.viw-carta.com siempre deberá mostrar el login si se está no-logeado y redigirgir al home de la backoffice luego de verificar el acceso. Actualmente lleva a la landing Page. Además al logearme me redirige de nuevo a la landing, es como si el comportamiento que hace que si uno está no-logeado y aacede a una ruta protegida, el sistema luego de logearte te lleva a esa primera locación, lo cuál está bien pero no en el caso por ejemplo de la landing. -->
 
 # Rendimiento
 
