@@ -12,7 +12,6 @@ function getUserIdFromAuthUser(user: unknown): string | undefined {
   const id = record.id;
   if (typeof id === "string" && id.length > 0) return id;
 
-  // Mongoose documents often expose `_id`
   const _id = record._id;
   if (typeof _id === "string" && _id.length > 0) return _id;
   if (typeof _id === "object" && _id && "toString" in _id) {
@@ -22,7 +21,6 @@ function getUserIdFromAuthUser(user: unknown): string | undefined {
       if (typeof value === "string" && value.length > 0) return value;
     }
   }
-
   return undefined;
 }
 
@@ -52,6 +50,7 @@ export const authOptions: NextAuthOptions = {
             { email: credentials?.username },
           ],
         }).select("+password");
+
         if (!userFound) throw new Error("Usuario o contraseña incorrectos");
 
         if (!userFound.isActive) {
@@ -70,20 +69,18 @@ export const authOptions: NextAuthOptions = {
         const id = userFound._id.toString();
         delete (userObject as { password?: unknown }).password;
 
-        // NextAuth espera un `id` string.
-        // Mantenerlo explícito evita depender de `sub` implícito.
         return { ...userObject, id, username: userFound.username };
       },
     }),
   ],
   session: {
     strategy: "jwt",
-    maxAge: 60 * 60 * 24,
-    updateAge: 60 * 60,
+    maxAge: 60 * 60 * 24, // 24 hours
+    updateAge: 60 * 60, // Update session every hour
   },
   callbacks: {
     async jwt({ token, user }) {
-      // Solo si es la primera vez (cuando el usuario inicia sesión)
+      // 1. Initial Sign In
       if (user) {
         token.id = String(getUserIdFromAuthUser(user) ?? token.sub ?? "");
         token.username = getStringFieldFromUnknown(user, "username") ?? null;
@@ -91,20 +88,26 @@ export const authOptions: NextAuthOptions = {
         token.exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24;
         token.iat = Math.floor(Date.now() / 1000);
 
-        // 👇 Obtenemos el slug del restaurante
         if (user.restaurantId) {
           await connectToDatabase();
+          // Fetch Restaurant to get latest slug and subscription status
           const restaurant = await Restaurant.findById(
             user.restaurantId
-          ).select("slug");
+          ).select("slug subscription");
+
           if (restaurant) {
             token.slug = restaurant.slug;
+            // Access nested subscription properties with fallbacks
+            token.subscriptionStatus =
+              restaurant.subscription?.status || "active";
+            token.subscriptionPlan =
+              restaurant.subscription?.plan || "standard";
             token.role = user.role;
           }
-        } // expira en 1 día
+        }
       }
 
-      // Si el token ya existe y expira pronto, no lo refresques cada vez
+      // Ensure expiration is set
       if (!token.exp) {
         token.exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24;
       }
@@ -114,83 +117,70 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       const userId = token.id || token.sub || "";
 
-      if (!userId) {
+      // Helper to clear session data (keeps user ID but removes permissions)
+      const clearSession = () => {
         if (session.user) {
-          session.user.id = "";
-          session.user.username = null;
+          session.user.id = userId;
+          session.user.username = token.username ?? null;
+
+          // Clear privileged data
           session.user.restaurantId = undefined;
           session.user.slug = null;
           session.user.role = null;
+          session.user.subscriptionStatus = null;
+          session.user.subscriptionPlan = null;
         }
         return session;
+      };
+
+      if (!userId) {
+        return clearSession();
       }
 
-      // Invalida sesiones antiguas tras cambio de contraseña (seguridad fuerte)
       await connectToDatabase();
       const user = await User.findById(userId).select(
         "passwordChangedAt isActive restaurantId"
       );
 
-      if (!user?.isActive) {
-        if (session.user) {
-          session.user.id = userId;
-          session.user.username = token.username ?? null;
-          session.user.restaurantId = undefined;
-          session.user.slug = null;
-          session.user.role = null;
-        }
-        return session;
-      }
+      // Validate User Status
+      if (!user?.isActive) return clearSession();
 
+      // Validate Restaurant Association matches Token
       if (
         token.restaurantId &&
         user.restaurantId?.toString() !== token.restaurantId
       ) {
-        if (session.user) {
-          session.user.id = userId;
-          session.user.username = token.username ?? null;
-          session.user.restaurantId = undefined;
-          session.user.slug = null;
-          session.user.role = null;
-        }
-        return session;
+        return clearSession();
       }
 
+      // Validate Token vs Password Change Time
       const tokenIatSeconds = typeof token.iat === "number" ? token.iat : null;
       const tokenIatMs = tokenIatSeconds ? tokenIatSeconds * 1000 : null;
 
       if (user.passwordChangedAt) {
-        // Si no tenemos iat (no debería pasar), forzamos re-login.
-        if (!tokenIatMs) {
-          if (session.user) {
-            session.user.id = userId;
-            session.user.username = token.username ?? null;
-            session.user.restaurantId = undefined;
-            session.user.slug = null;
-            session.user.role = null;
-          }
-          return session;
-        }
-
+        if (!tokenIatMs) return clearSession();
         if (tokenIatMs < user.passwordChangedAt.getTime()) {
-          if (session.user) {
-            session.user.id = userId;
-            session.user.username = token.username ?? null;
-            session.user.restaurantId = undefined;
-            session.user.slug = null;
-            session.user.role = null;
-          }
-          return session;
+          return clearSession();
         }
       }
 
+      // Populate Session with validated data
       if (session.user) {
         session.user.id = userId;
         session.user.username = token.username ?? null;
         session.user.restaurantId = token.restaurantId as string;
         session.user.slug = token.slug as string | null | undefined;
         session.user.role = token.role as string | null | undefined;
+        session.user.subscriptionStatus = token.subscriptionStatus as
+          | string
+          | null
+          | undefined;
+        session.user.subscriptionPlan = token.subscriptionPlan as
+          | string
+          | null
+          | undefined;
       }
+
       return session;
     },
   },

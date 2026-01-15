@@ -25,6 +25,15 @@ export async function GET(
       );
     }
 
+    // Check subscription status
+    if (
+      restaurant.subscription?.status === "past_due" ||
+      restaurant.subscription?.status === "canceled" ||
+      restaurant.subscription?.status === "paused"
+    ) {
+      return NextResponse.json({ error: "Service Suspended" }, { status: 402 });
+    }
+
     // 2. Buscar categorías del restaurante
     const categories = await CategorySchema.find({
       restaurantId: restaurant._id,

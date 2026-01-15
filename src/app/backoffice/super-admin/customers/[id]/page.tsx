@@ -208,12 +208,12 @@ export default function SuperAdminCustomerProfilePage() {
               <Card className="lg:col-span-2">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-medium">
-                    Suscripción (manual)
+                    Registrar datos de suscripción
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
+                    <div className="space-y-2 border-green-400">
                       <Label>Plan</Label>
                       <Select
                         value={plan}
@@ -403,7 +403,6 @@ export default function SuperAdminCustomerProfilePage() {
                     </div>
                   ))
                 )}
-                )
               </CardContent>
             </Card>
           </>

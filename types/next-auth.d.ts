@@ -1,5 +1,6 @@
 import NextAuth, { DefaultSession, DefaultUser } from "next-auth";
 import { JWT } from "next-auth/jwt";
+
 declare module "next-auth" {
   interface Session {
     user: {
@@ -11,6 +12,8 @@ declare module "next-auth" {
       restaurantId?: string;
       slug?: string | null;
       role?: string | null;
+      subscriptionStatus?: string | null;
+      subscriptionPlan?: string | null;
     };
   }
 
@@ -32,5 +35,7 @@ declare module "next-auth/jwt" {
     restaurantId?: string;
     role?: string | null;
     slug?: string | null;
+    subscriptionStatus?: string | null;
+    subscriptionPlan?: string | null;
   }
 }

@@ -1,4 +1,5 @@
 import StandardMenu from "@/components/templates/StandardMenu";
+import ServiceSuspended from "@/components/public/ServiceSuspended";
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -23,6 +24,7 @@ export default async function TenantPage({ params }: Props) {
     });
 
     if (!res.ok) {
+      if (res.status === 402) return <ServiceSuspended />;
       if (res.status === 404) return notFound();
       throw new Error("Failed to fetch menu");
     }
