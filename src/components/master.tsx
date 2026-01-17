@@ -47,7 +47,6 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { useFab } from "@/providers/ActionProvider";
 import { usePermission } from "@/hooks/use-permission";
-import { FeatureKey } from "@/config/permissions";
 
 interface Category {
   _id: string;
@@ -187,7 +186,7 @@ function buildKitchenOrderHtml(order: Order, brand?: TicketBrand): string {
   const tableNumber = order.tableNumber?.trim() ?? "";
 
   const itemsHtml = order.items
-    .map((i, idx) => {
+    .map((i) => {
       const name = escapeHtml(i.name);
       const qty = Number.isFinite(i.qty) ? i.qty : 0;
       const notes = i.notes?.trim() ? escapeHtml(i.notes) : "";

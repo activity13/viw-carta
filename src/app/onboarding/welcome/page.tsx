@@ -11,7 +11,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   PartyPopper,
   Eye,
@@ -22,7 +21,6 @@ import {
   Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
-import Link from "next/link";
 
 interface Category {
   _id: string;
@@ -155,10 +153,6 @@ function OnboardingWelcomeContent() {
       </div>
     );
   }
-
-  const getMealsByCategory = (categoryId: string) => {
-    return meals.filter((meal) => meal.categoryId === categoryId);
-  };
 
   return (
     <div className="min-h-screen bg-linear-to-br from-emerald-50 to-green-100 py-12 px-4">
