@@ -8,6 +8,8 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { FeatureGate } from "@/components/auth/FeatureGate";
+
 import {
   Dialog,
   DialogContent,
@@ -37,11 +39,15 @@ import {
   ShoppingCart,
   Settings2,
   Plus,
+  Lock,
+  Save,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useFab } from "@/providers/ActionProvider";
+import { usePermission } from "@/hooks/use-permission";
+import { FeatureKey } from "@/config/permissions";
 
 interface Category {
   _id: string;
@@ -86,6 +92,7 @@ interface OrderItem {
   name: string;
   unitPrice: number;
   qty: number;
+  notes?: string;
 }
 
 interface OrderCustomer {
@@ -171,6 +178,123 @@ type TicketBrand = {
   name?: string;
   image?: string;
 };
+
+function buildKitchenOrderHtml(order: Order, brand?: TicketBrand): string {
+  const createdAt = new Date();
+  const dateStr = createdAt.toLocaleString("es-PE");
+
+  const customerName = order.customer?.name?.trim() ?? "";
+  const tableNumber = order.tableNumber?.trim() ?? "";
+
+  const itemsHtml = order.items
+    .map((i, idx) => {
+      const name = escapeHtml(i.name);
+      const qty = Number.isFinite(i.qty) ? i.qty : 0;
+      const notes = i.notes?.trim() ? escapeHtml(i.notes) : "";
+      return `
+        <tr>
+          <td class="qty">${qty}x</td>
+          <td class="name">
+            <div class="item-name">${name}</div>
+            ${notes ? `<div class="item-notes">→ ${notes}</div>` : ""}
+          </td>
+        </tr>
+      `;
+    })
+    .join("");
+
+  const brandName = brand?.name?.trim() ?? "";
+  const brandLogoUrl = brand?.image?.trim() ?? "";
+
+  const brandHtml =
+    brandName || brandLogoUrl
+      ? `
+          <div class="brand">
+            ${
+              brandLogoUrl
+                ? `<img class="brand-logo" src="${escapeHtml(
+                    brandLogoUrl
+                  )}" alt="${escapeHtml(brandName || "Logo")}" />`
+                : ""
+            }
+            ${
+              brandName
+                ? `<div class="brand-name">${escapeHtml(brandName)}</div>`
+                : ""
+            }
+          </div>
+        `
+      : "";
+
+  return `<!doctype html>
+  <html>
+    <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <title>Orden #${order.orderNumber} - Cocina</title>
+      <style>
+        @page { size: 80mm auto; margin: 4mm; }
+        html, body { padding: 0; margin: 0; }
+        body { width: 72mm; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; color: #000; }
+        .center { text-align: center; }
+        .muted { opacity: 0.75; }
+        .hr { border-top: 1px dashed #000; margin: 6px 0; }
+        h1 { font-size: 16px; margin: 0; font-weight: 700; }
+        .brand { display: flex; flex-direction: column; align-items: center; gap: 2px; margin-bottom: 4px; }
+        .brand-logo { max-width: 48mm; max-height: 18mm; object-fit: contain; }
+        .brand-name { font-size: 12px; font-weight: 700; }
+        .meta { font-size: 11px; line-height: 1.3; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        td { padding: 4px 0; vertical-align: top; }
+        .qty { width: 15mm; font-weight: 700; font-size: 15px; }
+        .name { width: 57mm; }
+        .item-name { font-weight: 600; margin-bottom: 2px; }
+        .item-notes { font-size: 11px; color: #444; font-style: italic; margin-top: 2px; padding-left: 4px; }
+        .wrap { word-break: break-word; }
+        .big-text { font-size: 14px; font-weight: 700; }
+      </style>
+    </head>
+    <body>
+      <div class="center">
+        ${brandHtml}
+        <h1>ORDEN DE COCINA</h1>
+        <div class="meta"><strong>Orden #${order.orderNumber}</strong></div>
+        <div class="meta muted">${escapeHtml(dateStr)}</div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="meta">
+        ${
+          tableNumber
+            ? `<div class="big-text">🍽️ Mesa: ${escapeHtml(tableNumber)}</div>`
+            : ""
+        }
+        ${
+          customerName
+            ? `<div class="wrap"><strong>Cliente:</strong> ${escapeHtml(
+                customerName
+              )}</div>`
+            : ""
+        }
+      </div>
+
+      <div class="hr"></div>
+
+      <table>
+        <tbody>
+          ${
+            itemsHtml ||
+            `<tr><td class="muted" colspan="2">(Sin productos)</td></tr>`
+          }
+        </tbody>
+      </table>
+
+      <div class="hr"></div>
+      <div class="center meta muted">Preparar con cuidado</div>
+    </body>
+  </html>`;
+}
 
 function buildTicketHtml(
   order: Order,
@@ -770,13 +894,15 @@ const DraggableRow = memo(
               disabled={loadingId === meal._id}
             />
           </div>
-          <button
-            onClick={() => handleAddToOrder(meal._id)}
-            className="p-2 hover:bg-muted rounded-full transition-colors text-muted-foreground hover:text-primary"
-            title="Agregar al pedido"
-          >
-            <PlusCircle className="w-4 h-4" />
-          </button>
+          <FeatureGate feature="add_to_order">
+            <button
+              onClick={() => handleAddToOrder(meal._id)}
+              className="p-2 hover:bg-muted rounded-full transition-colors text-muted-foreground hover:text-primary"
+              title="Agregar al pedido"
+            >
+              <PlusCircle className="w-4 h-4" />
+            </button>
+          </FeatureGate>
           <button
             onClick={() => openFullEdit(meal._id)}
             className="p-2 hover:bg-muted rounded-full transition-colors text-muted-foreground hover:text-primary"
@@ -791,6 +917,99 @@ const DraggableRow = memo(
 );
 
 DraggableRow.displayName = "DraggableRow";
+
+const OrderItemRow = memo(
+  ({
+    item,
+    isOrderBusy,
+    handleSetItemQty,
+    handleAddToOrder,
+    handleUpdateItemNotes,
+  }: {
+    item: OrderItem;
+    isOrderBusy: boolean;
+    handleSetItemQty: (id: string, qty: number) => void;
+    handleAddToOrder: (id: string) => void;
+    handleUpdateItemNotes: (id: string, notes: string) => void;
+  }) => {
+    const [note, setNote] = useState(item.notes ?? "");
+    const [isDirty, setIsDirty] = useState(false);
+
+    useEffect(() => {
+      setNote(item.notes ?? "");
+      setIsDirty(false);
+    }, [item.notes]);
+
+    const handleSaveNote = () => {
+      handleUpdateItemNotes(item.mealId, note);
+      setIsDirty(false);
+    };
+
+    return (
+      <div className="border rounded-md p-3 bg-accent/80 space-y-2">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <div className="text-sm font-medium truncate">{item.name}</div>
+            <div className="text-xs text-muted-foreground">
+              S/. {item.unitPrice.toFixed(2)}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => handleSetItemQty(item.mealId, item.qty - 1)}
+              disabled={isOrderBusy}
+              className="p-2 hover:bg-muted rounded-full text-muted-foreground hover:text-primary disabled:opacity-60"
+              title="Quitar"
+            >
+              <Minus className="w-4 h-4" />
+            </button>
+            <Input
+              type="number"
+              value={item.qty}
+              min={0}
+              onChange={(e) =>
+                handleSetItemQty(item.mealId, Number(e.target.value))
+              }
+              className="w-20"
+            />
+            <button
+              onClick={() => handleAddToOrder(item.mealId)}
+              disabled={isOrderBusy}
+              className="p-2 hover:bg-muted rounded-full text-muted-foreground hover:text-primary disabled:opacity-60"
+              title="Agregar"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+        <div className="flex items-start gap-2">
+          <Textarea
+            placeholder="Observaciones (ej: sin cebolla, término medio...)"
+            value={note}
+            onChange={(e) => {
+              setNote(e.target.value);
+              setIsDirty(e.target.value !== (item.notes ?? ""));
+            }}
+            className="text-sm min-h-[60px] resize-none flex-1"
+            disabled={isOrderBusy}
+          />
+          {isDirty && (
+            <button
+              onClick={handleSaveNote}
+              disabled={isOrderBusy}
+              className="p-2 h-[60px] bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-all flex items-center justify-center"
+              title="Guardar nota"
+            >
+              <Save className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+);
+OrderItemRow.displayName = "OrderItemRow";
 
 export default function Master() {
   const { setActions } = useFab();
@@ -1047,6 +1266,35 @@ export default function Master() {
     }
   };
 
+  const handleUpdateItemNotes = async (mealId: string, notes: string) => {
+    if (!activeOrder) return;
+
+    // Optimistic update
+    setActiveOrder((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        items: prev.items.map((item) =>
+          item.mealId === mealId ? { ...item, notes } : item
+        ),
+      };
+    });
+
+    try {
+      const res = await Axios.patch<Order>(`/api/orders/${activeOrder._id}`, {
+        action: "setItemNotes",
+        mealId,
+        notes,
+      });
+      setActiveOrder(res.data);
+    } catch (error) {
+      console.error("Error updating notes:", error);
+      toast.error("No se pudo guardar la observación");
+      // Revert on error
+      await fetchActiveOrder();
+    }
+  };
+
   const handleHoldOrder = async () => {
     if (!activeOrder) return;
 
@@ -1077,6 +1325,15 @@ export default function Master() {
       "prebill",
       ticketBrand ?? undefined
     );
+    printHtmlTicket(html);
+  };
+
+  const handlePrintKitchenOrder = () => {
+    if (!activeOrder) {
+      toast.error("No hay orden activa");
+      return;
+    }
+    const html = buildKitchenOrderHtml(activeOrder, ticketBrand ?? undefined);
     printHtmlTicket(html);
   };
 
@@ -1177,6 +1434,8 @@ export default function Master() {
   };
 
   // Register FAB Actions
+  const { can } = usePermission();
+
   useEffect(() => {
     const actions = [
       {
@@ -1187,12 +1446,22 @@ export default function Master() {
           setIsDialogEditing(true);
         },
       },
-      {
+    ];
+
+    if (can("create_orders")) {
+      actions.push({
         label: "Nueva Orden",
         icon: ShoppingCart,
         onClick: handleNewOrder,
-      },
-    ];
+      });
+    } else {
+      // Opción A: Mostrar deshabilitado con candado (Upselling)
+      actions.push({
+        label: "Nueva Orden (Premium)",
+        icon: Lock,
+        onClick: () => toast("Función disponible en planes Premium"),
+      });
+    }
 
     if (activeOrder) {
       actions.push({
@@ -1758,52 +2027,14 @@ export default function Master() {
                   ) : (
                     <div className="space-y-2">
                       {activeOrder.items.map((item) => (
-                        <div
+                        <OrderItemRow
                           key={item.mealId}
-                          className="flex items-center justify-between gap-3 border rounded-md p-3 bg-accent/80"
-                        >
-                          <div className="min-w-0">
-                            <div className="text-sm font-medium truncate">
-                              {item.name}
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              S/. {item.unitPrice.toFixed(2)}
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() =>
-                                handleSetItemQty(item.mealId, item.qty - 1)
-                              }
-                              disabled={isOrderBusy}
-                              className="p-2 hover:bg-muted rounded-full text-muted-foreground hover:text-primary disabled:opacity-60"
-                              title="Quitar"
-                            >
-                              <Minus className="w-4 h-4" />
-                            </button>
-                            <Input
-                              type="number"
-                              value={item.qty}
-                              min={0}
-                              onChange={(e) =>
-                                handleSetItemQty(
-                                  item.mealId,
-                                  Number(e.target.value)
-                                )
-                              }
-                              className="w-20"
-                            />
-                            <button
-                              onClick={() => handleAddToOrder(item.mealId)}
-                              disabled={isOrderBusy}
-                              className="p-2 hover:bg-muted rounded-full text-muted-foreground hover:text-primary disabled:opacity-60"
-                              title="Agregar"
-                            >
-                              <Plus className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </div>
+                          item={item}
+                          isOrderBusy={isOrderBusy}
+                          handleSetItemQty={handleSetItemQty}
+                          handleAddToOrder={handleAddToOrder}
+                          handleUpdateItemNotes={handleUpdateItemNotes}
+                        />
                       ))}
                     </div>
                   )}
@@ -1991,7 +2222,15 @@ export default function Master() {
 
           <DialogFooter className="shrink-0">
             <div className="flex w-full flex-col-reverse sm:flex-row sm:justify-between gap-2">
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
+                <button
+                  onClick={handlePrintKitchenOrder}
+                  disabled={!activeOrder || isOrderBusy}
+                  className="px-3 py-2 text-sm rounded-md border bg-background hover:bg-muted disabled:opacity-60"
+                  title="Imprimir orden para cocina (sin precios)"
+                >
+                  Imprimir orden
+                </button>
                 <button
                   onClick={handlePrintPrebill}
                   disabled={!activeOrder || isOrderBusy}

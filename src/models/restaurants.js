@@ -1,4 +1,4 @@
-import { Schema, model, models } from "mongoose";
+import mongoose, { Schema, model } from "mongoose";
 
 const SubscriptionAuditSchema = new Schema(
   {
@@ -153,6 +153,6 @@ RestaurantSchema.index({ "subscription.plan": 1 });
 RestaurantSchema.index({ "subscription.status": 1 });
 RestaurantSchema.index({ "subscription.currentPeriodEnd": 1 });
 
-const Restaurant = models.Restaurant || model("Restaurant", RestaurantSchema);
-
+const Restaurant =
+  mongoose.models?.Restaurant || model("Restaurant", RestaurantSchema);
 export default Restaurant;

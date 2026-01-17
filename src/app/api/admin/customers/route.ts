@@ -26,6 +26,11 @@ interface IRestaurant {
   slug: string;
   ownerId?: IPopulatedOwner;
   [key: string]: unknown;
+  plan?: string;
+  subscription?: {
+    plan?: string;
+    status?: string;
+  };
 }
 
 interface IUserAggregation {
@@ -49,6 +54,13 @@ const RestaurantListItemSchema = z
     name: z.string(),
     slug: z.string(),
     ownerId: OwnerSchema.optional(),
+    plan: z.string().optional(),
+    subscription: z
+      .object({
+        plan: z.string().optional(),
+        status: z.string().optional(),
+      })
+      .optional(),
   })
   .passthrough();
 
@@ -82,7 +94,7 @@ export async function GET(request: Request) {
     const [total, rawRestaurants] = await Promise.all([
       Restaurant.countDocuments(query),
       Restaurant.find(query)
-        .select("name slug ownerId") // ensures the fields you rely on are present
+        .select("name slug ownerId plan subscription") // ensures the fields you rely on are present
         .populate("ownerId", "fullName email username role isActive")
         .sort({ name: 1 })
         .skip(skip)

@@ -15,6 +15,7 @@ type OrderItemDoc = {
   name?: string;
   unitPrice?: number;
   qty: number;
+  notes?: string;
 };
 
 type OrderAdjustmentDoc = {
@@ -260,6 +261,35 @@ export async function PATCH(
       } else {
         existing.qty = qty;
       }
+
+      await order.save();
+      return NextResponse.json(order, { status: 200 });
+    }
+
+    if (action === "setItemNotes") {
+      const mealId = body.mealId;
+      const notesRaw = body.notes;
+      console.log("setting notes", { mealId, notesRaw });
+      if (typeof mealId !== "string" || mealId.length === 0) {
+        return NextResponse.json({ error: "mealId inválido" }, { status: 400 });
+      }
+
+      const notes = typeof notesRaw === "string" ? notesRaw.trim() : "";
+
+      const items = order.items as unknown as OrderItemDoc[];
+      const existing = items.find((i) => i.mealId === mealId);
+
+      if (!existing) {
+        return NextResponse.json(
+          { error: "Item no encontrado" },
+          { status: 404 }
+        );
+      }
+
+      existing.notes = notes.slice(0, 500); // Limit to 500 chars
+
+      // Ensure mongoose detects the change
+      order.markModified("items");
 
       await order.save();
       return NextResponse.json(order, { status: 200 });

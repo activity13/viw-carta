@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import axios, { AxiosError } from "axios";
 import {
   Card,
@@ -143,17 +144,45 @@ export default function InvitationPage() {
         registrationData
       );
 
-      setSuccess("¡Registro exitoso! Serás redirigido al onboarding...");
+      setSuccess("¡Registro exitoso! Iniciando sesión...");
       toast.success("¡Bienvenido a VIW Carta!");
 
-      // Redirigir al onboarding
+      // Auto-login con NextAuth
+      // NextAuth espera 'username' pero acepta email también en el authorize
+      const signInResult = await signIn("credentials", {
+        redirect: false,
+        username: formData.email, // NextAuth usa 'username' pero el authorize acepta email
+        password: formData.password,
+      });
+
+      console.log("SignIn result:", signInResult);
+
+      if (signInResult?.error) {
+        console.error("Error en signIn:", signInResult.error);
+        setError(
+          "Registro exitoso pero error al iniciar sesión. Intenta hacer login manualmente."
+        );
+        setTimeout(() => router.push("/backoffice/login"), 2000);
+        return;
+      }
+
+      // Verificar que el signIn fue exitoso
+      if (!signInResult?.ok) {
+        console.error("SignIn no fue exitoso:", signInResult);
+        setError(
+          "Error al iniciar sesión automáticamente. Redirigiendo al login..."
+        );
+        setTimeout(() => router.push("/backoffice/login"), 2000);
+        return;
+      }
+
+      // Redirigir al onboarding con navegación completa para asegurar que las cookies de sesión se carguen
+      const redirectPath = response.data.redirectTo || "/backoffice";
+
+      // Usar window.location.href para forzar una recarga completa con la sesión establecida
       setTimeout(() => {
-        if (response.data.redirectTo) {
-          router.push(response.data.redirectTo);
-        } else {
-          router.push("/backoffice/login");
-        }
-      }, 2000);
+        window.location.href = redirectPath;
+      }, 800);
     } catch (error) {
       if (error instanceof AxiosError) {
         setError(error.response?.data?.error || "Error al registrar");

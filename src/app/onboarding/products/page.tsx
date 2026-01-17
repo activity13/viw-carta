@@ -328,7 +328,7 @@ function OnboardingProductsContent() {
       duration: 4000,
     });
     setTimeout(() => {
-      router.push("/backoffice/login");
+      router.push("/backoffice");
     }, 1500);
   };
 

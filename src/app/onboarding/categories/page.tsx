@@ -46,7 +46,7 @@ interface Category {
 // Loading component for Suspense fallback
 function OnboardingCategoriesLoading() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 to-indigo-100">
       <Card className="w-full max-w-md">
         <CardContent className="p-8 text-center">
           <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
@@ -144,8 +144,11 @@ function OnboardingCategoriesContent() {
     }
   };
 
-  const handleDragEnd = (result: DropResult) => {
+  const handleDragEnd = async (result: DropResult) => {
     if (!result.destination) return;
+
+    // Si no cambió la posición, no hacer nada
+    if (result.source.index === result.destination.index) return;
 
     const items = Array.from(categories);
     const [reorderedItem] = items.splice(result.source.index, 1);
@@ -158,6 +161,24 @@ function OnboardingCategoriesContent() {
     }));
 
     setCategories(updatedCategories);
+
+    // Guardar automáticamente
+    try {
+      setIsSaving(true);
+      await axios.put("/api/categories/reorder", {
+        restaurantId,
+        categories: updatedCategories.map((cat) => ({
+          id: cat._id,
+          order: cat.order,
+        })),
+      });
+      toast.success("Orden guardado automáticamente");
+    } catch (error) {
+      console.error("Error al guardar el orden:", error);
+      toast.error("Error al guardar el orden");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const startEdit = (category: Category) => {
@@ -263,28 +284,6 @@ function OnboardingCategoriesContent() {
     }
   };
 
-  const saveOrder = async () => {
-    try {
-      setIsSaving(true);
-
-      // Enviar nuevo orden al servidor
-      await axios.put("/api/categories/reorder", {
-        restaurantId,
-        categories: categories.map((cat) => ({
-          id: cat._id,
-          order: cat.order,
-        })),
-      });
-
-      toast.success("Orden guardado exitosamente");
-    } catch (error) {
-      console.error("Error al guardar el orden:", error);
-      toast.error("Error al guardar el orden");
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
   const goToProducts = () => {
     router.push(`/onboarding/products?restaurantId=${restaurantId}`);
   };
@@ -295,7 +294,7 @@ function OnboardingCategoriesContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 to-indigo-100">
         <Card className="w-full max-w-md">
           <CardContent className="p-8 text-center">
             <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
@@ -308,7 +307,7 @@ function OnboardingCategoriesContent() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-rose-100">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-red-50 to-rose-100">
         <Card className="w-full max-w-md border-destructive/20">
           <CardContent className="p-8 text-center">
             <p className="text-destructive">{error}</p>
@@ -322,11 +321,11 @@ function OnboardingCategoriesContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-900 to-indigo-700/10 py-12 px-4">
+    <div className="min-h-screen bg-linear-to-br from-green-900 to-indigo-700/10 py-12 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-linear-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <FolderOpen className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">
@@ -354,9 +353,16 @@ function OnboardingCategoriesContent() {
                 <CardTitle className="flex items-center gap-2">
                   <FolderOpen className="w-5 h-5" />
                   Tus Categorías
+                  {isSaving && (
+                    <span className="flex items-center gap-2 text-sm font-normal text-muted-foreground">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Guardando...
+                    </span>
+                  )}
                 </CardTitle>
                 <CardDescription>
-                  Arrastra y suelta para cambiar el orden
+                  Arrastra y suelta para cambiar el orden (se guarda
+                  automáticamente)
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -450,7 +456,7 @@ function OnboardingCategoriesContent() {
                                           </Badge>
                                         </div>
                                       </div>
-                                      <div className="flex gap-2 flex-shrink-0">
+                                      <div className="flex gap-2 shrink-0">
                                         <Button
                                           size="sm"
                                           variant="ghost"
@@ -573,30 +579,6 @@ function OnboardingCategoriesContent() {
                     <>
                       <Plus className="w-4 h-4 mr-2" />
                       Agregar Categoría
-                    </>
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Actions */}
-            <Card>
-              <CardContent className="p-6 space-y-4">
-                <Button
-                  onClick={saveOrder}
-                  disabled={isSaving}
-                  className="w-full"
-                  variant="outline"
-                >
-                  {isSaving ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Guardando...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="w-4 h-4 mr-2" />
-                      Guardar Orden
                     </>
                   )}
                 </Button>

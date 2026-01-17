@@ -52,6 +52,7 @@ export default function SuperAdminCustomersPage() {
       const res = await axios.get("/api/admin/customers", {
         params: effectiveQuery ? { q: effectiveQuery } : {},
       });
+      console.log("🚀 ~ page.tsx:55 ~ load ~ res:", res);
       setItems(res.data.items ?? []);
     } catch (error) {
       console.error(error);

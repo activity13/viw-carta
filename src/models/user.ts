@@ -1,4 +1,4 @@
-import { model, Schema, models } from "mongoose";
+import mongoose, { model, Schema } from "mongoose";
 
 const userSchema = new Schema(
   {
@@ -64,6 +64,6 @@ const userSchema = new Schema(
 
 // User: fullName, username, email, password, restaurantId, role, isActive, createdAt, updatedAt
 
-const User = models.User || model("User", userSchema);
+const User = mongoose.models?.User || model("User", userSchema);
 
 export default User;

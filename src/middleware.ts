@@ -22,12 +22,12 @@ export default withAuth(
     const currentHost = getCurrentHost(req);
 
     const isRootHost =
-      currentHost === mainDomain ||
-      currentHost === `www.${mainDomain}` ||
-      currentHost === "localhost";
+      currentHost === mainDomain || currentHost === `www.${mainDomain}`;
 
     const isAppHost =
-      currentHost === `app.${mainDomain}` || currentHost === "app.localhost";
+      currentHost === `app.${mainDomain}` ||
+      currentHost === "app.localhost" ||
+      currentHost === "localhost";
 
     // --- ROOT DOMAIN: siempre público (landing) ---
     if (isRootHost) return NextResponse.next();
@@ -36,7 +36,9 @@ export default withAuth(
     if (isAppHost) {
       if (
         url.pathname.startsWith("/backoffice/login") ||
-        url.pathname.startsWith("/api/auth")
+        url.pathname.startsWith("/api/auth") ||
+        url.pathname.startsWith("/invitation/") ||
+        url.pathname.startsWith("/onboarding/")
       ) {
         return NextResponse.next();
       }
@@ -89,7 +91,9 @@ export default withAuth(
         if (isAppHost) {
           if (
             url.pathname.startsWith("/backoffice/login") ||
-            url.pathname.startsWith("/api/auth")
+            url.pathname.startsWith("/api/auth") ||
+            url.pathname.startsWith("/invitation/") ||
+            url.pathname.startsWith("/onboarding/")
           ) {
             return true;
           }

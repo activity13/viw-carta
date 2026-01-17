@@ -112,12 +112,15 @@ function OnboardingWelcomeContent() {
   };
 
   const skipToBackoffice = () => {
-    router.push("/backoffice/login");
+    router.push("/backoffice");
   };
 
   const previewMenu = () => {
     if (restaurant?.slug) {
-      window.open(`/${restaurant.slug}`, "_blank");
+      const protocol = window.location.protocol;
+      const host = window.location.host;
+      const rootDomain = host.replace("app.", "");
+      window.open(`${protocol}//${restaurant.slug}.${rootDomain}`, "_blank");
     }
   };
 
@@ -173,150 +176,135 @@ function OnboardingWelcomeContent() {
           </p>
           <div className="flex items-center justify-center gap-2 text-sm text-emerald-700">
             <Sparkles className="w-4 h-4" />
-            <span>Ya tienes categorías y productos ejemplo para empezar</span>
+            <span>
+              Ya tienes categorías y productos ejemplo que hemos creado para ti.
+              Sigue a continuación y personalízalos a tu gusto.
+            </span>
           </div>
         </div>
 
         {/* Success Indicators */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <Card className="border-emerald-200 bg-emerald-50/50">
+          <Card className="border-emerald-200 bg-emerald-50/50 shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <CheckCircle className="w-6 h-6 text-emerald-600" />
+              <div className="w-14 h-14 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-7 h-7 text-emerald-600" />
               </div>
-              <h3 className="font-semibold text-emerald-800">
-                {categories.length} Categorías
+              <h3 className="text-2xl font-bold text-emerald-800 mb-1">
+                {categories.length}
               </h3>
-              <p className="text-sm text-emerald-600">Organizadas y listas</p>
+              <p className="text-sm font-medium text-emerald-700">Categorías</p>
+              <p className="text-xs text-emerald-600 mt-1">
+                Organizadas y listas
+              </p>
             </CardContent>
           </Card>
 
-          <Card className="border-blue-200 bg-blue-50/50">
+          <Card className="border-blue-200 bg-blue-50/50 shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <CheckCircle className="w-6 h-6 text-blue-600" />
+              <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-7 h-7 text-blue-600" />
               </div>
-              <h3 className="font-semibold text-blue-800">
-                {meals.length} Productos
+              <h3 className="text-2xl font-bold text-blue-800 mb-1">
+                {meals.length}
               </h3>
-              <p className="text-sm text-blue-600">Listos para personalizar</p>
+              <p className="text-sm font-medium text-blue-700">Productos</p>
+              <p className="text-xs text-blue-600 mt-1">Listos para editar</p>
             </CardContent>
           </Card>
 
-          <Card className="border-emerald-200 bg-emerald-50/50">
+          <Card className="border-purple-200 bg-purple-50/50 shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <CheckCircle className="w-6 h-6 text-emerald-600" />
+              <div className="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-7 h-7 text-purple-600" />
               </div>
-              <h3 className="font-semibold text-emerald-800">
-                Subdominio Único
+              <h3 className="text-lg font-bold text-purple-800 mb-1 break-all">
+                {restaurant?.slug}
               </h3>
-              <Link
-                href={`https://${restaurant?.slug}.viw-carta.com`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-emerald-600 hover:underline hover:text-emerald-800 hover:font-bold"
-              >
-                {restaurant?.slug}.viw-carta.com
-              </Link>
+              <p className="text-sm font-medium text-purple-700">
+                Tu subdominio
+              </p>
+              <p className="text-xs text-purple-600 mt-1">.viw-carta.com</p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Menu Preview */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="text-center text-2xl">
-              Vista Previa de tu Menú
-            </CardTitle>
-            <CardDescription className="text-center">
-              Aquí tienes una muestra de cómo se ve tu carta digital
+        {/* What's Next Section */}
+        <Card className="mb-10 border-emerald-200 shadow-lg">
+          <CardHeader className="text-center pb-4">
+            <CardTitle className="text-2xl">¿Qué sigue ahora?</CardTitle>
+            <CardDescription className="text-base">
+              Elige cómo quieres continuar con tu menú digital
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            {categories.map((category) => {
-              const categoryMeals = getMealsByCategory(category._id);
-              return (
-                <div
-                  key={category._id}
-                  className="border rounded-lg p-4 bg-white/50"
-                >
-                  <div className="flex items-center gap-3 mb-4">
-                    <h3 className="text-lg font-semibold text-gray-800">
-                      {category.name}
-                    </h3>
-                    <Badge variant="secondary" className="text-xs">
-                      {categoryMeals.length} productos
-                    </Badge>
+          <CardContent className="space-y-4 px-6 pb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Option 1: Customize */}
+              <div className="border-2 border-emerald-200 rounded-lg p-6 bg-emerald-50/30 hover:bg-emerald-50/60 transition-colors">
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="w-12 h-12 bg-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Edit3 className="w-6 h-6 text-white" />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {categoryMeals.map((meal) => (
-                      <div
-                        key={meal._id}
-                        className="flex justify-between items-center p-3 bg-white rounded border"
-                      >
-                        <div className="flex-1">
-                          <p className="font-medium text-gray-800">
-                            {meal.name}
-                          </p>
-                          <p className="text-sm text-gray-600 truncate">
-                            {meal.description}
-                          </p>
-                        </div>
-                        <div className="text-right ml-3">
-                          {meal.isTemplate ? (
-                            <Badge variant="outline" className="text-xs">
-                              Template
-                            </Badge>
-                          ) : (
-                            <span className="font-semibold text-emerald-600">
-                              S/. {meal.price}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-gray-900 mb-2">
+                      Personalizar tu menú
+                    </h3>
+                    <p className="text-sm text-black mb-4">
+                      Edita las categorías y productos de ejemplo para que
+                      reflejen tu carta real. Es rápido y fácil.
+                    </p>
+                    <Button
+                      onClick={startCustomization}
+                      className="w-full bg-emerald-600 hover:bg-emerald-700"
+                    >
+                      Empezar ahora
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
                   </div>
                 </div>
-              );
-            })}
+              </div>
+
+              {/* Option 2: Preview */}
+              <div className="border-2 border-blue-200 rounded-lg p-6 bg-blue-50/30 hover:bg-blue-50/60 transition-colors">
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Eye className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-gray-900 mb-2">
+                      Ver menú público
+                    </h3>
+                    <p className="text-sm text-black mb-4">
+                      Mira cómo se ve tu menú digital tal como lo verán tus
+                      clientes en sus dispositivos.
+                    </p>
+                    <Button
+                      onClick={previewMenu}
+                      variant="outline"
+                      className="w-full border-blue-300 text-blue-700 hover:bg-blue-100"
+                    >
+                      Abrir vista previa
+                      <Eye className="w-4 h-4 ml-2" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <Button
-            onClick={previewMenu}
-            variant="outline"
-            size="lg"
-            className="min-w-48"
-          >
-            <Eye className="w-5 h-5 mr-2" />
-            Ver Menú Público
-          </Button>
-
-          <Button
-            onClick={startCustomization}
-            size="lg"
-            className="min-w-48 bg-emerald-600 hover:bg-emerald-700"
-          >
-            <Edit3 className="w-5 h-5 mr-2" />
-            Personalizar Menú
-            <ArrowRight className="w-5 h-5 ml-2" />
-          </Button>
-        </div>
-
         {/* Skip Option */}
-        <div className="text-center mt-8">
-          <p className="text-sm text-gray-500 mb-2">
-            ¿Quieres personalizar más tarde?
+        <div className="text-center">
+          <p className="text-sm text-gray-500 mb-3">
+            ¿Prefieres configurar todo más tarde?
           </p>
           <Button
             variant="ghost"
             onClick={skipToBackoffice}
-            className="text-sm"
+            className="text-sm hover:bg-emerald-50"
           >
-            Ir al Panel de Administración
+            Ir directamente al Panel de Administración
+            <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
         </div>
       </div>

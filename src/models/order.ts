@@ -6,6 +6,7 @@ const OrderItemSchema = new Schema(
     name: { type: String, required: true, trim: true },
     unitPrice: { type: Number, required: true, min: 0 },
     qty: { type: Number, required: true, min: 0 },
+    notes: { type: String, trim: true },
   },
   { _id: false }
 );
@@ -102,12 +103,17 @@ const adjustmentPath = existingModel?.schema?.path?.("adjustment") as
   | { schema?: { path?: (name: string) => unknown } }
   | undefined;
 
+const itemsPath = existingModel?.schema?.path?.("items") as
+  | { schema?: { path?: (name: string) => unknown } }
+  | undefined;
+
 const needsRebuild =
   process.env.NODE_ENV !== "production" &&
   !!existingModel &&
   (!existingModel.schema?.path?.("tableNumber") ||
     !existingModel.schema?.path?.("adjustment") ||
-    !adjustmentPath?.schema?.path?.("note"));
+    !adjustmentPath?.schema?.path?.("note") ||
+    !itemsPath?.schema?.path?.("notes"));
 
 if (needsRebuild) {
   delete models.Order;
