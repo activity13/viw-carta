@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { AnimatePresence, motion } from "motion/react";
-import { Sparkles, ExternalLink, Loader2 } from "lucide-react";
+import { Sparkles, ExternalLink, Loader2, Printer } from "lucide-react";
 import { useFab } from "@/providers/ActionProvider";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,11 +12,19 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export function SmartFAB() {
   const { data: session } = useSession();
   const { actions } = useFab();
   const [isOpen, setIsOpen] = useState(false);
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
 
   const toggleOpen = () => setIsOpen(!isOpen);
@@ -47,6 +55,12 @@ export function SmartFAB() {
 
   // Fixed actions
   const fixedActions = [
+    {
+      label: "Imprimir Carta",
+      icon: Printer,
+      onClick: () => setIsPrintModalOpen(true),
+      variant: "secondary" as const,
+    },
     {
       label: "Ver mi carta",
       icon: ExternalLink,
@@ -165,6 +179,63 @@ export function SmartFAB() {
           </motion.span>
         </Button>
       </motion.div>
+
+      {/* Modal de Selección de Idioma para Impresión */}
+      <Dialog open={isPrintModalOpen} onOpenChange={setIsPrintModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Imprimir Carta</DialogTitle>
+            <DialogDescription>
+              Selecciona el idioma en el que deseas generar el menú para
+              imprimir.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-4 py-4">
+            <Button
+              variant="outline"
+              className="h-24 flex flex-col gap-2 hover:bg-muted/50 border-2 hover:border-primary/50 transition-all"
+              onClick={() => {
+                const slug = session?.user?.slug;
+                if (slug) {
+                  const protocol = window.location.protocol;
+                  const host = window.location.host;
+                  const rootDomain = host.replace("app.", "");
+                  window.open(
+                    `${protocol}//${slug}.${rootDomain}/print?lang=es`,
+                    "_blank",
+                  );
+                }
+                setIsPrintModalOpen(false);
+                setIsOpen(false);
+              }}
+            >
+              <span className="text-2xl">🇪🇸</span>
+              <span className="font-semibold">Español</span>
+            </Button>
+            <Button
+              variant="outline"
+              className="h-24 flex flex-col gap-2 hover:bg-muted/50 border-2 hover:border-primary/50 transition-all"
+              onClick={() => {
+                const slug = session?.user?.slug;
+                if (slug) {
+                  const protocol = window.location.protocol;
+                  const host = window.location.host;
+                  const rootDomain = host.replace("app.", "");
+                  window.open(
+                    `${protocol}//${slug}.${rootDomain}/print?lang=en`,
+                    "_blank",
+                  );
+                }
+                setIsPrintModalOpen(false);
+                setIsOpen(false);
+              }}
+            >
+              <span className="text-2xl">🇺🇸</span>
+              <span className="font-semibold">Inglés</span>
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

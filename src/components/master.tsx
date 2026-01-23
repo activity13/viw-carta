@@ -124,12 +124,12 @@ function round2(value: number): number {
 
 function calculateSubtotal(order: Pick<Order, "items">): number {
   return round2(
-    order.items.reduce((acc, item) => acc + item.unitPrice * item.qty, 0)
+    order.items.reduce((acc, item) => acc + item.unitPrice * item.qty, 0),
   );
 }
 
 function calculateAdjustmentAmount(
-  order: Pick<Order, "items" | "adjustment">
+  order: Pick<Order, "items" | "adjustment">,
 ): number {
   const subtotal = calculateSubtotal(order);
   const adj = order.adjustment;
@@ -142,7 +142,7 @@ function calculateAdjustmentAmount(
 }
 
 function calculateOrderTotal(
-  order: Pick<Order, "items" | "adjustment">
+  order: Pick<Order, "items" | "adjustment">,
 ): number {
   const subtotal = calculateSubtotal(order);
   const adjustment = calculateAdjustmentAmount(order);
@@ -212,7 +212,7 @@ function buildKitchenOrderHtml(order: Order, brand?: TicketBrand): string {
             ${
               brandLogoUrl
                 ? `<img class="brand-logo" src="${escapeHtml(
-                    brandLogoUrl
+                    brandLogoUrl,
                   )}" alt="${escapeHtml(brandName || "Logo")}" />`
                 : ""
             }
@@ -272,7 +272,7 @@ function buildKitchenOrderHtml(order: Order, brand?: TicketBrand): string {
         ${
           customerName
             ? `<div class="wrap"><strong>Cliente:</strong> ${escapeHtml(
-                customerName
+                customerName,
               )}</div>`
             : ""
         }
@@ -298,7 +298,7 @@ function buildKitchenOrderHtml(order: Order, brand?: TicketBrand): string {
 function buildTicketHtml(
   order: Order,
   mode: TicketMode,
-  brand?: TicketBrand
+  brand?: TicketBrand,
 ): string {
   const createdAt = new Date();
   const dateStr = createdAt.toLocaleString("es-PE");
@@ -313,10 +313,10 @@ function buildTicketHtml(
   const subtotal = calculateSubtotal(order);
   const adjustmentAmount = calculateAdjustmentAmount(order);
   const total = calculateOrderTotal(order);
-  const payments = mode === "paid" ? order.payments ?? [] : [];
+  const payments = mode === "paid" ? (order.payments ?? []) : [];
   const paidSum = payments.reduce(
     (acc, p) => acc + (Number.isFinite(p.amount) ? p.amount : 0),
-    0
+    0,
   );
 
   const adj = order.adjustment;
@@ -349,10 +349,10 @@ function buildTicketHtml(
         <tr>
           <td class="name">${escapeHtml(paymentLabel(p.type))}</td>
           <td class="money" colspan="3">S/. ${Number(p.amount || 0).toFixed(
-            2
+            2,
           )}</td>
         </tr>
-      `
+      `,
         )
         .join("")
     : "";
@@ -375,7 +375,7 @@ function buildTicketHtml(
             ${
               brandLogoUrl
                 ? `<img class="brand-logo" src="${escapeHtml(
-                    brandLogoUrl
+                    brandLogoUrl,
                   )}" alt="${escapeHtml(brandName || "Logo")}" />`
                 : ""
             }
@@ -428,12 +428,12 @@ function buildTicketHtml(
 
       <div class="meta">
         <div class="wrap"><strong>Cliente:</strong> ${escapeHtml(
-          customerName || "Sin cliente"
+          customerName || "Sin cliente",
         )}</div>
         ${
           tableNumber
             ? `<div class="wrap"><strong>Mesa:</strong> ${escapeHtml(
-                tableNumber
+                tableNumber,
               )}</div>`
             : ""
         }
@@ -476,10 +476,10 @@ function buildTicketHtml(
               ? `
           <tr>
             <td class="name muted">${escapeHtml(
-              adjustmentLabel.toUpperCase()
+              adjustmentLabel.toUpperCase(),
             )}</td>
             <td class="money" colspan="3">S/. ${adjustmentAmount.toFixed(
-              2
+              2,
             )}</td>
           </tr>
           `
@@ -590,8 +590,8 @@ function printHtmlTicket(html: string, opts?: PrintTicketOptions) {
                 if (img.complete) return resolve();
                 img.onload = () => resolve();
                 img.onerror = () => resolve();
-              })
-          )
+              }),
+          ),
         ),
         new Promise<void>((resolve) => setTimeout(resolve, 900)),
       ]);
@@ -695,7 +695,7 @@ const EditableCell = ({
           value={currentValue}
           onChange={(e) =>
             setCurrentValue(
-              type === "number" ? Number(e.target.value) : e.target.value
+              type === "number" ? Number(e.target.value) : e.target.value,
             )
           }
           onBlur={handleSave}
@@ -739,7 +739,7 @@ const DraggableMobileCard = memo(
     handleQuickUpdate: (
       id: string,
       field: string,
-      value: string | number
+      value: string | number,
     ) => void;
     handleToggleAvailable: (id: string, state: boolean) => void;
     handleAddToOrder: (mealId: string) => void;
@@ -820,7 +820,7 @@ const DraggableMobileCard = memo(
         </div>
       </Reorder.Item>
     );
-  }
+  },
 );
 
 DraggableMobileCard.displayName = "DraggableMobileCard";
@@ -839,7 +839,7 @@ const DraggableRow = memo(
     handleQuickUpdate: (
       id: string,
       field: string,
-      value: string | number
+      value: string | number,
     ) => void;
     handleToggleAvailable: (id: string, state: boolean) => void;
     handleAddToOrder: (mealId: string) => void;
@@ -912,7 +912,7 @@ const DraggableRow = memo(
         </div>
       </Reorder.Item>
     );
-  }
+  },
 );
 
 DraggableRow.displayName = "DraggableRow";
@@ -1006,7 +1006,7 @@ const OrderItemRow = memo(
         </div>
       </div>
     );
-  }
+  },
 );
 OrderItemRow.displayName = "OrderItemRow";
 
@@ -1021,7 +1021,7 @@ export default function Master() {
   const [meals, setMeals] = useState<Meal[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
 
   const [loadingId, setLoadingId] = useState<string | null>(null);
@@ -1069,7 +1069,7 @@ export default function Master() {
       if (!restaurantId) return;
       try {
         const res = await Axios.get<{ name?: string; image?: string }>(
-          `/api/settings/${restaurantId}`
+          `/api/settings/${restaurantId}`,
         );
         if (cancelled) return;
         setTicketBrand({
@@ -1097,14 +1097,14 @@ export default function Master() {
 
     setTableNumberDraft(order.tableNumber ?? "");
     setAdjustmentDraft(
-      order.adjustment ?? { kind: "discount", percent: 0, note: "" }
+      order.adjustment ?? { kind: "discount", percent: 0, note: "" },
     );
 
     const existingPayments = order.payments ?? [];
     setPaymentsDraft(
       existingPayments.length > 0
         ? existingPayments
-        : [{ type: "cash", amount: 0 }]
+        : [{ type: "cash", amount: 0 }],
     );
   };
 
@@ -1274,7 +1274,7 @@ export default function Master() {
       return {
         ...prev,
         items: prev.items.map((item) =>
-          item.mealId === mealId ? { ...item, notes } : item
+          item.mealId === mealId ? { ...item, notes } : item,
         ),
       };
     });
@@ -1322,7 +1322,7 @@ export default function Master() {
     const html = buildTicketHtml(
       activeOrder,
       "prebill",
-      ticketBrand ?? undefined
+      ticketBrand ?? undefined,
     );
     printHtmlTicket(html);
   };
@@ -1343,7 +1343,7 @@ export default function Master() {
     const total = calculateOrderTotal(activeOrder);
     const paymentSum = paymentsDraft.reduce(
       (acc, p) => acc + (Number.isFinite(p.amount) ? p.amount : 0),
-      0
+      0,
     );
 
     if (subtotal <= 0) {
@@ -1500,7 +1500,7 @@ export default function Master() {
       // Inicialmente todas las categorías seleccionadas
       if (selectedCategories.size === 0 && catsRes.data.length > 0) {
         setSelectedCategories(
-          new Set(catsRes.data.map((c: Category) => c._id))
+          new Set(catsRes.data.map((c: Category) => c._id)),
         );
       }
     } catch (error) {
@@ -1608,11 +1608,11 @@ export default function Master() {
   const handleQuickUpdate = async (
     id: string,
     field: string,
-    value: string | number
+    value: string | number,
   ) => {
     // Optimistic update
     setMeals((prev) =>
-      prev.map((m) => (m._id === id ? { ...m, [field]: value } : m))
+      prev.map((m) => (m._id === id ? { ...m, [field]: value } : m)),
     );
 
     try {
@@ -1627,7 +1627,7 @@ export default function Master() {
 
   const handleToggleAvailable = async (
     mealId: string,
-    currentState: boolean
+    currentState: boolean,
   ) => {
     setLoadingId(mealId);
     // Optimistic
@@ -1635,8 +1635,8 @@ export default function Master() {
       prev.map((m) =>
         m._id === mealId
           ? { ...m, display: { ...m.display, showInMenu: !currentState } }
-          : m
-      )
+          : m,
+      ),
     );
 
     try {
@@ -1739,8 +1739,8 @@ export default function Master() {
           filterStatus === "all"
             ? true
             : filterStatus === "active"
-            ? meal.display?.showInMenu
-            : !meal.display?.showInMenu;
+              ? meal.display?.showInMenu
+              : !meal.display?.showInMenu;
 
         return matchesCategory && matchesSearch && matchesStatus;
       })
@@ -1851,7 +1851,7 @@ export default function Master() {
                   className="cursor-pointer hover:text-primary flex items-center gap-1"
                   onClick={() =>
                     setSortOrder((prev) =>
-                      prev === "asc" ? "desc" : prev === "desc" ? null : "asc"
+                      prev === "asc" ? "desc" : prev === "desc" ? null : "asc",
                     )
                   }
                 >
@@ -2149,8 +2149,8 @@ export default function Master() {
                           onValueChange={(val: PaymentType) =>
                             setPaymentsDraft((prev) =>
                               prev.map((x, i) =>
-                                i === idx ? { ...x, type: val } : x
-                              )
+                                i === idx ? { ...x, type: val } : x,
+                              ),
                             )
                           }
                         >
@@ -2176,8 +2176,8 @@ export default function Master() {
                                 prev.map((x, i) =>
                                   i === idx
                                     ? { ...x, amount: Number(e.target.value) }
-                                    : x
-                                )
+                                    : x,
+                                ),
                               )
                             }
                           />
@@ -2185,7 +2185,7 @@ export default function Master() {
                             <button
                               onClick={() =>
                                 setPaymentsDraft((prev) =>
-                                  prev.filter((_, i) => i !== idx)
+                                  prev.filter((_, i) => i !== idx),
                                 )
                               }
                               disabled={isOrderBusy}
