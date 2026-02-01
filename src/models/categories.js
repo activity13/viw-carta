@@ -1,4 +1,5 @@
-import { Schema, model, models } from "mongoose";
+import pkg from "mongoose";
+const { Schema, model, models } = pkg;
 
 const CategorySchema = new Schema(
   {
@@ -71,16 +72,16 @@ const CategorySchema = new Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 CategorySchema.index(
   { restaurantId: 1, slug: 1 },
-  { unique: true, sparse: true }
+  { unique: true, sparse: true },
 ); // slug único por restaurante
 CategorySchema.index(
   { restaurantId: 1, code: 1 },
-  { unique: true, sparse: true }
+  { unique: true, sparse: true },
 ); // code único por restaurante
 CategorySchema.index({ restaurantId: 1, order: 1 }, { sparse: true }); // para ordenamiento
 

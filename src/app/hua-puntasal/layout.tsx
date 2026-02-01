@@ -20,6 +20,9 @@ const huaPrimary = localFont({
 
 const montserrat = Montserrat({ subsets: ["latin"] });
 
+export const dynamic = "force-dynamic";
+export const revalidate = 60;
+
 export async function generateMetadata(): Promise<Metadata> {
   return {
     title: "Hua de Punta Sal - El mejor restaurante de todo Punta Sal",
@@ -35,22 +38,23 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 async function getMenuData() {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  try {
-    const res = await fetch(`${baseUrl}/api/public/menu/hua-puntasal`, {
-      next: { revalidate: 60 },
-    });
+  const subdomain = "hua-puntasal";
 
-    if (!res.ok) {
-      console.error("Failed to fetch menu data");
-      return { categories: [], meals: [], systemMessages: [] };
-    }
+  const baseUrl =
+    process.env.API_INTERNAL_URL ||
+    (process.env.NODE_ENV === "development"
+      ? "http://localhost:3000"
+      : "https://viw-carta.com");
 
-    return res.json();
-  } catch (error) {
-    console.error("Fetch error:", error);
-    return { categories: [], meals: [], systemMessages: [] };
+  const res = await fetch(`${baseUrl}/api/public/menu/${subdomain}`, {
+    next: { tags: [`menu-${subdomain}`] },
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch menu");
   }
+
+  return res.json();
 }
 
 export default async function HuaLayout({

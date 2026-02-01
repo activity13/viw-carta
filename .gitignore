@@ -44,3 +44,4 @@ next-env.d.ts
 bitacora.txt
 # Documementos para ordenar la información
 /docs/
+/scripts/

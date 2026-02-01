@@ -1,4 +1,5 @@
-import { Schema, model, models } from "mongoose";
+import pkg from "mongoose";
+const { Schema, model, models } = pkg;
 
 const SystemMessageSchema = new Schema(
   {
@@ -40,7 +41,7 @@ const SystemMessageSchema = new Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Evitar duplicados de compilación en Next.js
