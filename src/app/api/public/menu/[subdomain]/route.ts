@@ -8,7 +8,7 @@ import MealSchema from "@/models/meals";
 
 export async function GET(
   req: Request,
-  { params }: { params: Promise<{ subdomain: string }> }
+  { params }: { params: Promise<{ subdomain: string }> },
 ) {
   try {
     const { subdomain } = await params; //
@@ -17,11 +17,10 @@ export async function GET(
     console.log("⚡ Regenerando menú desde la DB:", new Date().toISOString());
     // 1. Buscar restaurante
     const restaurant = await Restaurant.findOne({ slug: subdomain });
-    console.log("🚀 ~ route.ts:19 ~ GET ~ restaurant:", restaurant);
     if (!restaurant) {
       return NextResponse.json(
         { error: "Restaurante no encontrado" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -41,10 +40,16 @@ export async function GET(
     }).sort({ order: 1 });
 
     // 2.1 Buscar mensajes del sistema activos
+    // Se usa { $ne: false } para incluir documentos donde isActive no existe (migración o inserción manual)
     const systemMessages = await SystemMessage.find({
       restaurantId: restaurant._id,
-      isActive: true,
+      isActive: { $ne: false },
     }).sort({ placement: 1, order: 1 });
+
+    console.log(
+      `DEBUG: Found ${systemMessages.length} messages for restaurant ${restaurant._id}`,
+    );
+    console.log("🚀 ~ route.ts:47 ~ GET ~ systemMessages:", systemMessages);
 
     // 3. Buscar platos del restaurante
     const meals = await MealSchema.find({
@@ -55,7 +60,7 @@ export async function GET(
     // 4. Agrupar platos en sus categorías
     const categoriesWithMeals = categories.map((cat) => {
       const catMeals = meals.filter(
-        (meal) => meal.categoryId.toString() === cat._id.toString()
+        (meal) => meal.categoryId.toString() === cat._id.toString(),
       );
 
       return {
@@ -78,7 +83,9 @@ export async function GET(
           featured: m.display.isFeatured,
           ingredients: [m.ingredients],
           ingredients_en: [m.ingredients_en],
+          variants: m.variants, // Include variants for complex layouts
         })),
+        mealsCount: catMeals.length,
       };
     });
 
@@ -113,13 +120,13 @@ export async function GET(
           "x-next-cache-tags": tag,
         },
         status: 200,
-      }
+      },
     );
   } catch (error) {
     console.error("Error fetching menu:", error);
     return NextResponse.json(
       { error: "Error interno del servidor" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

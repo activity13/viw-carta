@@ -40,4 +40,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Personalizados por Isaac
 bitacora.txt
+# Documementos para ordenar la información
+/docs/

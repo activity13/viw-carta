@@ -8,6 +8,14 @@ const VariantOptionSchema = new Schema({
     required: true,
     trim: true,
   }, // "Grande", "Mediano", "Picante", "Sin cebolla"
+  name_en: {
+    type: String,
+    trim: true,
+  }, // English translation
+  price: {
+    type: Number,
+    // default: null, // Opcional: si existe, este valor prevalece
+  },
   priceModifier: {
     type: Number,
     default: 0,
@@ -25,11 +33,19 @@ const VariantGroupSchema = new Schema({
     required: true,
     trim: true,
   }, // "Tamaño", "Nivel de picante", "Extras"
+  name_en: {
+    type: String,
+    trim: true,
+  }, // English translation
   type: {
     type: String,
     enum: ["single", "multiple"], // single = radio buttons, multiple = checkboxes
     default: "single",
   },
+  replacesBasePrice: {
+    type: Boolean,
+    default: false,
+  }, // Si true, la opción seleccionada reemplaza el precio base del plato
   isRequired: {
     type: Boolean,
     default: false,
@@ -108,7 +124,7 @@ const AvailabilityScheduleSchema = new Schema(
       ],
     },
   },
-  { _id: false }
+  { _id: false },
 );
 
 // Sub-schema para información nutricional
@@ -147,7 +163,7 @@ const NutritionSchema = new Schema(
       trim: true,
     }, // "1 porción (250g)"
   },
-  { _id: false }
+  { _id: false },
 );
 
 // Schema principal del plato
@@ -464,7 +480,7 @@ const MealSchema = new Schema(
     timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
-  }
+  },
 );
 
 // Índices compuestos para queries eficientes
@@ -536,28 +552,38 @@ MealSchema.methods.isAvailableNow = function () {
   if (!daySchedule.isAvailable) return false;
 
   return daySchedule.timeSlots.some(
-    (slot) => currentTime >= slot.start && currentTime <= slot.end
+    (slot) => currentTime >= slot.start && currentTime <= slot.end,
   );
 };
 
 MealSchema.methods.calculatePriceWithVariants = function (
-  selectedVariants = []
+  selectedVariants = [],
 ) {
-  let totalPrice = this.basePrice;
+  let currentBasePrice = this.basePrice;
+  let modifiersTotal = 0;
 
   selectedVariants.forEach((variantSelection) => {
     const variantGroup = this.variants.id(variantSelection.groupId);
-    if (variantGroup) {
-      variantSelection.optionIds.forEach((optionId) => {
-        const option = variantGroup.options.id(optionId);
-        if (option) {
-          totalPrice += option.priceModifier;
-        }
-      });
-    }
+    if (!variantGroup) return;
+
+    variantSelection.optionIds.forEach((optionId) => {
+      const option = variantGroup.options.id(optionId);
+      if (!option) return;
+
+      // Si el grupo reemplaza el precio base y la opción tiene precio definido
+      if (variantGroup.replacesBasePrice && option.price !== undefined) {
+        currentBasePrice = option.price;
+      } else {
+        // Lógica estándar de modificadores
+        // Usamos priceModifier si existe, o price como fallback si se usó ese campo
+        const modifier =
+          option.priceModifier !== 0 ? option.priceModifier : option.price || 0;
+        modifiersTotal += modifier;
+      }
+    });
   });
 
-  return Math.max(0, totalPrice);
+  return Math.max(0, currentBasePrice + modifiersTotal);
 };
 
 // Métodos estáticos
