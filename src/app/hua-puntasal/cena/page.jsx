@@ -124,8 +124,8 @@ export default function CenaPage() {
           </div>
         </div>
 
-        <footer className="mt-16 pt-8 border-hua-celeste flex flex-col md:flex-row justify-between items-end text-xs text-hua-gray font-body">
-          <div className="mb-4 md:mb-0">
+        <footer className="mt-16 pt-8 border-hua-celeste flex flex-col md:flex-row justify-between items-center md:items-end text-xs text-hua-gray font-body">
+          <div className="text-center mb-4 md:mb-0">
             <p className="font-bold text-hua-blue">
               {t(
                 getMsg("cena_moni_i2")?.content,
@@ -140,8 +140,8 @@ export default function CenaPage() {
               className="h-24 w-auto"
             />
           </div>
-          <div className="text-right">
-            <p className="font-bold  mb-1 whitespace-pre-line text-center w-[180px] ml-auto">
+          <div className="text-center md:text-right">
+            <p className="font-bold mb-2 md:mr-10 whitespace-pre-line text-center w-[180px] ml-auto">
               {t(
                 getMsg("cena_horario_d2")?.content,
                 getMsg("cena_horario_d2")?.content_en,

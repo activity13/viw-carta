@@ -98,7 +98,7 @@ export const FONT_PAIRINGS: Record<string, FontPairing> = {
   },
   tech: {
     name: "Tech (VIW)",
-    heading: "var(--font-orbitron), ui-sans-serif, system-ui",
+    heading: "var(--font-roboto), ui-sans-serif, system-ui",
     body: "var(--font-mono), ui-monospace, monospace",
   },
 };
@@ -172,7 +172,7 @@ export function generateThemeCSS(theme: RestaurantTheme): string {
  * Genera CSS variables para aplicar en el DOM
  */
 export function generateCSSVariables(
-  colors: ColorPalette
+  colors: ColorPalette,
 ): Record<string, string> {
   return {
     "--color-primary": colors.primary,

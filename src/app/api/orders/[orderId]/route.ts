@@ -77,7 +77,7 @@ function calculateAdjustedTotal(order: {
 
 export async function GET(
   _request: Request,
-  { params }: { params: Promise<{ orderId: string }> }
+  { params }: { params: Promise<{ orderId: string }> },
 ) {
   try {
     const session = await requireAuth("staff");
@@ -93,7 +93,7 @@ export async function GET(
     if (!order) {
       return NextResponse.json(
         { error: "Orden no encontrada" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -105,7 +105,7 @@ export async function GET(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: Promise<{ orderId: string }> }
+  { params }: { params: Promise<{ orderId: string }> },
 ) {
   try {
     const session = await requireAuth("staff");
@@ -130,14 +130,14 @@ export async function PATCH(
     if (!order) {
       return NextResponse.json(
         { error: "Orden no encontrada" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     if (order.status === "paid") {
       return NextResponse.json(
         { error: "La orden ya está pagada" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -146,7 +146,7 @@ export async function PATCH(
       if (!customer || typeof customer !== "object") {
         return NextResponse.json(
           { error: "Cliente inválido" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -156,6 +156,7 @@ export async function PATCH(
 
       order.customer = {
         name: typeof customer.name === "string" ? customer.name : "",
+        surname: typeof customer.surname === "string" ? customer.surname : "",
         documentType:
           typeof customer.documentType === "string"
             ? customer.documentType
@@ -164,6 +165,9 @@ export async function PATCH(
           typeof customer.documentNumber === "string"
             ? customer.documentNumber
             : "",
+        email: typeof customer.email === "string" ? customer.email : "",
+        phone: typeof customer.phone === "string" ? customer.phone : "",
+        address: typeof customer.address === "string" ? customer.address : "",
       };
 
       await order.save();
@@ -201,7 +205,7 @@ export async function PATCH(
       if (!meal) {
         return NextResponse.json(
           { error: "Producto no encontrado" },
-          { status: 404 }
+          { status: 404 },
         );
       }
 
@@ -212,7 +216,7 @@ export async function PATCH(
         existing.qty = Math.max(0, (existing.qty ?? 0) + qtyDelta);
         if (existing.qty === 0) {
           order.items = items.filter(
-            (i) => i.mealId !== mealId
+            (i) => i.mealId !== mealId,
           ) as unknown as typeof order.items;
         }
       } else {
@@ -250,13 +254,13 @@ export async function PATCH(
       if (!existing) {
         return NextResponse.json(
           { error: "Item no encontrado" },
-          { status: 404 }
+          { status: 404 },
         );
       }
 
       if (qty === 0) {
         order.items = items.filter(
-          (i) => i.mealId !== mealId
+          (i) => i.mealId !== mealId,
         ) as unknown as typeof order.items;
       } else {
         existing.qty = qty;
@@ -282,7 +286,7 @@ export async function PATCH(
       if (!existing) {
         return NextResponse.json(
           { error: "Item no encontrado" },
-          { status: 404 }
+          { status: 404 },
         );
       }
 
@@ -313,7 +317,7 @@ export async function PATCH(
       if (existingActive) {
         return NextResponse.json(
           { error: "Ya existe una orden activa" },
-          { status: 409 }
+          { status: 409 },
         );
       }
 
@@ -329,14 +333,14 @@ export async function PATCH(
       if (!Array.isArray(payments)) {
         return NextResponse.json(
           { error: "payments inválido" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
       if (!order.items || order.items.length === 0) {
         return NextResponse.json(
           { error: "La orden está vacía" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -350,13 +354,13 @@ export async function PATCH(
           const rec = isRecord(p) ? p : {};
           const amount = typeof rec.amount === "number" ? rec.amount : 0;
           return acc + (Number.isFinite(amount) ? amount : 0);
-        }, 0)
+        }, 0),
       );
 
       if (sum !== total) {
         return NextResponse.json(
           { error: "El pago debe igualar el total" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 

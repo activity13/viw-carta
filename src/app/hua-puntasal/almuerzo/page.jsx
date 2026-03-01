@@ -129,8 +129,8 @@ export default function AlmuerzoPage() {
         </div>
 
         {/* Footer Info */}
-        <footer className="mt-16 pt-8 flex flex-col md:flex-row justify-between items-end text-xs text-hua-gray font-body">
-          <div className="mb-4 md:mb-0">
+        <footer className="mt-16 pt-8 border-hua-celeste flex flex-col md:flex-row justify-between items-center md:items-end text-xs text-hua-gray font-body">
+          <div className="text-center mb-4 md:mb-0">
             <p className="font-bold text-hua-blue">
               {t(
                 getMsg("almuerzo_moni_i2")?.content,
@@ -138,18 +138,15 @@ export default function AlmuerzoPage() {
               )}
             </p>
           </div>
-
-          {/* Logo Central Pequeño */}
           <div className="absolute left-1/2 bottom-8 -translate-x-1/2 hidden md:block">
             <img
               src="/hua-puntasal/images/logo-hua-azul.svg"
               alt="HUA"
-              className="h-32 w-auto"
+              className="h-24 w-auto"
             />
           </div>
-
-          <div className="text-right">
-            <p className="font-bold mr-12  mb-12 whitespace-pre-line text-center w-[180px] ml-auto">
+          <div className="text-center md:text-right">
+            <p className="font-bold mb-2 md:mr-10 whitespace-pre-line text-center w-[180px] ml-auto">
               {t(
                 getMsg("almuerzo_horario_d2")?.content,
                 getMsg("almuerzo_horario_d2")?.content_en,

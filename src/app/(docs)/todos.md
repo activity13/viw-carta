@@ -5,13 +5,11 @@
   # Sistema de control de suscripciones y manejo de clientes
 
   Posibles soluciones:
-
   - Agregar un apartado a la super-admin page
   - Agregar una subruta que se accede desde la super-admin page
   - Agregar una ruta nueva dedicada al manejo de clientes y sus suscripciones
 
   ¿Que debe hacer?
-
   - Ver una lista de los clientes registrados en VIW-CARTA
   - Caja de herramientas básica para control de clientes
   - Perfil del cliente donde se pueda ver con más detalles dicho cliente.
@@ -19,7 +17,6 @@
   MISIÓN: Desde un perfil de experto en maquetación MongoDB (mongoose) define la mejor solución. Revisar lo que yo propongo que haga, y complementar y/o corregir lo que debe hacer una pagina de este tipo con funciones básicas de control.
 
   ## Solución recomendada (arquitectura)
-
   - Mantener `/backoffice/super-admin` como **Dashboard** (stats + invitaciones).
   - Agregar una **subruta dedicada**: `/backoffice/super-admin/customers`.
   - Agregar un **perfil por cliente**: `/backoffice/super-admin/customers/[restaurantId]`.
@@ -27,7 +24,6 @@
   Motivo: el dashboard actual ya existe y crece rápido; separar “Clientes/Suscripciones” evita una página monolítica y permite permisos/queries dedicadas.
 
   ## Definición de “cliente” (tenant)
-
   - Cliente = `Restaurant` (tenant) + sus `User` asociados (`User.restaurantId`).
   - `Restaurant.ownerId` debe representar el usuario “principal” cuando exista (si es null, resolverlo buscando el `admin` del tenant).
 
@@ -36,7 +32,6 @@
   Estado actual: `Restaurant.plan` solo distingue `standard|premium`.
 
   Propuesta mínima y escalable: agregar `Restaurant.subscription` (subdocumento) y mantener `plan` por compatibilidad:
-
   - `subscription.plan`: `standard|premium` (fuente de verdad a futuro)
   - `subscription.status`: `trialing|active|past_due|canceled|paused` (o el set que prefieras)
   - `subscription.startedAt`, `trialEndsAt`, `currentPeriodEnd`
@@ -46,7 +41,6 @@
   - `subscription.audit[]`: { at, byUserId, change, note } (historial mínimo de cambios)
 
   Índices sugeridos:
-
   - `slug` unique (ya existe)
   - `plan` y/o `subscription.plan`
   - `subscription.status`
@@ -55,20 +49,17 @@
   ## ¿Qué debe hacer la UI? (funciones básicas)
 
   **Lista de clientes** (`/backoffice/super-admin/customers`)
-
   - Buscar por `name`, `slug`, email de owner (via lookup a `User`).
   - Mostrar: nombre, slug, plan/estado, owner, #usuarios activos.
   - Acciones rápidas: abrir perfil, cambiar plan/estado (si es manual), desactivar acceso.
 
   **Perfil del cliente** (`/backoffice/super-admin/customers/[id]`)
-
   - Resumen del negocio (name/slug/contacto).
   - Caja “Suscripción”: editar plan/estado/fechas/notas.
   - Usuarios del tenant: listar y permitir `activar/desactivar` + cambiar rol.
   - Métricas mínimas (si existen colecciones): #categorías, #platos, #órdenes.
 
   ## API admin (backend)
-
   - `GET /api/admin/customers`: lista + búsqueda + paginación.
   - `GET /api/admin/customers/[id]`: detalle (Restaurant + Users + counts).
   - `PATCH /api/admin/customers/[id]`: actualizar `subscription` (y sincronizar `plan` legacy si aplica).
@@ -76,7 +67,6 @@
   - Todo protegido por `getServerSession(authOptions)` y rol `superadmin`.
 
   ## Backfill / Migración
-
   - Para tenants existentes: `subscription.plan = plan`, `subscription.status = active` por defecto.
   - Si falta `ownerId`: asignar el primer usuario `admin` del tenant.
 
@@ -89,7 +79,6 @@
   El inicio de la backoffice muestra la lista de platos, podemos usar esa mismo esquema de visualización de datos para agregar una opción de agregar al pedido. Previamente el botón de generación de pedido estará integrado en el smart-fab y será tan simple como apretarlo para generar una orden/pedido. El sistema no estará basado en stock por lo que la venta multi device es un requerimiento muy facil de lograr. El sistema debe tener un botón de orden en espera que permita almacenarlo en espera por si hay otra cuenta que cobrar al mismo tiempo.
 
   Los datos importantes, por lo menos los que se me ocurren en este momento son:
-
   - identificador facil de recordar de pedido.
   - nombre de cliente
   - tipo y numero de documento si se requiere (pasaporte, dni, ci, carné de conducir, CE)
@@ -98,7 +87,6 @@
   - botón de pagar cuenta cuando se haya registrado el pago.
 
     # Proximos pasos:
-
     - Agregar logica de validación de documentos de identidad según parametros de peru.
     <!-- - Agregar campo para número de mesa en la orden. -->
     - sistema de cuentas de crédito para clientes especiales.
@@ -110,7 +98,6 @@
        <!-- - Al poner orden activa le botón fab sigue mostrando el botoón de ordenes en espera y no podemos seguir con la venta hasta que se refresca y carga el botón de orden activa.   -->
 
     Experimento:
-
     1. Genero una orden y la pongo en espera.
     2. Genero una segunda orden y la pongo en espera.
     3. Refresco la página
@@ -137,6 +124,9 @@
     Paso 5. Pulsar el botón de acción.
     Paso 6. Seguir con la venta.
     Paso 7. Para activar otra orden se debe poner en espera la activa y repetir los pasos.
+
+    ### Todos
+    - [] Mejorar la UI del modal de orden.
 
 # Sistema de control de suscripciones
 
@@ -220,13 +210,14 @@
 ## Form Section de platos/productos.
 
 - Distinguir entre comidas, bienes y servicios y segun se indique mostrar un modelo de datos determinado.
-- Hacer funcional el formulario en su totalidad: almacenado de todos los campos segun se desee y subida de hasta 3 imágenes por producto.
+- Hacer funcional el formulario en su totalidad: almacenado de todos los campos segun se desee y []subida de hasta 3 imágenes por producto.
 <!-- - Establecer un loader para el botón de crear/guardar producto. -->
 
 # Categorías
 
 - Al crear categorías: mejorar la generación de recomendación de código de categoria.
 - Hay un error al cancelar la eliminación de una categoría.
+- Las categorías no se están ocultando.
 
 // - CONSIDERAR si en la seleccion de categorias del master, al deseleccionar todas que el comportamiento sea seleccionar todas.
 // - En la página dedicada a las categorías agregar: toasts para mensajes de información de operación. Agregar Loaders. Aqui se sigue usando el término slug para indicarle al usuario que agregue uno para la descr. cambiar por un término amigable para el usuario. Refactorizar la UI basado en los ultimos diseños de la marca viwpowered.

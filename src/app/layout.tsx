@@ -3,15 +3,15 @@ import { Analytics } from "@vercel/analytics/next";
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";
 import { ourFileRouter } from "@/app/api/uploadthing/core";
-import { Orbitron, JetBrains_Mono } from "next/font/google";
+import { Roboto, JetBrains_Mono } from "next/font/google";
 import QueryProvider from "@/providers/QueryProvider";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
 import Providers from "@/app/Providers";
 import "./globals.css";
 
-const orbitron = Orbitron({
-  variable: "--font-orbitron",
+const roboto = Roboto({
+  variable: "--font-roboto",
   subsets: ["latin"],
 });
 
@@ -36,7 +36,7 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning className="scroll-smooth">
       <body
-        className={`${orbitron.variable} ${jetBrainsMono.variable} antialiased`}
+        className={`${roboto.variable} ${jetBrainsMono.variable} antialiased`}
       >
         <NextSSRPlugin
           /**

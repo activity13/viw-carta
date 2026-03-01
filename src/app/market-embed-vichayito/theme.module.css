@@ -70,7 +70,7 @@
 
   /* Font variables mapping (expects `--font-lilita` and `--font-nunito` to be set by layout) */
   --font-mono: var(--font-nunito);
-  --font-orbitron: var(--font-lilita);
+  --font-roboto: var(--font-lilita);
   --font-sans: var(--font-nunito);
 
   /* Ensure the theme root uses the nunito font variable as fallback */

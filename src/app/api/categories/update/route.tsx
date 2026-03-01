@@ -6,13 +6,14 @@ export async function PUT(request: Request) {
   try {
     await connectToDatabase();
     const body = await request.json();
-    const { id, name, code, slug, description, restaurantId, order } = body;
+    const { id, name, code, slug, description, restaurantId, order, isActive } =
+      body;
 
     if (!id || !restaurantId) {
       console.error("Faltan datos obligatorios: id o restaurantId");
       return NextResponse.json(
         { error: "Faltan datos obligatorios" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -28,7 +29,7 @@ export async function PUT(request: Request) {
           error:
             "Ya existe una categoría con ese código o slug en el restaurante",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
     console.log("🚀 ~ route.tsx:34 ~ PUT ~ order:", order);
@@ -40,20 +41,21 @@ export async function PUT(request: Request) {
         slug,
         order,
         description: description || "",
+        isActive,
       },
-      { new: true }
+      { new: true },
     );
 
     if (!updated) {
       return NextResponse.json(
         { error: "Categoría no encontrada o no pertenece al restaurante" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     return NextResponse.json(
       { message: "Categoría actualizada exitosamente", category: updated },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error("Error interno en el servidor", error);
@@ -63,7 +65,7 @@ export async function PUT(request: Request) {
         error_message:
           error instanceof Error ? error.message : "Error desconocido",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

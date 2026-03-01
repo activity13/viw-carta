@@ -8,20 +8,24 @@ const OrderItemSchema = new Schema(
     qty: { type: Number, required: true, min: 0 },
     notes: { type: String, trim: true },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const OrderCustomerSchema = new Schema(
   {
     name: { type: String, trim: true, default: "" },
+    surname: { type: String, trim: true, default: "" },
     documentType: {
       type: String,
-      enum: ["none", "passport", "dni", "ci", "drivers_license", "ce"],
+      enum: ["none", "passport", "dni", "ruc", "ci", "drivers_license", "ce"],
       default: "none",
     },
     documentNumber: { type: String, trim: true, default: "" },
+    email: { type: String, trim: true, default: "" },
+    phone: { type: String, trim: true, default: "" },
+    address: { type: String, trim: true, default: "" },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const OrderPaymentSchema = new Schema(
@@ -33,7 +37,7 @@ const OrderPaymentSchema = new Schema(
     },
     amount: { type: Number, required: true, min: 0 },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const OrderAdjustmentSchema = new Schema(
@@ -46,7 +50,7 @@ const OrderAdjustmentSchema = new Schema(
     percent: { type: Number, required: true, min: 0, max: 100 },
     note: { type: String, trim: true, default: "" },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const OrderSchema = new Schema(
@@ -82,7 +86,7 @@ const OrderSchema = new Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 OrderSchema.index({ restaurantId: 1, orderNumber: 1 }, { unique: true });
@@ -90,7 +94,7 @@ OrderSchema.index({ restaurantId: 1, orderNumber: 1 }, { unique: true });
 // Enforce: a user can only have one ACTIVE order per restaurant.
 OrderSchema.index(
   { restaurantId: 1, createdByUserId: 1, status: 1 },
-  { unique: true, partialFilterExpression: { status: "active" } }
+  { unique: true, partialFilterExpression: { status: "active" } },
 );
 
 // In Next.js dev with HMR, mongoose models can be cached with an older schema.
@@ -107,15 +111,25 @@ const itemsPath = existingModel?.schema?.path?.("items") as
   | { schema?: { path?: (name: string) => unknown } }
   | undefined;
 
+const customerPath = existingModel?.schema?.path?.("customer") as
+  | { schema?: { path?: (name: string) => unknown } }
+  | undefined;
+
 const needsRebuild =
   process.env.NODE_ENV !== "production" &&
   !!existingModel &&
   (!existingModel.schema?.path?.("tableNumber") ||
     !existingModel.schema?.path?.("adjustment") ||
     !adjustmentPath?.schema?.path?.("note") ||
-    !itemsPath?.schema?.path?.("notes"));
+    !itemsPath?.schema?.path?.("notes") ||
+    !customerPath?.schema?.path?.("email") ||
+    !customerPath?.schema?.path?.("phone") ||
+    !customerPath?.schema?.path?.("address") ||
+    !customerPath?.schema?.path?.("surname"));
 
 if (needsRebuild) {
+  // eslint-disable-next-line
+  console.log("Rebuilding Order model due to schema changes");
   delete models.Order;
 }
 

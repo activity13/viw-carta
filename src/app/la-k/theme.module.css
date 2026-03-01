@@ -63,7 +63,7 @@
 
   /* Font variables mapping (expects `--font-avenir` to be set by layout) */
   --font-mono: var(--font-avenir);
-  --font-orbitron: var(--font-avenir);
+  --font-roboto: var(--font-avenir);
   --font-sans: var(--font-avenir);
 
   /* Ensure the theme root uses the local font variable as fallback */
