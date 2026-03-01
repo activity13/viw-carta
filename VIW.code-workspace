@@ -1,22 +1,19 @@
 {
   "folders": [
     {
-      "path": "."
+      "path": ".",
     },
     {
-      "path": "../Haak/high-as-a-kite"
+      "path": "../viw-mcp",
     },
     {
-      "path": "../viw-mcp"
+      "path": "../.vscode",
     },
     {
-      "path": "../.vscode"
+      "path": "../veryfazty-app",
     },
-    {
-      "path": "../veryfazty-app"
-    }
   ],
   "settings": {
-    "better-comments.highlightPlainText": true
-  }
+    "better-comments.highlightPlainText": true,
+  },
 }
