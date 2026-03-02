@@ -3,7 +3,6 @@
 import React from "react";
 import Image from "next/image";
 import { X, ChefHat } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import { cn } from "@/lib/utils";
 
