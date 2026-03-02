@@ -10,7 +10,7 @@ const utapi = new UTApi();
 
 export async function PUT(
   req: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await requireAuth("admin"); // Settings usually require admin
@@ -24,21 +24,38 @@ export async function PUT(
     if (id !== secureRestaurantId) {
       return NextResponse.json(
         { error: "No tienes permiso para editar este restaurante" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
     const entries = Array.from(formData.entries());
-    const updateData: Record<string, string> = {};
+    const updateData: Record<string, unknown> = {};
+
+    // Only these fields are allowed to be updated via this endpoint
+    const ALLOWED_FIELDS = new Set([
+      "name",
+      "direction",
+      "location",
+      "phone",
+      "description",
+      "image",
+      "frameQR",
+      "theme",
+      "businessType",
+    ]);
 
     const currentBusiness = await Restaurant.findById(id);
 
     console.log(
       "🟡 Campos recibidos:",
-      entries.map(([k, v]) => [k, typeof v])
+      entries.map(([k, v]) => [k, typeof v]),
     );
 
     for (const [key, value] of entries) {
+      if (!ALLOWED_FIELDS.has(key)) {
+        console.log("⏭️ Campo ignorado (no permitido):", key);
+        continue;
+      }
       console.log("🔵 Procesando campo:", key, typeof value);
       if (typeof value === "string") {
         // Handle theme object specially
@@ -129,14 +146,14 @@ export async function PUT(
     const updatedBusiness = await Restaurant.findByIdAndUpdate(
       id,
       { $set: updateData },
-      { new: true }
+      { new: true },
     );
     console.log("🚀 ~ route.ts:66 ~ PUT ~ updatedBusiness:", updatedBusiness);
 
     if (!updatedBusiness)
       return NextResponse.json(
         { error: "Business not found" },
-        { status: 404 }
+        { status: 404 },
       );
 
     return NextResponse.json({

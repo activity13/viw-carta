@@ -28,6 +28,8 @@ import {
   QrCode,
   Building2,
   Palette,
+  Utensils,
+  ShoppingBag,
 } from "lucide-react";
 
 import Image from "next/image";
@@ -49,6 +51,7 @@ interface Business {
   image?: string;
   frameQR?: string;
   QrCode?: string;
+  businessType?: "restaurant" | "store";
   theme?: {
     palette?: string;
     customColors?: {
@@ -94,7 +97,7 @@ export default function BusinessProfileForm() {
       try {
         setIsLoading(true);
         const { data } = await axios.get(
-          `/api/settings/${session.user.restaurantId}`
+          `/api/settings/${session.user.restaurantId}`,
         );
         setBusiness(data);
         setFormData(data);
@@ -120,7 +123,7 @@ export default function BusinessProfileForm() {
   }, [session, restaurantId]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -128,20 +131,20 @@ export default function BusinessProfileForm() {
   const handleSave = async () => {
     const formDataToSend = new FormData();
 
-    // 1. Agregar campos de texto básicos (excluyendo archivos y objetos complejos)
+    // 1. Agregar solo los campos de texto editables
+    const EDITABLE_TEXT_FIELDS = [
+      "name",
+      "direction",
+      "location",
+      "phone",
+      "description",
+      "image",
+      "frameQR",
+      "businessType",
+    ];
     Object.entries(formData).forEach(([key, value]) => {
-      if (
-        key === "theme" ||
-        key === "frameQRFile" ||
-        key === "imageFile" ||
-        key === "selectedTheme" ||
-        key === "_id" || // No enviar ID
-        key === "slug" || // No enviar slug si no es editable
-        value === undefined ||
-        value === null
-      ) {
-        return;
-      }
+      if (!EDITABLE_TEXT_FIELDS.includes(key)) return;
+      if (value === undefined || value === null) return;
       formDataToSend.append(key, String(value));
     });
 
@@ -167,7 +170,7 @@ export default function BusinessProfileForm() {
       formDataToSend,
       {
         headers: { "Content-Type": "multipart/form-data" },
-      }
+      },
     );
 
     toast.promise(promise, {
@@ -356,6 +359,51 @@ export default function BusinessProfileForm() {
                   className="resize-none border-gray-300/30"
                 />
               </div>
+
+              {/* Business Type */}
+              <div className="space-y-3">
+                <Label>Tipo de Vista Pública</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    disabled={!isEditing}
+                    onClick={() =>
+                      setFormData({ ...formData, businessType: "restaurant" })
+                    }
+                    className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all ${
+                      (formData.businessType ?? "restaurant") === "restaurant"
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:border-primary/40"
+                    } disabled:opacity-60 disabled:cursor-not-allowed`}
+                  >
+                    <Utensils className="w-6 h-6 text-primary" />
+                    <span className="text-sm font-semibold">Restaurante</span>
+                    <span className="text-xs text-muted-foreground text-center">
+                      Carta digital con categorías y platos
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!isEditing}
+                    onClick={() =>
+                      setFormData({ ...formData, businessType: "store" })
+                    }
+                    className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all ${
+                      formData.businessType === "store"
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:border-primary/40"
+                    } disabled:opacity-60 disabled:cursor-not-allowed`}
+                  >
+                    <ShoppingBag className="w-6 h-6 text-primary" />
+                    <span className="text-sm font-semibold">
+                      Tienda / E-commerce
+                    </span>
+                    <span className="text-xs text-muted-foreground text-center">
+                      Catálogo de productos con CTA
+                    </span>
+                  </button>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
@@ -433,7 +481,7 @@ export default function BusinessProfileForm() {
                   slug={business?.slug || "business"}
                   onUploadComplete={(url) => {
                     setBusiness((prev) =>
-                      prev ? { ...prev, image: url } : null
+                      prev ? { ...prev, image: url } : null,
                     );
                     setFormData((prev) => ({ ...prev, image: url }));
                   }}
@@ -477,7 +525,7 @@ export default function BusinessProfileForm() {
                   slug={business?.slug || "business"}
                   onUploadComplete={async (url) => {
                     setBusiness((prev) =>
-                      prev ? { ...prev, frameQR: url } : null
+                      prev ? { ...prev, frameQR: url } : null,
                     );
                     setFormData((prev) => ({ ...prev, frameQR: url }));
 
@@ -485,24 +533,24 @@ export default function BusinessProfileForm() {
                     if (business?._id) {
                       try {
                         toast.info(
-                          "Actualizando código QR con el nuevo marco..."
+                          "Actualizando código QR con el nuevo marco...",
                         );
                         const res = await fetch(
-                          `/api/qr/generate/${business._id}`
+                          `/api/qr/generate/${business._id}`,
                         );
                         const data = await res.json();
                         if (res.ok && data.qrPath) {
                           setBusiness((prev) =>
-                            prev ? { ...prev, QrCode: data.qrPath } : null
+                            prev ? { ...prev, QrCode: data.qrPath } : null,
                           );
                           toast.success(
-                            "Código QR actualizado automáticamente"
+                            "Código QR actualizado automáticamente",
                           );
                         }
                       } catch (error) {
                         console.error("Error auto-regenerating QR:", error);
                         toast.error(
-                          "El marco se subió, pero hubo un error actualizando el QR final."
+                          "El marco se subió, pero hubo un error actualizando el QR final.",
                         );
                       }
                     }

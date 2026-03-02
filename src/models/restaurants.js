@@ -7,7 +7,7 @@ const SubscriptionAuditSchema = new Schema(
     change: { type: String, trim: true, default: "" },
     note: { type: String, trim: true, default: "" },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const SubscriptionSchema = new Schema(
@@ -37,7 +37,7 @@ const SubscriptionSchema = new Schema(
     notes: { type: String, trim: true, default: "" },
     audit: { type: [SubscriptionAuditSchema], default: [] },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const RestaurantSchema = new Schema(
@@ -100,6 +100,12 @@ const RestaurantSchema = new Schema(
       required: false,
       trim: true,
     },
+    // Business type — determines which menu template is rendered
+    businessType: {
+      type: String,
+      enum: ["restaurant", "store"],
+      default: "restaurant",
+    },
     // SaaS Fields
     ownerId: {
       type: Schema.Types.ObjectId,
@@ -145,7 +151,7 @@ const RestaurantSchema = new Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 RestaurantSchema.index({ plan: 1 });
