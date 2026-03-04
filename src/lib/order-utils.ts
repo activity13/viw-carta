@@ -442,76 +442,58 @@ function injectAutoPrint(html: string): string {
   return html + script;
 }
 
-export function printHtmlTicket(html: string, opts?: PrintTicketOptions) {
-  // Mobile browsers often ignore iframe printing and show preview for the whole app page.
-  // For mobile, print from a standalone document instead.
-  if (isMobileUserAgent()) {
-    const htmlWithPrint = injectAutoPrint(html);
-    const blob = new Blob([htmlWithPrint], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
+export function printHtmlTicket(
+  html: string,
+  options?: { preOpenedWindow?: Window | null },
+) {
+  const printWindow = options?.preOpenedWindow || window.open("", "_blank");
 
-    const win = opts?.preOpenedWindow ?? window.open("", "_blank");
-    if (!win) {
-      toast.error("El navegador bloqueó la ventana de impresión");
-      URL.revokeObjectURL(url);
-      return;
-    }
-
-    // Navigate the pre-opened tab/window to the printable document.
-    win.location.href = url;
-    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  if (!printWindow) {
+    toast.error("No se pudo abrir ventana de impresión");
     return;
   }
 
-  const iframe = document.createElement("iframe");
-  iframe.setAttribute("aria-hidden", "true");
-  iframe.style.position = "fixed";
-  iframe.style.right = "0";
-  iframe.style.bottom = "0";
-  iframe.style.width = "0";
-  iframe.style.height = "0";
-  iframe.style.border = "0";
-  iframe.style.visibility = "hidden";
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Imprimir</title>
+        <style>
+          @media print {
+            body { margin: 0; padding: 0; }
+          }
+          @media screen {
+            body { 
+              padding: 20px;
+              max-width: 80mm;
+              margin: 0 auto;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        ${html}
+      </body>
+    </html>
+  `);
 
-  iframe.onload = () => {
-    const win = iframe.contentWindow;
-    const doc = iframe.contentDocument;
+  printWindow.document.close();
 
-    const waitForImages = async () => {
-      const images = Array.from(doc?.images ?? []);
-      if (images.length === 0) return;
-
-      await Promise.race([
-        Promise.all(
-          images.map(
-            (img) =>
-              new Promise<void>((resolve) => {
-                if (img.complete) return resolve();
-                img.onload = () => resolve();
-                img.onerror = () => resolve();
-              }),
-          ),
-        ),
-        new Promise<void>((resolve) => setTimeout(resolve, 900)),
-      ]);
-    };
-
-    (async () => {
-      try {
-        await waitForImages();
-        win?.focus();
-        win?.print();
-      } catch {
-        // ignore
-      } finally {
-        // Cleanup after the print dialog is triggered.
-        setTimeout(() => iframe.remove(), 1000);
-      }
-    })();
-  };
-
-  // Use srcdoc to avoid document.write restrictions/popup blockers.
-  // Some browsers require the iframe in DOM before load triggers.
-  iframe.srcdoc = html;
-  document.body.appendChild(iframe);
+  // Esperar a que el contenido se cargue completamente
+  // En móviles es crítico esperar a que las imágenes y el DOM estén listos
+  if (printWindow.document.readyState === "complete") {
+    // Ya está listo
+    setTimeout(() => {
+      printWindow.print();
+    }, 500); // Pequeño delay adicional para móviles
+  } else {
+    // Esperar al evento load
+    printWindow.addEventListener("load", () => {
+      setTimeout(() => {
+        printWindow.print();
+      }, 500);
+    });
+  }
 }

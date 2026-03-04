@@ -485,9 +485,11 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
       return;
     }
 
+    // Pre-abrir ventana SOLO en móviles (para evitar bloqueo de popup)
     const mobilePrintWindow = isMobileUserAgent()
       ? window.open("", "_blank")
       : null;
+      
     setIsOrderBusy(true);
     try {
       const res = await Axios.patch<Order>(`/api/orders/${activeOrder._id}`, {
@@ -495,7 +497,7 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
         payments: paymentsDraft,
       });
 
-      const paidOrder: Order = {
+      const paidOrder = {
         ...res.data,
         customer: res.data.customer ?? activeOrder.customer,
         items: res.data.items ?? activeOrder.items,

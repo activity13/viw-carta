@@ -382,7 +382,7 @@ export default function StoreCatalog({ data, restaurant }: StoreCatalogProps) {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Hero header */}
       <header className="bg-card border-b shadow-sm">
-        <div className="max-w-5xl mx-auto px-4 py-5 flex items-center gap-4">
+        <div className="max-w-6xl mx-auto px-4 py-5 flex items-center gap-4">
           {/* Logo */}
           <div className="w-14 h-14 rounded-2xl border overflow-hidden relative shrink-0 bg-muted">
             {restaurant.image ? (
@@ -437,7 +437,7 @@ export default function StoreCatalog({ data, restaurant }: StoreCatalogProps) {
         </div>
 
         {/* Search bar */}
-        <div className="max-w-5xl mx-auto px-4 pb-4">
+        <div className="max-w-6xl mx-auto px-4 pb-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
@@ -455,8 +455,8 @@ export default function StoreCatalog({ data, restaurant }: StoreCatalogProps) {
 
       {/* Category tabs */}
       {!search && (
-        <div className="sticky top-0 z-30 bg-background/95 backdrop-blur border-b shadow-sm">
-          <div className="max-w-5xl mx-auto px-4 py-2 flex gap-2 overflow-x-auto scrollbar-hide">
+        <div className="md:hidden sticky top-0 z-30 bg-background/95 backdrop-blur border-b shadow-sm">
+          <div className="max-w-6xl mx-auto px-4 py-4 flex gap-2 overflow-x-auto scrollbar-hide">
             <button
               onClick={() => setActiveCat("__all__")}
               className={cn(
@@ -473,10 +473,10 @@ export default function StoreCatalog({ data, restaurant }: StoreCatalogProps) {
                 key={cat.id}
                 onClick={() => setActiveCat(cat.id)}
                 className={cn(
-                  "shrink-0 text-xs font-medium px-4 py-1.5 rounded-full border transition-all whitespace-nowrap",
+                  "shrink-0 text-lg font-medium px-4 py-2 rounded-full border transition-all whitespace-nowrap",
                   activeCat === cat.id
                     ? "bg-primary text-primary-foreground border-primary"
-                    : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground",
+                    : "bg-gray-900/50 text-gray-300 border border-gray-800/50 hover:bg-gray-800/70 hover:border-gray-700",
                 )}
               >
                 {t(cat.name, cat.name_en)}
@@ -487,37 +487,85 @@ export default function StoreCatalog({ data, restaurant }: StoreCatalogProps) {
         </div>
       )}
 
-      {/* Product grid */}
-      <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-6">
-        {search && (
-          <p className="text-sm text-muted-foreground mb-4">
-            {filteredMeals.length} resultado
-            {filteredMeals.length !== 1 ? "s" : ""} para &ldquo;{search}&rdquo;
-          </p>
+      {/* Main Layout Grid */}
+      <div className="flex-1 w-full max-w-6xl mx-auto flex flex-col md:flex-row relative">
+        {/* Desktop Sidebar */}
+        {!search && (
+          <aside className="hidden md:block w-64 shrink-0 py-8 pr-6 sticky top-0 self-start h-screen overflow-y-auto z-30 scrollbar-hide">
+            <nav className="flex flex-col gap-1.5">
+              <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 px-2">
+                Categorías
+              </h3>
+              <button
+                onClick={() => setActiveCat("__all__")}
+                className={cn(
+                  "text-left text-sm font-medium px-4 py-2.5 rounded-xl transition-all",
+                  activeCat === "__all__"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
+                )}
+              >
+                {language === "en" ? "All" : "Todo"}
+              </button>
+              {data.categories.map((cat) => (
+                <button
+                  key={`side-${cat.id}`}
+                  onClick={() => setActiveCat(cat.id)}
+                  className={cn(
+                    "flex items-center justify-between text-left text-sm font-medium px-4 py-2.5 rounded-xl transition-all",
+                    activeCat === cat.id
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
+                  )}
+                >
+                  <span className="truncate">{t(cat.name, cat.name_en)}</span>
+                  <span className="text-xs opacity-60 ml-2">
+                    {cat.meals.length}
+                  </span>
+                </button>
+              ))}
+            </nav>
+          </aside>
         )}
 
-        {filteredMeals.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 gap-3 text-muted-foreground">
-            <Store className="w-12 h-12 opacity-20" />
-            <p className="text-sm">No se encontraron productos</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-            {filteredMeals.map((meal) => (
-              <ProductCard
-                key={meal.id}
-                meal={meal}
-                language={language}
-                onOpenModal={setSelectedMeal}
-              />
-            ))}
-          </div>
-        )}
-      </main>
+        {/* Product grid */}
+        <main
+          className={cn(
+            "flex-1 min-w-0 px-4 py-6 md:py-8",
+            !search && "md:border-l md:pl-8 lg:pl-12",
+          )}
+        >
+          {search && (
+            <p className="text-sm text-muted-foreground mb-4">
+              {filteredMeals.length} resultado
+              {filteredMeals.length !== 1 ? "s" : ""} para &ldquo;{search}
+              &rdquo;
+            </p>
+          )}
+
+          {filteredMeals.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-24 gap-3 text-muted-foreground">
+              <Store className="w-12 h-12 opacity-20" />
+              <p className="text-sm">No se encontraron productos</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+              {filteredMeals.map((meal) => (
+                <ProductCard
+                  key={meal.id}
+                  meal={meal}
+                  language={language}
+                  onOpenModal={setSelectedMeal}
+                />
+              ))}
+            </div>
+          )}
+        </main>
+      </div>
 
       {/* Footer */}
       <footer className="border-t bg-muted/30 py-8 px-4">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row gap-4 justify-between items-start text-sm text-muted-foreground">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-4 justify-between items-start text-sm text-muted-foreground">
           <div>
             <p className="font-semibold text-foreground mb-1">
               {restaurant.name}
@@ -556,7 +604,7 @@ export default function StoreCatalog({ data, restaurant }: StoreCatalogProps) {
             )}
           </div>
         </div>
-        <div className="max-w-5xl mx-auto mt-6 pt-4 border-t text-center text-xs text-muted-foreground">
+        <div className="max-w-6xl mx-auto mt-6 pt-4 border-t text-center text-xs text-muted-foreground">
           © {new Date().getFullYear()} {restaurant.name}. Powered by{" "}
           <span className="text-primary font-semibold">Viw Carta</span>
         </div>

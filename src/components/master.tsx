@@ -691,7 +691,7 @@ export default function Master() {
                 className={`cursor-pointer select-none transition-all hover:scale-105 px-3 py-3 text-sm ${
                   isSelected
                     ? "bg-primary text-black shadow-lg shadow-emerald-500/20 hover:bg-primary/90"
-                    : "bg-inactive-background hover:bg-muted text-muted-foreground"
+                    : "bg-muted hover:bg-inactive-background text-muted-foreground"
                 }`}
                 onClick={() => toggleCategory(cat._id)}
                 onDoubleClick={toggleAllCategories}
@@ -710,9 +710,9 @@ export default function Master() {
       </div>
 
       {/* Product List */}
-      <Card className="shadow-lg bg-black border-none backdrop-blur-sm">
-        <CardHeader className="flex flex-col md:flex-row items-start md:items-center md:justify-between space-y-0 pb-4">
-          <CardTitle className="text-xl font-bold flex items-center gap-2">
+      <div className="w-full bg-black border-none shadow-none rounded-xl">
+        <div className="flex flex-col md:flex-row items-start md:items-center md:justify-between space-y-0 p-6 pb-4">
+          <h3 className="text-xl font-bold flex items-center gap-2 text-white">
             Productos
             {isSavingOrder && (
               <span className="flex items-center gap-1 text-xs font-normal text-muted-foreground bg-muted px-2 py-1 rounded-full animate-pulse">
@@ -720,7 +720,7 @@ export default function Master() {
                 Guardando orden...
               </span>
             )}
-          </CardTitle>
+          </h3>
           <div className="flex flex-col md:flex-row items-start md:items-center gap-2">
             <Select
               value={filterStatus}
@@ -728,10 +728,10 @@ export default function Master() {
                 setFilterStatus(val)
               }
             >
-              <SelectTrigger className="w-[130px] rounded-2xl">
+              <SelectTrigger className="w-[130px] rounded-2xl bg-gray-900 border-gray-800 text-white">
                 <SelectValue placeholder="Estado" />
               </SelectTrigger>
-              <SelectContent className="rounded-xl">
+              <SelectContent className="rounded-xl border-gray-800 bg-gray-900 text-white">
                 <SelectItem className="rounded-xl" value="all">
                   Todos
                 </SelectItem>
@@ -749,16 +749,16 @@ export default function Master() {
                 placeholder="Buscar producto..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-11 pr-4 py-2.5 bg-gray-900/50 border border-gray-800/50 rounded-xl text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200 w-80"
+                className="pl-11 pr-4 py-2.5 bg-gray-900 border border-gray-800 rounded-xl text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all duration-200 w-80"
               />
             </div>
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="rounded-2xl border md-bg-inactive-background">
+        </div>
+        <div className="p-6 pt-0">
+          <div className="rounded-2xl border border-gray-800 bg-black">
             {/* Desktop View (Table-like Grid) */}
             <div className="hidden md:block">
-              <div className="grid grid-cols-[5%_55%_20%_20%] bg-muted/50 p-3 font-medium text-sm text-muted-foreground border-b rounded-2xl">
+              <div className="grid grid-cols-[5%_55%_20%_20%] bg-inactive-background p-3 font-medium text-sm text-muted-foreground border-b">
                 <div className="text-center">#</div>
                 <div>Nombre</div>
                 <div
@@ -835,8 +835,8 @@ export default function Master() {
               </Reorder.Group>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Order Modal */}
       <ActiveOrderModal manager={orderManager} meals={meals} />

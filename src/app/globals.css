@@ -84,7 +84,7 @@
   --secondary-content: var(--secondary-foreground);
 
   /* Muted: Disabled or subtle text */
-  --muted: rgb(11, 17, 16);
+  --muted: rgb(3, 5, 5);
   --muted-foreground: oklch(100% 0.00011 271.152); /* Gris verdoso */
 
   /* Accent: Hover states / Highlights */
@@ -97,7 +97,7 @@
 
   /* Borders & Inputs: HUD Lines */
   --border: oklch(0.25 0.05 150); /* Líneas sutiles verdes */
-  --input: oklch(0.2 0.04 150);
+  --input: oklch(97.015% 0.00011 271.152);
   --ring: oklch(0.65 0.22 145); /* Mismo que primary para focus */
 
   /* Chart Colors (Optional, adjusted to theme) */

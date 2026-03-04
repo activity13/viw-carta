@@ -216,10 +216,10 @@ function MenuScreen({
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Sticky header */}
       <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b shadow-sm">
-        <div className="flex items-center gap-3 px-4 py-3 max-w-4xl mx-auto">
+        <div className="flex items-center gap-3 px-4 py-3 max-w-6xl mx-auto w-full">
           {/* Logo small */}
           <button
             onClick={onBack}
@@ -249,10 +249,10 @@ function MenuScreen({
           <LanguageToggle />
         </div>
 
-        {/* Category nav pills */}
+        {/* Category nav pills (Mobile Only) */}
         <div
           ref={navRef}
-          className="flex gap-2 px-4 pb-3 overflow-x-auto scrollbar-hide max-w-4xl mx-auto"
+          className="md:hidden flex gap-2 px-4 pb-3 overflow-x-auto scrollbar-none max-w-6xl mx-auto w-full"
         >
           {categories.map((cat) => (
             <button
@@ -272,103 +272,129 @@ function MenuScreen({
         </div>
       </header>
 
-      {/* Content */}
-      <main className="max-w-4xl mx-auto px-4 py-8 space-y-14">
-        {categories.map((cat) => (
-          <section key={cat.id} id={`cat-${cat.id}`} className="scroll-mt-32">
-            {/* Category header */}
-            <div className="flex items-center gap-3 mb-5">
-              <h2 className="text-xl font-bold text-primary">
+      {/* Main Layout Grid */}
+      <div className="flex-1 w-full max-w-6xl mx-auto flex flex-col md:flex-row relative">
+        {/* Sidebar Categorías (Desktop Only) */}
+        <aside className="hidden md:block w-64 shrink-0 py-8 pr-6 sticky top-[65px] h-[calc(100vh-65px)] overflow-y-auto z-30 scrollbar-hide">
+          <nav className="flex flex-col gap-1.5">
+            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 px-2">
+              Categorías
+            </h3>
+            {categories.map((cat) => (
+              <button
+                key={`side-${cat.id}`}
+                onClick={() => scrollTo(cat.id)}
+                className={cn(
+                  "text-left text-sm font-medium px-4 py-2.5 rounded-xl transition-all truncate",
+                  activeCategory === cat.id
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
+                )}
+              >
                 {t(cat.name, cat.name_en)}
-              </h2>
-              <div className="h-px bg-border flex-1" />
-              <span className="text-xs text-muted-foreground shrink-0">
-                {cat.meals.length} {language === "en" ? "items" : "items"}
-              </span>
-            </div>
+              </button>
+            ))}
+          </nav>
+        </aside>
 
-            {cat.description && (
-              <p className="text-sm text-muted-foreground italic mb-5">
-                {t(cat.description, cat.description_en)}
-              </p>
-            )}
+        {/* Content */}
+        <main className="flex-1 min-w-0 px-4 py-8 md:py-10 space-y-14 md:border-l md:pl-8 lg:pl-12">
+          {categories.map((cat) => (
+            <section key={cat.id} id={`cat-${cat.id}`} className="scroll-mt-32">
+              {/* Category header */}
+              <div className="flex items-center gap-3 mb-5">
+                <h2 className="text-xl font-bold text-primary">
+                  {t(cat.name, cat.name_en)}
+                </h2>
+                <div className="h-px bg-border flex-1" />
+                <span className="text-xs text-muted-foreground shrink-0">
+                  {cat.meals.length} {language === "en" ? "items" : "items"}
+                </span>
+              </div>
 
-            {/* Meals grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {cat.meals.map((meal) => {
-                const mealName = t(meal.name, meal.name_en);
-                const mealDesc = t(meal.description, meal.description_en);
-                const hasDiscount =
-                  meal.comparePrice && meal.comparePrice > meal.price;
+              {cat.description && (
+                <p className="text-sm text-muted-foreground italic mb-5">
+                  {t(cat.description, cat.description_en)}
+                </p>
+              )}
 
-                return (
-                  <div
-                    key={meal.id}
-                    onClick={() => setSelectedMeal(meal)}
-                    className="group relative bg-card rounded-2xl border shadow-sm hover:shadow-md cursor-pointer transition-all duration-200 overflow-hidden flex flex-col"
-                  >
-                    {/* Image */}
-                    {meal.images && meal.images.length > 0 ? (
-                      <div className="relative h-44 w-full overflow-hidden">
-                        <Image
-                          src={meal.images[0].url}
-                          alt={meal.images[0].alt || mealName}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-500"
-                          unoptimized
-                        />
-                        {hasDiscount && (
-                          <div className="absolute top-2 left-2 bg-destructive text-destructive-foreground text-[10px] font-bold px-2 py-0.5 rounded-full">
-                            OFERTA
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="h-44 bg-muted/50 flex items-center justify-center">
-                        <ChefHat className="w-10 h-10 text-muted-foreground/20" />
-                      </div>
-                    )}
+              {/* Meals grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {cat.meals.map((meal) => {
+                  const mealName = t(meal.name, meal.name_en);
+                  const mealDesc = t(meal.description, meal.description_en);
+                  const hasDiscount =
+                    meal.comparePrice && meal.comparePrice > meal.price;
 
-                    {/* Info */}
-                    <div className="p-4 flex flex-col flex-1">
-                      <div className="flex justify-between items-start gap-2 mb-1.5">
-                        <h3 className="font-semibold text-sm leading-tight line-clamp-2 flex-1">
-                          {mealName}
-                        </h3>
-                        <div className="shrink-0 text-right">
-                          <div className="font-bold text-primary text-sm">
-                            S/ {meal.price.toFixed(2)}
-                          </div>
+                  return (
+                    <div
+                      key={meal.id}
+                      onClick={() => setSelectedMeal(meal)}
+                      className="group relative bg-card rounded-2xl border shadow-sm hover:shadow-md cursor-pointer transition-all duration-200 overflow-hidden flex flex-col"
+                    >
+                      {/* Image */}
+                      {meal.images && meal.images.length > 0 ? (
+                        <div className="relative h-44 w-full overflow-hidden">
+                          <Image
+                            src={meal.images[0].url}
+                            alt={meal.images[0].alt || mealName}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                            unoptimized
+                          />
                           {hasDiscount && (
-                            <div className="text-[11px] text-muted-foreground line-through">
-                              S/ {meal.comparePrice!.toFixed(2)}
+                            <div className="absolute top-2 left-2 bg-destructive text-destructive-foreground text-[10px] font-bold px-2 py-0.5 rounded-full">
+                              OFERTA
                             </div>
                           )}
                         </div>
-                      </div>
-
-                      {mealDesc && mealDesc.trim() && (
-                        <p className="text-xs text-muted-foreground line-clamp-2 mb-3 flex-1">
-                          {mealDesc.trim()}
-                        </p>
+                      ) : (
+                        <div className="h-44 bg-muted/50 flex items-center justify-center">
+                          <ChefHat className="w-10 h-10 text-muted-foreground/20" />
+                        </div>
                       )}
 
-                      <AddToCartButton
-                        meal={meal}
-                        className="w-full mt-auto text-xs"
-                      />
+                      {/* Info */}
+                      <div className="p-4 flex flex-col flex-1">
+                        <div className="flex justify-between items-start gap-2 mb-1.5">
+                          <h3 className="font-semibold text-sm leading-tight line-clamp-2 flex-1">
+                            {mealName}
+                          </h3>
+                          <div className="shrink-0 text-right">
+                            <div className="font-bold text-primary text-sm">
+                              S/ {meal.price.toFixed(2)}
+                            </div>
+                            {hasDiscount && (
+                              <div className="text-[11px] text-muted-foreground line-through">
+                                S/ {meal.comparePrice!.toFixed(2)}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {mealDesc && mealDesc.trim() && (
+                          <p className="text-xs text-muted-foreground line-clamp-2 mb-3 flex-1">
+                            {mealDesc.trim()}
+                          </p>
+                        )}
+
+                        <AddToCartButton
+                          meal={meal}
+                          className="w-full mt-auto text-xs"
+                        />
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-        ))}
-      </main>
+                  );
+                })}
+              </div>
+            </section>
+          ))}
+        </main>
+      </div>
 
       {/* Footer */}
       <footer className="border-t bg-muted/30 py-10 px-4 mt-8">
-        <div className="max-w-4xl mx-auto flex flex-col md:flex-row gap-6 justify-between items-start text-sm text-muted-foreground">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-6 justify-between items-start text-sm text-muted-foreground">
           <div>
             <p className="font-semibold text-foreground mb-1">
               {restaurant.name}
@@ -406,7 +432,7 @@ function MenuScreen({
             )}
           </div>
         </div>
-        <div className="max-w-4xl mx-auto mt-8 pt-6 border-t text-center text-xs text-muted-foreground">
+        <div className="max-w-6xl mx-auto mt-8 pt-6 border-t text-center text-xs text-muted-foreground">
           © {new Date().getFullYear()} {restaurant.name}. Powered by{" "}
           <span className="text-primary font-semibold">Viw Carta</span>
         </div>
