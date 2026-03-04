@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState, memo } from "react";
 import Axios from "axios";
 import { Reorder, useDragControls } from "motion/react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";

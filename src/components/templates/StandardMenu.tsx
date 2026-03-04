@@ -5,7 +5,6 @@ import { LanguageProvider } from "@/hooks/useLanguage";
 import { CartProvider } from "@/providers/CartProvider";
 import RestaurantMenu from "./RestaurantMenu";
 import StoreCatalog from "./StoreCatalog";
-import { Loader2 } from "lucide-react";
 import { generateThemeCSS } from "@/utils/colorPalettes";
 
 interface Meal {

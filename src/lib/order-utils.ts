@@ -5,7 +5,6 @@ import {
   PaymentType,
   TicketBrand,
   TicketMode,
-  PrintTicketOptions,
 } from "@/types/order";
 import { toast } from "sonner";
 
@@ -420,26 +419,6 @@ export function buildTicketHtml(
 export function isMobileUserAgent(): boolean {
   if (typeof navigator === "undefined") return false;
   return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-}
-
-function injectAutoPrint(html: string): string {
-  const script = `
-    <script>
-      window.addEventListener('load', () => {
-        setTimeout(() => {
-          try { window.focus(); } catch (e) {}
-          try { window.print(); } catch (e) {}
-        }, 150);
-      });
-      window.onafterprint = () => {
-        try { window.close(); } catch (e) {}
-      };
-    </script>
-  `;
-
-  if (html.includes("</body>"))
-    return html.replace("</body>", `${script}</body>`);
-  return html + script;
 }
 
 export function printHtmlTicket(
