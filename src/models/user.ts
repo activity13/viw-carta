@@ -36,8 +36,8 @@ const userSchema = new Schema(
     // Rol para autorización
     role: {
       type: String,
-      enum: ["superadmin", "admin", "staff", "viewer"],
-      default: "viewer",
+      enum: ["superadmin", "admin", "staff", "waiter"],
+      default: "waiter",
       required: true,
     },
 
@@ -59,7 +59,7 @@ const userSchema = new Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // User: fullName, username, email, password, restaurantId, role, isActive, createdAt, updatedAt

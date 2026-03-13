@@ -117,6 +117,14 @@ const RestaurantSchema = new Schema(
       enum: ["standard", "premium"],
       default: "standard",
     },
+    // Límite de administradores según plan
+    adminLimit: {
+      type: Number,
+    },
+    // Límite de usuarios totales según plan
+    userLimit: {
+      type: Number,
+    },
     // Fuente de verdad a futuro (manual inicialmente)
     subscription: {
       type: SubscriptionSchema,

@@ -13,6 +13,23 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  webpack: (config, { dev, isServer }) => {
+    // Reducir consumo de memoria en modo desarrollo para 8GB RAM
+    if (dev && !isServer) {
+      config.cache = false;
+      config.optimization = {
+        ...config.optimization,
+        minimize: false,
+        splitChunks: false,
+      };
+      config.watchOptions = {
+        poll: 2000,
+        aggregateTimeout: 500,
+        ignored: /node_modules/,
+      };
+    }
+    return config;
+  },
 };
 
 export default nextConfig;

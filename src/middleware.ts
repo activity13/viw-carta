@@ -38,6 +38,7 @@ export default withAuth(
         url.pathname.startsWith("/backoffice/login") ||
         url.pathname.startsWith("/api/auth") ||
         url.pathname.startsWith("/invitation/") ||
+        url.pathname.startsWith("/join/") ||
         url.pathname.startsWith("/onboarding/")
       ) {
         return NextResponse.next();
@@ -93,6 +94,7 @@ export default withAuth(
             url.pathname.startsWith("/backoffice/login") ||
             url.pathname.startsWith("/api/auth") ||
             url.pathname.startsWith("/invitation/") ||
+            url.pathname.startsWith("/join/") ||
             url.pathname.startsWith("/onboarding/")
           ) {
             return true;
@@ -111,7 +113,7 @@ export default withAuth(
         return true;
       },
     },
-  }
+  },
 );
 
 export const config = {

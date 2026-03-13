@@ -19,7 +19,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Building2, Layers, UtensilsCrossed, ReceiptText } from "lucide-react";
+import {
+  Building2,
+  Layers,
+  UtensilsCrossed,
+  ReceiptText,
+  Users,
+  Shield,
+} from "lucide-react";
 
 type SubscriptionPlan = "standard" | "premium";
 type SubscriptionStatus =
@@ -36,6 +43,8 @@ type Restaurant = {
   direction?: string;
   phone?: string;
   plan?: SubscriptionPlan;
+  adminLimit?: number;
+  userLimit?: number;
   subscription?: {
     plan?: SubscriptionPlan;
     status?: SubscriptionStatus;
@@ -85,6 +94,8 @@ export default function SuperAdminCustomerProfilePage() {
   const [currentPeriodEnd, setCurrentPeriodEnd] = useState("");
   const [notes, setNotes] = useState("");
   const [auditNote, setAuditNote] = useState("");
+  const [adminLimit, setAdminLimit] = useState(1);
+  const [userLimit, setUserLimit] = useState(10);
 
   const hydrateFormFromRestaurant = (r: Restaurant) => {
     const sub = r.subscription ?? {};
@@ -94,6 +105,27 @@ export default function SuperAdminCustomerProfilePage() {
     setTrialEndsAt(toInputDate(sub.trialEndsAt ?? null));
     setCurrentPeriodEnd(toInputDate(sub.currentPeriodEnd ?? null));
     setNotes(typeof sub.notes === "string" ? sub.notes : "");
+
+    // Asegurar que adminLimit y userLimit sean enteros
+    const parsedAdminLimit = Number(r.adminLimit);
+    const parsedUserLimit = Number(r.userLimit);
+    setAdminLimit(
+      Number.isInteger(parsedAdminLimit) && parsedAdminLimit > 0
+        ? parsedAdminLimit
+        : 1,
+    );
+    setUserLimit(
+      Number.isInteger(parsedUserLimit) && parsedUserLimit > 0
+        ? parsedUserLimit
+        : 10,
+    );
+
+    console.log("🔄 Datos cargados:", {
+      adminLimit: r.adminLimit,
+      userLimit: r.userLimit,
+      parsedAdminLimit,
+      parsedUserLimit,
+    });
   };
 
   useEffect(() => {
@@ -125,7 +157,7 @@ export default function SuperAdminCustomerProfilePage() {
 
   const saveSubscription = async () => {
     try {
-      const res = await axios.patch(`/api/admin/customers/${id}`, {
+      const payload = {
         subscription: {
           plan,
           status,
@@ -136,28 +168,41 @@ export default function SuperAdminCustomerProfilePage() {
             : null,
           notes,
         },
+        limits: {
+          adminLimit,
+          userLimit,
+        },
         note: auditNote,
-      });
+      };
+      console.log("📤 Enviando payload:", payload);
+      console.log("🔢 Límites específicos:", { adminLimit, userLimit });
+
+      const res = await axios.patch(`/api/admin/customers/${id}`, payload);
       const r = res.data.restaurant as Restaurant;
+      console.log("📥 Respuesta del servidor:", r);
+      console.log("🔢 Límites en respuesta:", {
+        adminLimit: r.adminLimit,
+        userLimit: r.userLimit,
+      });
       setRestaurant(r);
       hydrateFormFromRestaurant(r);
       setAuditNote("");
-      toast.success("Suscripción actualizada");
+      toast.success("Suscripción y límites actualizados");
     } catch (error) {
       console.error(error);
-      toast.error("Error al actualizar suscripción");
+      toast.error("Error al actualizar configuración");
     }
   };
 
   const patchUser = async (
     userId: string,
-    patch: { isActive?: boolean; role?: UserRow["role"] }
+    patch: { isActive?: boolean; role?: UserRow["role"] },
   ) => {
     try {
       const res = await axios.patch(`/api/admin/users/${userId}`, patch);
       const updated = res.data.user as UserRow;
       setUsers((prev) =>
-        prev.map((u) => (u._id === userId ? { ...u, ...updated } : u))
+        prev.map((u) => (u._id === userId ? { ...u, ...updated } : u)),
       );
       toast.success("Usuario actualizado");
     } catch (error) {
@@ -288,6 +333,50 @@ export default function SuperAdminCustomerProfilePage() {
                     />
                   </div>
 
+                  <div className="border-t pt-4 mt-4">
+                    <h3 className="text-sm font-medium mb-3">
+                      Límites de usuarios
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Límite de administradores</Label>
+                        <Input
+                          type="number"
+                          min="1"
+                          max="50"
+                          value={adminLimit}
+                          onChange={(e) => {
+                            const val = parseInt(e.target.value, 10);
+                            if (!isNaN(val)) {
+                              setAdminLimit(val);
+                            }
+                          }}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Standard: 1 | Premium: 5 | Personalizado: hasta 50
+                        </p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Límite de usuarios totales</Label>
+                        <Input
+                          type="number"
+                          min="1"
+                          max="999"
+                          value={userLimit}
+                          onChange={(e) => {
+                            const val = parseInt(e.target.value, 10);
+                            if (!isNaN(val)) {
+                              setUserLimit(val);
+                            }
+                          }}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Standard: 10 | Premium: 999 (ilimitado)
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="space-y-2">
                     <Label>Nota de auditoría (opcional)</Label>
                     <Input
@@ -298,7 +387,7 @@ export default function SuperAdminCustomerProfilePage() {
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <Button onClick={saveSubscription}>Guardar</Button>
+                    <Button onClick={saveSubscription}>Guardar cambios</Button>
                     <Button variant="outline" onClick={load}>
                       Recargar
                     </Button>
@@ -306,35 +395,64 @@ export default function SuperAdminCustomerProfilePage() {
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium">
-                    Métricas
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 text-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-2 text-muted-foreground">
-                      <Layers className="w-4 h-4" /> Categorías
-                    </span>
-                    <span className="font-medium">
-                      {counts?.categories ?? 0}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-2 text-muted-foreground">
-                      <UtensilsCrossed className="w-4 h-4" /> Platos
-                    </span>
-                    <span className="font-medium">{counts?.meals ?? 0}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-2 text-muted-foreground">
-                      <ReceiptText className="w-4 h-4" /> Órdenes
-                    </span>
-                    <span className="font-medium">{counts?.orders ?? 0}</span>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4">
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-medium">
+                      Límites actuales
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3 text-sm">
+                    <div className="flex items-center justify-between">
+                      <span className="flex items-center gap-2 text-muted-foreground">
+                        <Shield className="w-4 h-4" /> Administradores
+                      </span>
+                      <span className="font-medium">
+                        {users.filter((u) => u.role === "admin").length} /{" "}
+                        {restaurant?.adminLimit ?? 1}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="flex items-center gap-2 text-muted-foreground">
+                        <Users className="w-4 h-4" /> Usuarios totales
+                      </span>
+                      <span className="font-medium">
+                        {users.length} / {restaurant?.userLimit ?? 10}
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-medium">
+                      Métricas
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3 text-sm">
+                    <div className="flex items-center justify-between">
+                      <span className="flex items-center gap-2 text-muted-foreground">
+                        <Layers className="w-4 h-4" /> Categorías
+                      </span>
+                      <span className="font-medium">
+                        {counts?.categories ?? 0}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="flex items-center gap-2 text-muted-foreground">
+                        <UtensilsCrossed className="w-4 h-4" /> Platos
+                      </span>
+                      <span className="font-medium">{counts?.meals ?? 0}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="flex items-center gap-2 text-muted-foreground">
+                        <ReceiptText className="w-4 h-4" /> Órdenes
+                      </span>
+                      <span className="font-medium">{counts?.orders ?? 0}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
 
             <Card>

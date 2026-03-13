@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
 
-export type UserRole = "superadmin" | "admin" | "staff" | "viewer";
+export type UserRole = "superadmin" | "admin" | "staff" | "waiter";
 
 export class AuthError extends Error {
   constructor(message = "No autorizado") {
@@ -34,7 +34,7 @@ export async function requireAuth(minRole?: UserRole) {
 
   if (minRole) {
     const userRole = session.user.role as UserRole;
-    const roles: UserRole[] = ["viewer", "staff", "admin", "superadmin"];
+    const roles: UserRole[] = ["waiter", "staff", "admin", "superadmin"];
 
     const userRoleIndex = roles.indexOf(userRole);
     const minRoleIndex = roles.indexOf(minRole);
@@ -63,6 +63,6 @@ export function handleAuthError(error: unknown) {
 
   return NextResponse.json(
     { error: "Error interno del servidor" },
-    { status: 500 }
+    { status: 500 },
   );
 }

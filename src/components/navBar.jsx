@@ -12,6 +12,7 @@ import {
   X,
   ChevronRight,
   Settings,
+  Users,
 } from "lucide-react";
 import LogoutButton from "./ui/LogoutButton";
 import { useSession } from "next-auth/react";
@@ -39,6 +40,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 export default function NavBar() {
   const { data: session } = useSession();
   const isSuperAdmin = session?.user?.role === "superadmin";
+  const isAdmin =
+    session?.user?.role === "admin" || session?.user?.role === "superadmin";
   const [businessLogo, setBusinessLogo] = React.useState(null);
 
   React.useEffect(() => {
@@ -59,7 +62,7 @@ export default function NavBar() {
     }
   }, [session?.user?.restaurantId]);
 
-  const navItems = [
+  const baseNavItems = [
     {
       href: "/backoffice",
       label: "Inicio",
@@ -74,6 +77,17 @@ export default function NavBar() {
       color: "text-emerald-600",
       description: "Configuración del establecimiento",
     },
+    ...(isAdmin
+      ? [
+          {
+            href: "/backoffice/team",
+            label: "Equipo",
+            icon: Users,
+            color: "text-purple-600",
+            description: "Gestión de colaboradores",
+          },
+        ]
+      : []),
     {
       href: "/backoffice/translate",
       label: "Traductor",
@@ -89,6 +103,8 @@ export default function NavBar() {
       description: "Personalización de mensajes",
     },
   ];
+
+  const navItems = baseNavItems;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur supports-backdrop-filter:bg-background/60">
@@ -159,7 +175,7 @@ export default function NavBar() {
                 )}
               </div>
               <span className="text-sm font-medium max-w-[100px] truncate">
-                {session?.user?.name || "Cuenta"}
+                {session?.user?.username || "Cuenta"}
               </span>
             </Link>
 

@@ -10,16 +10,16 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
+          "bg-primary text-primary-foreground shadow-[0_0_15px_-3px_var(--color-primary)] hover:shadow-[0_0_20px_0px_var(--color-primary)] hover:brightness-110 active:scale-[0.98] transition-all",
         destructive:
-          "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+          "bg-destructive/80 text-white shadow-xs border border-destructive/50 hover:bg-destructive hover:shadow-[0_0_15px_-3px_var(--color-destructive)] active:scale-[0.98] transition-all focus-visible:ring-destructive/40",
         outline:
-          "border bg-card shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
+          "border border-border/80 bg-transparent shadow-xs hover:bg-secondary hover:text-secondary-foreground hover:border-primary/50 active:scale-[0.98] transition-all",
         secondary:
-          "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
+          "bg-secondary/60 text-secondary-foreground shadow-xs border border-border/50 hover:bg-secondary hover:border-secondary-foreground/20 active:scale-[0.98] transition-all",
         ghost:
-          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
-        link: "text-primary underline-offset-4 hover:underline",
+          "hover:bg-secondary/80 hover:text-secondary-foreground active:scale-[0.98] transition-all",
+        link: "text-primary underline-offset-4 hover:underline hover:text-primary/80 transition-colors",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
@@ -32,7 +32,7 @@ const buttonVariants = cva(
       variant: "default",
       size: "default",
     },
-  }
+  },
 );
 
 function Button({

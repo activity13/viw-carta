@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     ) {
       return NextResponse.json(
         { error: "Todos los campos básicos del restaurante son obligatorios" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -27,17 +27,17 @@ export async function POST(request: Request) {
     if (!fullName || !username || !email || !password) {
       return NextResponse.json(
         { error: "Todos los campos de usuario son obligatorios" },
-        { status: 400 }
+        { status: 400 },
       );
     } else if (fullName.length < 3 || fullName.length > 50) {
       return NextResponse.json(
         { error: "El nombre completo debe tener entre 3 y 50 caracteres" },
-        { status: 400 }
+        { status: 400 },
       );
     } else if (password.length < 6) {
       return NextResponse.json(
         { error: "La contraseña debe tener al menos 6 caracteres" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
     if (thereIsRestaurant) {
       return NextResponse.json(
         { error: "Ya existe un restaurante con ese slug" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -58,8 +58,8 @@ export async function POST(request: Request) {
     });
     if (thereIsUser) {
       return NextResponse.json(
-        { error: "Username o email ya existen" },
-        { status: 400 }
+        { error: "Username o email ya existennnn" },
+        { status: 400 },
       );
     }
 
@@ -88,7 +88,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(
       { message: "Restaurante y usuario admin registrados exitosamente." },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     console.error("Error interno en el servidor", error);
@@ -98,7 +98,7 @@ export async function POST(request: Request) {
         error_message:
           error instanceof Error ? error.message : "Error desconocido",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

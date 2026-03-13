@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { X } from "lucide-react";
 
 export default function NavbarSearch() {
   const router = useRouter();
@@ -68,11 +69,23 @@ export default function NavbarSearch() {
           className="block w-full pl-10 pr-3 py-2 border border-border rounded-xl leading-5 bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring sm:text-sm transition-all duration-200 shadow-sm hover:shadow-md"
           aria-label="Buscar productos"
         />
-        {isPending && (
-          <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-            <div className="h-4 w-4 rounded-full border-2 border-muted-foreground/30 border-t-muted-foreground animate-spin" />
-          </div>
-        )}
+        <div className="absolute inset-y-0 right-0 pr-2 flex items-center gap-2">
+          {value && !isPending && (
+            <button
+              onClick={() => {
+                setValue("");
+                updateQueryParam("");
+              }}
+              className="p-1 rounded-full hover:bg-muted text-muted-foreground transition-colors"
+              aria-label="Limpiar búsqueda"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+          {isPending && (
+            <div className="h-4 w-4 rounded-full border-2 border-muted-foreground/30 border-t-muted-foreground animate-spin mr-1" />
+          )}
+        </div>
       </div>
     </div>
   );
