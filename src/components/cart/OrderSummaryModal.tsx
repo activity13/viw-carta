@@ -96,6 +96,7 @@ export const OrderSummaryModal = ({
                             id: item.mealId,
                             name: item.name,
                             price: item.price,
+                            description: item.description,
                           })
                         }
                       >

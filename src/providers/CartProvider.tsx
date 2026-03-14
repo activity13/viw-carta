@@ -6,14 +6,17 @@ import { generateOrderIdentity, OrderIdentity } from "@/utils/orderIdentity";
 export interface CartItem {
   mealId: string;
   name: string;
+  description?: string;
   price: number;
+  comparePrice?: number;
+  images?: { url: string; alt?: string }[];
   quantity: number | string;
 }
 
 interface CartContextType {
   items: CartItem[];
   identity: OrderIdentity | null;
-  addToCart: (product: { id: string; name: string; price: number }) => void;
+  addToCart: (product: { id: string; name: string; price: number; description?: string }) => void;
   removeFromCart: (mealId: string) => void;
   updateQuantity: (mealId: string, quantity: number | string) => void;
   removeItem: (mealId: string) => void;
@@ -52,7 +55,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ items, identity }));
   }, [items, identity, isLoaded]);
 
-  const addToCart = (product: { id: string; name: string; price: number }) => {
+  const addToCart = (product: { id: string; name: string; price: number; description?: string }) => {
     setItems((prev) => {
       const existing = prev.find((i) => i.mealId === product.id);
 
@@ -76,6 +79,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
           mealId: product.id,
           name: product.name,
           price: product.price,
+          description: product.description,
           quantity: 1,
         },
       ];

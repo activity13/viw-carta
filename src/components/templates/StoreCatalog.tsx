@@ -167,6 +167,11 @@ function CartDrawer({
                   <p className="font-bold text-sm leading-tight text-foreground">
                     {item.name}
                   </p>
+                  {item.description && (
+                    <p className="text-[11px] text-muted-foreground truncate mt-0.5">
+                      {item.description.trim().replace(/\\n/g, " ")}
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex items-center justify-between mt-1">
@@ -203,7 +208,7 @@ function CartDrawer({
                     />
 
                     <button
-                      onClick={() => addToCart({ id: item.mealId, name: item.name, price: item.price })}
+                      onClick={() => addToCart({ id: item.mealId, name: item.name, price: item.price, description: item.description })}
                       className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary/20 transition-colors"
                     >
                       <Plus className="w-4 h-4" />
@@ -314,14 +319,14 @@ function ProductCard({
       <div className="p-3 flex flex-col flex-1">
         <button
           onClick={() => onOpenModal(meal)}
-          className="text-left mb-1 flex-1"
+          className="text-left mb-1 flex-1 w-full min-w-0"
         >
-          <h3 className="font-semibold text-sm leading-snug line-clamp-2 hover:text-primary transition-colors">
+          <h3 className="font-semibold text-sm leading-snug truncate hover:text-primary transition-colors">
             {name}
           </h3>
           {desc && desc.trim() && (
-            <p className="text-[11px] text-muted-foreground line-clamp-2 mt-0.5 whitespace-pre-line">
-              {desc.trim().replace(/\\n/g, "\n")}
+            <p className="text-[11px] text-muted-foreground line-clamp-2 mt-0.5 w-full whitespace-normal">
+              {desc.trim().replace(/\\n/g, " ")}
             </p>
           )}
         </button>
@@ -343,7 +348,7 @@ function ProductCard({
           <Button
             size="sm"
             className="w-full rounded-full text-xs h-8"
-            onClick={() => addToCart({ id: meal.id, name, price: meal.price })}
+            onClick={() => addToCart({ id: meal.id, name, price: meal.price, description: desc })}
           >
             <Plus className="w-3 h-3 mr-1" />
             Agregar
@@ -359,7 +364,7 @@ function ProductCard({
             <span className="text-sm font-bold text-primary">{quantity}</span>
             <button
               onClick={() =>
-                addToCart({ id: meal.id, name, price: meal.price })
+                addToCart({ id: meal.id, name, price: meal.price, description: desc })
               }
               className="w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-sm"
             >
