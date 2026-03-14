@@ -70,7 +70,7 @@ export const OrderSummaryModal = ({
                   <div className="flex flex-col flex-1">
                     <span className="font-medium">{item.name}</span>
                     <span className="text-sm text-muted-foreground">
-                      S/.{(item.price * item.quantity).toFixed(2)}
+                      S/.{(item.price * Number(item.quantity || 0)).toFixed(2)}
                     </span>
                   </div>
 

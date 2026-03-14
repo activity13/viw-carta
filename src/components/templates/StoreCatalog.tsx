@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import {
   MapPin,
   Phone,
-  Globe,
   Search,
   Store,
   ShoppingCart,
@@ -17,8 +16,8 @@ import {
   Plus,
   X,
   MessageCircle,
-  ChevronRight,
   Tag,
+  Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/providers/CartProvider";
@@ -75,15 +74,18 @@ function CartDrawer({
     items,
     addToCart,
     removeFromCart,
-    totalItems,
+    updateQuantity,
+    removeItem,
     totalPrice,
     clearCart,
   } = useCart();
+  const uniqueItemsCount = items.length;
 
   const sendWhatsApp = () => {
-    const lines = items.map(
+    const validItems = items.filter(item => Number(item.quantity) > 0);
+    const lines = validItems.map(
       (item) =>
-        `• ${item.name} x${item.quantity} — S/ ${(item.price * item.quantity).toFixed(2)}`,
+        `• ${item.name} x${Number(item.quantity)} — S/ ${(item.price * Number(item.quantity)).toFixed(2)}`,
     );
     const msg = [
       `Hola ${restaurantName}! Quisiera hacer el siguiente pedido:`,
@@ -99,12 +101,16 @@ function CartDrawer({
     );
   };
 
+  const handleQuantityChange = (mealId: string, val: string) => {
+    updateQuantity(mealId, val);
+  };
+
   return (
     <>
       {/* Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+          className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm"
           onClick={onClose}
         />
       )}
@@ -112,7 +118,7 @@ function CartDrawer({
       {/* Drawer */}
       <div
         className={cn(
-          "fixed right-0 top-0 bottom-0 z-50 w-full max-w-sm bg-background shadow-2xl flex flex-col transition-transform duration-300",
+          "fixed right-0 top-0 bottom-0 z-[101] w-full max-w-md bg-background shadow-2xl flex flex-col transition-transform duration-300",
           isOpen ? "translate-x-0" : "translate-x-full",
         )}
       >
@@ -121,9 +127,9 @@ function CartDrawer({
           <div className="flex items-center gap-2">
             <ShoppingCart className="w-5 h-5 text-primary" />
             <h2 className="font-bold text-lg">Tu Pedido</h2>
-            {totalItems > 0 && (
+            {uniqueItemsCount > 0 && (
               <span className="text-xs bg-primary text-primary-foreground rounded-full px-2 py-0.5 font-medium">
-                {totalItems}
+                {uniqueItemsCount}
               </span>
             )}
           </div>
@@ -136,7 +142,7 @@ function CartDrawer({
         </div>
 
         {/* Items */}
-        <div className="flex-1 overflow-y-auto p-5 space-y-3">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full gap-3 text-muted-foreground">
               <ShoppingCart className="w-12 h-12 opacity-20" />
@@ -146,40 +152,78 @@ function CartDrawer({
             items.map((item) => (
               <div
                 key={item.mealId}
-                className="flex items-center gap-3 p-3 rounded-xl bg-muted/40 border"
+                className="flex flex-col gap-3 p-4 rounded-2xl bg-muted/30 border shadow-sm relative group"
               >
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{item.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    S/ {item.price.toFixed(2)} c/u
+                {/* Delete Button */}
+                <button
+                  onClick={() => removeItem(item.mealId)}
+                  className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+
+                {/* Name - Now more prominent and not cut off */}
+                <div className="pr-6">
+                  <p className="font-bold text-sm leading-tight text-foreground">
+                    {item.name}
                   </p>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    onClick={() => removeFromCart(item.mealId)}
-                    className="w-7 h-7 rounded-full border flex items-center justify-center hover:bg-destructive/10 hover:border-destructive/40 hover:text-destructive transition-colors"
-                  >
-                    <Minus className="w-3 h-3" />
-                  </button>
-                  <span className="w-5 text-center text-sm font-semibold">
-                    {item.quantity}
-                  </span>
-                  <button
-                    onClick={() =>
-                      addToCart({
-                        id: item.mealId,
-                        name: item.name,
-                        price: item.price,
-                      })
-                    }
-                    className="w-7 h-7 rounded-full border border-primary/40 bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors"
-                  >
-                    <Plus className="w-3 h-3 text-primary" />
-                  </button>
+
+                <div className="flex items-center justify-between mt-1">
+                   {/* Unit Price */}
+                  <div className="flex flex-col">
+                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Precio Unid.</span>
+                    <span className="text-sm font-medium">S/ {item.price.toFixed(2)}</span>
+                  </div>
+
+                  {/* Quantity controls with direct Input */}
+                  <div className="flex items-center gap-1.5 bg-background border rounded-full p-1">
+                    <button
+                      onClick={() => removeFromCart(item.mealId)}
+                      className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted transition-colors"
+                    >
+                      <Minus className="w-4 h-4" />
+                    </button>
+                    
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={item.quantity}
+                      onChange={(e) => handleQuantityChange(item.mealId, e.target.value)}
+                      onBlur={(e) => {
+                        const val = parseFloat(e.target.value);
+                        if (isNaN(val) || val <= 0) {
+                          removeItem(item.mealId);
+                        } else {
+                          updateQuantity(item.mealId, val);
+                        }
+                      }}
+                      className="w-12 text-center bg-transparent font-bold text-sm focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    />
+
+                    <button
+                      onClick={() => addToCart({ id: item.mealId, name: item.name, price: item.price })}
+                      className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary/20 transition-colors"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Subtotal */}
+                  <div className="flex flex-col items-end">
+                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Subtotal</span>
+                    <span className="text-base font-black text-primary">S/ {(item.price * (typeof item.quantity === "number" ? item.quantity : parseFloat(item.quantity as string) || 0)).toFixed(2)}</span>
+                  </div>
                 </div>
-                <span className="text-sm font-bold shrink-0 w-16 text-right">
-                  S/ {(item.price * item.quantity).toFixed(2)}
-                </span>
+
+                {/* Mobile direct delete (always visible on small screens) */}
+                <button 
+                  onClick={() => removeItem(item.mealId)}
+                  className="sm:hidden flex items-center justify-center gap-1.5 text-[10px] font-bold text-destructive py-1 border-t mt-1"
+                >
+                  <Trash2 className="w-3 h-3" /> ELIMINAR ITEM
+                </button>
               </div>
             ))
           )}
@@ -187,25 +231,25 @@ function CartDrawer({
 
         {/* Footer */}
         {items.length > 0 && (
-          <div className="border-t p-5 space-y-3">
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-muted-foreground">Subtotal</span>
-              <span className="font-bold text-lg">
+          <div className="border-t p-5 space-y-4 bg-background">
+            <div className="flex justify-between items-center">
+              <span className="text-muted-foreground font-medium">Total del Pedido</span>
+              <span className="font-black text-2xl text-primary">
                 S/ {totalPrice.toFixed(2)}
               </span>
             </div>
 
             <Button
-              className="w-full gap-2 bg-[#25D366] hover:bg-[#20b857] text-white rounded-full h-12 text-base font-semibold shadow-lg"
+              className="w-full gap-2 bg-[#25D366] hover:bg-[#20b857] text-white rounded-full h-14 text-lg font-bold shadow-xl transition-all active:scale-95"
               onClick={sendWhatsApp}
             >
-              <MessageCircle className="w-5 h-5" />
+              <MessageCircle className="w-6 h-6" />
               Pedir por WhatsApp
             </Button>
 
             <button
               onClick={clearCart}
-              className="w-full text-xs text-muted-foreground hover:text-destructive transition-colors text-center py-1"
+              className="w-full text-xs text-muted-foreground hover:text-destructive transition-colors text-center py-1 font-medium"
             >
               Vaciar carrito
             </button>
@@ -335,7 +379,7 @@ export default function StoreCatalog({ data, restaurant }: StoreCatalogProps) {
   const [search, setSearch] = useState("");
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
-  const { totalItems, totalPrice } = useCart();
+  const { items, totalPrice } = useCart();
 
   const theme = restaurant.theme || {};
   const t = (es?: string, en?: string) =>
@@ -379,7 +423,7 @@ export default function StoreCatalog({ data, restaurant }: StoreCatalogProps) {
   }, [search, activeCat, allMeals]);
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col pb-24 md:pb-0">
       {/* Hero header */}
       <header className="bg-card border-b shadow-sm">
         <div className="max-w-6xl mx-auto px-4 py-5 flex items-center gap-4">
@@ -414,30 +458,30 @@ export default function StoreCatalog({ data, restaurant }: StoreCatalogProps) {
             )}
           </div>
 
-          {/* Language + Cart */}
-          <div className="flex items-center gap-2 shrink-0">
+          {/* Language + Cart (Desktop) */}
+          <div className="hidden md:flex items-center gap-2 shrink-0">
             <LanguageToggle />
             <button
               onClick={() => setIsCartOpen(true)}
               className="relative flex items-center gap-1.5 bg-primary text-primary-foreground rounded-full px-4 py-2 text-sm font-semibold shadow-sm hover:bg-primary/90 transition-colors"
             >
               <ShoppingCart className="w-4 h-4" />
-              {totalItems > 0 && (
+              {items.length > 0 && (
                 <>
-                  <span className="hidden sm:inline">
-                    S/ {totalPrice.toFixed(2)}
-                  </span>
-                  <span className="absolute -top-1.5 -right-1.5 bg-destructive text-destructive-foreground text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center sm:hidden">
-                    {totalItems}
-                  </span>
+                  <span>S/ {totalPrice.toFixed(2)}</span>
                 </>
               )}
             </button>
           </div>
+
+          {/* Language only (Mobile) */}
+          <div className="md:hidden">
+            <LanguageToggle />
+          </div>
         </div>
 
-        {/* Search bar */}
-        <div className="max-w-6xl mx-auto px-4 pb-4">
+        {/* Search bar (Desktop) */}
+        <div className="hidden md:block max-w-6xl mx-auto px-4 pb-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
@@ -473,14 +517,13 @@ export default function StoreCatalog({ data, restaurant }: StoreCatalogProps) {
                 key={cat.id}
                 onClick={() => setActiveCat(cat.id)}
                 className={cn(
-                  "shrink-0 text-lg font-medium px-4 py-2 rounded-full border transition-all whitespace-nowrap",
+                  "shrink-0 text-xs font-medium px-4 py-1.5 rounded-full border transition-all whitespace-nowrap",
                   activeCat === cat.id
                     ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-gray-900/50 text-gray-300 border border-gray-800/50 hover:bg-gray-800/70 hover:border-gray-700",
+                    : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground",
                 )}
               >
                 {t(cat.name, cat.name_en)}
-                <span className="ml-1.5 opacity-60">{cat.meals.length}</span>
               </button>
             ))}
           </div>
@@ -564,7 +607,7 @@ export default function StoreCatalog({ data, restaurant }: StoreCatalogProps) {
       </div>
 
       {/* Footer */}
-      <footer className="border-t bg-muted/30 py-8 px-4">
+      <footer className="border-t bg-muted/30 py-8 px-4 hidden md:block">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-4 justify-between items-start text-sm text-muted-foreground">
           <div>
             <p className="font-semibold text-foreground mb-1">
@@ -590,18 +633,6 @@ export default function StoreCatalog({ data, restaurant }: StoreCatalogProps) {
                 <span>{restaurant.direction}</span>
               </div>
             )}
-            {restaurant.location && (
-              <a
-                href={restaurant.location}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-primary hover:underline"
-              >
-                <Globe className="w-4 h-4" />
-                <ChevronRight className="w-3 h-3" />
-                Ver en Mapa
-              </a>
-            )}
           </div>
         </div>
         <div className="max-w-6xl mx-auto mt-6 pt-4 border-t text-center text-xs text-muted-foreground">
@@ -610,21 +641,43 @@ export default function StoreCatalog({ data, restaurant }: StoreCatalogProps) {
         </div>
       </footer>
 
-      {/* Floating CTA (mobile only when cart has items) */}
-      {totalItems > 0 && (
-        <div className="fixed bottom-5 left-0 right-0 flex justify-center z-30 lg:hidden px-4">
+      {/* ─── MOBILE FIXED BOTTOM SEARCH & CART ─── */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-[50] p-4 bg-background/80 backdrop-blur-xl border-t shadow-[0_-8px_30px_rgb(0,0,0,0.04)]">
+        <div className="max-w-6xl mx-auto flex items-center gap-3">
+          {/* Mobile Search Bar */}
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder={language === "en" ? "Search..." : "Buscar..."}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-9 pr-10 py-3 rounded-full border bg-muted/40 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-inner"
+            />
+            {search && (
+              <button 
+                onClick={() => setSearch("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full bg-muted text-muted-foreground"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            )}
+          </div>
+
+          {/* Mobile Cart Button */}
           <button
             onClick={() => setIsCartOpen(true)}
-            className="flex items-center gap-3 bg-[#25D366] text-white rounded-full px-6 py-3 shadow-xl font-semibold text-sm animate-in fade-in slide-in-from-bottom-3"
+            className="relative h-12 w-12 flex items-center justify-center bg-primary text-primary-foreground rounded-full shadow-lg shadow-primary/20 transition-all active:scale-90"
           >
-            <MessageCircle className="w-5 h-5" />
-            <span>Ver pedido · S/ {totalPrice.toFixed(2)}</span>
-            <span className="bg-white/30 rounded-full px-2 py-0.5 text-xs font-bold">
-              {totalItems}
-            </span>
+            <ShoppingCart className="w-5 h-5" />
+            {items.length > 0 && (
+              <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-[10px] font-bold min-w-[20px] h-5 rounded-full flex items-center justify-center px-1 border-2 border-background">
+                {items.length}
+              </span>
+            )}
           </button>
         </div>
-      )}
+      </div>
 
       {/* Cart Drawer */}
       <CartDrawer

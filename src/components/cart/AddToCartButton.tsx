@@ -20,7 +20,7 @@ export const AddToCartButton = ({ meal, className }: AddToCartButtonProps) => {
   const cartItem = items.find((item) => item.mealId === meal.id);
   const quantity = cartItem ? cartItem.quantity : 0;
 
-  if (quantity > 0) {
+  if (Number(quantity) > 0) {
     return (
       <div className={cn("flex items-center gap-2", className)}>
         <Button

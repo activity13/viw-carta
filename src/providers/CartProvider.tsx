@@ -7,7 +7,7 @@ export interface CartItem {
   mealId: string;
   name: string;
   price: number;
-  quantity: number;
+  quantity: number | string;
 }
 
 interface CartContextType {
@@ -15,6 +15,8 @@ interface CartContextType {
   identity: OrderIdentity | null;
   addToCart: (product: { id: string; name: string; price: number }) => void;
   removeFromCart: (mealId: string) => void;
+  updateQuantity: (mealId: string, quantity: number | string) => void;
+  removeItem: (mealId: string) => void;
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
@@ -47,18 +49,6 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   // Save to localStorage whenever items or identity changes
   useEffect(() => {
     if (!isLoaded) return;
-
-    if (items.length === 0) {
-      // Optional: Clear identity when cart is empty?
-      // For now, let's keep it or maybe clear it.
-      // User requirement: "paso 1 seleccionar el primer producto... genera la orden"
-      // So if cart is empty, maybe we reset identity?
-      // Let's keep identity if it exists, or reset if we want a fresh start.
-      // If items are empty, we might want to clear storage to be clean,
-      // but keeping identity allows re-adding without changing name.
-      // Let's persist.
-    }
-
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ items, identity }));
   }, [items, identity, isLoaded]);
 
@@ -72,9 +62,13 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       if (existing) {
-        return prev.map((i) =>
-          i.mealId === product.id ? { ...i, quantity: i.quantity + 1 } : i
-        );
+        return prev.map((i) => {
+          if (i.mealId === product.id) {
+            const q = typeof i.quantity === "number" ? i.quantity : parseFloat(i.quantity as string) || 0;
+            return { ...i, quantity: q + 1 };
+          }
+          return i;
+        });
       }
       return [
         ...prev,
@@ -91,13 +85,31 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const removeFromCart = (mealId: string) => {
     setItems((prev) => {
       const existing = prev.find((i) => i.mealId === mealId);
-      if (existing && existing.quantity > 1) {
-        return prev.map((i) =>
-          i.mealId === mealId ? { ...i, quantity: i.quantity - 1 } : i
-        );
+      if (existing) {
+        const q = typeof existing.quantity === "number" ? existing.quantity : parseFloat(existing.quantity as string) || 0;
+        if (q > 1) {
+          return prev.map((i) =>
+            i.mealId === mealId ? { ...i, quantity: Math.max(0, q - 1) } : i
+          );
+        }
       }
       return prev.filter((i) => i.mealId !== mealId);
     });
+  };
+
+  const updateQuantity = (mealId: string, quantity: number | string) => {
+    setItems((prev) => {
+      if (typeof quantity === "number" && quantity < 0) {
+        return prev.filter((i) => i.mealId !== mealId);
+      }
+      return prev.map((i) =>
+        i.mealId === mealId ? { ...i, quantity } : i
+      );
+    });
+  };
+
+  const removeItem = (mealId: string) => {
+    setItems((prev) => prev.filter((i) => i.mealId !== mealId));
   };
 
   const clearCart = () => {
@@ -106,11 +118,14 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.removeItem(STORAGE_KEY);
   };
 
-  const totalItems = items.reduce((acc, item) => acc + item.quantity, 0);
-  const totalPrice = items.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0
-  );
+  const totalItems = items.reduce((acc, item) => {
+    const q = typeof item.quantity === "number" ? item.quantity : parseFloat(item.quantity as string) || 0;
+    return acc + q;
+  }, 0);
+  const totalPrice = items.reduce((acc, item) => {
+    const q = typeof item.quantity === "number" ? item.quantity : parseFloat(item.quantity as string) || 0;
+    return acc + item.price * q;
+  }, 0);
 
   return (
     <CartContext.Provider
@@ -119,6 +134,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         identity,
         addToCart,
         removeFromCart,
+        updateQuantity,
+        removeItem,
         clearCart,
         totalItems,
         totalPrice,
