@@ -5,6 +5,7 @@ export type FeatureKey =
   | "manage_products" // Crear/Editar platos
   | "manage_categories" // Crear/Editar categorías
   | "manage_profile" // Editar perfil de negocio
+  | "manage_team" // Gestionar colaboradores
   // Premium Features
   | "add_to_order" // (Futuro) Permitir agregar platos al pedido desde el menú público
   | "create_orders" // Sistema de órdenes
@@ -24,6 +25,7 @@ export const PLAN_CONFIG: Record<
       "manage_products",
       "manage_categories",
       "manage_profile",
+      "manage_team",
     ],
   },
   premium: {
@@ -33,6 +35,7 @@ export const PLAN_CONFIG: Record<
       "manage_products",
       "manage_categories",
       "manage_profile",
+      "manage_team",
       "create_orders",
       "manage_translations",
       "custom_branding",

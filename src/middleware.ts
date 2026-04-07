@@ -39,7 +39,7 @@ export default withAuth(
         url.pathname.startsWith("/api/auth") ||
         url.pathname.startsWith("/invitation/") ||
         url.pathname.startsWith("/join/") ||
-        url.pathname.startsWith("/onboarding/")
+        url.pathname.startsWith("/onboarding")
       ) {
         return NextResponse.next();
       }
@@ -95,7 +95,7 @@ export default withAuth(
             url.pathname.startsWith("/api/auth") ||
             url.pathname.startsWith("/invitation/") ||
             url.pathname.startsWith("/join/") ||
-            url.pathname.startsWith("/onboarding/")
+            url.pathname.startsWith("/onboarding")
           ) {
             return true;
           }

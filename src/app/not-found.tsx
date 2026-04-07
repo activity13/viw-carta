@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-black via-green-900 to-gray-900">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-linear-to-br from-black via-green-900 to-gray-900">
       <div className="bg-black/80 border-4 border-green-900 rounded-2xl shadow-2xl px-8 py-12 flex flex-col items-center max-w-md">
         <h1 className="text-4xl font-extrabold text-green-300 tracking-widest mb-4 drop-shadow-lg uppercase">
           Acceso Denegado

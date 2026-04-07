@@ -108,7 +108,7 @@ export async function PATCH(
   { params }: { params: Promise<{ orderId: string }> },
 ) {
   try {
-    const session = await requireAuth("staff");
+    const session = await requireAuth("waiter");
     await connectToDatabase();
 
     const { orderId } = await params;

@@ -69,11 +69,11 @@ interface NewMeal {
 // Loading component for Suspense fallback
 function OnboardingProductsLoading() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <Card className="w-full max-w-md bg-card border-border rounded-none">
         <CardContent className="p-8 text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
-          <p className="text-muted-foreground">Cargando productos...</p>
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
+          <p className="text-muted-foreground font-mono uppercase tracking-widest text-xs">Sincronizando productos...</p>
         </CardContent>
       </Card>
     </div>
@@ -147,12 +147,6 @@ function OnboardingProductsContent() {
     }
   };
 
-  // const getCategoryName = (categoryId: string) => {
-  //   return (
-  //     categories.find((cat) => cat._id === categoryId)?.name || "Sin categoría"
-  //   );
-  // };
-
   const getMealsByCategory = (categoryId: string) => {
     return meals.filter((meal) => meal.categoryId === categoryId);
   };
@@ -207,34 +201,21 @@ function OnboardingProductsContent() {
       );
 
       cancelEdit();
-      toast.success("Producto actualizado", {
-        description: `${editingMeal.name} se actualizó correctamente`,
-        duration: 3000,
-      });
+      toast.success("Producto actualizado");
     } catch (error) {
       console.error("Error al actualizar producto:", error);
-      toast.error("Error al actualizar", {
-        description: "No se pudo guardar los cambios del producto",
-        duration: 4000,
-      });
-      toast.error("Error al actualizar producto");
+      toast.error("Error al actualizar");
     }
   };
 
   const addMeal = async () => {
     if (!newMeal.name.trim()) {
-      toast.error("Nombre requerido", {
-        description: "Ingresa un nombre para tu producto",
-        duration: 3000,
-      });
+      toast.error("Nombre requerido");
       return;
     }
 
     if (!newMeal.categoryId) {
-      toast.error("Categoría requerida", {
-        description: "Selecciona una categoría para organizar tu producto",
-        duration: 3000,
-      });
+      toast.error("Categoría requerida");
       return;
     }
 
@@ -271,19 +252,10 @@ function OnboardingProductsContent() {
         categoryId: newMeal.categoryId, // Mantener categoría seleccionada
       });
 
-      toast.success("Producto agregado", {
-        description: `${newMeal.name} se agregó a ${
-          categories.find((c) => c._id === newMeal.categoryId)?.name ||
-          "la categoría"
-        }`,
-        duration: 3000,
-      });
+      toast.success("Producto agregado");
     } catch (error) {
       console.error("Error al agregar producto:", error);
-      toast.error("Error al agregar", {
-        description: "No se pudo crear el producto. Inténtalo nuevamente",
-        duration: 4000,
-      });
+      toast.error("Error al agregar");
     } finally {
       setIsCreating(false);
     }
@@ -304,16 +276,10 @@ function OnboardingProductsContent() {
       setIsDeleting(true);
       await axios.delete(`/api/master/delete?id=${mealToDelete.id}`);
       setMeals(meals.filter((meal) => meal._id !== mealToDelete.id));
-      toast.success("Producto eliminado", {
-        description: `${mealToDelete.name} se eliminó correctamente`,
-        duration: 3000,
-      });
+      toast.success("Producto eliminado");
     } catch (error) {
       console.error("Error al eliminar producto:", error);
-      toast.error("Error al eliminar", {
-        description: "No se pudo eliminar el producto. Inténtalo nuevamente",
-        duration: 4000,
-      });
+      toast.error("Error al eliminar");
     } finally {
       setIsDeleting(false);
       setShowDeleteDialog(false);
@@ -323,13 +289,10 @@ function OnboardingProductsContent() {
 
   const finishOnboarding = () => {
     const customProductsCount = meals.filter((m) => !m.isTemplate).length;
-    toast.success("¡Configuración completada!", {
-      description: `Has creado ${customProductsCount} productos personalizados. Redirigiendo al panel...`,
-      duration: 4000,
-    });
+    toast.success("Configuración completada");
     setTimeout(() => {
       router.push("/backoffice");
-    }, 1500);
+    }, 1000);
   };
 
   const goBack = () => {
@@ -338,11 +301,11 @@ function OnboardingProductsContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-green-100">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Card className="w-full max-w-md bg-card border-border rounded-none">
           <CardContent className="p-8 text-center">
-            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-emerald-600" />
-            <p className="text-muted-foreground">Cargando productos...</p>
+            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
+            <p className="text-muted-foreground font-mono uppercase tracking-widest text-xs">Cargando productos...</p>
           </CardContent>
         </Card>
       </div>
@@ -351,11 +314,11 @@ function OnboardingProductsContent() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-rose-100">
-        <Card className="w-full max-w-md border-destructive/20">
+      <div className="min-h-screen flex items-center justify-center bg-background px-4">
+        <Card className="w-full max-w-md border-destructive/20 bg-card rounded-none">
           <CardContent className="p-8 text-center">
-            <p className="text-destructive">{error}</p>
-            <Button variant="outline" onClick={goBack} className="mt-4">
+            <p className="text-destructive font-mono uppercase tracking-widest text-xs mb-4">{error}</p>
+            <Button variant="outline" onClick={goBack} className="border-primary text-primary hover:bg-primary/10 rounded-none font-mono text-xs uppercase">
               Volver
             </Button>
           </CardContent>
@@ -365,60 +328,58 @@ function OnboardingProductsContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-green-100 py-12 px-4">
+    <div className="min-h-screen bg-background py-12 px-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-emerald-600 to-green-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Utensils className="w-8 h-8 text-white" />
+          <div className="w-16 h-16 bg-primary/10 border border-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Utensils className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Paso 2/2: Agrega tus Productos
+          <h1 className="text-3xl font-bold text-foreground mb-2 font-roboto tracking-widest">
+            2/2: CATÁLOGO DE PRODUCTOS
           </h1>
-          <p className="text-gray-600">
-            Personaliza los productos ejemplo o agrega tus propios platos
+          <p className="text-muted-foreground font-mono uppercase text-xs tracking-wider">
+            Personaliza los items precargados o inserta nuevos registros.
           </p>
         </div>
 
         {/* Progress Bar */}
-        <div className="w-full bg-gray-200 rounded-full h-2 mb-8">
+        <div className="w-full bg-border rounded-none h-1 mb-8 overflow-hidden">
           <div
-            className="bg-emerald-600 h-2 rounded-full"
+            className="bg-primary h-1 transition-all duration-500"
             style={{ width: "100%" }}
           ></div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Products by Category */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-4">
             {categories.map((category) => {
               const categoryMeals = getMealsByCategory(category._id);
               return (
-                <Card key={category._id}>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
+                <Card key={category._id} className="bg-card border-border rounded-none shadow-none">
+                  <CardHeader className="border-b border-border py-3">
+                    <CardTitle className="flex items-center gap-2 text-xs font-roboto uppercase tracking-widest text-primary/80">
                       {category.name}
-                      <Badge variant="secondary">
-                        {categoryMeals.length} productos
-                      </Badge>
+                      <span className="text-[10px] font-mono text-muted-foreground">[{categoryMeals.length}]</span>
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-3">
+                  <CardContent className="space-y-2 pt-4">
                     {categoryMeals.length === 0 ? (
-                      <div className="text-center py-6 text-gray-500">
-                        No hay productos en esta categoría aún
+                      <div className="text-center py-6 text-muted-foreground font-mono text-[10px] uppercase tracking-widest border border-dashed border-border">
+                        Categoría sin registros.
                       </div>
                     ) : (
                       categoryMeals.map((meal) => (
                         <div
                           key={meal._id}
-                          className="border rounded-lg p-4 bg-white/50"
+                          className="border border-border p-3 bg-background rounded-none hover:border-primary/30 transition-colors"
                         >
                           {editingId === meal._id ? (
                             <div className="space-y-3">
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                <div className="space-y-1">
-                                  <Label className="text-xs">Nombre</Label>
+                                <div className="space-y-1.5">
+                                  <Label className="text-[10px] font-mono text-muted-foreground uppercase">Nombre</Label>
                                   <Input
                                     value={editingMeal.name || ""}
                                     onChange={(e) =>
@@ -427,15 +388,13 @@ function OnboardingProductsContent() {
                                         name: e.target.value,
                                       })
                                     }
-                                    placeholder="Nombre del producto"
+                                    className="bg-card border-border h-8 font-mono text-sm rounded-none"
                                   />
                                 </div>
-                                <div className="space-y-1">
-                                  <Label className="text-xs">
-                                    Precio (S./)
-                                  </Label>
+                                <div className="space-y-1.5">
+                                  <Label className="text-[10px] font-mono text-muted-foreground uppercase">Precio (S/.)</Label>
                                   <div className="relative">
-                                    <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                    <DollarSign className="absolute left-2.5 top-2.5 h-3 w-3 text-primary" />
                                     <Input
                                       type="number"
                                       step="0.01"
@@ -447,14 +406,13 @@ function OnboardingProductsContent() {
                                           basePrice: Number(e.target.value),
                                         })
                                       }
-                                      placeholder="0.00"
-                                      className="pl-9"
+                                      className="pl-7 bg-card border-border h-8 font-mono text-sm rounded-none"
                                     />
                                   </div>
                                 </div>
                               </div>
-                              <div className="space-y-1">
-                                <Label className="text-xs">Descripción</Label>
+                              <div className="space-y-1.5">
+                                <Label className="text-[10px] font-mono text-muted-foreground uppercase">Descripción</Label>
                                 <Textarea
                                   value={editingMeal.description || ""}
                                   onChange={(e) =>
@@ -463,65 +421,61 @@ function OnboardingProductsContent() {
                                       description: e.target.value,
                                     })
                                   }
-                                  placeholder="Describe tu producto..."
-                                  rows={2}
+                                  className="bg-card border-border font-mono text-sm rounded-none min-h-[60px]"
                                 />
                               </div>
                               <div className="flex gap-2">
                                 <Button
                                   size="sm"
                                   onClick={() => saveEdit(meal._id)}
+                                  className="bg-primary text-primary-foreground h-8 font-mono text-[10px] uppercase rounded-none"
                                 >
-                                  <Save className="w-4 h-4 mr-1" />
-                                  Guardar
+                                  Actualizar
                                 </Button>
                                 <Button
                                   size="sm"
-                                  variant="outline"
+                                  variant="ghost"
                                   onClick={cancelEdit}
+                                  className="h-8 font-mono text-[10px] uppercase text-muted-foreground hover:text-foreground rounded-none"
                                 >
                                   Cancelar
                                 </Button>
                               </div>
                             </div>
                           ) : (
-                            <div className="flex justify-between items-start">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-3">
-                                  <h4 className="font-medium">{meal.name}</h4>
+                            <div className="flex justify-between items-start gap-4">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <h4 className="font-mono text-sm uppercase truncate">{meal.name}</h4>
                                   {meal.isTemplate && (
-                                    <Badge
-                                      variant="outline"
-                                      className="text-xs"
-                                    >
-                                      Template
-                                    </Badge>
+                                    <span className="text-[8px] font-mono border border-primary/20 text-primary/60 px-1 uppercase">Template</span>
                                   )}
                                 </div>
                                 {meal.description && (
-                                  <p className="text-sm text-gray-600 mt-1">
+                                  <p className="text-[11px] text-muted-foreground font-mono mt-0.5 line-clamp-2">
                                     {meal.description}
                                   </p>
                                 )}
-                                <p className="text-sm font-semibold text-emerald-600 mt-2">
+                                <div className="text-xs font-mono text-primary mt-2">
                                   S/. {meal.basePrice.toFixed(2)}
-                                </p>
+                                </div>
                               </div>
-                              <div className="flex items-center gap-1">
+                              <div className="flex items-center gap-1 shrink-0">
                                 <Button
                                   size="sm"
                                   variant="ghost"
                                   onClick={() => startEdit(meal)}
+                                  className="h-7 w-7 p-0 text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-none"
                                 >
-                                  <Edit className="w-4 h-4" />
+                                  <Edit className="w-3.5 h-3.5" />
                                 </Button>
                                 <Button
                                   size="sm"
                                   variant="ghost"
                                   onClick={() => deleteMeal(meal._id)}
-                                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                  className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/5 rounded-none"
                                 >
-                                  <Trash2 className="w-4 h-4" />
+                                  <Trash2 className="w-3.5 h-3.5" />
                                 </Button>
                               </div>
                             </div>
@@ -536,29 +490,29 @@ function OnboardingProductsContent() {
           </div>
 
           {/* Add Product Form */}
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Plus className="w-5 h-5" />
-                  Nuevo Producto
+          <div className="space-y-4">
+            <Card className="bg-card border-border rounded-none shadow-none">
+              <CardHeader className="border-b border-border py-3">
+                <CardTitle className="flex items-center gap-2 text-xs font-roboto uppercase tracking-widest">
+                  <Plus className="w-3.5 h-3.5" />
+                  Nueva Entrada
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Categoría</Label>
+              <CardContent className="space-y-4 pt-4">
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Categoría</Label>
                   <Select
                     value={newMeal.categoryId}
                     onValueChange={(value) =>
                       setNewMeal({ ...newMeal, categoryId: value })
                     }
                   >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecciona categoría" />
+                    <SelectTrigger className="bg-background border-border rounded-none h-9 font-mono text-xs">
+                      <SelectValue placeholder="Categoría" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-card border-border rounded-none">
                       {categories.map((category) => (
-                        <SelectItem key={category._id} value={category._id}>
+                        <SelectItem key={category._id} value={category._id} className="font-mono text-xs uppercase">
                           {category.name}
                         </SelectItem>
                       ))}
@@ -566,37 +520,36 @@ function OnboardingProductsContent() {
                   </Select>
                 </div>
 
-                <div className="space-y-2">
-                  <Label>Nombre del producto *</Label>
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Nombre</Label>
                   <Input
                     value={newMeal.name}
                     onChange={(e) =>
                       setNewMeal({ ...newMeal, name: e.target.value })
                     }
-                    placeholder="Ej: Pizza Margherita"
-                    className="bg-card border-2 border-muted-foreground/20 hover:border-muted-foreground/40 focus:border-primary/60 shadow-sm"
+                    placeholder="Ej: PIZZA MARGHERITA"
+                    className="bg-background border-border focus:border-primary/60 rounded-none h-9 font-mono text-sm uppercase"
                     disabled={isCreating}
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label>Descripción</Label>
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Descripción</Label>
                   <Textarea
                     value={newMeal.description}
                     onChange={(e) =>
                       setNewMeal({ ...newMeal, description: e.target.value })
                     }
-                    placeholder="Describe tu producto..."
-                    rows={3}
-                    className="bg-card border-2 border-muted-foreground/20 hover:border-muted-foreground/40 focus:border-primary/60 shadow-sm resize-none"
+                    placeholder="Detalles del producto..."
+                    className="bg-background border-border focus:border-primary/60 rounded-none font-mono text-xs resize-none min-h-[80px]"
                     disabled={isCreating}
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label>Precio (S/.) *</Label>
+                <div className="space-y-1.5">
+                  <Label className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Precio (S/.)</Label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <DollarSign className="absolute left-3 top-3 h-3.5 w-3.5 text-primary" />
                     <Input
                       type="number"
                       step="0.01"
@@ -606,7 +559,7 @@ function OnboardingProductsContent() {
                         setNewMeal({ ...newMeal, basePrice: e.target.value })
                       }
                       placeholder="0.00"
-                      className="pl-9 bg-card border-2 border-muted-foreground/20 hover:border-muted-foreground/40 focus:border-primary/60 shadow-sm"
+                      className="pl-9 bg-background border-border focus:border-primary/60 rounded-none h-9 font-mono text-sm"
                       disabled={isCreating}
                     />
                   </div>
@@ -614,20 +567,20 @@ function OnboardingProductsContent() {
 
                 <Button
                   onClick={addMeal}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700"
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90 rounded-none font-mono text-xs uppercase tracking-widest"
                   disabled={
                     isCreating || !newMeal.name.trim() || !newMeal.categoryId
                   }
                 >
                   {isCreating ? (
                     <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Agregando...
+                      <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" />
+                      INSERTANDO...
                     </>
                   ) : (
                     <>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Agregar Producto
+                      <Plus className="w-3.5 h-3.5 mr-2" />
+                      AGREGAR PRODUCTO
                     </>
                   )}
                 </Button>
@@ -635,23 +588,20 @@ function OnboardingProductsContent() {
             </Card>
 
             {/* Finish Section */}
-            <Card className="border-green-200 bg-green-50/50">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-green-800">
-                  <CheckCircle2 className="w-5 h-5" />
-                  ¡Casi listo!
+            <Card className="bg-primary/5 border-primary/20 rounded-none shadow-none">
+              <CardHeader className="py-3">
+                <CardTitle className="flex items-center gap-2 text-[10px] font-roboto uppercase tracking-widest text-primary">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  Terminal Lista
                 </CardTitle>
-                <CardDescription className="text-green-700">
-                  Ya puedes empezar a usar tu menú digital
-                </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-2">
                 <Button
                   onClick={finishOnboarding}
-                  className="w-full bg-green-600 hover:bg-green-700"
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90 rounded-none font-mono text-xs uppercase tracking-widest py-6"
                 >
                   <CheckCircle2 className="w-4 h-4 mr-2" />
-                  Finalizar Setup
+                  FINALIZAR SETUP
                 </Button>
               </CardContent>
             </Card>
@@ -659,32 +609,29 @@ function OnboardingProductsContent() {
         </div>
 
         {/* Navigation */}
-        <div className="flex justify-between items-center mt-12">
-          <Button onClick={goBack} variant="outline" size="lg">
-            <ArrowLeft className="w-5 h-5 mr-2" />
-            Categorías
+        <div className="flex justify-between items-center mt-8 border-t border-border pt-6">
+          <Button onClick={goBack} variant="outline" size="sm" className="rounded-none font-mono text-xs uppercase border-border hover:bg-primary/5 hover:text-primary hover:border-primary/50">
+            <ArrowLeft className="w-3.5 h-3.5 mr-2" />
+            CATEGORÍAS
           </Button>
         </div>
       </div>
 
       {/* Dialog de confirmación para eliminar */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="bg-card border-border rounded-none sm:max-w-md p-6">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-destructive">
-              <AlertTriangle className="w-5 h-5" />
-              Confirmar eliminación
+            <DialogTitle className="flex items-center gap-2 text-destructive font-roboto uppercase tracking-widest text-sm">
+              <AlertTriangle className="w-4 h-4" />
+              Confirmar Eliminación
             </DialogTitle>
-            <DialogDescription className="pt-2">
-              ¿Estás seguro de que deseas eliminar{" "}
-              <span className="font-semibold">{mealToDelete?.name}</span>?
+            <DialogDescription className="pt-4 font-mono text-xs text-muted-foreground uppercase">
+              ¿Eliminar <span className="text-foreground underline decoration-primary/40">{mealToDelete?.name}</span>?
               <br />
-              <span className="text-sm text-muted-foreground mt-2 block">
-                Esta acción no se puede deshacer.
-              </span>
+              <span className="mt-2 block">Acción irreversible en el registro maestro.</span>
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="flex gap-2 sm:gap-2">
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-4">
             <Button
               variant="outline"
               onClick={() => {
@@ -692,7 +639,7 @@ function OnboardingProductsContent() {
                 setMealToDelete(null);
               }}
               disabled={isDeleting}
-              className="flex-1"
+              className="flex-1 rounded-none font-mono text-[10px] uppercase border-border"
             >
               Cancelar
             </Button>
@@ -700,16 +647,16 @@ function OnboardingProductsContent() {
               variant="destructive"
               onClick={confirmDeleteMeal}
               disabled={isDeleting}
-              className="flex-1"
+              className="flex-1 rounded-none font-mono text-[10px] uppercase"
             >
               {isDeleting ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="w-3 h-3 mr-2 animate-spin" />
                   Eliminando...
                 </>
               ) : (
                 <>
-                  <Trash2 className="w-4 h-4 mr-2" />
+                  <Trash2 className="w-3 h-3 mr-2" />
                   Eliminar
                 </>
               )}

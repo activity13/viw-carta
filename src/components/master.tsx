@@ -37,6 +37,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { useFab } from "@/providers/ActionProvider";
 import { usePermission } from "@/hooks/use-permission";
+import { usePermissions } from "@/hooks/usePermissions";
 import { useOrderManager } from "@/hooks/use-order-manager";
 import { ActiveOrderModal } from "@/components/orders/ActiveOrderModal";
 import { OrdersListModal } from "@/components/orders/OrdersListModal";
@@ -391,18 +392,21 @@ export default function Master() {
 
   // Register FAB Actions
   const { can } = usePermission();
+  const { hasRole } = usePermissions();
 
   useEffect(() => {
-    const actions = [
-      {
+    const actions: any[] = [];
+
+    if (hasRole(["superadmin", "admin"])) {
+      actions.push({
         label: "Nuevo Plato",
         icon: Plus,
         onClick: () => {
           setProductId(null);
           setIsDialogEditing(true);
         },
-      },
-    ];
+      });
+    }
 
     if (can("create_orders")) {
       actions.push({

@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import LogoutButton from "./ui/LogoutButton";
 import { useSession } from "next-auth/react";
+import { usePermissions } from "@/hooks/usePermissions";
 import axios from "axios";
 
 import {
@@ -39,9 +40,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function NavBar() {
   const { data: session } = useSession();
-  const isSuperAdmin = session?.user?.role === "superadmin";
-  const isAdmin =
-    session?.user?.role === "admin" || session?.user?.role === "superadmin";
+  const { role, can } = usePermissions();
+  const isSuperAdmin = role === "superadmin";
+  const isAdmin = role === "admin";
+  const canTranslate = can("manage_translations");
+  const canEditBusiness = can("edit_menu");
+
   const [businessLogo, setBusinessLogo] = React.useState(null);
 
   React.useEffect(() => {
@@ -70,13 +74,15 @@ export default function NavBar() {
       color: "text-emerald-600",
       description: "Panel principal",
     },
-    {
-      href: "/backoffice/business-profile",
-      label: "Negocio",
-      icon: HousePlug,
-      color: "text-emerald-600",
-      description: "Configuración del establecimiento",
-    },
+    ...(isAdmin
+      ? [{
+          href: "/backoffice/business-profile",
+          label: "Negocio",
+          icon: HousePlug,
+          color: "text-emerald-600",
+          description: "Configuración del establecimiento",
+        }]
+      : []),
     ...(isAdmin
       ? [
           {
@@ -88,20 +94,26 @@ export default function NavBar() {
           },
         ]
       : []),
-    {
-      href: "/backoffice/translate",
-      label: "Traductor",
-      icon: Languages,
-      color: "text-orange-500",
-      description: "Idiomas y traducciones",
-    },
-    {
-      href: "/backoffice/messages",
-      label: "Textos",
-      icon: MessageSquareQuote,
-      color: "text-blue-500",
-      description: "Personalización de mensajes",
-    },
+    ...(isAdmin
+      ? [
+          {
+            href: "/backoffice/translate",
+            label: "Traductor",
+            icon: Languages,
+            color: "text-orange-500",
+            description: "Idiomas y traducciones",
+          },
+        ]
+      : []),
+        ...(isAdmin
+      ? [{
+          href: "/backoffice/messages",
+          label: "Textos",
+          icon: MessageSquareQuote,
+          color: "text-blue-500",
+          description: "Personalización de mensajes",
+        }]
+      : []),
   ];
 
   const navItems = baseNavItems;

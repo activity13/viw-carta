@@ -69,7 +69,7 @@ export default function CenaPage() {
         </div>
         <header className="flex flex-col sm:flex-row justify-between items-start sm:items-baseline mb-4 pb-2">
           <div className="relative">
-            <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-20 md:w-56 h-full bg-[url('/wave-lines.svg')] -z-10 opacity-30"></div>
+            <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-20 md:w-56 h-full bg-[url('/hua-puntasal/images/wave-lines.svg')] -z-10 opacity-30"></div>
             <h1 className="md:text-8xl text-6xl text-hua-blue hua-heading-title italic font-bold relative translate-x-2 translate-y-4 mb-4 md:mb-0">
               {t(
                 getMsg("cena_title")?.content,

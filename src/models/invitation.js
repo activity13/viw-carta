@@ -27,6 +27,23 @@ const InvitationSchema = new Schema(
       trim: true,
       maxlength: [100, "El nombre no puede exceder 100 caracteres"],
     },
+    restaurantId: {
+      type: Schema.Types.ObjectId,
+      ref: "Restaurant",
+      required: false, // Opcional para invitaciones de nuevos restaurantes
+    },
+    type: {
+      type: String,
+      enum: ["restaurant_registration", "staff_invitation"],
+      default: "restaurant_registration",
+      required: true,
+    },
+    role: {
+      type: String,
+      enum: ["admin", "staff", "waiter"],
+      default: "admin",
+      required: true,
+    },
     status: {
       type: String,
       enum: ["pending", "used", "expired"],

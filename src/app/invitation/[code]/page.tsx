@@ -14,16 +14,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import {
-  Mail,
   Building2,
-  User,
-  Clock,
   CheckCircle,
   XCircle,
   Loader2,
+  Shield,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -33,6 +29,8 @@ interface InvitationData {
   restaurantName: string;
   expiresAt: string;
   notes?: string;
+  type: "restaurant_registration" | "staff_invitation";
+  role: string;
 }
 
 export default function InvitationPage() {
@@ -123,14 +121,14 @@ export default function InvitationPage() {
 
       const registrationData = {
         code,
-        restaurant: {
+        restaurant: invitation?.type === "restaurant_registration" ? {
           name: formData.restaurantName,
           slug: formData.restaurantSlug,
           direction: formData.restaurantDirection,
           location: formData.restaurantLocation,
           phone: formData.restaurantPhone,
           description: formData.restaurantDescription,
-        },
+        } : null,
         user: {
           fullName: formData.fullName,
           username: formData.username,
@@ -148,38 +146,19 @@ export default function InvitationPage() {
       toast.success("¡Bienvenido a VIW Carta!");
 
       // Auto-login con NextAuth
-      // NextAuth espera 'username' pero acepta email también en el authorize
       const signInResult = await signIn("credentials", {
         redirect: false,
-        username: formData.email, // NextAuth usa 'username' pero el authorize acepta email
+        username: formData.email,
         password: formData.password,
       });
 
-      console.log("SignIn result:", signInResult);
-
       if (signInResult?.error) {
-        console.error("Error en signIn:", signInResult.error);
-        setError(
-          "Registro exitoso pero error al iniciar sesión. Intenta hacer login manualmente."
-        );
+        setError("Registro exitoso pero error al iniciar sesión. Intenta hacer login manualmente.");
         setTimeout(() => router.push("/backoffice/login"), 2000);
         return;
       }
 
-      // Verificar que el signIn fue exitoso
-      if (!signInResult?.ok) {
-        console.error("SignIn no fue exitoso:", signInResult);
-        setError(
-          "Error al iniciar sesión automáticamente. Redirigiendo al login..."
-        );
-        setTimeout(() => router.push("/backoffice/login"), 2000);
-        return;
-      }
-
-      // Redirigir al onboarding con navegación completa para asegurar que las cookies de sesión se carguen
       const redirectPath = response.data.redirectTo || "/backoffice";
-
-      // Usar window.location.href para forzar una recarga completa con la sesión establecida
       setTimeout(() => {
         window.location.href = redirectPath;
       }, 800);
@@ -194,40 +173,25 @@ export default function InvitationPage() {
     }
   };
 
-  // Loading state
   if (isValidating) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100">
-        <Card className="w-full max-w-md">
-          <CardContent className="p-8 text-center">
-            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-emerald-600" />
-            <p className="text-muted-foreground">Validando invitación...</p>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen flex items-center justify-center bg-[#050505]">
+        <Loader2 className="w-10 h-10 animate-spin text-emerald-500" />
       </div>
     );
   }
 
-  // Error state
   if (error && !invitation) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-rose-100">
-        <Card className="w-full max-w-md border-destructive/20">
+      <div className="min-h-screen flex items-center justify-center bg-[#050505] p-4">
+        <Card className="w-full max-w-md bg-zinc-900 border-zinc-800">
           <CardHeader className="text-center">
-            <div className="w-12 h-12 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <XCircle className="w-6 h-6 text-destructive" />
-            </div>
-            <CardTitle className="text-destructive">
-              Invitación no válida
-            </CardTitle>
-            <CardDescription>{error}</CardDescription>
+            <XCircle className="w-12 h-12 text-rose-500 mx-auto mb-4" />
+            <CardTitle className="text-white">Invitación no válida</CardTitle>
+            <CardDescription className="text-zinc-400">{error}</CardDescription>
           </CardHeader>
           <CardContent className="text-center">
-            <Button
-              variant="outline"
-              onClick={() => router.push("/")}
-              className="mt-4 hover:cursor-pointer hover:bg-green-500"
-            >
+            <Button onClick={() => router.push("/")} className="bg-emerald-600 hover:bg-emerald-700 text-white w-full">
               Volver al inicio
             </Button>
           </CardContent>
@@ -236,282 +200,241 @@ export default function InvitationPage() {
     );
   }
 
-  // Success state
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100">
-        <Card className="w-full max-w-md border-emerald-200">
+      <div className="min-h-screen flex items-center justify-center bg-[#050505]">
+        <Card className="w-full max-w-md bg-zinc-900 border-zinc-800">
           <CardHeader className="text-center">
-            <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-6 h-6 text-emerald-600" />
-            </div>
-            <CardTitle className="text-emerald-700">
-              ¡Registro Exitoso!
-            </CardTitle>
-            <CardDescription>{success}</CardDescription>
+            <CheckCircle className="w-12 h-12 text-emerald-500 mx-auto mb-4" />
+            <CardTitle className="text-white">¡Registro Exitoso!</CardTitle>
+            <CardDescription className="text-zinc-400">{success}</CardDescription>
           </CardHeader>
         </Card>
       </div>
     );
   }
 
+  const isStaffInvite = invitation?.type === "staff_invitation";
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 py-12 px-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Building2 className="w-8 h-8 text-white" />
+    <div className="min-h-screen bg-[#050505] py-12 px-4 flex flex-col items-center">
+      <div className="max-w-4xl w-full">
+        <div className="text-center mb-10">
+          <div className="w-20 h-20 bg-emerald-600/10 border border-emerald-500/20 rounded-3xl flex items-center justify-center mx-auto mb-6">
+            <img src="/logo-c.svg" alt="Logo" className="h-10 w-10" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            ¡Bienvenido a VIW Carta!
+          <h1 className="text-4xl font-bold text-white tracking-tight uppercase font-roboto">
+            {isStaffInvite ? "Únete al Equipo" : "Bienvenido a VIW Carta"}
           </h1>
-          <p className="text-gray-600 mt-2">
-            Completa tu registro para empezar
+          <p className="text-zinc-400 mt-2 max-w-md mx-auto">
+            {isStaffInvite 
+              ? `Has sido invitado a unirte a ${invitation?.restaurantName}. Completa tu perfil para empezar.`
+              : "Estás a un paso de digitalizar tu restaurante. Completa tu registro."}
           </p>
         </div>
 
-        {/* Invitation Info */}
-        <Card className="mb-8 border-emerald-200 bg-emerald-50/50">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
-                <Mail className="w-5 h-5 text-emerald-600" />
-              </div>
-              <div className="flex-1">
-                <p className="font-medium text-emerald-800">
-                  Invitación para: {invitation?.restaurantName}
-                </p>
-                <p className="text-sm text-emerald-600">{invitation?.email}</p>
-                {invitation?.notes && (
-                  <p className="text-sm text-emerald-700 mt-2 bg-emerald-100/50 p-2 rounded border border-emerald-200">
-                    <span className="font-medium">Mensaje:</span>{" "}
-                    {invitation.notes}
-                  </p>
-                )}
-              </div>
-              <div className="text-right">
-                <Badge
-                  variant="outline"
-                  className="border-emerald-200 text-emerald-700"
-                >
-                  <Clock className="w-3 h-3 mr-1" />
-                  Expira:{" "}
-                  {invitation
-                    ? new Date(invitation.expiresAt).toLocaleDateString()
-                    : ""}
-                </Badge>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Registration Form */}
-        <form onSubmit={handleSubmit} className="space-y-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Restaurant Info */}
-            <Card>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          <div className="space-y-6">
+            <Card className="bg-zinc-900 border-zinc-800">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Building2 className="w-5 h-5" />
-                  Información del Restaurante
+                <CardTitle className="text-white flex items-center gap-2 text-lg">
+                  <Shield className="w-5 h-5 text-emerald-500" />
+                  Información de la Cuenta
                 </CardTitle>
+                <CardDescription className="text-zinc-400">
+                  {isStaffInvite 
+                    ? `Te unirás como ${invitation?.role?.toUpperCase()}` 
+                    : "Configura tus credenciales de acceso"}
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="restaurantName">Nombre del Restaurante</Label>
+                  <Label htmlFor="email" className="text-zinc-300">Correo Electrónico</Label>
                   <Input
-                    id="restaurantName"
-                    name="restaurantName"
-                    value={formData.restaurantName}
-                    onChange={handleChange}
-                    required
-                    placeholder="Ej: Restaurante El Buen Sabor"
-                    className="bg-card border-2 border-muted-foreground/20 hover:border-muted-foreground/40 focus:border-primary/60 shadow-sm"
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    disabled
+                    className="bg-zinc-950 border-zinc-800 text-zinc-500 cursor-not-allowed"
                   />
                 </div>
-
                 <div className="space-y-2">
-                  <Label htmlFor="restaurantSlug">Subdominio único (URL)</Label>
-                  <Input
-                    id="restaurantSlug"
-                    name="restaurantSlug"
-                    value={formData.restaurantSlug}
-                    onChange={handleChange}
-                    required
-                    placeholder="ej: restaurante-mar-azul"
-                    pattern="[a-z0-9-]+"
-                    title="Solo letras minúsculas, números y guiones"
-                    className="bg-card border-2 border-muted-foreground/20 hover:border-muted-foreground/40 focus:border-primary/60 shadow-sm font-mono"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Tu menú estará disponible en: {formData.restaurantSlug}
-                    .viw-carta.com
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="restaurantDirection">Dirección</Label>
-                  <Input
-                    id="restaurantDirection"
-                    name="restaurantDirection"
-                    value={formData.restaurantDirection}
-                    onChange={handleChange}
-                    required
-                    placeholder="Av. Los Olivos 456, Centro"
-                    className="bg-card border-2 border-muted-foreground/20 hover:border-muted-foreground/40 focus:border-primary/60 shadow-sm"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="restaurantPhone">Teléfono</Label>
-                  <Input
-                    id="restaurantPhone"
-                    name="restaurantPhone"
-                    value={formData.restaurantPhone}
-                    onChange={handleChange}
-                    required
-                    placeholder="+51 999 888 777"
-                    className="bg-card border-2 border-muted-foreground/20 hover:border-muted-foreground/40 focus:border-primary/60 shadow-sm"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="restaurantLocation">
-                    Google Maps (opcional)
-                  </Label>
-                  <Input
-                    id="restaurantLocation"
-                    name="restaurantLocation"
-                    value={formData.restaurantLocation}
-                    onChange={handleChange}
-                    placeholder="https://maps.google.com/..."
-                    className="bg-card border-2 border-muted-foreground/20 hover:border-muted-foreground/40 focus:border-primary/60 shadow-sm font-mono text-sm"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="restaurantDescription">
-                    Descripción (opcional)
-                  </Label>
-                  <Textarea
-                    id="restaurantDescription"
-                    name="restaurantDescription"
-                    value={formData.restaurantDescription}
-                    onChange={handleChange}
-                    rows={3}
-                    placeholder="Breve descripción de tu restaurante..."
-                    className="bg-card border-2 border-muted-foreground/20 hover:border-muted-foreground/40 focus:border-primary/60 shadow-sm resize-none"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* User Info */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="w-5 h-5" />
-                  Usuario Administrador
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="fullName">Nombre completo</Label>
+                  <Label htmlFor="fullName" className="text-zinc-300">Nombre Completo</Label>
                   <Input
                     id="fullName"
                     name="fullName"
                     value={formData.fullName}
                     onChange={handleChange}
                     required
-                    placeholder="María Pérez"
-                    className="bg-card border-2 border-muted-foreground/20 hover:border-muted-foreground/40 focus:border-primary/60 shadow-sm"
+                    placeholder="Ej. Juan Pérez"
+                    className="bg-zinc-950 border-zinc-800 text-white focus:border-emerald-500 transition-colors"
                   />
                 </div>
-
                 <div className="space-y-2">
-                  <Label htmlFor="username">Nombre de usuario</Label>
+                  <Label htmlFor="username" className="text-zinc-300">Nombre de Usuario</Label>
                   <Input
                     id="username"
                     name="username"
                     value={formData.username}
                     onChange={handleChange}
                     required
-                    placeholder="mariaperez"
-                    className="bg-card border-2 border-muted-foreground/20 hover:border-muted-foreground/40 focus:border-primary/60 shadow-sm font-mono"
+                    placeholder="juanperez"
+                    className="bg-zinc-950 border-zinc-800 text-white focus:border-emerald-500 transition-colors font-mono"
                   />
                 </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="password" className="text-zinc-300">Contraseña</Label>
+                    <Input
+                      id="password"
+                      name="password"
+                      type="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      required
+                      placeholder="******"
+                      className="bg-zinc-950 border-zinc-800 text-white focus:border-emerald-500 transition-colors"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword" className="text-zinc-300">Confirmar</Label>
+                    <Input
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      type="password"
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                      required
+                      placeholder="******"
+                      className="bg-zinc-950 border-zinc-800 text-white focus:border-emerald-500 transition-colors"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
+            <Button
+              onClick={handleSubmit}
+              disabled={isRegistering}
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-6 rounded-xl transition-all shadow-lg shadow-emerald-900/20"
+            >
+              {isRegistering ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                "FINALIZAR REGISTRO"
+              )}
+            </Button>
+          </div>
+
+          {!isStaffInvite ? (
+            <Card className="bg-zinc-900 border-zinc-800">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2 text-lg">
+                  <Building2 className="w-5 h-5 text-emerald-500" />
+                  Tu Restaurante
+                </CardTitle>
+                <CardDescription className="text-zinc-400">Datos principales de tu establecimiento</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Correo electrónico</Label>
+                  <Label htmlFor="restaurantName" className="text-zinc-300">Nombre</Label>
                   <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
+                    id="restaurantName"
+                    name="restaurantName"
+                    value={formData.restaurantName}
                     onChange={handleChange}
                     required
-                    disabled // Email viene de la invitación
-                    className="bg-muted/30 border-2 border-muted-foreground/10 text-muted-foreground cursor-not-allowed"
+                    placeholder="Restaurante"
+                    className="bg-zinc-950 border-zinc-800 text-white"
                   />
                 </div>
-
                 <div className="space-y-2">
-                  <Label htmlFor="password">Contraseña</Label>
+                  <Label htmlFor="restaurantSlug" className="text-zinc-300">Slug (URL)</Label>
                   <Input
-                    id="password"
-                    name="password"
-                    type="password"
-                    value={formData.password}
+                    id="restaurantSlug"
+                    name="restaurantSlug"
+                    value={formData.restaurantSlug}
                     onChange={handleChange}
                     required
-                    placeholder="Mínimo 6 caracteres"
-                    className="bg-card border-2 border-muted-foreground/20 hover:border-muted-foreground/40 focus:border-primary/60 shadow-sm"
+                    placeholder="mi-restaurante"
+                    className="bg-zinc-950 border-zinc-800 text-white font-mono"
                   />
                 </div>
-
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
+                  <Label htmlFor="restaurantDirection" className="text-zinc-300">Dirección</Label>
                   <Input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type="password"
-                    value={formData.confirmPassword}
+                    id="restaurantDirection"
+                    name="restaurantDirection"
+                    value={formData.restaurantDirection}
                     onChange={handleChange}
                     required
-                    placeholder="Repite tu contraseña"
-                    className="bg-card border-2 border-muted-foreground/20 hover:border-muted-foreground/40 focus:border-primary/60 shadow-sm"
+                    placeholder="Av. Principal 123"
+                    className="bg-zinc-950 border-zinc-800 text-white"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="restaurantPhone" className="text-zinc-300">Teléfono</Label>
+                  <Input
+                    id="restaurantPhone"
+                    name="restaurantPhone"
+                    value={formData.restaurantPhone}
+                    onChange={handleChange}
+                    required
+                    placeholder="+51..."
+                    className="bg-zinc-950 border-zinc-800 text-white"
                   />
                 </div>
               </CardContent>
             </Card>
-          </div>
-
-          {/* Error Display */}
-          {error && (
-            <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-center">
-              {error}
+          ) : (
+            <div className="flex flex-col gap-6">
+              <Card className="bg-zinc-900 border-zinc-800 border-l-4 border-l-emerald-500">
+                <CardHeader>
+                  <CardTitle className="text-white text-lg">Negocio Asociado</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-lg bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                      <Building2 className="text-emerald-500" />
+                    </div>
+                    <div>
+                      <h3 className="text-white font-bold text-xl">{invitation?.restaurantName}</h3>
+                      <p className="text-zinc-400 text-sm">Registro como colaborador {invitation?.role}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <div className="p-6 bg-emerald-500/5 rounded-2xl border border-emerald-500/10 space-y-4">
+                <h4 className="text-emerald-500 font-bold flex items-center gap-2">
+                  <CheckCircle size={18} />
+                  ¿Qué puedes hacer ahora?
+                </h4>
+                <ul className="space-y-3 text-zinc-400 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                    Acceder al panel de gestión de pedidos en tiempo real.
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                    Visualizar y gestionar el stock del menú digital.
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                    Personalizar tu perfil de colaborador.
+                  </li>
+                </ul>
+              </div>
             </div>
           )}
+        </div>
 
-          {/* Submit Button */}
-          <div className="flex justify-center">
-            <Button
-              type="submit"
-              disabled={isRegistering}
-              className="min-w-48 bg-emerald-600 hover:bg-emerald-700"
-            >
-              {isRegistering ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Registrando...
-                </>
-              ) : (
-                "Completar Registro"
-              )}
-            </Button>
+        {error && (
+          <div className="mt-8 p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-500 text-center text-sm font-medium">
+            {error}
           </div>
-        </form>
+        )}
       </div>
     </div>
   );

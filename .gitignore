@@ -33,6 +33,9 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# Vscode files
+.vscode/
+
 # vercel
 .vercel
 
@@ -42,6 +45,7 @@ next-env.d.ts
 
 # Personalizados por Isaac
 bitacora.txt
+
 # Documementos para ordenar la información
 /docs/
 /scripts/

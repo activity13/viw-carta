@@ -60,7 +60,7 @@ type UserRow = {
   fullName?: string;
   username?: string;
   email?: string;
-  role: "superadmin" | "admin" | "staff" | "viewer";
+  role: "superadmin" | "admin" | "staff" | "waiter";
   isActive: boolean;
 };
 
@@ -500,7 +500,7 @@ export default function SuperAdminCustomerProfilePage() {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="viewer">viewer</SelectItem>
+                            <SelectItem value="waiter">waiter</SelectItem>
                             <SelectItem value="staff">staff</SelectItem>
                             <SelectItem value="admin">admin</SelectItem>
                             <SelectItem value="superadmin">

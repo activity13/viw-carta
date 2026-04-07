@@ -2,6 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+// Componentes y hooks encargados del sistema`
+import { usePermissions } from "@/hooks/usePermissions";
+import { AccessDeniedCard } from "@/components/ui/AccessDeniedCard";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -110,7 +114,17 @@ export default function MessagesClient() {
   };
 
   const [formData, setFormData] = useState<ISystemMessage>(initialFormState);
-
+const { can, role } = usePermissions();
+		const isAdmin = can("manage_team");
+		if (!isAdmin) {
+		
+ return (
+		
+ <AccessDeniedCard
+ message="No tienes los permisos necesarios para gestionar los mensajes. Esta sección es exclusiva para administradores."
+ />
+ );
+		  }
   useEffect(() => {
     if (currentRestaurantId) {
       fetchMessages();

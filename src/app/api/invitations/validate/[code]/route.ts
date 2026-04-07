@@ -2,55 +2,43 @@ import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import Invitation from "@/models/invitation";
 
-// GET: Validar código de invitación
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ code: string }> }
+  { params }: { params: { code: string } }
 ) {
   try {
-    const { code } = await params;
-
     await connectToDatabase();
+    const { code } = params;
 
     const invitation = await Invitation.findOne({
       code: code.toUpperCase(),
+      status: "pending",
     });
 
     if (!invitation) {
       return NextResponse.json(
-        { error: "Código de invitación no encontrado" },
+        { error: "Código de invitación no válido o ya utilizado" },
         { status: 404 }
       );
     }
 
-    // Verificar si está expirado
     if (invitation.isExpired()) {
       await Invitation.findByIdAndUpdate(invitation._id, { status: "expired" });
       return NextResponse.json(
         { error: "El código de invitación ha expirado" },
-        { status: 410 }
+        { status: 400 }
       );
     }
 
-    // Verificar si ya fue usado
-    if (invitation.status === "used") {
-      return NextResponse.json(
-        { error: "El código de invitación ya ha sido utilizado" },
-        { status: 410 }
-      );
-    }
-
-    // Devolver información de la invitación sin datos sensibles
-    return NextResponse.json(
-      {
-        valid: true,
-        email: invitation.email,
-        restaurantName: invitation.restaurantName,
-        expiresAt: invitation.expiresAt,
-        notes: invitation.notes,
-      },
-      { status: 200 }
-    );
+    return NextResponse.json({
+      valid: true,
+      email: invitation.email,
+      restaurantName: invitation.restaurantName,
+      expiresAt: invitation.expiresAt,
+      notes: invitation.notes,
+      type: invitation.type || "restaurant_registration",
+      role: invitation.role || "admin",
+    });
   } catch (error) {
     console.error("Error al validar invitación:", error);
     return NextResponse.json(

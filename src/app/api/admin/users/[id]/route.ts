@@ -4,14 +4,14 @@ import { authOptions } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/models/user";
 
-type UserRole = "superadmin" | "admin" | "staff" | "viewer";
+type UserRole = "superadmin" | "admin" | "staff" | "waiter";
 
 function isRole(value: unknown): value is UserRole {
   return (
     value === "superadmin" ||
     value === "admin" ||
     value === "staff" ||
-    value === "viewer"
+    value === "waiter"
   );
 }
 

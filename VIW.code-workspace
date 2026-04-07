@@ -1,17 +1,20 @@
 {
   "folders": [
     {
-      "path": ".",
+      "path": "."
     },
     {
-      "path": "../viw-mcp",
+      "path": "../viw-mcp"
     },
     {
-      "path": "../.vscode",
+      "path": "../.vscode"
     },
     {
-      "path": "../veryfazty-app",
+      "path": "../veryfazty-app"
     },
+    {
+      "path": "G:/Mi unidad/Cerebro_Digital/viw-powered"
+    }
   ],
   "settings": {
     "better-comments.highlightPlainText": true,

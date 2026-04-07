@@ -46,11 +46,11 @@ interface Category {
 // Loading component for Suspense fallback
 function OnboardingCategoriesLoading() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 to-indigo-100">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <Card className="w-full max-w-md bg-card border-border">
         <CardContent className="p-8 text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
-          <p className="text-muted-foreground">Cargando categorías...</p>
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
+          <p className="text-muted-foreground font-mono uppercase tracking-widest">Cargando categorías...</p>
         </CardContent>
       </Card>
     </div>
@@ -294,11 +294,11 @@ function OnboardingCategoriesContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 to-indigo-100">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Card className="w-full max-w-md bg-card border-border">
           <CardContent className="p-8 text-center">
-            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
-            <p className="text-muted-foreground">Cargando categorías...</p>
+            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
+            <p className="text-muted-foreground font-mono uppercase tracking-widest">Cargando categorías...</p>
           </CardContent>
         </Card>
       </div>
@@ -307,11 +307,11 @@ function OnboardingCategoriesContent() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-red-50 to-rose-100">
-        <Card className="w-full max-w-md border-destructive/20">
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Card className="w-full max-w-md border-destructive/20 bg-card">
           <CardContent className="p-8 text-center">
-            <p className="text-destructive">{error}</p>
-            <Button variant="outline" onClick={goBack} className="mt-4">
+            <p className="text-destructive font-mono uppercase tracking-widest">{error}</p>
+            <Button variant="outline" onClick={goBack} className="mt-4 border-primary text-primary hover:bg-primary/10 rounded-none font-mono">
               Volver
             </Button>
           </CardContent>
@@ -321,26 +321,25 @@ function OnboardingCategoriesContent() {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-green-900 to-indigo-700/10 py-12 px-4">
+    <div className="min-h-screen bg-background py-12 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-linear-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <FolderOpen className="w-8 h-8 text-white" />
+          <div className="w-16 h-16 bg-primary/10 border border-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <FolderOpen className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">
-            Paso 1/2: Organiza tus Categorías
+          <h1 className="text-3xl font-bold text-foreground mb-2 font-roboto tracking-widest">
+            1/2: ESTRUCTURA DE CATEGORÍAS
           </h1>
-          <p className="text-card-foreground/80">
-            Arrastra para reordenar, edita los nombres o agrega nuevas
-            categorías
+          <p className="text-muted-foreground font-mono uppercase text-xs tracking-wider">
+            Define los pilares de tu carta. Arrastra para reordenar.
           </p>
         </div>
 
         {/* Progress Bar */}
-        <div className="w-full bg-gray-200 rounded-full h-2 mb-8">
+        <div className="w-full bg-border rounded-none h-1 mb-8 overflow-hidden">
           <div
-            className="bg-blue-600 h-2 rounded-full"
+            className="bg-primary h-1 transition-all duration-500"
             style={{ width: "50%" }}
           ></div>
         </div>
@@ -348,31 +347,27 @@ function OnboardingCategoriesContent() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Categories List */}
           <div className="lg:col-span-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FolderOpen className="w-5 h-5" />
-                  Tus Categorías
+            <Card className="bg-card border-border rounded-none shadow-none">
+              <CardHeader className="border-b border-border">
+                <CardTitle className="flex items-center gap-2 text-sm font-roboto uppercase tracking-widest">
+                  <FolderOpen className="w-4 h-4" />
+                  Listado Maestro
                   {isSaving && (
-                    <span className="flex items-center gap-2 text-sm font-normal text-muted-foreground">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Guardando...
+                    <span className="flex items-center gap-2 text-[10px] font-mono text-primary animate-pulse">
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      SYNCING...
                     </span>
                   )}
                 </CardTitle>
-                <CardDescription>
-                  Arrastra y suelta para cambiar el orden (se guarda
-                  automáticamente)
-                </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-6">
                 <DragDropContext onDragEnd={handleDragEnd}>
                   <Droppable droppableId="categories">
                     {(provided) => (
                       <div
                         {...provided.droppableProps}
                         ref={provided.innerRef}
-                        className="space-y-3"
+                        className="space-y-2"
                       >
                         {categories.map((category, index) => (
                           <Draggable
@@ -384,22 +379,19 @@ function OnboardingCategoriesContent() {
                               <div
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
-                                className={`flex items-center gap-3 p-4 bg-green-950 rounded-lg border transition-shadow ${
+                                className={`flex items-center gap-3 p-3 bg-background border border-border rounded-none transition-colors ${
                                   snapshot.isDragging
-                                    ? "shadow-lg"
-                                    : "shadow-sm"
+                                    ? "border-primary/50 shadow-[0_0_15px_rgba(0,212,146,0.1)]"
+                                    : "hover:border-primary/30"
                                 }`}
                               >
-                                <div {...provided.dragHandleProps}>
-                                  <GripVertical className="w-5 h-5 text-gray-400" />
+                                <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing">
+                                  <GripVertical className="w-4 h-4 text-muted-foreground" />
                                 </div>
 
-                                <Badge
-                                  variant="outline"
-                                  className="w-8 h-8 rounded-full flex items-center justify-center"
-                                >
-                                  {index + 1}
-                                </Badge>
+                                <div className="font-mono text-[10px] text-primary/60 w-4">
+                                  {(index + 1).toString().padStart(2, "0")}
+                                </div>
 
                                 {editingId === category._id ? (
                                   <div className="flex-1 flex items-center gap-2">
@@ -413,18 +405,21 @@ function OnboardingCategoriesContent() {
                                           saveEdit(category._id);
                                         if (e.key === "Escape") cancelEdit();
                                       }}
-                                      className="flex-1"
+                                      className="flex-1 bg-card border-primary/50 text-sm font-mono h-8 rounded-none"
                                       autoFocus
                                     />
                                     <Button
                                       size="sm"
+                                      variant="ghost"
+                                      className="text-primary hover:bg-primary/10 h-8 w-8 p-0"
                                       onClick={() => saveEdit(category._id)}
                                     >
                                       <Save className="w-4 h-4" />
                                     </Button>
                                     <Button
                                       size="sm"
-                                      variant="outline"
+                                      variant="ghost"
+                                      className="text-destructive hover:bg-destructive/10 h-8 w-8 p-0"
                                       onClick={cancelEdit}
                                     >
                                       ×
@@ -432,38 +427,28 @@ function OnboardingCategoriesContent() {
                                   </div>
                                 ) : (
                                   <div className="flex-1 min-w-0">
-                                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                                    <div className="flex items-center justify-between gap-2">
                                       <div className="flex-1 min-w-0">
-                                        <span className="font-semibold text-lg block truncate">
+                                        <span className="font-mono text-sm block truncate uppercase tracking-tight">
                                           {category.name}
                                         </span>
-                                        <div className="flex gap-2 mt-1 flex-wrap">
-                                          <Badge
-                                            variant="secondary"
-                                            className="text-xs"
-                                          >
-                                            <span className="font-mono">
-                                              {category.code}
-                                            </span>
-                                          </Badge>
-                                          <Badge
-                                            variant="outline"
-                                            className="text-xs"
-                                          >
-                                            <span className="font-mono text-xs break-all">
-                                              {category.slug}
-                                            </span>
-                                          </Badge>
+                                        <div className="flex gap-2 mt-1">
+                                          <span className="text-[9px] font-mono text-muted-foreground bg-muted/30 px-1 border border-border uppercase">
+                                            {category.code}
+                                          </span>
+                                          <span className="text-[9px] font-mono text-primary/50 uppercase italic">
+                                            /{category.slug}
+                                          </span>
                                         </div>
                                       </div>
-                                      <div className="flex gap-2 shrink-0">
+                                      <div className="flex gap-1 shrink-0">
                                         <Button
                                           size="sm"
                                           variant="ghost"
                                           onClick={() => startEdit(category)}
-                                          className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                          className="text-muted-foreground hover:text-primary hover:bg-primary/5 h-7 w-7 p-0"
                                         >
-                                          <Edit className="w-4 h-4" />
+                                          <Edit className="w-3.5 h-3.5" />
                                         </Button>
                                         <Button
                                           size="sm"
@@ -471,9 +456,9 @@ function OnboardingCategoriesContent() {
                                           onClick={() =>
                                             deleteCategory(category._id)
                                           }
-                                          className="text-destructive hover:text-destructive"
+                                          className="text-muted-foreground hover:text-destructive hover:bg-destructive/5 h-7 w-7 p-0"
                                         >
-                                          <Trash2 className="w-4 h-4" />
+                                          <Trash2 className="w-3.5 h-3.5" />
                                         </Button>
                                       </div>
                                     </div>
@@ -490,8 +475,8 @@ function OnboardingCategoriesContent() {
                 </DragDropContext>
 
                 {categories.length === 0 && (
-                  <div className="text-center py-8 text-gray-500">
-                    No hay categorías aún. ¡Agrega tu primera categoría!
+                  <div className="text-center py-12 text-muted-foreground font-mono text-xs uppercase tracking-widest border border-dashed border-border">
+                    Terminal vacía. Agrega una categoría para iniciar.
                   </div>
                 )}
               </CardContent>
@@ -500,69 +485,53 @@ function OnboardingCategoriesContent() {
 
           {/* Add Category */}
           <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Plus className="w-5 h-5" />
-                  Nueva Categoría
+            <Card className="bg-card border-border rounded-none shadow-none">
+              <CardHeader className="border-b border-border">
+                <CardTitle className="flex items-center gap-2 text-xs font-roboto uppercase tracking-widest">
+                  <Plus className="w-3.5 h-3.5" />
+                  Nueva Inserción
                 </CardTitle>
-                <CardDescription>
-                  Los campos código y slug se generan automáticamente
-                </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="categoryName">Nombre de la categoría *</Label>
+              <CardContent className="space-y-4 pt-6">
+                <div className="space-y-1.5">
+                  <Label htmlFor="categoryName" className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Nombre</Label>
                   <Input
                     id="categoryName"
                     value={newCategoryName}
                     onChange={(e) => handleNameChange(e.target.value)}
-                    placeholder="Ej: Entradas"
+                    placeholder="Ej: ENTRADAS"
                     onKeyDown={(e) => e.key === "Enter" && addCategory()}
-                    className="bg-card border-2 border-muted-foreground/20 hover:border-muted-foreground/40 focus:border-primary/60 shadow-sm"
+                    className="bg-background border-border hover:border-primary/40 focus:border-primary/60 rounded-none h-9 font-mono text-sm"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="categoryCode">Código *</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="categoryCode" className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Código</Label>
                     <Input
                       id="categoryCode"
                       value={newCategoryCode}
                       onChange={(e) => setNewCategoryCode(e.target.value)}
                       placeholder="ENT01"
-                      className="bg-card border-2 border-muted-foreground/20 hover:border-muted-foreground/40 focus:border-primary/60 shadow-sm font-mono"
+                      className="bg-background border-border focus:border-primary/60 rounded-none h-9 font-mono text-xs uppercase"
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="categorySlug">Slug (URL) *</Label>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="categorySlug" className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Slug</Label>
                     <Input
                       id="categorySlug"
                       value={newCategorySlug}
                       onChange={(e) => setNewCategorySlug(e.target.value)}
                       placeholder="entradas"
-                      className="bg-card border-2 border-muted-foreground/20 hover:border-muted-foreground/40 focus:border-primary/60 shadow-sm font-mono"
+                      className="bg-background border-border focus:border-primary/60 rounded-none h-9 font-mono text-xs lowercase"
                     />
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="categoryDescription">
-                    Descripción (opcional)
-                  </Label>
-                  <Input
-                    id="categoryDescription"
-                    value={newCategoryDescription}
-                    onChange={(e) => setNewCategoryDescription(e.target.value)}
-                    placeholder="Descripción breve de la categoría"
-                    className="bg-card border-2 border-muted-foreground/20 hover:border-muted-foreground/40 focus:border-primary/60 shadow-sm"
-                  />
-                </div>
-
                 <Button
                   onClick={addCategory}
-                  className="w-full bg-blue-600 hover:bg-blue-700"
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90 rounded-none font-mono text-xs uppercase tracking-widest mt-2"
                   disabled={
                     isCreating ||
                     !newCategoryName.trim() ||
@@ -572,13 +541,13 @@ function OnboardingCategoriesContent() {
                 >
                   {isCreating ? (
                     <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Creando...
+                      <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" />
+                      PROCESANDO...
                     </>
                   ) : (
                     <>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Agregar Categoría
+                      <Plus className="w-3.5 h-3.5 mr-2" />
+                      AGREGAR REGISTRO
                     </>
                   )}
                 </Button>
@@ -588,19 +557,19 @@ function OnboardingCategoriesContent() {
         </div>
 
         {/* Navigation */}
-        <div className="flex justify-between items-center mt-12">
-          <Button onClick={goBack} variant="outline" size="lg">
-            <ArrowLeft className="w-5 h-5 mr-2" />
-            Volver
+        <div className="flex justify-between items-center mt-12 border-t border-border pt-8">
+          <Button onClick={goBack} variant="outline" size="sm" className="rounded-none font-mono text-xs uppercase border-border hover:bg-primary/5 hover:text-primary hover:border-primary/50">
+            <ArrowLeft className="w-3.5 h-3.5 mr-2" />
+            REGRESAR
           </Button>
 
           <Button
             onClick={goToProducts}
-            size="lg"
-            className="bg-blue-600 hover:bg-blue-700"
+            size="sm"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-none font-mono text-xs uppercase tracking-widest px-8 shadow-[0_0_20px_rgba(0,212,146,0.1)]"
           >
-            Siguiente: Productos
-            <ArrowRight className="w-5 h-5 ml-2" />
+            CONTINUAR: PRODUCTOS
+            <ArrowRight className="w-3.5 h-3.5 ml-2" />
           </Button>
         </div>
       </div>

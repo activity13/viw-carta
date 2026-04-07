@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+// Componentes y hooks encargados del sistema`
+import { usePermissions } from "@/hooks/usePermissions";
+import { AccessDeniedCard } from "@/components/ui/AccessDeniedCard";
 import { Plus, Trash2, Loader2, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +25,17 @@ import { toast } from "sonner";
 
 // Componente para el formulario de creación/edición
 const TemplateForm = ({ onClose, initialData, restaurantId, isEditing }) => {
+  const { can, role } = usePermissions();
+		const isAdmin = can("manage_variants");
+		if (!isAdmin) {
+		
+		    return (
+      
+		      <AccessDeniedCard
+		        message="No tienes los permisos necesarios para gestionar las variantes.                  Esta sección es exclusiva para administradores."
+		      />
+		    );
+		  } 
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState(
     initialData || {
@@ -242,7 +256,18 @@ export default function VariantsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState(null);
   const queryClient = useQueryClient();
-
+const { can } = usePermissions();
+const isAdmin = can("manage_variants");
+if (!isAdmin) {
+		
+		    return (
+		
+		      <AccessDeniedCard
+		        message="No tienes los permisos necesarios para gestionar el equipo.                  Esta sección es exclusiva para administradores."
+		      />
+		    );
+		  }   
+  
   const { data: templates, isLoading } = useQuery({
     queryKey: ["variant-templates", restaurantId],
     queryFn: async () => {

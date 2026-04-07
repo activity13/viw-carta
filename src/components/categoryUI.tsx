@@ -14,7 +14,9 @@ import {
   LayoutGrid,
 } from "lucide-react";
 import { toast } from "sonner";
-
+// Componentes y hooks encargados del sistema
+import { usePermissions } from "@/hooks/usePermissions";
+import { AccessDeniedCard } from "@/components/ui/AccessDeniedCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -249,6 +251,18 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
       setLoading(false);
     }
   };
+
+  const { can, role } = usePermissions();
+		const isAdmin = can("edit_menu");
+		if (!isAdmin) {
+		
+		    return (
+		
+		      <AccessDeniedCard
+		        message="No tienes los permisos necesarios para gestionar las categorías.                  Esta sección es exclusiva para administradores."
+		      />
+		    );
+		  }
 
   useEffect(() => {
     if (restaurantId) fetchCategories();

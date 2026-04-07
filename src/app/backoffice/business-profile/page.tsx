@@ -1,8 +1,20 @@
 "use client";
 
+// Bibliotecas de React
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+
+// Bibliotecas de conexión
 import axios from "axios";
+
+// Componentes y hooks encargados del sistema
+import { usePermissions } from "@/hooks/usePermissions";
+import { AccessDeniedCard } from "@/components/ui/AccessDeniedCard";
+
+// Bibliotecas de performance y optimización del sitio
+import Image from "next/image";
+
+// Componentes de UI
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,7 +27,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+
+// Bibliotecas de efectos visuales
 import { toast } from "sonner";
+
+// Iconos de Lucide React
 import {
   Store,
   MapPin,
@@ -32,8 +48,7 @@ import {
   ShoppingBag,
 } from "lucide-react";
 
-import Image from "next/image";
-
+// Componentes de la aplicación
 import { LogoUploader } from "@/components/LogoUploader";
 import { FrameUploader } from "@/components/FrameUploader";
 import GenerateQRSection from "@/components/GenerateQRSection";
@@ -79,6 +94,8 @@ interface BusinessFormData extends Business {
 }
 
 export default function BusinessProfileForm() {
+  const { can, role } = usePermissions();
+  const isAdmin = can("manage_business");
   const { data: session } = useSession();
   const restaurantId = session?.user?.restaurantId;
 
@@ -89,6 +106,14 @@ export default function BusinessProfileForm() {
     palette: "viw",
   });
   const [isLoading, setIsLoading] = useState(true);
+
+  if (!isAdmin) {
+    return (
+      <AccessDeniedCard 
+        message="No tienes los permisos necesarios para gestionar el perfil del negocio. Esta sección es exclusiva para administradores."
+      />
+    );
+  }
 
   useEffect(() => {
     if (!restaurantId) return;

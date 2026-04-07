@@ -16,7 +16,7 @@ async function getNextOrderNumber(restaurantId: string) {
 
 export async function GET(request: Request) {
   try {
-    const session = await requireAuth("staff");
+    const session = await requireAuth("waiter");
     await connectToDatabase();
 
     const { searchParams } = new URL(request.url);
@@ -39,7 +39,7 @@ export async function GET(request: Request) {
 
 export async function POST() {
   try {
-    const session = await requireAuth("staff");
+    const session = await requireAuth("waiter");
     await connectToDatabase();
 
     const restaurantId = session.user.restaurantId as string;
