@@ -102,6 +102,7 @@ export async function POST(request: Request) {
     }
 
     // Create invitation
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const code = await (Invitation as any).generateUniqueCode();
     
     const newInvitation = await Invitation.create({

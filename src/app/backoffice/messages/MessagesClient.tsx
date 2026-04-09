@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 // Componentes y hooks encargados del sistema`
 import { usePermissions } from "@/hooks/usePermissions";
@@ -100,9 +100,7 @@ export default function MessagesClient() {
   const [isOpen, setIsOpen] = useState(false);
   const [editingMsg, setEditingMsg] = useState<ISystemMessage | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-
   const currentRestaurantId = session?.user?.restaurantId as string;
-
   // Estado inicial del formulario
   const initialFormState: ISystemMessage = {
     restaurantId: currentRestaurantId,
@@ -114,28 +112,14 @@ export default function MessagesClient() {
   };
 
   const [formData, setFormData] = useState<ISystemMessage>(initialFormState);
-const { can, role } = usePermissions();
-		const isAdmin = can("manage_team");
-		if (!isAdmin) {
-		
- return (
-		
- <AccessDeniedCard
- message="No tienes los permisos necesarios para gestionar los mensajes. Esta sección es exclusiva para administradores."
- />
- );
-		  }
-  useEffect(() => {
-    if (currentRestaurantId) {
-      fetchMessages();
-    }
-  }, [currentRestaurantId]);
+  const { can } = usePermissions();
+  const isAdmin = can("manage_team");
 
-  const fetchMessages = async () => {
+  const fetchMessages = useCallback(async () => {
     setIsLoading(true);
     try {
       const res = await fetch(
-        `/api/backoffice/system-messages?restaurantId=${currentRestaurantId}`
+        `/api/backoffice/system-messages?restaurantId=${currentRestaurantId}`,
       );
       if (res.ok) {
         const data = await res.json();
@@ -146,7 +130,19 @@ const { can, role } = usePermissions();
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [currentRestaurantId]);
+
+  useEffect(() => {
+    if (currentRestaurantId && isAdmin) {
+      fetchMessages();
+    }
+  }, [currentRestaurantId, isAdmin, fetchMessages]);
+
+  if (!isAdmin) {
+    return (
+      <AccessDeniedCard message="No tienes los permisos necesarios para gestionar los mensajes. Esta sección es exclusiva para administradores." />
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -265,7 +261,7 @@ const { can, role } = usePermissions();
                               <span>{config.label}</span>
                             </div>
                           </SelectItem>
-                        )
+                        ),
                       )}
                     </SelectContent>
                   </Select>

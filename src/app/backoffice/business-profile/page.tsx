@@ -94,7 +94,7 @@ interface BusinessFormData extends Business {
 }
 
 export default function BusinessProfileForm() {
-  const { can, role } = usePermissions();
+  const { can } = usePermissions();
   const isAdmin = can("manage_business");
   const { data: session } = useSession();
   const restaurantId = session?.user?.restaurantId;
@@ -107,16 +107,8 @@ export default function BusinessProfileForm() {
   });
   const [isLoading, setIsLoading] = useState(true);
 
-  if (!isAdmin) {
-    return (
-      <AccessDeniedCard 
-        message="No tienes los permisos necesarios para gestionar el perfil del negocio. Esta sección es exclusiva para administradores."
-      />
-    );
-  }
-
   useEffect(() => {
-    if (!restaurantId) return;
+    if (!restaurantId || !isAdmin) return;
 
     const fetchBusiness = async () => {
       try {
@@ -145,7 +137,15 @@ export default function BusinessProfileForm() {
     };
 
     fetchBusiness();
-  }, [session, restaurantId]);
+  }, [session, restaurantId, isAdmin]);
+
+  if (!isAdmin) {
+    return (
+      <AccessDeniedCard 
+        message="No tienes los permisos necesarios para gestionar el perfil del negocio. Esta sección es exclusiva para administradores."
+      />
+    );
+  }
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,

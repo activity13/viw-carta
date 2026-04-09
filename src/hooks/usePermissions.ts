@@ -1,12 +1,11 @@
 "use client";
 
-import React from "react";
 import { useSession } from "next-auth/react";
 import { ActionKey, hasRolePermission, Role } from "@/config/role-permissions";
 
 export function usePermissions() {
   const { data: session, status } = useSession();
-  
+  console.log(session);
   const role = session?.user?.role as Role | undefined;
   
   /**

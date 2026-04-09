@@ -3,6 +3,7 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { handleAuthError, requireAuth } from "@/lib/auth-helpers";
 import Meal from "@/models/meals";
 import Order from "@/models/order";
+import Client from "@/models/client";
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -377,6 +378,35 @@ export async function PATCH(
       order.paidAt = new Date();
 
       await order.save();
+
+      // Guardar métricas y ventas en el cliente
+      if (order.customer?.documentNumber) {
+        try {
+          const client = await Client.findOne({
+            documentNumber: order.customer.documentNumber,
+            restaurantId: session.user.restaurantId
+          });
+          
+          if (client) {
+            client.purchaseStats = client.purchaseStats || { totalSpent: 0, totalOrders: 0, lastOrderDate: null };
+            client.purchaseStats.totalSpent = (client.purchaseStats.totalSpent || 0) + total;
+            client.purchaseStats.totalOrders = (client.purchaseStats.totalOrders || 0) + 1;
+            client.purchaseStats.lastOrderDate = new Date();
+            
+            client.orderHistory = client.orderHistory || [];
+            client.orderHistory.push({
+              orderId: order._id as unknown as React.Key, // safe casting for save
+              date: new Date(),
+              amount: total
+            });
+            
+            await client.save();
+          }
+        } catch (err) {
+           console.error("Error actualizando métricas del cliente:", err);
+        }
+      }
+
       return NextResponse.json(order, { status: 200 });
     }
 

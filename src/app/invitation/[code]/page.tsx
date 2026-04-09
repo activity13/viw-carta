@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
 import { signIn } from "next-auth/react";
 import axios, { AxiosError } from "axios";
 import {
@@ -221,7 +222,7 @@ export default function InvitationPage() {
       <div className="max-w-4xl w-full">
         <div className="text-center mb-10">
           <div className="w-20 h-20 bg-emerald-600/10 border border-emerald-500/20 rounded-3xl flex items-center justify-center mx-auto mb-6">
-            <img src="/logo-c.svg" alt="Logo" className="h-10 w-10" />
+            <Image src="/logo-c.svg" alt="Logo" width={40} height={40} />
           </div>
           <h1 className="text-4xl font-bold text-white tracking-tight uppercase font-roboto">
             {isStaffInvite ? "Únete al Equipo" : "Bienvenido a VIW Carta"}

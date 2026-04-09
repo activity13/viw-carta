@@ -35,7 +35,7 @@ import {
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { useFab } from "@/providers/ActionProvider";
+import { useFab, type FabAction } from "@/providers/ActionProvider";
 import { usePermission } from "@/hooks/use-permission";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useOrderManager } from "@/hooks/use-order-manager";
@@ -395,7 +395,7 @@ export default function Master() {
   const { hasRole } = usePermissions();
 
   useEffect(() => {
-    const actions: any[] = [];
+    const actions: FabAction[] = [];
 
     if (hasRole(["superadmin", "admin"])) {
       actions.push({

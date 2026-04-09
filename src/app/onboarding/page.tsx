@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
 
-export default function OnboardingPage({
+export default async function OnboardingPage({
   searchParams,
 }: {
-  searchParams: { restaurantId?: string };
+  searchParams: Promise<{ restaurantId?: string }>;
 }) {
-  const restaurantId = searchParams.restaurantId;
+  const { restaurantId } = await searchParams;
   
   if (restaurantId) {
     redirect(`/onboarding/welcome?restaurantId=${restaurantId}`);

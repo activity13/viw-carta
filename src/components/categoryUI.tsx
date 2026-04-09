@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Axios from "axios";
 import { Reorder, useDragControls } from "motion/react";
 import {
@@ -233,7 +233,7 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
   const [isSavingOrder, setIsSavingOrder] = useState(false);
 
   // Fetch categories
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     setLoading(true);
     try {
       const res = await Axios.get("/api/categories/get", {
@@ -241,7 +241,7 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
       });
       // Ensure sorted by order
       const sorted = res.data.sort(
-        (a: Category, b: Category) => (a.order || 0) - (b.order || 0)
+        (a: Category, b: Category) => (a.order || 0) - (b.order || 0),
       );
       setCategories(sorted);
     } catch (error) {
@@ -250,48 +250,14 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
     } finally {
       setLoading(false);
     }
-  };
-
-  const { can, role } = usePermissions();
-		const isAdmin = can("edit_menu");
-		if (!isAdmin) {
-		
-		    return (
-		
-		      <AccessDeniedCard
-		        message="No tienes los permisos necesarios para gestionar las categorías.                  Esta sección es exclusiva para administradores."
-		      />
-		    );
-		  }
-
-  useEffect(() => {
-    if (restaurantId) fetchCategories();
   }, [restaurantId]);
 
-  // Register FAB Actions
-  useEffect(() => {
-    setActions([
-      {
-        label: "Nueva Categoría",
-        icon: Plus,
-        onClick: () => setIsDialogOpen(true),
-      },
-      {
-        label: "Guardar Orden",
-        icon: Save,
-        onClick: saveOrder,
-        disabled: isSavingOrder || categories.length === 0,
-        loading: isSavingOrder,
-      },
-    ]);
-
-    // Cleanup on unmount
-    return () => setActions([]);
-  }, [categories, isSavingOrder, setActions]);
+  const { can } = usePermissions();
+  const isAdmin = can("edit_menu");
 
   // Create category logic (reused by both forms)
   const createCategory = async (
-    data: Omit<typeof form, "order"> & { order?: number }
+    data: Omit<typeof form, "order"> & { order?: number },
   ) => {
     if (!data.name || !data.code || !data.slug) {
       toast.warning("Por favor completa los campos obligatorios");
@@ -335,7 +301,7 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
   const handleToggle = async (id: string, currentStatus: boolean) => {
     // Optimistic update
     setCategories((prev) =>
-      prev.map((c) => (c._id === id ? { ...c, isActive: !currentStatus } : c))
+      prev.map((c) => (c._id === id ? { ...c, isActive: !currentStatus } : c)),
     );
 
     try {
@@ -345,14 +311,14 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
         restaurantId,
       });
       toast.success(
-        !currentStatus ? "Categoría visible" : "Categoría ocultada"
+        !currentStatus ? "Categoría visible" : "Categoría ocultada",
       );
     } catch (error) {
       console.error(error);
       toast.error("Error al actualizar estado");
       // Revert on error
       setCategories((prev) =>
-        prev.map((c) => (c._id === id ? { ...c, isActive: currentStatus } : c))
+        prev.map((c) => (c._id === id ? { ...c, isActive: currentStatus } : c)),
       );
     }
   };
@@ -424,7 +390,7 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
   };
 
   // Save Order to Backend
-  const saveOrder = async () => {
+  const saveOrder = useCallback(async () => {
     setIsSavingOrder(true);
     try {
       const payload = {
@@ -441,7 +407,7 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
     } finally {
       setIsSavingOrder(false);
     }
-  };
+  }, [categories, restaurantId]);
 
   const generateSlug = (text: string): string => {
     return text
@@ -454,6 +420,41 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
       .replace(/[^\w\-]+/g, "")
       .replace(/\-\-+/g, "-");
   };
+
+  useEffect(() => {
+    if (restaurantId && isAdmin) fetchCategories();
+  }, [restaurantId, isAdmin, fetchCategories]);
+
+  // Register FAB Actions
+  useEffect(() => {
+    if (!isAdmin) {
+      setActions([]);
+      return;
+    }
+    setActions([
+      {
+        label: "Nueva Categoría",
+        icon: Plus,
+        onClick: () => setIsDialogOpen(true),
+      },
+      {
+        label: "Guardar Orden",
+        icon: Save,
+        onClick: saveOrder,
+        disabled: isSavingOrder || categories.length === 0,
+        loading: isSavingOrder,
+      },
+    ]);
+
+    // Cleanup on unmount
+    return () => setActions([]);
+  }, [categories, isSavingOrder, setActions, saveOrder, isAdmin]);
+
+  if (!isAdmin) {
+    return (
+      <AccessDeniedCard message="No tienes los permisos necesarios para gestionar las categorías. Esta sección es exclusiva para administradores." />
+    );
+  }
 
   return (
     <div className="container mx-auto py-10 px-4 max-w-5xl space-y-8 pb-24">

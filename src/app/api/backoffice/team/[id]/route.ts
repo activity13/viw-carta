@@ -8,11 +8,13 @@ import { checkApiPermission } from "@/lib/server-guard";
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const error = await checkApiPermission("manage_team");
     if (error) return error;
+
+    const { id } = await params;
 
     const session = await getServerSession(authOptions);
     const restaurantId = session?.user?.restaurantId;
@@ -26,8 +28,6 @@ export async function PATCH(
     if (userRole !== "admin" && userRole !== "superadmin") {
       return NextResponse.json({ error: "No tienes permisos para realizar esta acción" }, { status: 403 });
     }
-
-    const { id } = params;
     const body = await request.json();
     const { fullName, role, isActive } = body;
 
@@ -66,13 +66,13 @@ export async function PATCH(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const error = await checkApiPermission("manage_team");
     if (error) return error;
 
-    const { id } = params;
+    const { id } = await params;
 
     const session = await getServerSession(authOptions);
     const restaurantId = session?.user?.restaurantId;

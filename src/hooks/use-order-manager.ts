@@ -78,27 +78,12 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
       return;
     }
 
-    // Check if data actually changed compared to activeOrder
-    // We compare with "|| ''" because drafts use empty strings for missing values
-    // Also use .trim() to be safe against whitespace differences
+    // Comprobamos cambios SÓLO para mesa y comprobante.
+    // El cliente ahora se guarda de manera manual (Registro/Búsqueda Rápida)
     const hasChanges =
       (activeOrder.invoiceType || "boleta") !==
         (invoiceTypeDraft || "boleta") ||
-      (activeOrder.tableNumber || "") !== (tableNumberDraft || "") ||
-      (activeOrder.customer?.name || "").trim() !==
-        (customerDraft.name || "").trim() ||
-      (activeOrder.customer?.surname || "").trim() !==
-        (customerDraft.surname || "").trim() ||
-      (activeOrder.customer?.documentType || "none") !==
-        (customerDraft.documentType || "none") ||
-      (activeOrder.customer?.documentNumber || "").trim() !==
-        (customerDraft.documentNumber || "").trim() ||
-      (activeOrder.customer?.email || "").trim() !==
-        (customerDraft.email || "").trim() ||
-      (activeOrder.customer?.phone || "").trim() !==
-        (customerDraft.phone || "").trim() ||
-      (activeOrder.customer?.address || "").trim() !==
-        (customerDraft.address || "").trim();
+      (activeOrder.tableNumber || "") !== (tableNumberDraft || "");
 
     if (!hasChanges) {
       if (isCustomerSaving) setIsCustomerSaving(false);

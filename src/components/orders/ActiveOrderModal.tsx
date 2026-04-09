@@ -26,7 +26,9 @@ import {
   AlertTriangle,
   ShoppingBag as ShoppingBagIcon,
 } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import Axios from "axios";
+import { toast } from "sonner";
 
 import { OrderItemRow } from "./OrderItemRow";
 import {
@@ -41,6 +43,7 @@ import {
   InvoiceType,
 } from "@/types/order";
 import { useOrderManager } from "@/hooks/use-order-manager";
+import { RoleGate } from "@/components/auth/RoleGate";
 
 // Local interface matching master.tsx
 export interface Meal {
@@ -49,6 +52,19 @@ export interface Meal {
   description?: string;
   basePrice: number;
   categoryId?: string;
+}
+
+interface ClientSearchResult {
+  _id: string;
+  documentType: string;
+  documentNumber: string;
+  name: string;
+  lastName?: string;
+  businessName?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  clientType: string;
 }
 
 type OrderManager = ReturnType<typeof useOrderManager>;
@@ -87,10 +103,17 @@ export function ActiveOrderModal({
     handlePrintPrebill,
     handleHoldOrder,
     handlePayOrder,
+    handleSaveCustomer,
   } = manager;
 
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchResults, setShowSearchResults] = useState(false);
+
+  const [clientSearchStatus, setClientSearchStatus] = useState<"idle" | "searching" | "found" | "not_found">("idle");
+  const [clientSearchResults, setClientSearchResults] = useState<ClientSearchResult[]>([]);
+  const [showClientResults, setShowClientResults] = useState(false);
+  const [isClientLocked, setIsClientLocked] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
 
   const isCustomerValid = useMemo(() => {
     if (invoiceTypeDraft === "factura") {
@@ -126,6 +149,68 @@ export function ActiveOrderModal({
         (customerDraft.address || "").trim()
     );
   }, [activeOrder, invoiceTypeDraft, tableNumberDraft, customerDraft]);
+
+  // Debounced search effect for client dropdown
+  useEffect(() => {
+    const q = customerDraft.documentNumber?.trim() || "";
+
+    if (!q) {
+       setClientSearchStatus("idle");
+       setClientSearchResults([]);
+       return;
+    }
+    
+    if (isClientLocked) return;
+
+    setClientSearchStatus("searching");
+    const timeoutId = setTimeout(async () => {
+      try {
+        const { data } = await Axios.get(`/api/clients?search=${q}`);
+        setClientSearchResults(data || []);
+        if (data && data.length > 0) {
+           setClientSearchStatus("found");
+        } else {
+           setClientSearchStatus("not_found");
+        }
+      } catch {
+        setClientSearchStatus("idle");
+        setClientSearchResults([]);
+      }
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [customerDraft.documentNumber, isClientLocked]);
+
+  const handleConfirmCustomerBtn = async () => {
+    setIsConfirming(true);
+    try {
+      // First, try to register it as a new client if we haven't selected from list
+      if (!isClientLocked && customerDraft.documentNumber.trim()) {
+        try {
+           await Axios.post("/api/clients", {
+             documentType: customerDraft.documentType,
+             documentNumber: customerDraft.documentNumber,
+             name: customerDraft.name,
+             lastName: customerDraft.surname || "",
+             businessName: customerDraft.documentType === 'ruc' ? customerDraft.name : undefined,
+             phone: customerDraft.phone,
+             address: customerDraft.address,
+             email: customerDraft.email
+           });
+           toast.success("Cliente nuevo registrado en BD");
+        } catch(e: unknown) {
+           // Silently ignore conflict if they already exist but weren't locked 
+           console.log("Client creation skipped", e);
+        }
+      }
+      
+      // Save it to the order
+      await handleSaveCustomer();
+      setIsClientLocked(true); // Lock after save
+    } finally {
+      setIsConfirming(false);
+    }
+  };
 
   // Filter meals for search
   const filteredMeals = useMemo(() => {
@@ -304,6 +389,7 @@ export function ActiveOrderModal({
           </SectionCard>
 
           {/* 2. Customer Container */}
+          <RoleGate action="can_register_client">
           <SectionCard
             title="Información del Cliente"
             icon={<User className="w-4 h-4" />}
@@ -386,24 +472,74 @@ export function ActiveOrderModal({
                   </div>
                   <div className="col-span-1 sm:col-span-9">
                     <label className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground/70 mb-2 block">
-                      Número de Documento
+                      Número / Buscar Cliente
                     </label>
                     <div className="relative group">
                       <Input
                         value={customerDraft.documentNumber}
-                        onChange={(e) =>
+                        onChange={(e) => {
                           setCustomerDraft((prev) => ({
                             ...prev,
                             documentNumber: e.target.value,
-                          }))
-                        }
-                        placeholder="Ingresar número de documento..."
+                          }));
+                          setIsClientLocked(false);
+                          setShowClientResults(true);
+                        }}
+                        onFocus={() => setShowClientResults(true)}
+                        placeholder="DNI, RUC, Nombre..."
                         className="h-10 font-mono text-base tracking-wide bg-white/50 dark:bg-zinc-900/50 border-muted-foreground/15 shadow-sm transition-all focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 rounded-xl pl-4"
                       />
-                      <div className="absolute right-3 top-3 pointer-events-none opacity-0 group-focus-within:opacity-100 transition-opacity">
-                        <Search className="w-4 h-4 text-emerald-500/50" />
+                      <div className="absolute right-3 top-3 pointer-events-none transition-opacity bg-transparent">
+                        {clientSearchStatus === "searching" ? (
+                           <Loader2 className="w-4 h-4 text-emerald-500 animate-spin" />
+                        ) : isClientLocked ? (
+                           <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                        ) : clientSearchStatus === "not_found" && customerDraft.documentNumber.length > 2 ? (
+                           <Search className="w-4 h-4 text-amber-500" />
+                        ) : (
+                           <Search className="w-4 h-4 text-emerald-500/50 opacity-0 group-focus-within:opacity-100" />
+                        )}
                       </div>
+
+                      {/* Dropdown Suggestions */}
+                      {showClientResults && clientSearchResults.length > 0 && !isClientLocked && (
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-popover border border-border/50 rounded-lg shadow-xl ring-1 ring-black/5 z-50 max-h-[250px] overflow-y-auto animate-in fade-in zoom-in-95 duration-100">
+                          {clientSearchResults.map((client) => (
+                            <button
+                              key={client._id}
+                              className="w-full text-left p-3 hover:bg-muted/50 flex flex-col border-b border-border/40 last:border-0 transition-colors"
+                              onClick={() => {
+                                setCustomerDraft(p => ({
+                                  ...p,
+                                  documentType: (client.documentType as DocumentType) || "none",
+                                  documentNumber: client.documentNumber,
+                                  name: client.name || client.businessName || "",
+                                  surname: client.lastName || "",
+                                  email: client.email || "",
+                                  phone: client.phone || "",
+                                  address: client.address || ""
+                                }));
+                                setIsClientLocked(true);
+                                setShowClientResults(false);
+                              }}
+                            >
+                              <div className="font-medium text-sm text-foreground">
+                                {client.documentNumber} - {client.name || client.businessName} {client.lastName || ""}
+                              </div>
+                              {client.phone && <div className="text-xs text-muted-foreground">Tel: {client.phone}</div>}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
+                    
+                    {/* Overlay to close search */}
+                    {showClientResults && (
+                      <div
+                        className="fixed inset-0 z-10 bg-transparent"
+                        onClick={() => setShowClientResults(false)}
+                      />
+                    )}
                   </div>
                 </div>
               </div>
@@ -424,7 +560,8 @@ export function ActiveOrderModal({
                         }))
                       }
                       placeholder="Nombre del cliente"
-                      className="h-10 bg-muted/5 border-input hover:bg-background focus:bg-background transition-colors focus:ring-2 focus:ring-emerald-500/20 rounded-xl"
+                      disabled={isClientLocked}
+                      className="h-10 bg-muted/5 border-input hover:bg-background focus:bg-background transition-colors focus:ring-2 focus:ring-emerald-500/20 rounded-xl disabled:opacity-50"
                     />
                   </div>
                   <div>
@@ -440,7 +577,8 @@ export function ActiveOrderModal({
                         }))
                       }
                       placeholder="Apellidos"
-                      className="h-10 bg-muted/5 border-input hover:bg-background focus:bg-background transition-colors focus:ring-2 focus:ring-emerald-500/20 rounded-xl"
+                      disabled={isClientLocked}
+                      className="h-10 bg-muted/5 border-input hover:bg-background focus:bg-background transition-colors focus:ring-2 focus:ring-emerald-500/20 rounded-xl disabled:opacity-50"
                     />
                   </div>
                 </div>
@@ -461,7 +599,8 @@ export function ActiveOrderModal({
                         }))
                       }
                       placeholder="Email"
-                      className=" h-10 border-muted-foreground/20 bg-background/50 focus:bg-background transition-all focus:ring-2 focus:ring-emerald-500/20 rounded-xl"
+                      disabled={isClientLocked}
+                      className=" h-10 border-muted-foreground/20 bg-background/50 focus:bg-background transition-all focus:ring-2 focus:ring-emerald-500/20 rounded-xl disabled:opacity-50"
                     />
                   </div>
 
@@ -479,7 +618,8 @@ export function ActiveOrderModal({
                         }))
                       }
                       placeholder="Celular"
-                      className=" h-10 border-muted-foreground/20 bg-background/50 focus:bg-background transition-all focus:ring-2 focus:ring-emerald-500/20 rounded-xl"
+                      disabled={isClientLocked}
+                      className=" h-10 border-muted-foreground/20 bg-background/50 focus:bg-background transition-all focus:ring-2 focus:ring-emerald-500/20 rounded-xl disabled:opacity-50"
                     />
                   </div>
 
@@ -496,7 +636,8 @@ export function ActiveOrderModal({
                         }))
                       }
                       placeholder="Dirección"
-                      className=" h-10 border-muted-foreground/20 bg-background/50 focus:bg-background transition-all focus:ring-2 focus:ring-emerald-500/20 rounded-xl"
+                      disabled={isClientLocked}
+                      className=" h-10 border-muted-foreground/20 bg-background/50 focus:bg-background transition-all focus:ring-2 focus:ring-emerald-500/20 rounded-xl disabled:opacity-50"
                     />
                   </div>
                 </div>
@@ -505,12 +646,16 @@ export function ActiveOrderModal({
 
             <div className="flex justify-between mt-4 pt-3 border-t border-dashed items-center gap-4">
               <div className="flex items-center">
-                {!isCustomerValid && (
+                {!isCustomerValid ? (
                   <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-medium bg-amber-50 text-amber-700 border border-amber-200">
                     <AlertTriangle className="w-3 h-3 mr-1" />
-                    Faltan datos requeridos
+                    Faltan datos requeridos (ej. RUC = 11 dígitos)
                   </span>
-                )}
+                ) : clientSearchStatus === "not_found" && customerDraft.documentNumber.trim().length > 2 && !isClientLocked ? (
+                  <div className="flex items-center gap-2">
+                     <span className="text-[11px] font-medium text-amber-600 border border-amber-600/30 rounded px-2">Cliente nuevo (Ingresar datos a mano)</span>
+                  </div>
+                ) : null}
               </div>
 
               <div className="h-6 flex items-center justify-end">
@@ -525,19 +670,22 @@ export function ActiveOrderModal({
                   <div className="flex items-center text-xs text-emerald-600 font-medium opacity-80 transition-all duration-500 ease-out">
                     <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />
                     <span className="text-[10px] uppercase tracking-wide">
-                      Sincronizado
+                      Guardado en orden
                     </span>
                   </div>
                 ) : (
-                  <span className="text-[10px] uppercase tracking-wide text-muted-foreground/50 italic">
-                    Editando...
-                  </span>
+                  <Button size="sm" className="h-7 text-[11px] px-3 bg-primary/90" onClick={handleConfirmCustomerBtn} disabled={isConfirming}>
+                    {isConfirming && <Loader2 className="w-3 h-3 mr-1 animate-spin" />}
+                     Confirmar en Orden
+                  </Button>
                 )}
               </div>
             </div>
           </SectionCard>
+          </RoleGate>
 
           {/* 3. Pricing Container */}
+          <RoleGate action="can_set_adjustment">
           <SectionCard
             title="Resumen de Precios"
             icon={<Calculator className="w-4 h-4" />}
@@ -643,8 +791,10 @@ export function ActiveOrderModal({
               </div>
             </div>
           </SectionCard>
+          </RoleGate>
 
           {/* 4. Payment Container */}
+          <RoleGate action="can_register_payment">
           <SectionCard
             title="Registro de Pagos"
             icon={<CreditCard className="w-4 h-4" />}
@@ -713,6 +863,7 @@ export function ActiveOrderModal({
               </Button>
             </div>
           </SectionCard>
+          </RoleGate>
         </div>
 
         {/* Fixed Footer */}
@@ -740,6 +891,7 @@ export function ActiveOrderModal({
             >
               <PauseCircle className="w-4 h-4 mr-2" /> En Espera
             </Button>
+            <RoleGate action="can_submit_order">
             <Button
               onClick={handlePayOrder}
               disabled={isOrderBusy}
@@ -748,6 +900,7 @@ export function ActiveOrderModal({
               <Banknote className="w-4 h-4 mr-2" /> Pagar (S/.{" "}
               {total.toFixed(2)})
             </Button>
+            </RoleGate>
           </div>
         </div>
       </DialogContent>

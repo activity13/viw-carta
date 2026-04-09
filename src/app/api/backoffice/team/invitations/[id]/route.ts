@@ -7,13 +7,13 @@ import { checkApiPermission } from "@/lib/server-guard";
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const error = await checkApiPermission("manage_team");
     if (error) return error;
 
-    const { id } = params;
+    const { id } = await params;
 
     const session = await getServerSession(authOptions);
     const restaurantId = session?.user?.restaurantId;

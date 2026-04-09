@@ -149,6 +149,7 @@ export async function POST(request: Request) {
     }
 
     // Marcar invitación como usada con el ID del usuario registrado
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (invitation as any).markAsUsed(newUser._id);
 
     return NextResponse.json(

@@ -3,13 +3,7 @@
 import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import axios from "axios";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,13 +23,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
 import {
   Utensils,
   Plus,
   Edit,
   Trash2,
-  Save,
   ArrowLeft,
   Loader2,
   CheckCircle2,
@@ -73,7 +65,9 @@ function OnboardingProductsLoading() {
       <Card className="w-full max-w-md bg-card border-border rounded-none">
         <CardContent className="p-8 text-center">
           <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
-          <p className="text-muted-foreground font-mono uppercase tracking-widest text-xs">Sincronizando productos...</p>
+          <p className="text-muted-foreground font-mono uppercase tracking-widest text-xs">
+            Sincronizando productos...
+          </p>
         </CardContent>
       </Card>
     </div>
@@ -124,7 +118,9 @@ function OnboardingProductsContent() {
       ]);
 
       setCategories(
-        categoriesRes.data.sort((a: Category, b: Category) => a.order - b.order)
+        categoriesRes.data.sort(
+          (a: Category, b: Category) => a.order - b.order,
+        ),
       );
       setMeals(mealsRes.data);
 
@@ -196,8 +192,8 @@ function OnboardingProductsContent() {
                 basePrice: Number(editingMeal.basePrice) || 0,
                 categoryId: editingMeal.categoryId || meal.categoryId,
               }
-            : meal
-        )
+            : meal,
+        ),
       );
 
       cancelEdit();
@@ -288,7 +284,6 @@ function OnboardingProductsContent() {
   };
 
   const finishOnboarding = () => {
-    const customProductsCount = meals.filter((m) => !m.isTemplate).length;
     toast.success("Configuración completada");
     setTimeout(() => {
       router.push("/backoffice");
@@ -305,7 +300,9 @@ function OnboardingProductsContent() {
         <Card className="w-full max-w-md bg-card border-border rounded-none">
           <CardContent className="p-8 text-center">
             <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
-            <p className="text-muted-foreground font-mono uppercase tracking-widest text-xs">Cargando productos...</p>
+            <p className="text-muted-foreground font-mono uppercase tracking-widest text-xs">
+              Cargando productos...
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -317,8 +314,14 @@ function OnboardingProductsContent() {
       <div className="min-h-screen flex items-center justify-center bg-background px-4">
         <Card className="w-full max-w-md border-destructive/20 bg-card rounded-none">
           <CardContent className="p-8 text-center">
-            <p className="text-destructive font-mono uppercase tracking-widest text-xs mb-4">{error}</p>
-            <Button variant="outline" onClick={goBack} className="border-primary text-primary hover:bg-primary/10 rounded-none font-mono text-xs uppercase">
+            <p className="text-destructive font-mono uppercase tracking-widest text-xs mb-4">
+              {error}
+            </p>
+            <Button
+              variant="outline"
+              onClick={goBack}
+              className="border-primary text-primary hover:bg-primary/10 rounded-none font-mono text-xs uppercase"
+            >
               Volver
             </Button>
           </CardContent>
@@ -357,11 +360,16 @@ function OnboardingProductsContent() {
             {categories.map((category) => {
               const categoryMeals = getMealsByCategory(category._id);
               return (
-                <Card key={category._id} className="bg-card border-border rounded-none shadow-none">
+                <Card
+                  key={category._id}
+                  className="bg-card border-border rounded-none shadow-none"
+                >
                   <CardHeader className="border-b border-border py-3">
                     <CardTitle className="flex items-center gap-2 text-xs font-roboto uppercase tracking-widest text-primary/80">
                       {category.name}
-                      <span className="text-[10px] font-mono text-muted-foreground">[{categoryMeals.length}]</span>
+                      <span className="text-[10px] font-mono text-muted-foreground">
+                        [{categoryMeals.length}]
+                      </span>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2 pt-4">
@@ -379,7 +387,9 @@ function OnboardingProductsContent() {
                             <div className="space-y-3">
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <div className="space-y-1.5">
-                                  <Label className="text-[10px] font-mono text-muted-foreground uppercase">Nombre</Label>
+                                  <Label className="text-[10px] font-mono text-muted-foreground uppercase">
+                                    Nombre
+                                  </Label>
                                   <Input
                                     value={editingMeal.name || ""}
                                     onChange={(e) =>
@@ -392,7 +402,9 @@ function OnboardingProductsContent() {
                                   />
                                 </div>
                                 <div className="space-y-1.5">
-                                  <Label className="text-[10px] font-mono text-muted-foreground uppercase">Precio (S/.)</Label>
+                                  <Label className="text-[10px] font-mono text-muted-foreground uppercase">
+                                    Precio (S/.)
+                                  </Label>
                                   <div className="relative">
                                     <DollarSign className="absolute left-2.5 top-2.5 h-3 w-3 text-primary" />
                                     <Input
@@ -412,7 +424,9 @@ function OnboardingProductsContent() {
                                 </div>
                               </div>
                               <div className="space-y-1.5">
-                                <Label className="text-[10px] font-mono text-muted-foreground uppercase">Descripción</Label>
+                                <Label className="text-[10px] font-mono text-muted-foreground uppercase">
+                                  Descripción
+                                </Label>
                                 <Textarea
                                   value={editingMeal.description || ""}
                                   onChange={(e) =>
@@ -446,9 +460,13 @@ function OnboardingProductsContent() {
                             <div className="flex justify-between items-start gap-4">
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2">
-                                  <h4 className="font-mono text-sm uppercase truncate">{meal.name}</h4>
+                                  <h4 className="font-mono text-sm uppercase truncate">
+                                    {meal.name}
+                                  </h4>
                                   {meal.isTemplate && (
-                                    <span className="text-[8px] font-mono border border-primary/20 text-primary/60 px-1 uppercase">Template</span>
+                                    <span className="text-[8px] font-mono border border-primary/20 text-primary/60 px-1 uppercase">
+                                      Template
+                                    </span>
                                   )}
                                 </div>
                                 {meal.description && (
@@ -500,7 +518,9 @@ function OnboardingProductsContent() {
               </CardHeader>
               <CardContent className="space-y-4 pt-4">
                 <div className="space-y-1.5">
-                  <Label className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Categoría</Label>
+                  <Label className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">
+                    Categoría
+                  </Label>
                   <Select
                     value={newMeal.categoryId}
                     onValueChange={(value) =>
@@ -512,7 +532,11 @@ function OnboardingProductsContent() {
                     </SelectTrigger>
                     <SelectContent className="bg-card border-border rounded-none">
                       {categories.map((category) => (
-                        <SelectItem key={category._id} value={category._id} className="font-mono text-xs uppercase">
+                        <SelectItem
+                          key={category._id}
+                          value={category._id}
+                          className="font-mono text-xs uppercase"
+                        >
                           {category.name}
                         </SelectItem>
                       ))}
@@ -521,7 +545,9 @@ function OnboardingProductsContent() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Nombre</Label>
+                  <Label className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">
+                    Nombre
+                  </Label>
                   <Input
                     value={newMeal.name}
                     onChange={(e) =>
@@ -534,7 +560,9 @@ function OnboardingProductsContent() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Descripción</Label>
+                  <Label className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">
+                    Descripción
+                  </Label>
                   <Textarea
                     value={newMeal.description}
                     onChange={(e) =>
@@ -547,7 +575,9 @@ function OnboardingProductsContent() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Precio (S/.)</Label>
+                  <Label className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">
+                    Precio (S/.)
+                  </Label>
                   <div className="relative">
                     <DollarSign className="absolute left-3 top-3 h-3.5 w-3.5 text-primary" />
                     <Input
@@ -610,7 +640,12 @@ function OnboardingProductsContent() {
 
         {/* Navigation */}
         <div className="flex justify-between items-center mt-8 border-t border-border pt-6">
-          <Button onClick={goBack} variant="outline" size="sm" className="rounded-none font-mono text-xs uppercase border-border hover:bg-primary/5 hover:text-primary hover:border-primary/50">
+          <Button
+            onClick={goBack}
+            variant="outline"
+            size="sm"
+            className="rounded-none font-mono text-xs uppercase border-border hover:bg-primary/5 hover:text-primary hover:border-primary/50"
+          >
             <ArrowLeft className="w-3.5 h-3.5 mr-2" />
             CATEGORÍAS
           </Button>
@@ -626,9 +661,15 @@ function OnboardingProductsContent() {
               Confirmar Eliminación
             </DialogTitle>
             <DialogDescription className="pt-4 font-mono text-xs text-muted-foreground uppercase">
-              ¿Eliminar <span className="text-foreground underline decoration-primary/40">{mealToDelete?.name}</span>?
+              ¿Eliminar{" "}
+              <span className="text-foreground underline decoration-primary/40">
+                {mealToDelete?.name}
+              </span>
+              ?
               <br />
-              <span className="mt-2 block">Acción irreversible en el registro maestro.</span>
+              <span className="mt-2 block">
+                Acción irreversible en el registro maestro.
+              </span>
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-4">

@@ -74,7 +74,16 @@ export default function NavBar() {
       color: "text-emerald-600",
       description: "Panel principal",
     },
-    ...(isAdmin
+    ...(isAdmin || isSuperAdmin
+      ? [{
+          href: "/backoffice/clients",
+          label: "Clientes",
+          icon: User,
+          color: "text-blue-500",
+          description: "Directorio de clientes",
+        }]
+      : []),
+    ...(isAdmin || isSuperAdmin
       ? [{
           href: "/backoffice/business-profile",
           label: "Negocio",
@@ -83,7 +92,7 @@ export default function NavBar() {
           description: "Configuración del establecimiento",
         }]
       : []),
-    ...(isAdmin
+    ...(isAdmin || isSuperAdmin
       ? [
           {
             href: "/backoffice/team",
@@ -94,7 +103,7 @@ export default function NavBar() {
           },
         ]
       : []),
-    ...(isAdmin
+    ...(isAdmin || isSuperAdmin
       ? [
           {
             href: "/backoffice/translate",
@@ -105,7 +114,7 @@ export default function NavBar() {
           },
         ]
       : []),
-        ...(isAdmin
+        ...(isAdmin || isSuperAdmin
       ? [{
           href: "/backoffice/messages",
           label: "Textos",

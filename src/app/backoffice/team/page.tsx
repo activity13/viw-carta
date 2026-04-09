@@ -1,7 +1,7 @@
 "use client";
 
 // Bibliotecas de React
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 
 // Componentes y hooks encargados del sistema
@@ -25,7 +25,6 @@ import {
   User,
   Clock,
   Send,
-  AlertTriangle
 } from "lucide-react";
 
 // Bibliotecas de efectos visuales
@@ -171,9 +170,9 @@ export default function TeamPage() {
       }
       setDialogOpen(false);
       fetchTeam();
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error submitting form:", error);
-      toast.error(error.response?.data?.error || "Error al procesar la solicitud");
+      toast.error(axios.isAxiosError(error) ? error.response?.data?.error : "Error al procesar la solicitud");
     } finally {
       setFormLoading(false);
     }
@@ -181,7 +180,6 @@ export default function TeamPage() {
 
   const toggleStatus = async (member: TeamMember) => {
     try {
-      const action = member.isActive ? "desactivar" : "activar";
       const message = member.isActive 
         ? "¿Estás seguro de desactivar a este colaborador? El registro se mantendrá en el sistema pero no podrá acceder."
         : `¿Estás seguro de que deseas activar a ${member.fullName}?`;
@@ -206,9 +204,9 @@ export default function TeamPage() {
       await axios.delete(`/api/backoffice/team/invitations/${id}`);
       toast.success("Invitación cancelada");
       fetchTeam();
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error canceling invitation:", error);
-      toast.error(error.response?.data?.error || "Error al cancelar");
+      toast.error(axios.isAxiosError(error) ? error.response?.data?.error : "Error al cancelar");
     }
   };
 

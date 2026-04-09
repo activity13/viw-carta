@@ -68,12 +68,7 @@ export const ROLE_PERMISSIONS: Record<Role, ActionKey[]> = {
     "can_submit_order",
   ],
   waiter: [
-    "can_register_client",
-    "can_search_client",
     "can_add_item",
-    "can_register_payment",
-    "can_set_adjustment",
-    "can_submit_order",
   ],
 };
 
