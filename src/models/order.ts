@@ -70,7 +70,7 @@ const OrderSchema = new Schema(
     orderNumber: { type: Number, required: true },
     status: {
       type: String,
-      enum: ["active", "on_hold", "paid"],
+      enum: ["active", "on_hold", "paid", "cancelled"],
       required: true,
       default: "active",
       index: true,
@@ -83,6 +83,13 @@ const OrderSchema = new Schema(
     payments: { type: [OrderPaymentSchema], default: [] },
     heldAt: { type: Date, default: null },
     paidAt: { type: Date, default: null },
+    // Link to the cash session active when the order was created/paid
+    cashSessionId: {
+      type: Schema.Types.ObjectId,
+      ref: "CashSession",
+      default: null,
+      index: true,
+    },
   },
   {
     timestamps: true,
@@ -123,9 +130,10 @@ const needsRebuild =
     !adjustmentPath?.schema?.path?.("note") ||
     !itemsPath?.schema?.path?.("notes") ||
     !customerPath?.schema?.path?.("email") ||
-    !customerPath?.schema?.path?.("phone") ||
     !customerPath?.schema?.path?.("address") ||
-    !customerPath?.schema?.path?.("surname"));
+    !customerPath?.schema?.path?.("surname") ||
+    !existingModel.schema?.path?.("cashSessionId") ||
+    !(existingModel.schema?.path?.("status") as any)?.enumValues?.includes?.("cancelled"));
 
 if (needsRebuild) {
   // eslint-disable-next-line

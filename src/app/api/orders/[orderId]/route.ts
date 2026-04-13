@@ -4,6 +4,7 @@ import { handleAuthError, requireAuth } from "@/lib/auth-helpers";
 import Meal from "@/models/meals";
 import Order from "@/models/order";
 import Client from "@/models/client";
+import CashSession from "@/models/cashSession";
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -135,7 +136,7 @@ export async function PATCH(
       );
     }
 
-    if (order.status === "paid") {
+    if (order.status === "paid" && action !== "cancel") {
       return NextResponse.json(
         { error: "La orden ya está pagada" },
         { status: 400 },
@@ -329,6 +330,21 @@ export async function PATCH(
       return NextResponse.json(order, { status: 200 });
     }
 
+    if (action === "cancel") {
+      if (order.status === "paid") {
+        const userRole = session.user.role as string;
+        if (userRole === "waiter") {
+          return NextResponse.json(
+            { error: "Solo administradores pueden anular órdenes pagadas" },
+            { status: 403 }
+          );
+        }
+      }
+      order.status = "cancelled";
+      await order.save();
+      return NextResponse.json(order, { status: 200 });
+    }
+
     if (action === "pay") {
       const payments = body.payments;
       if (!Array.isArray(payments)) {
@@ -376,6 +392,14 @@ export async function PATCH(
 
       order.status = "paid";
       order.paidAt = new Date();
+
+      const currentSession = await CashSession.findOne({
+        restaurantId: session.user.restaurantId,
+        status: "open",
+      });
+      if (currentSession) {
+        order.cashSessionId = currentSession._id;
+      }
 
       await order.save();
 

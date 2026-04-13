@@ -13,6 +13,7 @@ import {
   ChevronRight,
   Settings,
   Users,
+  Banknote,
 } from "lucide-react";
 import LogoutButton from "./ui/LogoutButton";
 import { useSession } from "next-auth/react";
@@ -75,22 +76,26 @@ export default function NavBar() {
       description: "Panel principal",
     },
     ...(isAdmin || isSuperAdmin
-      ? [{
-          href: "/backoffice/clients",
-          label: "Clientes",
-          icon: User,
-          color: "text-blue-500",
-          description: "Directorio de clientes",
-        }]
+      ? [
+          {
+            href: "/backoffice/clients",
+            label: "Clientes",
+            icon: User,
+            color: "text-blue-500",
+            description: "Directorio de clientes",
+          },
+        ]
       : []),
     ...(isAdmin || isSuperAdmin
-      ? [{
-          href: "/backoffice/business-profile",
-          label: "Negocio",
-          icon: HousePlug,
-          color: "text-emerald-600",
-          description: "Configuración del establecimiento",
-        }]
+      ? [
+          {
+            href: "/backoffice/business-profile",
+            label: "Negocio",
+            icon: HousePlug,
+            color: "text-emerald-600",
+            description: "Configuración del establecimiento",
+          },
+        ]
       : []),
     ...(isAdmin || isSuperAdmin
       ? [
@@ -114,14 +119,27 @@ export default function NavBar() {
           },
         ]
       : []),
-        ...(isAdmin || isSuperAdmin
-      ? [{
-          href: "/backoffice/messages",
-          label: "Textos",
-          icon: MessageSquareQuote,
-          color: "text-blue-500",
-          description: "Personalización de mensajes",
-        }]
+    ...(isAdmin || isSuperAdmin
+      ? [
+          {
+            href: "/backoffice/messages",
+            label: "Textos",
+            icon: MessageSquareQuote,
+            color: "text-blue-500",
+            description: "Personalización de mensajes",
+          },
+        ]
+      : []),
+    ...(isAdmin || isSuperAdmin
+      ? [
+          {
+            href: "/backoffice/finances",
+            label: "Caja",
+            icon: Banknote,
+            color: "text-sky-500",
+            description: "Control de caja y reportes",
+          },
+        ]
       : []),
   ];
 
