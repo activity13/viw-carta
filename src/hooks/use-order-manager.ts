@@ -151,7 +151,6 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
         clearTimeout(saveCustomerTimeoutRef.current);
     };
   }, [
-    customerDraft,
     tableNumberDraft,
     invoiceTypeDraft,
     activeOrder,

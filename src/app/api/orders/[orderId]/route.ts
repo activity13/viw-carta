@@ -156,6 +156,10 @@ export async function PATCH(
         order.tableNumber = body.tableNumber;
       }
 
+      if (typeof body.invoiceType === "string" && ["boleta", "factura"].includes(body.invoiceType)) {
+        order.invoiceType = body.invoiceType;
+      }
+
       order.customer = {
         name: typeof customer.name === "string" ? customer.name : "",
         surname: typeof customer.surname === "string" ? customer.surname : "",
