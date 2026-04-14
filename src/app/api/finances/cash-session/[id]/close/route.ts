@@ -62,7 +62,7 @@ export async function POST(
         orderCount++;
 
         let subtotal = 0;
-        order.items.forEach((item: any) => {
+        order.items.forEach((item: { qty: number; unitPrice: number }) => {
           subtotal += item.unitPrice * item.qty;
         });
 
@@ -81,7 +81,7 @@ export async function POST(
         totalSales += orderTotal;
 
         // Sumarizar métodos de pago
-        order.payments.forEach((payment: any) => {
+        order.payments.forEach((payment: { type: string; amount: number }) => {
           if (payment.type === "cash") totalCash += payment.amount;
           else if (payment.type === "card") totalCard += payment.amount;
           else if (payment.type === "transfer") totalTransfer += payment.amount;
@@ -110,8 +110,9 @@ export async function POST(
     await cashSession.save();
 
     return NextResponse.json({ cashSession }, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error closing cash session:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const msg = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

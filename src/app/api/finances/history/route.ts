@@ -67,7 +67,7 @@ export async function GET(request: Request) {
         if(order.status !== "paid") return;
 
         let subtotal = 0;
-        order.items.forEach((item: any) => {
+        order.items.forEach((item: { name: string; qty: number; unitPrice: number; mealId: string }) => {
           subtotal += item.unitPrice * item.qty;
 
           if (!dishesRaw[item.mealId]) {
@@ -89,7 +89,7 @@ export async function GET(request: Request) {
         }
         totalSales += orderTotal;
 
-        order.payments.forEach((payment: any) => {
+        order.payments.forEach((payment: { type: string; amount: number }) => {
           if (payment.type === "cash") totalCash += payment.amount;
           else if (payment.type === "card") totalCard += payment.amount;
           else if (payment.type === "transfer") totalTransfer += payment.amount;
@@ -115,8 +115,9 @@ export async function GET(request: Request) {
     };
 
     return NextResponse.json({ stats, orders: [] }, { status: 200 }); // Retornamos [] orders por peso de payload, el backoffice quizás solo necesita los totales por ahora. Pero si quiere tabla cruzada las pasamos
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching historical stats:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const msg = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

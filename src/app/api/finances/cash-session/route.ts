@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status"); // allows ?status=open
 
-    const filter: any = { restaurantId: session.user.restaurantId };
+    const filter: Record<string, unknown> = { restaurantId: session.user.restaurantId };
     if (status) {
       filter.status = status;
     }
@@ -30,9 +30,10 @@ export async function GET(request: Request) {
       .populate("closedByUserId", "fullName username");
 
     return NextResponse.json({ cashSessions });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching cash sessions:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const msg = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
 
@@ -74,14 +75,15 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ cashSession: newSession }, { status: 201 });
-  } catch (error: any) {
-    if (error.code === 11000) {
+  } catch (error: unknown) {
+    if ((error as { code?: number }).code === 11000) {
       return NextResponse.json(
         { error: "A session is already open." },
         { status: 400 },
       );
     }
     console.error("Error opening cash session:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const msg = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

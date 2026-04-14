@@ -5,7 +5,7 @@ import { connectToDatabase } from "@/lib/mongodb";
 import CashSession from "@/models/cashSession";
 import Order from "@/models/order";
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
     await connectToDatabase();
     const session = await getServerSession(authOptions);
@@ -30,10 +30,9 @@ export async function GET(request: Request) {
     }
 
     // Calcular estadísticas en vivo
-    const orders = await Order.find({ cashSessionId: openSession._id }).populate(
-      "createdByUserId",
-      "fullName"
-    ).sort({ createdAt: -1 });
+    const orders = await Order.find({ cashSessionId: openSession._id })
+      .populate("createdByUserId", "fullName")
+      .sort({ createdAt: -1 });
 
     let totalSales = 0;
     let totalCash = 0;
@@ -57,7 +56,7 @@ export async function GET(request: Request) {
         orderCount++;
 
         let subtotal = 0;
-        order.items.forEach((item: any) => {
+        order.items.forEach((item: { name: string; qty: number; unitPrice: number; mealId: string }) => {
           subtotal += item.unitPrice * item.qty;
 
           if (!dishesRaw[item.mealId]) {
@@ -79,7 +78,7 @@ export async function GET(request: Request) {
         }
         totalSales += orderTotal;
 
-        order.payments.forEach((payment: any) => {
+        order.payments.forEach((payment: { type: string; amount: number }) => {
           if (payment.type === "cash") totalCash += payment.amount;
           else if (payment.type === "card") totalCard += payment.amount;
           else if (payment.type === "transfer") totalTransfer += payment.amount;
@@ -109,8 +108,9 @@ export async function GET(request: Request) {
       { activeSession: openSession, stats, orders },
       { status: 200 },
     );
-  } catch (error: any) {
-    console.error("Error fetching live stats:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    console.error("Error fetching current cash session stats:", error);
+    const msg = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
