@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import { handleAuthError, requireAuth } from "@/lib/auth-helpers";
 import Counter from "@/models/counter";
+import CashSession from "@/models/cashSession";
 import Order from "@/models/order";
 
 async function getNextOrderNumber(restaurantId: string) {
@@ -58,6 +59,21 @@ export async function POST() {
       );
     }
 
+    const cashSession = await CashSession.findOne({
+      restaurantId,
+      status: "open",
+    });
+
+    if (!cashSession) {
+      return NextResponse.json(
+        { 
+          error: "No hay una caja abierta. Solicite apertura de caja.",
+          code: "NO_OPEN_SESSION"
+        },
+        { status: 403 }
+      );
+    }
+
     const orderNumber = await getNextOrderNumber(restaurantId);
 
     const order = await Order.create({
@@ -70,6 +86,7 @@ export async function POST() {
       items: [],
       adjustment: null,
       payments: [],
+      cashSessionId: cashSession._id,
     });
 
     return NextResponse.json(order, { status: 201 });

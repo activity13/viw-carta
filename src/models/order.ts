@@ -133,7 +133,9 @@ const needsRebuild =
     !customerPath?.schema?.path?.("address") ||
     !customerPath?.schema?.path?.("surname") ||
     !existingModel.schema?.path?.("cashSessionId") ||
-    !(existingModel.schema?.path?.("status") as { enumValues?: string[] })?.enumValues?.includes?.("cancelled"));
+    !(
+      existingModel.schema?.path?.("status") as { enumValues?: string[] }
+    )?.enumValues?.includes?.("cancelled"));
 
 if (needsRebuild) {
   console.log("Rebuilding Order model due to schema changes");

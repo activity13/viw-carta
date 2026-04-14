@@ -55,7 +55,7 @@ export function paymentLabel(type: PaymentType): string {
     case "card":
       return "Tarjeta";
     case "transfer":
-      return "Transferencia";
+      return "Transf./Yape/Plin";
     default:
       return "Otro";
   }

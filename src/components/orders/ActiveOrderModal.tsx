@@ -8,23 +8,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import {
   Loader2,
   Plus,
   Search,
   CreditCard,
   Printer,
-  PauseCircle,
   Banknote,
-  Utensils,
-  User,
-  Calculator,
   Trash2,
   CheckCircle2,
   AlertTriangle,
   ShoppingBag as ShoppingBagIcon,
+  X,
 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import Axios from "axios";
@@ -44,6 +39,7 @@ import {
 } from "@/types/order";
 import { useOrderManager } from "@/hooks/use-order-manager";
 import { RoleGate } from "@/components/auth/RoleGate";
+import { cn } from "@/lib/utils";
 
 // Local interface matching master.tsx
 export interface Meal {
@@ -109,8 +105,12 @@ export function ActiveOrderModal({
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchResults, setShowSearchResults] = useState(false);
 
-  const [clientSearchStatus, setClientSearchStatus] = useState<"idle" | "searching" | "found" | "not_found">("idle");
-  const [clientSearchResults, setClientSearchResults] = useState<ClientSearchResult[]>([]);
+  const [clientSearchStatus, setClientSearchStatus] = useState<
+    "idle" | "searching" | "found" | "not_found"
+  >("idle");
+  const [clientSearchResults, setClientSearchResults] = useState<
+    ClientSearchResult[]
+  >([]);
   const [showClientResults, setShowClientResults] = useState(false);
   const [isClientLocked, setIsClientLocked] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
@@ -123,7 +123,27 @@ export function ActiveOrderModal({
     if (invoiceTypeDraft === "boleta" && customerDraft.documentType === "dni") {
       if (customerDraft.documentNumber?.length !== 8) return false;
     }
+    if (customerDraft.email?.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(customerDraft.email.trim())) return false;
+    }
     return true;
+  }, [customerDraft, invoiceTypeDraft]);
+
+  const customerValidationMessage = useMemo(() => {
+    if (invoiceTypeDraft === "factura") {
+      if (customerDraft.documentType !== "ruc") return "FACTURA REQUIERE RUC";
+      if (customerDraft.documentNumber?.length !== 11)
+        return "RUC = 11 DÍGITOS";
+    }
+    if (invoiceTypeDraft === "boleta" && customerDraft.documentType === "dni") {
+      if (customerDraft.documentNumber?.length !== 8) return "DNI = 8 DÍGITOS";
+    }
+    if (customerDraft.email?.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(customerDraft.email.trim())) return "EMAIL INVÁLIDO";
+    }
+    return "FALTAN DATOS";
   }, [customerDraft, invoiceTypeDraft]);
 
   const isCustomerDirty = useMemo(() => {
@@ -155,11 +175,11 @@ export function ActiveOrderModal({
     const q = customerDraft.documentNumber?.trim() || "";
 
     if (!q) {
-       setClientSearchStatus("idle");
-       setClientSearchResults([]);
-       return;
+      setClientSearchStatus("idle");
+      setClientSearchResults([]);
+      return;
     }
-    
+
     if (isClientLocked) return;
 
     setClientSearchStatus("searching");
@@ -168,9 +188,9 @@ export function ActiveOrderModal({
         const { data } = await Axios.get(`/api/clients?search=${q}`);
         setClientSearchResults(data || []);
         if (data && data.length > 0) {
-           setClientSearchStatus("found");
+          setClientSearchStatus("found");
         } else {
-           setClientSearchStatus("not_found");
+          setClientSearchStatus("not_found");
         }
       } catch {
         setClientSearchStatus("idle");
@@ -187,23 +207,26 @@ export function ActiveOrderModal({
       // First, try to register it as a new client if we haven't selected from list
       if (!isClientLocked && customerDraft.documentNumber.trim()) {
         try {
-           await Axios.post("/api/clients", {
-             documentType: customerDraft.documentType,
-             documentNumber: customerDraft.documentNumber,
-             name: customerDraft.name,
-             lastName: customerDraft.surname || "",
-             businessName: customerDraft.documentType === 'ruc' ? customerDraft.name : undefined,
-             phone: customerDraft.phone,
-             address: customerDraft.address,
-             email: customerDraft.email
-           });
-           toast.success("Cliente nuevo registrado en BD");
-        } catch(e: unknown) {
-           // Silently ignore conflict if they already exist but weren't locked 
-           console.log("Client creation skipped", e);
+          await Axios.post("/api/clients", {
+            documentType: customerDraft.documentType,
+            documentNumber: customerDraft.documentNumber,
+            name: customerDraft.name,
+            lastName: customerDraft.surname || "",
+            businessName:
+              customerDraft.documentType === "ruc"
+                ? customerDraft.name
+                : undefined,
+            phone: customerDraft.phone,
+            address: customerDraft.address,
+            email: customerDraft.email,
+          });
+          toast.success("Cliente nuevo registrado en BD");
+        } catch (e: unknown) {
+          // Silently ignore conflict if they already exist but weren't locked
+          console.log("Client creation skipped", e);
         }
       }
-      
+
       // Save it to the order
       await handleSaveCustomer();
       setIsClientLocked(true); // Lock after save
@@ -247,130 +270,151 @@ export function ActiveOrderModal({
     setPaymentsDraft(paymentsDraft.filter((_, i) => i !== index));
   };
 
+  // Cleanup pointer events and modal state when closed
+  useEffect(() => {
+    if (!isOrderModalOpen) {
+      setSearchQuery("");
+      setShowSearchResults(false);
+      setShowClientResults(false);
+      setIsClientLocked(false);
+      setIsConfirming(false);
+
+      // Fix Radix UI body pointer events lock bug (fire and forget)
+      setTimeout(() => {
+        document.body.style.pointerEvents = "";
+      }, 500);
+    } else {
+      // Bulletproof: Force unlock immediately upon opening in case of rapid toggling
+      document.body.style.pointerEvents = "";
+    }
+  }, [isOrderModalOpen]);
+
   if (!activeOrder) return null;
 
   return (
     <Dialog open={isOrderModalOpen} onOpenChange={setIsOrderModalOpen}>
       <DialogContent
-        className="w-full max-w-[95vw] sm:max-w-[1400px]! h-[95vh] flex flex-col p-0 gap-0 overflow-hidden bg-background"
+        className="w-full max-w-[95vw] sm:max-w-[1400px]! h-[95vh] flex flex-col p-0 gap-0 overflow-hidden bg-[#0a0a0a] border border-[#222] text-[#e5e5e5]"
         onOpenAutoFocus={(e) => e.preventDefault()}
+        onInteractOutside={(e) => {
+          const hasToast = document.querySelector(
+            "[data-radix-toast-announce-exclude]",
+          );
+          if (hasToast) e.preventDefault();
+        }}
+        style={{ pointerEvents: "auto" }}
       >
-        {/* He
-        <div className="px-6 py-4 border-b flex items-center justify-between bg-muted/20">
-          <div className="flex items-center gap-3">
-            <Badge
-              variant="outline"
-              className="text-sm px-3 py-1 bg-background"
-            >
-              #{activeOrder.orderNumber}
-            </Badge>
-            <div>
-              <DialogTitle className="text-lg font-bold">
-                Orden Activa
-              </DialogTitle>
-              <p className="text-xs text-muted-foreground">
-                {activeOrder.status === "on_hold" ? "En espera" : "En curso"} ·{" "}
-                {activeOrder.createdAt
-                  ? new Date(activeOrder.createdAt).toLocaleString([], {
-                      year: "numeric",
-                      month: "2-digit",
-                      day: "2-digit",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })
-                  : ""}
-              </p>
-            </div>
+        {/* Header - Control Operativo */}
+        <div className="flex items-center justify-between p-6 border-b border-[#222] bg-[#0a0a0a] z-30 shrink-0">
+          <div>
+            <h1 className="text-xl md:text-3xl text-white font-black tracking-[0.2em] md:tracking-[0.3em] font-mono uppercase">
+              P R O C E S A R <span className="opacity-0">_</span> O R D E N
+            </h1>
+            <p className="text-[10px] text-muted-foreground/50 font-mono tracking-widest mt-2 uppercase">
+              Sistema de Control Operativo V2.4
+            </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-start gap-4">
+            <div className="hidden md:flex flex-col items-end">
+              <span className="px-3 py-1 bg-[#1a1a1a] border border-[#333] rounded font-mono text-xs text-[#70d8c8] tracking-widest font-bold">
+                #{activeOrder.orderNumber}
+              </span>
+              <span className="text-[10px] text-muted-foreground/60 font-mono uppercase mt-2 tracking-widest">
+                {activeOrder.status === "on_hold" ? "EN ESPERA" : "EN CURSO"}
+              </span>
+            </div>
             {isOrderBusy && (
-              <Loader2 className="w-5 h-5 animate-spin text-primary" />
+              <Loader2 className="w-5 h-5 animate-spin text-[#70d8c8] mt-1" />
             )}
             <Button
               variant="ghost"
               size="icon"
+              className="text-muted-foreground hover:text-white hover:bg-[#222] rounded-full"
               onClick={() => setIsOrderModalOpen(false)}
             >
-              <X className="w-5 h-5" />
+              <X className="w-6 h-6" />
             </Button>
           </div>
         </div>
 
         {/* Main Content - Scrollable */}
-        <div className="flex-1 overflow-y-auto bg-muted/5 p-4 md:p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto bg-[#0a0a0a] flex flex-col">
           {/* 1. Products Container */}
-          <SectionCard
-            title="Productos"
-            icon={<Utensils className="w-4 h-4" />}
-            className="min-h-[400px] flex flex-col"
-          >
+          <div className="flex flex-col p-6 xl:px-12 border-b border-[#222] shrink-0">
             {/* Search Bar */}
-            <div className="sticky top-0 z-20 py-2 -mx-2 px-2 border-b border-border/50 mb-3 backdrop-blur-sm bg-card/80">
-              <div className="relative">
-                <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Buscar producto por código o nombre..."
-                  className="pl-9 bg-muted/50 border-muted-foreground/20 focus:bg-background transition-all hover:bg-muted/70"
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    setShowSearchResults(true);
-                  }}
-                  onFocus={() => setShowSearchResults(true)}
-                />
+            <div className="relative mb-6">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/50" />
+              <Input
+                placeholder="ESCANEAR O BUSCAR PRODUCTOS..."
+                className="pl-12 h-14 bg-[#111111] border-[#222] focus:border-[#70d8c8]/50 focus:ring-1 focus:ring-[#70d8c8]/50 transition-all font-mono text-sm tracking-wide text-white placeholder:text-muted-foreground/40 rounded-xl"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setShowSearchResults(true);
+                }}
+                onFocus={() => setShowSearchResults(true)}
+              />
 
-                {/* Search Suggestions Dropdown */}
-                {showSearchResults && searchQuery && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-popover border border-border/50 rounded-lg shadow-xl ring-1 ring-black/5 z-50 max-h-[300px] overflow-y-auto animate-in fade-in zoom-in-95 duration-100">
-                    {filteredMeals.length === 0 ? (
-                      <div className="p-4 text-sm text-muted-foreground text-center">
-                        No se encontraron productos
-                      </div>
-                    ) : (
-                      filteredMeals.map((meal) => (
-                        <button
-                          key={meal._id}
-                          className="w-full text-left p-3 hover:bg-muted/50 flex items-center justify-between border-b border-border/40 last:border-0 transition-colors group"
-                          onClick={() => handleSelectMeal(meal._id)}
-                        >
-                          <div>
-                            <div className="font-medium text-sm text-foreground group-hover:text-primary transition-colors">
-                              {meal.name}
+              {/* Search Suggestions Dropdown */}
+              {showSearchResults && searchQuery && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-[#111] border border-[#333] rounded-xl shadow-2xl z-50 max-h-[300px] overflow-y-auto overflow-hidden">
+                  {filteredMeals.length === 0 ? (
+                    <div className="p-6 text-sm text-muted-foreground/50 text-center font-mono uppercase tracking-widest">
+                      Sin resultados
+                    </div>
+                  ) : (
+                    filteredMeals.map((meal) => (
+                      <button
+                        key={meal._id}
+                        className="w-full text-left p-4 hover:bg-[#1a1a1a] flex items-center justify-between border-b border-[#222] last:border-0 transition-colors group"
+                        onClick={() => handleSelectMeal(meal._id)}
+                      >
+                        <div>
+                          <div className="font-bold text-sm text-[#e5e5e5] group-hover:text-[#70d8c8] transition-colors uppercase tracking-wide">
+                            {meal.name}
+                          </div>
+                          {meal.description && (
+                            <div className="text-[10px] text-muted-foreground/50 font-mono mt-1 uppercase tracking-wider line-clamp-1">
+                              {meal.description}
                             </div>
-                            {meal.description && (
-                              <div className="text-xs text-muted-foreground line-clamp-1">
-                                {meal.description}
-                              </div>
-                            )}
-                          </div>
-                          <div className="font-mono font-medium text-sm text-muted-foreground group-hover:text-foreground">
-                            S/. {meal.basePrice.toFixed(2)}
-                          </div>
-                        </button>
-                      ))
-                    )}
-                  </div>
-                )}
-              </div>
+                          )}
+                        </div>
+                        <div className="font-mono font-bold text-sm text-[#70d8c8]">
+                          S/. {meal.basePrice.toFixed(2)}
+                        </div>
+                      </button>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Overlay to close search */}
             {showSearchResults && (
               <div
-                className="fixed inset-0 z-10 bg-transparent"
+                className="fixed inset-0 z-40 bg-transparent"
                 onClick={() => setShowSearchResults(false)}
-                style={{ pointerEvents: "auto" }} // Fixed pointer events
+                style={{ pointerEvents: "auto" }}
               />
             )}
 
+            {/* Product List Header */}
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-[10px] text-muted-foreground/50 uppercase tracking-[0.3em] font-bold">
+                Productos Seleccionados
+              </h2>
+              <div className="px-2 py-1 bg-[#111] border border-[#222] text-[#70d8c8] font-mono text-[10px] tracking-widest rounded font-bold">
+                {activeOrder.items.length} ITEMS
+              </div>
+            </div>
+
             {/* Product List */}
-            <div className="flex-1 space-y-3 overflow-y-auto pr-1">
+            <div className="flex-1 space-y-0">
               {activeOrder.items.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-40 text-muted-foreground border-2 border-dashed border-muted rounded-xl bg-muted/5">
-                  <ShoppingBagIcon className="w-10 h-10 mb-3 opacity-20" />
-                  <p className="text-sm font-medium">La orden está vacía</p>
-                  <p className="text-xs opacity-70">
-                    Utiliza el buscador para agregar items
+                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground/30 border border-dashed border-[#222] rounded-2xl bg-[#0f0f0f]">
+                  <ShoppingBagIcon className="w-12 h-12 mb-4 opacity-20" />
+                  <p className="text-xs font-mono uppercase tracking-widest font-bold">
+                    La orden está vacía
                   </p>
                 </div>
               ) : (
@@ -386,51 +430,59 @@ export function ActiveOrderModal({
                 ))
               )}
             </div>
-          </SectionCard>
+          </div>
 
           {/* 2. Customer Container */}
           <RoleGate action="can_register_client">
-          <SectionCard
-            title="Información del Cliente"
-            icon={<User className="w-4 h-4" />}
-            className="overflow-hidden"
-          >
-            <div className="space-y-5">
-              {/* Top Row: Primary Identification */}
-              <div className="p-5 bg-linear-to-br from-white/80 via-white/50 to-muted/30 dark:from-zinc-900/80 dark:via-zinc-900/50 dark:to-muted/10 rounded-2xl border border-white/40 dark:border-white/5 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05),inset_0_1px_0_rgba(255,255,255,0.2)] space-y-4 sm:space-y-6 backdrop-blur-sm">
-                {/* Row 1: Mesa & Comprobante */}
-                <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 sm:gap-6">
+            <div className="flex flex-col p-6 xl:px-12 border-b border-[#222] shrink-0">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-[10px] text-muted-foreground/50 uppercase tracking-[0.3em] font-bold">
+                  Registro de Cliente
+                </h2>
+                <div
+                  className="text-[10px] text-[#70d8c8]/70 font-mono tracking-widest font-bold uppercase hover:text-[#70d8c8] cursor-pointer transition-colors"
+                  onClick={() => {
+                    document.getElementById("search-client-input")?.focus();
+                  }}
+                >
+                  Buscar Existente
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                {/* Top Row: Primary Identification */}
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
                   {/* Mesa */}
-                  <div className="col-span-1 sm:col-span-3">
-                    <label className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground/70 mb-2 block">
+                  <div className="col-span-1 md:col-span-2">
+                    <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/60 mb-2 block">
                       Mesa
                     </label>
                     <div className="relative group">
-                      <div className="absolute left-3 top-2.5 text-muted-foreground transition-colors group-focus-within:text-emerald-600 z-10">
-                        <span className="text-sm font-bold">#</span>
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/40 font-mono">
+                        #
                       </div>
                       <Input
                         value={tableNumberDraft}
                         onChange={(e) => setTableNumberDraft(e.target.value)}
                         placeholder="00"
-                        className="pl-7 h-10 font-mono text-lg font-bold bg-white/50 dark:bg-zinc-900/50 border-muted-foreground/15 shadow-sm transition-all focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 rounded-xl text-foreground"
+                        className="pl-8 h-12 font-mono text-lg font-bold bg-[#111] border-[#222] focus:border-[#70d8c8]/50 focus:ring-1 focus:ring-[#70d8c8]/50 text-[#e5e5e5] rounded-xl transition-all placeholder:text-muted-foreground/20"
                       />
                     </div>
                   </div>
 
                   {/* Tipo Comprobante */}
-                  <div className="col-span-1 sm:col-span-9">
-                    <label className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground/70 mb-2 block">
+                  <div className="col-span-1 md:col-span-4">
+                    <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/60 mb-2 block">
                       Comprobante
                     </label>
                     <Select
                       value={invoiceTypeDraft}
                       onValueChange={(v: InvoiceType) => setInvoiceTypeDraft(v)}
                     >
-                      <SelectTrigger className="h-10 bg-white/50 dark:bg-zinc-900/50 border-muted-foreground/15 shadow-sm transition-all focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 rounded-xl">
+                      <SelectTrigger className="h-12 bg-[#111] border-[#222] focus:border-[#70d8c8]/50 focus:ring-1 focus:ring-[#70d8c8]/50 rounded-xl text-[#e5e5e5]">
                         <SelectValue placeholder="Seleccionar" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-[#111] border-[#333]">
                         <SelectItem value="boleta">
                           Boleta de Venta (B-001)
                         </SelectItem>
@@ -440,13 +492,11 @@ export function ActiveOrderModal({
                       </SelectContent>
                     </Select>
                   </div>
-                </div>
 
-                {/* Row 2: Document Identity (Full Width now) */}
-                <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
-                  <div className="col-span-1 sm:col-span-3">
-                    <label className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground/70 mb-2 block">
-                      Tipo Doc.
+                  {/* Tipo Doc. */}
+                  <div className="col-span-1 md:col-span-2">
+                    <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/60 mb-2 block">
+                      Doc.
                     </label>
                     <Select
                       value={customerDraft.documentType}
@@ -457,99 +507,110 @@ export function ActiveOrderModal({
                         }))
                       }
                     >
-                      <SelectTrigger className="h-10 bg-white/50 dark:bg-zinc-900/50 border-muted-foreground/15 shadow-sm transition-all focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 rounded-xl">
+                      <SelectTrigger className="h-12 bg-[#111] border-[#222] focus:border-[#70d8c8]/50 focus:ring-1 focus:ring-[#70d8c8]/50 rounded-xl text-[#e5e5e5]">
                         <SelectValue placeholder="Tipo" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-[#111] border-[#333]">
                         <SelectItem value="none">--</SelectItem>
                         <SelectItem value="dni">DNI</SelectItem>
                         <SelectItem value="ruc">RUC</SelectItem>
-                        <SelectItem value="passport">Pasaporte</SelectItem>
-                        <SelectItem value="ci">Cédula</SelectItem>
+                        <SelectItem value="passport">PASAPORTE</SelectItem>
+                        <SelectItem value="ci">CÉDULA</SelectItem>
                         <SelectItem value="ce">CE</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="col-span-1 sm:col-span-9">
-                    <label className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground/70 mb-2 block">
-                      Número / Buscar Cliente
-                    </label>
-                    <div className="relative group">
-                      <Input
-                        value={customerDraft.documentNumber}
-                        onChange={(e) => {
-                          setCustomerDraft((prev) => ({
-                            ...prev,
-                            documentNumber: e.target.value,
-                          }));
-                          setIsClientLocked(false);
-                          setShowClientResults(true);
-                        }}
-                        onFocus={() => setShowClientResults(true)}
-                        placeholder="DNI, RUC, Nombre..."
-                        className="h-10 font-mono text-base tracking-wide bg-white/50 dark:bg-zinc-900/50 border-muted-foreground/15 shadow-sm transition-all focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 rounded-xl pl-4"
-                      />
-                      <div className="absolute right-3 top-3 pointer-events-none transition-opacity bg-transparent">
-                        {clientSearchStatus === "searching" ? (
-                           <Loader2 className="w-4 h-4 text-emerald-500 animate-spin" />
-                        ) : isClientLocked ? (
-                           <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                        ) : clientSearchStatus === "not_found" && customerDraft.documentNumber.length > 2 ? (
-                           <Search className="w-4 h-4 text-amber-500" />
-                        ) : (
-                           <Search className="w-4 h-4 text-emerald-500/50 opacity-0 group-focus-within:opacity-100" />
-                        )}
-                      </div>
 
-                      {/* Dropdown Suggestions */}
-                      {showClientResults && clientSearchResults.length > 0 && !isClientLocked && (
-                        <div className="absolute top-full left-0 right-0 mt-2 bg-popover border border-border/50 rounded-lg shadow-xl ring-1 ring-black/5 z-50 max-h-[250px] overflow-y-auto animate-in fade-in zoom-in-95 duration-100">
+                  {/* Número / Buscar Cliente */}
+                  <div className="col-span-1 md:col-span-4 relative group">
+                    <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/60 mb-2 block">
+                      ID CLIENTE
+                    </label>
+                    <Input
+                      id="search-client-input"
+                      value={customerDraft.documentNumber}
+                      onChange={(e) => {
+                        setCustomerDraft((prev) => ({
+                          ...prev,
+                          documentNumber: e.target.value,
+                        }));
+                        setIsClientLocked(false);
+                        setShowClientResults(true);
+                      }}
+                      onFocus={() => setShowClientResults(true)}
+                      placeholder="DNI, RUC..."
+                      className="h-12 font-mono text-base tracking-wide bg-[#111] border-[#222] focus:border-[#70d8c8]/50 focus:ring-1 focus:ring-[#70d8c8]/50 text-[#e5e5e5] rounded-xl pl-4 placeholder:text-muted-foreground/30 transition-all uppercase"
+                    />
+                    <div className="absolute right-4 top-10 pointer-events-none transition-opacity bg-transparent">
+                      {clientSearchStatus === "searching" ? (
+                        <Loader2 className="w-4 h-4 text-[#70d8c8] animate-spin" />
+                      ) : isClientLocked ? (
+                        <CheckCircle2 className="w-4 h-4 text-[#70d8c8]" />
+                      ) : clientSearchStatus === "not_found" &&
+                        customerDraft.documentNumber.length > 2 ? (
+                        <Search className="w-4 h-4 text-[#70d8c8]/50" />
+                      ) : (
+                        <Search className="w-4 h-4 text-[#70d8c8]/30 opacity-0 group-focus-within:opacity-100" />
+                      )}
+                    </div>
+
+                    {showClientResults &&
+                      clientSearchResults.length > 0 &&
+                      !isClientLocked && (
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-[#111] border border-[#333] rounded-xl shadow-2xl z-50 max-h-[250px] overflow-y-auto">
                           {clientSearchResults.map((client) => (
                             <button
                               key={client._id}
-                              className="w-full text-left p-3 hover:bg-muted/50 flex flex-col border-b border-border/40 last:border-0 transition-colors"
+                              className="w-full text-left p-4 hover:bg-[#1a1a1a] flex flex-col border-b border-[#222] last:border-0 transition-colors uppercase tracking-widest"
                               onClick={() => {
-                                setCustomerDraft(p => ({
+                                setCustomerDraft((p) => ({
                                   ...p,
-                                  documentType: (client.documentType as DocumentType) || "none",
+                                  documentType:
+                                    (client.documentType as DocumentType) ||
+                                    "none",
                                   documentNumber: client.documentNumber,
-                                  name: client.name || client.businessName || "",
+                                  name:
+                                    client.name || client.businessName || "",
                                   surname: client.lastName || "",
                                   email: client.email || "",
                                   phone: client.phone || "",
-                                  address: client.address || ""
+                                  address: client.address || "",
                                 }));
                                 setIsClientLocked(true);
                                 setShowClientResults(false);
                               }}
                             >
-                              <div className="font-medium text-sm text-foreground">
-                                {client.documentNumber} - {client.name || client.businessName} {client.lastName || ""}
+                              <div className="font-bold text-xs text-[#e5e5e5]">
+                                <span className="text-[#70d8c8] mr-2 font-mono">
+                                  {client.documentNumber}
+                                </span>
+                                {client.name || client.businessName}{" "}
+                                {client.lastName || ""}
                               </div>
-                              {client.phone && <div className="text-xs text-muted-foreground">Tel: {client.phone}</div>}
+                              {client.phone && (
+                                <div className="text-[10px] text-muted-foreground/50 font-mono mt-1">
+                                  TEL: {client.phone}
+                                </div>
+                              )}
                             </button>
                           ))}
                         </div>
                       )}
-                    </div>
-                    
-                    {/* Overlay to close search */}
-                    {showClientResults && (
-                      <div
-                        className="fixed inset-0 z-10 bg-transparent"
-                        onClick={() => setShowClientResults(false)}
-                      />
-                    )}
                   </div>
-                </div>
-              </div>
 
-              {/* Personal Info Row */}
-              <div className="space-y-4">
+                  {showClientResults && (
+                    <div
+                      className="fixed inset-0 z-10 bg-transparent"
+                      onClick={() => setShowClientResults(false)}
+                    />
+                  )}
+                </div>
+
+                {/* Personal Info Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="text-xs font-medium text-foreground/80 mb-2 block ml-1">
-                      Nombres
+                    <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/60 mb-2 block">
+                      Nombre Completo
                     </label>
                     <Input
                       value={customerDraft.name}
@@ -559,14 +620,14 @@ export function ActiveOrderModal({
                           name: e.target.value,
                         }))
                       }
-                      placeholder="Nombre del cliente"
+                      placeholder="NOMBRES"
                       disabled={isClientLocked}
-                      className="h-10 bg-muted/5 border-input hover:bg-background focus:bg-background transition-colors focus:ring-2 focus:ring-emerald-500/20 rounded-xl disabled:opacity-50"
+                      className="h-12 bg-[#111] border-[#222] focus:border-[#70d8c8]/50 focus:ring-1 focus:ring-[#70d8c8]/50 text-[#e5e5e5] rounded-xl placeholder:text-muted-foreground/20 disabled:opacity-50 uppercase tracking-widest text-sm"
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-foreground/80 mb-2 block ml-1">
-                      Apellidos
+                    <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/60 mb-2 block min-h-[15px]">
+                      {/* Apellidos Label Spacer */}
                     </label>
                     <Input
                       value={customerDraft.surname || ""}
@@ -576,18 +637,18 @@ export function ActiveOrderModal({
                           surname: e.target.value,
                         }))
                       }
-                      placeholder="Apellidos"
+                      placeholder="APELLIDOS (OPCIONAL)"
                       disabled={isClientLocked}
-                      className="h-10 bg-muted/5 border-input hover:bg-background focus:bg-background transition-colors focus:ring-2 focus:ring-emerald-500/20 rounded-xl disabled:opacity-50"
+                      className="h-12 bg-[#111] border-[#222] focus:border-[#70d8c8]/50 focus:ring-1 focus:ring-[#70d8c8]/50 text-[#e5e5e5] rounded-xl placeholder:text-muted-foreground/20 disabled:opacity-50 uppercase tracking-widest text-sm"
                     />
                   </div>
                 </div>
 
-                {/* Contact Info (Collapsible-ish feel) */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+                {/* Contact Info */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="relative group">
-                    <label className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground/70 mb-2 block">
-                      E-mail
+                    <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/60 mb-2 block">
+                      Email
                     </label>
                     <Input
                       type="email"
@@ -598,14 +659,13 @@ export function ActiveOrderModal({
                           email: e.target.value,
                         }))
                       }
-                      placeholder="Email"
+                      placeholder="EMAIL"
                       disabled={isClientLocked}
-                      className=" h-10 border-muted-foreground/20 bg-background/50 focus:bg-background transition-all focus:ring-2 focus:ring-emerald-500/20 rounded-xl disabled:opacity-50"
+                      className="h-12 bg-[#0f0f0f] border-b border-[#222] border-t-0 border-x-0 rounded-none focus:border-[#70d8c8]/50 text-[#e5e5e5] placeholder:text-muted-foreground/20 disabled:opacity-50 uppercase tracking-widest text-xs font-mono"
                     />
                   </div>
-
                   <div className="relative group">
-                    <label className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground/70 mb-2 block">
+                    <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/60 mb-2 block">
                       Celular
                     </label>
                     <Input
@@ -617,14 +677,13 @@ export function ActiveOrderModal({
                           phone: e.target.value,
                         }))
                       }
-                      placeholder="Celular"
+                      placeholder="TEL"
                       disabled={isClientLocked}
-                      className=" h-10 border-muted-foreground/20 bg-background/50 focus:bg-background transition-all focus:ring-2 focus:ring-emerald-500/20 rounded-xl disabled:opacity-50"
+                      className="h-12 bg-[#0f0f0f] border-b border-[#222] border-t-0 border-x-0 rounded-none focus:border-[#70d8c8]/50 text-[#e5e5e5] placeholder:text-muted-foreground/20 disabled:opacity-50 uppercase tracking-widest text-xs font-mono"
                     />
                   </div>
-
                   <div className="relative group">
-                    <label className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground/70 mb-2 block">
+                    <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/60 mb-2 block">
                       Dirección
                     </label>
                     <Input
@@ -635,299 +694,325 @@ export function ActiveOrderModal({
                           address: e.target.value,
                         }))
                       }
-                      placeholder="Dirección"
+                      placeholder="DIRECCIÓN"
                       disabled={isClientLocked}
-                      className=" h-10 border-muted-foreground/20 bg-background/50 focus:bg-background transition-all focus:ring-2 focus:ring-emerald-500/20 rounded-xl disabled:opacity-50"
+                      className="h-12 bg-[#0f0f0f] border-b border-[#222] border-t-0 border-x-0 rounded-none focus:border-[#70d8c8]/50 text-[#e5e5e5] placeholder:text-muted-foreground/20 disabled:opacity-50 uppercase tracking-widest text-xs font-mono"
                     />
+                  </div>
+                </div>
+
+                {/* Validation and Status */}
+                <div className="flex justify-between items-center pt-4">
+                  <div className="flex items-center">
+                    {!isCustomerValid ? (
+                      <span className="inline-flex items-center px-2 py-1 text-[10px] tracking-widest font-mono text-[#5c1616] border border-[#5c1616]/50 rounded">
+                        <AlertTriangle className="w-3 h-3 mr-2" />
+                        {customerValidationMessage}
+                      </span>
+                    ) : clientSearchStatus === "not_found" &&
+                      customerDraft.documentNumber.trim().length > 2 &&
+                      !isClientLocked ? (
+                      <span className="text-[10px] font-mono tracking-widest text-amber-600/70 uppercase">
+                        NUEVO CLIENTE
+                      </span>
+                    ) : null}
+                  </div>
+
+                  <div className="h-8 flex items-center justify-end">
+                    {isCustomerSaving ? (
+                      <div className="flex items-center text-[#70d8c8] animate-pulse">
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                        <span className="text-[10px] font-mono tracking-widest uppercase font-bold">
+                          Guardando...
+                        </span>
+                      </div>
+                    ) : !isCustomerDirty ? (
+                      <div className="flex items-center text-[#e5e5e5]/50 transition-all">
+                        <CheckCircle2 className="w-4 h-4 mr-2" />
+                        <span className="text-[10px] font-mono tracking-widest uppercase font-bold">
+                          Datos enlazados
+                        </span>
+                      </div>
+                    ) : (
+                      <Button
+                        size="sm"
+                        className="h-8 text-[10px] tracking-widest font-mono bg-[#1a1a1a] hover:bg-[#70d8c8] text-white hover:text-black border border-[#333] transition-colors"
+                        onClick={handleConfirmCustomerBtn}
+                        disabled={isConfirming}
+                      >
+                        {isConfirming && (
+                          <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                        )}
+                        FIJAR CLIENTE
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>
             </div>
-
-            <div className="flex justify-between mt-4 pt-3 border-t border-dashed items-center gap-4">
-              <div className="flex items-center">
-                {!isCustomerValid ? (
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-medium bg-amber-50 text-amber-700 border border-amber-200">
-                    <AlertTriangle className="w-3 h-3 mr-1" />
-                    Faltan datos requeridos (ej. RUC = 11 dígitos)
-                  </span>
-                ) : clientSearchStatus === "not_found" && customerDraft.documentNumber.trim().length > 2 && !isClientLocked ? (
-                  <div className="flex items-center gap-2">
-                     <span className="text-[11px] font-medium text-amber-600 border border-amber-600/30 rounded px-2">Cliente nuevo (Ingresar datos a mano)</span>
-                  </div>
-                ) : null}
-              </div>
-
-              <div className="h-6 flex items-center justify-end">
-                {isCustomerSaving ? (
-                  <div className="flex items-center text-xs text-muted-foreground animate-pulse">
-                    <Loader2 className="w-3 h-3 animate-spin mr-2" />
-                    <span className="text-[10px] uppercase tracking-wide">
-                      Guardando...
-                    </span>
-                  </div>
-                ) : !isCustomerDirty ? (
-                  <div className="flex items-center text-xs text-emerald-600 font-medium opacity-80 transition-all duration-500 ease-out">
-                    <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />
-                    <span className="text-[10px] uppercase tracking-wide">
-                      Guardado en orden
-                    </span>
-                  </div>
-                ) : (
-                  <Button size="sm" className="h-7 text-[11px] px-3 bg-primary/90" onClick={handleConfirmCustomerBtn} disabled={isConfirming}>
-                    {isConfirming && <Loader2 className="w-3 h-3 mr-1 animate-spin" />}
-                     Confirmar en Orden
-                  </Button>
-                )}
-              </div>
-            </div>
-          </SectionCard>
           </RoleGate>
 
           {/* 3. Pricing Container */}
           <RoleGate action="can_set_adjustment">
-          <SectionCard
-            title="Resumen de Precios"
-            icon={<Calculator className="w-4 h-4" />}
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 p-3 bg-muted/20 rounded-md border border-border/50">
-                  <Select
-                    value={adjustmentDraft.kind}
-                    onValueChange={(val: AdjustmentKind) =>
-                      setAdjustmentDraft((prev) => ({ ...prev, kind: val }))
-                    }
-                  >
-                    <SelectTrigger className="w-[110px] h-8 text-xs bg-background">
-                      <SelectValue placeholder="Tipo" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="discount">Descuento</SelectItem>
-                      <SelectItem value="surcharge">Recargo</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Input
-                    type="number"
-                    placeholder="%"
-                    className="w-16 h-8 text-xs text-center bg-background"
-                    min={0}
-                    max={100}
-                    value={adjustmentDraft.percent || ""}
-                    onChange={(e) =>
-                      setAdjustmentDraft((prev) => ({
-                        ...prev,
-                        percent: Number(e.target.value),
-                      }))
-                    }
-                  />
-                  <Input
-                    placeholder="Motivo (opcional)"
-                    className="h-8 text-xs flex-1 bg-background"
-                    value={adjustmentDraft.note || ""}
-                    onChange={(e) =>
-                      setAdjustmentDraft((prev) => ({
-                        ...prev,
-                        note: e.target.value,
-                      }))
-                    }
-                  />
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-8 w-8 p-0"
-                    onClick={handleSaveAdjustment}
-                    disabled={isOrderBusy}
-                    title="Aplicar ajuste"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </Button>
-                </div>
-
-                {activeOrder.adjustment && (
-                  <div className="flex items-center justify-between text-xs p-2 bg-yellow-50/10 border border-yellow-500/20 text-yellow-600 rounded">
-                    <span>
-                      {activeOrder.adjustment.kind === "discount"
-                        ? "Descuento aplicado"
-                        : "Recargo aplicado"}
-                      : {activeOrder.adjustment.percent}%
-                    </span>
-                    <button
-                      onClick={handleRemoveAdjustment}
-                      className="underline hover:text-yellow-700"
+            <div className="flex flex-col p-6 xl:px-12 border-b border-[#222] shrink-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <div className="space-y-4">
+                  <h2 className="text-[10px] text-muted-foreground/50 uppercase tracking-[0.3em] font-bold mb-4">
+                    Resumen de Precios
+                  </h2>
+                  <div className="flex items-center gap-2 p-1 bg-[#111] rounded-xl border border-[#222]">
+                    <Select
+                      value={adjustmentDraft.kind}
+                      onValueChange={(val: AdjustmentKind) =>
+                        setAdjustmentDraft((prev) => ({ ...prev, kind: val }))
+                      }
                     >
-                      Quitar
-                    </button>
+                      <SelectTrigger className="w-[120px] h-10 border-0 bg-transparent text-xs text-[#e5e5e5] uppercase tracking-widest focus:ring-0">
+                        <SelectValue placeholder="Tipo" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-[#1a1a1a] border-[#333]">
+                        <SelectItem value="discount">DESC</SelectItem>
+                        <SelectItem value="surcharge">REC</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="w-px h-6 bg-[#333]"></div>
+                    <Input
+                      type="number"
+                      placeholder="%"
+                      className="w-16 h-10 border-0 bg-transparent text-xs text-center text-[#70d8c8] font-bold focus-visible:ring-0"
+                      min={0}
+                      max={100}
+                      value={adjustmentDraft.percent || ""}
+                      onChange={(e) =>
+                        setAdjustmentDraft((prev) => ({
+                          ...prev,
+                          percent: Number(e.target.value),
+                        }))
+                      }
+                    />
+                    <div className="w-px h-6 bg-[#333]"></div>
+                    <Input
+                      placeholder="MOTIVO"
+                      className="h-10 border-0 bg-transparent text-xs flex-1 uppercase tracking-widest text-[#e5e5e5] placeholder:text-muted-foreground/30 focus-visible:ring-0"
+                      value={adjustmentDraft.note || ""}
+                      onChange={(e) =>
+                        setAdjustmentDraft((prev) => ({
+                          ...prev,
+                          note: e.target.value,
+                        }))
+                      }
+                    />
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-10 w-10 p-0 hover:bg-[#222] text-[#70d8c8] rounded-lg"
+                      onClick={handleSaveAdjustment}
+                      disabled={isOrderBusy}
+                      title="Aplicar ajuste"
+                    >
+                      <Plus className="w-5 h-5" />
+                    </Button>
                   </div>
-                )}
-              </div>
 
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between text-muted-foreground">
-                  <span>Subtotal</span>
-                  <span className="font-mono">S/. {subtotal.toFixed(2)}</span>
+                  {activeOrder.adjustment && (
+                    <div className="flex items-center justify-between text-xs p-3 bg-[#111] border border-[#70d8c8]/20 text-[#70d8c8] rounded-lg font-mono">
+                      <span className="uppercase tracking-widest">
+                        {activeOrder.adjustment.kind === "discount"
+                          ? "DESC: "
+                          : "REC: "}
+                        {activeOrder.adjustment.percent}%
+                      </span>
+                      <button
+                        onClick={handleRemoveAdjustment}
+                        className="underline hover:text-[#e5e5e5] uppercase tracking-widest"
+                      >
+                        QUITAR
+                      </button>
+                    </div>
+                  )}
                 </div>
-                {activeOrder.adjustment && (
-                  <div className="flex justify-between text-emerald-600">
-                    <span>
-                      {activeOrder.adjustment.kind === "discount"
-                        ? "Descuento"
-                        : "Recargo"}{" "}
-                      ({activeOrder.adjustment.percent}%)
-                    </span>
-                    <span className="font-mono">
-                      {activeOrder.adjustment.kind === "discount" ? "-" : "+"}
-                      S/. {adjustmentAmount.toFixed(2)}
+
+                <div className="space-y-3 font-mono text-sm self-end">
+                  <div className="flex justify-between text-muted-foreground/50 tracking-widest uppercase mb-2">
+                    <span>Subtotal</span>
+                    <span className="text-[#e5e5e5]">
+                      S/. {subtotal.toFixed(2)}
                     </span>
                   </div>
-                )}
-                <Separator className="my-2" />
-                <div className="flex justify-between text-lg font-bold">
-                  <span>Total</span>
-                  <span className="font-mono text-primary">
-                    S/. {total.toFixed(2)}
-                  </span>
+                  {activeOrder.adjustment && (
+                    <div className="flex justify-between text-[#70d8c8] tracking-widest uppercase">
+                      <span>
+                        {activeOrder.adjustment.kind === "discount"
+                          ? "Descuento"
+                          : "Recargo"}{" "}
+                        ({activeOrder.adjustment.percent}%)
+                      </span>
+                      <span>
+                        {activeOrder.adjustment.kind === "discount" ? "-" : "+"}
+                        S/. {adjustmentAmount.toFixed(2)}
+                      </span>
+                    </div>
+                  )}
+                  <div className="border-t border-[#333] my-3"></div>
+                  <div className="flex justify-between text-xl font-bold tracking-widest uppercase">
+                    <span className="text-white">Total</span>
+                    <span className="text-[#70d8c8]">
+                      S/. {total.toFixed(2)}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
-          </SectionCard>
           </RoleGate>
 
           {/* 4. Payment Container */}
           <RoleGate action="can_register_payment">
-          <SectionCard
-            title="Registro de Pagos"
-            icon={<CreditCard className="w-4 h-4" />}
-          >
-            <div className="space-y-3">
-              {paymentsDraft.map((payment, idx) => (
-                <div key={idx} className="flex gap-2 items-center">
-                  <Select
-                    value={payment.type}
-                    onValueChange={(val: PaymentType) =>
-                      setPaymentsDraft((prev) =>
-                        prev.map((x, i) =>
-                          i === idx ? { ...x, type: val } : x,
-                        ),
-                      )
-                    }
+            <div className="flex flex-col p-6 xl:px-12 border-b border-[#222] shrink-0 pb-32">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-[10px] text-muted-foreground/50 uppercase tracking-[0.3em] font-bold">
+                  Control Operativo
+                </h2>
+              </div>
+
+              <div className="space-y-6">
+                {paymentsDraft.map((payment, idx) => (
+                  <div
+                    key={idx}
+                    className="bg-[#111] border border-[#222] p-4 rounded-xl relative group"
                   >
-                    <SelectTrigger className="w-[140px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="cash">Efectivo</SelectItem>
-                      <SelectItem value="card">Tarjeta</SelectItem>
-                      <SelectItem value="transfer">Yape/Plin</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <div className="relative flex-1">
-                    <span className="absolute left-3 top-2.5 text-muted-foreground text-sm font-mono">
-                      S/.
-                    </span>
-                    <Input
-                      type="number"
-                      className="pl-9 font-mono font-bold"
-                      placeholder="0.00"
-                      value={payment.amount || ""}
-                      onChange={(e) =>
-                        setPaymentsDraft((prev) =>
-                          prev.map((x, i) =>
-                            i === idx
-                              ? { ...x, amount: Number(e.target.value) }
-                              : x,
-                          ),
-                        )
-                      }
-                    />
+                    {/* Big Selector Buttons */}
+                    <div className="grid grid-cols-3 gap-2 mb-4">
+                      {[
+                        { id: "card", label: "TARJETA", icon: CreditCard },
+                        { id: "cash", label: "EFECTIVO", icon: Banknote },
+                        {
+                          id: "transfer",
+                          label: "TRANSFERENCIA / BILLETERA DIGITAL",
+                          icon: CreditCard,
+                        },
+                      ].map((opt) => {
+                        const Icon = opt.icon;
+                        const isSelected = payment.type === opt.id;
+                        return (
+                          <button
+                            key={opt.id}
+                            className={cn(
+                              "flex flex-col items-center justify-center p-4 border rounded-lg transition-all duration-200",
+                              isSelected
+                                ? "bg-[#1a1a1a] border-[#70d8c8]/50 text-[#70d8c8]"
+                                : "bg-[#0a0a0a] border-[#222] text-muted-foreground/40 hover:bg-[#151515] hover:text-[#e5e5e5]",
+                            )}
+                            onClick={() => {
+                              setPaymentsDraft((prev) =>
+                                prev.map((x, i) =>
+                                  i === idx
+                                    ? { ...x, type: opt.id as PaymentType }
+                                    : x,
+                                ),
+                              );
+                            }}
+                          >
+                            <Icon className="w-6 h-6 mb-2 opacity-80" />
+                            <span className="text-[10px] font-mono tracking-widest uppercase font-bold">
+                              {opt.label}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Amount Input */}
+                    <div className="flex items-center gap-4">
+                      <div className="relative flex-1">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#70d8c8] font-mono font-bold">
+                          S/.
+                        </span>
+                        <Input
+                          type="number"
+                          className="pl-12 h-14 bg-[#0a0a0a] border-[#222] focus:border-[#70d8c8]/50 focus:ring-1 focus:ring-[#70d8c8]/50 text-[#e5e5e5] font-mono font-bold text-xl rounded-lg"
+                          placeholder="0.00"
+                          value={payment.amount || ""}
+                          onChange={(e) =>
+                            setPaymentsDraft((prev) =>
+                              prev.map((x, i) =>
+                                i === idx
+                                  ? { ...x, amount: Number(e.target.value) }
+                                  : x,
+                              ),
+                            )
+                          }
+                        />
+                      </div>
+                      {paymentsDraft.length > 1 && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removePaymentMethod(idx)}
+                          className="h-14 w-14 rounded-lg bg-[#5c1616]/20 text-[#ffb4ab] border border-[#5c1616] hover:bg-[#5c1616]/80 hover:text-white transition-colors shrink-0"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                  {paymentsDraft.length > 1 && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removePaymentMethod(idx)}
-                      className="text-muted-foreground hover:text-destructive"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  )}
-                </div>
-              ))}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={addPaymentMethod}
-                className="w-full border-dashed text-muted-foreground hover:text-foreground"
-              >
-                <Plus className="w-4 h-4 mr-2" /> Agregar método de pago
-              </Button>
+                ))}
+
+                <Button
+                  variant="outline"
+                  onClick={addPaymentMethod}
+                  className="w-full h-14 border border-dashed border-[#333] bg-transparent text-muted-foreground hover:text-[#70d8c8] hover:border-[#70d8c8]/50 hover:bg-[#70d8c8]/5 uppercase tracking-widest font-mono text-xs rounded-xl transition-all"
+                >
+                  <Plus className="w-4 h-4 mr-2" /> DIVIDIR PAGO (OTRO MÉTODO)
+                </Button>
+              </div>
             </div>
-          </SectionCard>
           </RoleGate>
         </div>
 
-        {/* Fixed Footer */}
-        <div className="p-4 bg-background border-t shadow-lg z-20 sticky bottom-0">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <Button
-              variant="outline"
-              onClick={handlePrintKitchenOrder}
-              disabled={isOrderBusy}
-            >
-              <Printer className="w-4 h-4 mr-2" /> Cocina
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handlePrintPrebill}
-              disabled={isOrderBusy}
-            >
-              <Printer className="w-4 h-4 mr-2" /> Pre-cuenta
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={handleHoldOrder}
-              disabled={isOrderBusy}
-              className="bg-amber-100 text-amber-800 hover:bg-amber-200 border-amber-200"
-            >
-              <PauseCircle className="w-4 h-4 mr-2" /> En Espera
-            </Button>
+        {/* Floating Technical Footer */}
+        <div className="p-4 bg-[#0a0a0a]/80 backdrop-blur-md border-t border-[#222] z-40 shrink-0">
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:justify-between sm:items-center gap-4 max-w-[1400px] mx-auto xl:px-8">
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                onClick={handleHoldOrder}
+                disabled={isOrderBusy}
+                className="flex-1 sm:flex-none h-14 bg-[#111] hover:bg-[#1a1a1a] border-[#333] text-muted-foreground hover:text-[#e5e5e5] uppercase font-mono tracking-widest text-[10px] sm:text-xs rounded-xl"
+              >
+                MANTENER ORDEN
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handlePrintKitchenOrder}
+                disabled={isOrderBusy}
+                className="flex-1 sm:flex-none h-14 bg-[#111] hover:bg-[#1a1a1a] border-[#333] text-muted-foreground hover:text-[#e5e5e5] uppercase font-mono tracking-widest text-[10px] sm:text-xs rounded-xl"
+              >
+                <Printer className="w-4 h-4 sm:mr-2" />{" "}
+                <span className="hidden sm:inline">COCINA</span>
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handlePrintPrebill}
+                disabled={isOrderBusy}
+                className="flex-1 sm:flex-none h-14 bg-[#111] hover:bg-[#1a1a1a] border-[#333] text-muted-foreground hover:text-[#e5e5e5] uppercase font-mono tracking-widest text-[10px] sm:text-xs rounded-xl"
+              >
+                <Printer className="w-4 h-4 sm:mr-2" />{" "}
+                <span className="hidden sm:inline">TICKET</span>
+              </Button>
+            </div>
+
             <RoleGate action="can_submit_order">
-            <Button
-              onClick={handlePayOrder}
-              disabled={isOrderBusy}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-md shadow-emerald-200"
-            >
-              <Banknote className="w-4 h-4 mr-2" /> Pagar (S/.{" "}
-              {total.toFixed(2)})
-            </Button>
+              <Button
+                onClick={handlePayOrder}
+                disabled={isOrderBusy}
+                className="h-16 w-full sm:w-[350px] bg-[#70d8c8] hover:bg-[#5bc2b2] text-[#0a0a0a] font-bold shadow-[0_0_30px_-5px_rgba(112,216,200,0.4)] hover:shadow-[0_0_40px_0_rgba(112,216,200,0.6)] uppercase tracking-[0.2em] font-mono text-sm rounded-xl transition-all"
+              >
+                <CheckCircle2 className="w-5 h-5 mr-3" /> PROCESAR PAGO
+              </Button>
             </RoleGate>
           </div>
         </div>
       </DialogContent>
     </Dialog>
-  );
-}
-
-function SectionCard({
-  title,
-  icon,
-  children,
-  className,
-}: {
-  title: string;
-  icon: React.ReactNode;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <Card className={`shadow-sm border-muted ${className}`}>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-medium flex items-center gap-2 text-muted-foreground">
-          {icon}
-          {title}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>{children}</CardContent>
-    </Card>
   );
 }

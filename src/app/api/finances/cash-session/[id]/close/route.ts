@@ -42,6 +42,17 @@ export async function POST(
     // Para simplificar, buscamos órdenes asociadas a este cashSessionId
     const orders = await Order.find({ cashSessionId: id });
 
+    const hasUnfinishedOrders = orders.some(
+      (o) => o.status === "active" || o.status === "on_hold"
+    );
+
+    if (hasUnfinishedOrders) {
+      return NextResponse.json(
+        { error: "No se puede cerrar la caja si hay órdenes activas o en espera." },
+        { status: 400 }
+      );
+    }
+
     let totalSales = 0;
     let totalCash = 0;
     let totalCard = 0;

@@ -65,6 +65,17 @@ export async function POST(request: Request) {
       );
     }
 
+    // Validar el formato del correo electrónico
+    if (email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return NextResponse.json(
+          { error: "El formato del correo electrónico no es válido." },
+          { status: 400 }
+        );
+      }
+    }
+
     const client = await Client.create({
       restaurantId,
       documentType: documentType || "none",

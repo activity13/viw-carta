@@ -216,9 +216,10 @@ export default function FinancesClient() {
           type: "success",
         });
       } else {
+        const errData = await res.json().catch(() => null);
         setAlertMessage({
-          title: "Error",
-          message: "Error al cerrar caja.",
+          title: "No es posible cerrar la caja",
+          message: errData?.error || "Error al cerrar caja.",
           type: "error",
         });
       }
@@ -524,7 +525,7 @@ export default function FinancesClient() {
 
           <div className="bg-[#1c1b1b] rounded-xl p-6 border-l-4 border-[#3d4947]/30 transition-all hover:bg-[#201f1f]">
             <p className="text-[#bdc9c6] text-[10px] font-['Plus_Jakarta_Sans'] font-bold uppercase tracking-widest mb-2 opacity-70">
-              Tarjetas & Transf.
+              Tarjetas & Digitales
             </p>
             <p className="text-3xl font-black text-[#e5e2e1]">
               S/{" "}
@@ -636,7 +637,7 @@ export default function FinancesClient() {
                           let pLabel = "Otro";
                           if (pType === "cash") pLabel = "Efectivo";
                           if (pType === "card") pLabel = "Tarjeta";
-                          if (pType === "transfer") pLabel = "Transf.";
+                          if (pType === "transfer") pLabel = "Tr/Yape";
 
                           return (
                             <tr

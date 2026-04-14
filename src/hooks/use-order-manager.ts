@@ -250,6 +250,23 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
       await fetchHoldOrders();
     } catch (error: unknown) {
       const status = getAxiosStatus(error);
+      if (
+        status === 403 &&
+        Axios.isAxiosError(error) &&
+        error.response?.data?.code === "NO_OPEN_SESSION"
+      ) {
+        toast.error("Caja Cerrada", {
+          description: "No hay una caja abierta para registrar ventas.",
+          action: {
+            label: "Ir a Finanzas",
+            onClick: () => {
+              window.location.href = "/backoffice/finances";
+            },
+          },
+          duration: 10000,
+        });
+        return;
+      }
       if (status === 409) {
         toast.error("Ya tienes una orden activa");
         await fetchActiveOrder();
