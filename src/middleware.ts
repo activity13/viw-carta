@@ -22,12 +22,11 @@ export default withAuth(
     const currentHost = getCurrentHost(req);
 
     const isRootHost =
-      currentHost === mainDomain || currentHost === `www.${mainDomain}`;
+      currentHost === mainDomain || currentHost === `www.${mainDomain}` || currentHost === "localhost";
 
     const isAppHost =
       currentHost === `app.${mainDomain}` ||
-      currentHost === "app.localhost" ||
-      currentHost === "localhost";
+      currentHost === "app.localhost";
 
     // --- ROOT DOMAIN: siempre público (landing) ---
     if (isRootHost) return NextResponse.next();

@@ -66,11 +66,13 @@ const EditableCell = ({
   onSave,
   type = "text",
   className = "",
+  disabled = false,
 }: {
   value: string | number;
   onSave: (val: string | number) => void;
   type?: "text" | "number" | "textarea";
   className?: string;
+  disabled?: boolean;
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [currentValue, setCurrentValue] = useState(value);
@@ -146,6 +148,20 @@ const EditableCell = ({
     );
   }
 
+  if (disabled) {
+    return (
+      <div className={`p-2 ${className}`}>
+        {type === "number" && typeof value === "number"
+          ? `S/. ${value.toFixed(2)}`
+          : value || (
+              <span className="text-muted-foreground italic text-xs">
+                Sin contenido
+              </span>
+            )}
+      </div>
+    );
+  }
+
   return (
     <div
       onClick={() => setIsEditing(true)}
@@ -173,6 +189,7 @@ const DraggableMobileCard = memo(
     openFullEdit,
     loadingId,
     canDrag,
+    canEdit,
   }: {
     meal: Meal;
     handleQuickUpdate: (
@@ -185,6 +202,7 @@ const DraggableMobileCard = memo(
     openFullEdit: (id: string) => void;
     loadingId: string | null;
     canDrag: boolean;
+    canEdit: boolean;
   }) => {
     const controls = useDragControls();
 
@@ -213,6 +231,7 @@ const DraggableMobileCard = memo(
               value={meal.name}
               onSave={(val) => handleQuickUpdate(meal._id, "name", val)}
               className="font-medium text-lg whitespace-normal wrap-break-word"
+              disabled={!canEdit}
             />
           </div>
 
@@ -225,6 +244,7 @@ const DraggableMobileCard = memo(
                 value={meal.basePrice}
                 onSave={(val) => handleQuickUpdate(meal._id, "basePrice", val)}
                 className="font-bold text-lg w-24"
+                disabled={!canEdit}
               />
             </div>
 
@@ -236,7 +256,7 @@ const DraggableMobileCard = memo(
                   onCheckedChange={() =>
                     handleToggleAvailable(meal._id, meal.display?.showInMenu)
                   }
-                  disabled={loadingId === meal._id}
+                  disabled={loadingId === meal._id || !canEdit}
                 />
               </div>
               <div className="flex items-center gap-3">
@@ -247,12 +267,14 @@ const DraggableMobileCard = memo(
                 >
                   <PlusCircle className="w-5 h-5" />
                 </button>
-                <button
-                  onClick={() => openFullEdit(meal._id)}
-                  className="p-2 bg-muted/50 hover:bg-muted rounded-full transition-colors text-muted-foreground hover:text-primary"
-                >
-                  <Edit3 className="w-5 h-5" />
-                </button>
+                {canEdit && (
+                  <button
+                    onClick={() => openFullEdit(meal._id)}
+                    className="p-2 bg-muted/50 hover:bg-muted rounded-full transition-colors text-muted-foreground hover:text-primary"
+                  >
+                    <Edit3 className="w-5 h-5" />
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -273,6 +295,7 @@ const DraggableRow = memo(
     openFullEdit,
     loadingId,
     canDrag,
+    canEdit,
   }: {
     meal: Meal;
     handleQuickUpdate: (
@@ -285,6 +308,7 @@ const DraggableRow = memo(
     openFullEdit: (id: string) => void;
     loadingId: string | null;
     canDrag: boolean;
+    canEdit: boolean;
   }) => {
     const controls = useDragControls();
 
@@ -313,6 +337,7 @@ const DraggableRow = memo(
             value={meal.name}
             onSave={(val) => handleQuickUpdate(meal._id, "name", val)}
             className="truncate block"
+            disabled={!canEdit}
           />
         </div>
         <div className="px-2">
@@ -320,6 +345,7 @@ const DraggableRow = memo(
             type="number"
             value={meal.basePrice}
             onSave={(val) => handleQuickUpdate(meal._id, "basePrice", val)}
+            disabled={!canEdit}
           />
         </div>
         <div className="px-2 flex justify-center items-center gap-2">
@@ -329,7 +355,7 @@ const DraggableRow = memo(
               onCheckedChange={() =>
                 handleToggleAvailable(meal._id, meal.display?.showInMenu)
               }
-              disabled={loadingId === meal._id}
+              disabled={loadingId === meal._id || !canEdit}
             />
           </div>
           <FeatureGate feature="add_to_order">
@@ -341,13 +367,15 @@ const DraggableRow = memo(
               <PlusCircle className="w-4 h-4" />
             </button>
           </FeatureGate>
-          <button
-            onClick={() => openFullEdit(meal._id)}
-            className="p-2 hover:bg-muted rounded-full transition-colors text-muted-foreground hover:text-primary"
-            title="Edición completa"
-          >
-            <Edit3 className="w-4 h-4" />
-          </button>
+          {canEdit && (
+            <button
+              onClick={() => openFullEdit(meal._id)}
+              className="p-2 hover:bg-muted rounded-full transition-colors text-muted-foreground hover:text-primary"
+              title="Edición completa"
+            >
+              <Edit3 className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </Reorder.Item>
     );
@@ -569,7 +597,9 @@ export default function Master() {
   };
 
   // Reorder Logic
+  const canEditMaster = hasRole(["superadmin", "admin"]);
   const canReorder =
+    canEditMaster &&
     selectedCategories.size === 1 &&
     searchTerm === "" &&
     filterStatus === "all" &&
@@ -803,6 +833,7 @@ export default function Master() {
                       openFullEdit={openFullEdit}
                       loadingId={loadingId}
                       canDrag={canReorder}
+                      canEdit={canEditMaster}
                     />
                   ))
                 )}
@@ -832,6 +863,7 @@ export default function Master() {
                       openFullEdit={openFullEdit}
                       loadingId={loadingId}
                       canDrag={canReorder}
+                      canEdit={canEditMaster}
                     />
                   ))
                 )}

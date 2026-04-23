@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -116,6 +117,14 @@ export default function Login() {
               </Button>
             </div>
           </form>
+          <div className="mt-6 text-center">
+            <Link
+              href="/"
+              className="text-green-300/60 hover:text-green-200 text-sm font-semibold transition-colors flex items-center justify-center gap-2 hover:underline"
+            >
+              ← Volver a la página principal
+            </Link>
+          </div>
         </CardContent>
       </Card>
     </div>

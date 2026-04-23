@@ -522,7 +522,7 @@ export function ActiveOrderModal({
                   </div>
 
                   {/* Número / Buscar Cliente */}
-                  <div className="col-span-1 md:col-span-4 relative group">
+                  <div className="col-span-1 md:col-span-4 relative group z-20">
                     <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/60 mb-2 block">
                       ID CLIENTE
                     </label>
@@ -539,7 +539,7 @@ export function ActiveOrderModal({
                       }}
                       onFocus={() => setShowClientResults(true)}
                       placeholder="DNI, RUC..."
-                      className="flex w-full outline-none disabled:cursor-not-allowed disabled:opacity-50 h-12 font-mono text-base tracking-wide bg-[#111] border border-[#222] focus:border-[#70d8c8]/50 focus:ring-1 focus:ring-[#70d8c8]/50 text-[#e5e5e5] rounded-xl px-4 placeholder:text-muted-foreground/30 transition-all uppercase"
+                      className="block w-full outline-none disabled:cursor-not-allowed disabled:opacity-50 h-12 font-mono text-base tracking-wide bg-[#111] border border-[#222] focus:border-[#70d8c8]/50 focus:ring-1 focus:ring-[#70d8c8]/50 text-[#e5e5e5] rounded-xl pl-4 pr-10 placeholder:text-muted-foreground/30 transition-all uppercase"
                     />
                     <div className="absolute right-4 top-10 pointer-events-none transition-opacity bg-transparent">
                       {clientSearchStatus === "searching" ? (

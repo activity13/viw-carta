@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { Sparkles, ExternalLink, Loader2, Printer } from "lucide-react";
 import { useFab } from "@/providers/ActionProvider";
@@ -22,6 +23,7 @@ import {
 
 export function SmartFAB() {
   const { data: session } = useSession();
+  const pathname = usePathname();
   const { actions } = useFab();
   const [isOpen, setIsOpen] = useState(false);
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
@@ -105,6 +107,8 @@ export function SmartFAB() {
       transition: { duration: 0.25 },
     },
   };
+
+  if (pathname === "/backoffice/login") return null;
 
   return (
     <>

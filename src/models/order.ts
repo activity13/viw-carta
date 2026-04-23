@@ -76,6 +76,7 @@ const OrderSchema = new Schema(
       index: true,
     },
     tableNumber: { type: String, trim: true, default: "" },
+    invoiceType: { type: String, enum: ["boleta", "factura"], default: "boleta" },
     customer: { type: OrderCustomerSchema, default: () => ({}) },
     items: { type: [OrderItemSchema], default: [] },
     // Discounts / surcharges (percentage)
@@ -126,6 +127,7 @@ const needsRebuild =
   process.env.NODE_ENV !== "production" &&
   !!existingModel &&
   (!existingModel.schema?.path?.("tableNumber") ||
+    !existingModel.schema?.path?.("invoiceType") ||
     !existingModel.schema?.path?.("adjustment") ||
     !adjustmentPath?.schema?.path?.("note") ||
     !itemsPath?.schema?.path?.("notes") ||
