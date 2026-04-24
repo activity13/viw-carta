@@ -43,10 +43,8 @@ export default withAuth(
         return NextResponse.next();
       }
 
-      // Si llegan a "/" o a una ruta no-backoffice en app., redirigir:
-      // - con sesión -> /backoffice
-      // - sin sesión -> /backoffice/login?callbackUrl=/backoffice
-      if (url.pathname === "/" || !url.pathname.startsWith("/backoffice")) {
+      // Si llegan a una ruta no-backoffice en app (excepto la raiz "/"), redirigir:
+      if (url.pathname !== "/" && !url.pathname.startsWith("/backoffice")) {
         const destination = hasAuthToken(req)
           ? "/backoffice"
           : "/backoffice/login?callbackUrl=/backoffice";
