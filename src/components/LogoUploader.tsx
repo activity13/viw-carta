@@ -28,7 +28,7 @@ export function LogoUploader({ slug, onUploadComplete }: LogoUploaderProps) {
     onClientUploadComplete: (res) => {
       if (res && res[0]) {
         toast.success("Logo actualizado correctamente");
-        onUploadComplete(res[0].url);
+        onUploadComplete(res[0].ufsUrl);
         setIsDialogOpen(false);
         setSelectedFile(null);
       }

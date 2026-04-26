@@ -12,7 +12,7 @@ const utapi = new UTApi();
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await requireAuth("staff");
@@ -23,7 +23,7 @@ export async function GET(
     if (id !== secureRestaurantId) {
       return NextResponse.json(
         { error: "No tienes permiso para generar el QR de este restaurante" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -32,7 +32,7 @@ export async function GET(
     if (!business) {
       return NextResponse.json(
         { error: "Negocio no encontrado" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -51,22 +51,31 @@ export async function GET(
         publicDir,
         business.slug,
         "images",
-        business.frameQR
+        business.frameQR,
       );
 
       if (!fs.existsSync(framePath)) {
         return NextResponse.json(
           { error: "No existe el marco QR" },
-          { status: 400 }
+          { status: 400 },
         );
       }
       frameBuffer = fs.readFileSync(framePath);
     }
 
+    // 0️⃣ Obtener dimensiones del marco
+    const frameMetadata = await sharp(frameBuffer).metadata();
+    const frameWidth = frameMetadata.width || 800;
+    const frameHeight = frameMetadata.height || 800;
+
+    // Evitar el error "Image to composite must have same dimensions or smaller"
+    // El QR tendrá un máximo de 800px o el tamaño más pequeño del marco (reducido ligeramente para margen opcional, o exacto si es muy pequeño)
+    const qrSize = Math.min(800, Math.min(frameWidth, frameHeight) * 0.8);
+
     // 1️⃣ Generar QR temporal
     const qrData = `https://${business.slug}.viw-carta.com`;
     const qrBuffer = await QRCode.toBuffer(qrData, {
-      width: 600,
+      width: qrSize,
       color: { dark: "#000000", light: "#0000" }, // fondo transparente
     });
 
@@ -82,7 +91,7 @@ export async function GET(
       `qr-${business.slug}.png`,
       {
         type: "image/png",
-      }
+      },
     );
 
     // 🗑️ Eliminar QR anterior si existe en UploadThing

@@ -28,7 +28,7 @@ export function FrameUploader({ slug, onUploadComplete }: FrameUploaderProps) {
     onClientUploadComplete: (res) => {
       if (res && res[0]) {
         toast.success("Marco QR actualizado correctamente");
-        onUploadComplete(res[0].url);
+        onUploadComplete(res[0].ufsUrl);
         setIsDialogOpen(false);
         setSelectedFile(null);
       }
@@ -59,7 +59,7 @@ export function FrameUploader({ slug, onUploadComplete }: FrameUploaderProps) {
         // Resolución máxima sugerida: 2048x2048
         if (img.width > 2048 || img.height > 2048) {
           toast.error(
-            `La resolución (${img.width}x${img.height}) es demasiado alta. Máximo recomendado: 2048x2048px.`
+            `La resolución (${img.width}x${img.height}) es demasiado alta. Máximo recomendado: 2048x2048px.`,
           );
           resolve(false);
         } else {
@@ -125,7 +125,7 @@ export function FrameUploader({ slug, onUploadComplete }: FrameUploaderProps) {
           <DialogHeader>
             <DialogTitle>¿Estás seguro de cambiar el Marco QR?</DialogTitle>
             <DialogDescription>
-              Esta acción reemplazará el marco actual inmediatamente.
+              Esta acción reemplazará el marco actual irremediablemente.
               <br />
               Asegurese de tener una copia de seguridad si es necesario.
             </DialogDescription>
