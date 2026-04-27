@@ -91,8 +91,8 @@ export function LogoUploader({ slug, onUploadComplete }: LogoUploaderProps) {
           <DialogHeader>
             <DialogTitle>¿Estás seguro de cambiar el logo?</DialogTitle>
             <DialogDescription>
-              Esta acción reemplazará el logo actual inmediatamente. Asegurate
-              de tener una copia de seguridad si es necesario.
+              Esta acción reemplazará el logo actual. Asegúrate de tener una
+              copia de seguridad si es necesario.
               <br />
             </DialogDescription>
           </DialogHeader>
