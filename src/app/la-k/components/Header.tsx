@@ -14,6 +14,8 @@ export default function Header({ restaurant }: HeaderProps) {
   const { name, image } = restaurant;
   const [scrolled, setScrolled] = useState(false);
 
+  console.log(image);
+
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", handleScroll);
@@ -46,7 +48,7 @@ export default function Header({ restaurant }: HeaderProps) {
             `}
           >
             <Image
-              src={`/la-k/images/${image}`}
+              src={image}
               alt={`Logo de ${name}`}
               fill
               className="object-contain p-1"

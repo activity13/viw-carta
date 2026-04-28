@@ -5,6 +5,7 @@ import { useCart } from "@/providers/CartProvider";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface AddToCartButtonProps {
   meal: {
@@ -17,6 +18,7 @@ interface AddToCartButtonProps {
 }
 
 export const AddToCartButton = ({ meal, className }: AddToCartButtonProps) => {
+  const { language } = useLanguage();
   const { items, addToCart, removeFromCart } = useCart();
   const cartItem = items.find((item) => item.mealId === meal.id);
   const quantity = cartItem ? cartItem.quantity : 0;
@@ -64,7 +66,9 @@ export const AddToCartButton = ({ meal, className }: AddToCartButtonProps) => {
       }}
     >
       <Plus className="sm:mr-2 h-4 w-4" />
-      <span className="hidden sm:inline">Agregar</span>
+      <span className="hidden sm:inline">
+        {language === "en" ? "Add" : "Agregar"}
+      </span>
     </Button>
   );
 };

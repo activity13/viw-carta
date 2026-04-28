@@ -70,6 +70,7 @@ function CartDrawer({
   restaurantPhone: string;
   restaurantName: string;
 }) {
+  const { language } = useLanguage();
   const {
     items,
     addToCart,
@@ -126,7 +127,7 @@ function CartDrawer({
         <div className="flex items-center justify-between p-5 border-b">
           <div className="flex items-center gap-2">
             <ShoppingCart className="w-5 h-5 text-primary" />
-            <h2 className="font-bold text-lg">Tu Pedido</h2>
+            <h2 className="font-bold text-lg">{language === "en" ? "Your Order" : "Tu Pedido"}</h2>
             {uniqueItemsCount > 0 && (
               <span className="text-xs bg-primary text-primary-foreground rounded-full px-2 py-0.5 font-medium">
                 {uniqueItemsCount}
@@ -146,7 +147,7 @@ function CartDrawer({
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full gap-3 text-muted-foreground">
               <ShoppingCart className="w-12 h-12 opacity-20" />
-              <p className="text-sm">Tu carrito está vacío</p>
+              <p className="text-sm">{language === "en" ? "Your cart is empty" : "Tu carrito está vacío"}</p>
             </div>
           ) : (
             items.map((item) => (
@@ -165,11 +166,13 @@ function CartDrawer({
                 {/* Name - Now more prominent and not cut off */}
                 <div className="pr-6">
                   <p className="font-bold text-sm leading-tight text-foreground">
-                    {item.name}
+                    {language === "en" && item.name_en ? item.name_en : item.name}
                   </p>
-                  {item.description && (
+                  {((language === "en" && item.description_en) || item.description) && (
                     <p className="text-[11px] text-muted-foreground truncate mt-0.5">
-                      {item.description.trim().replace(/\\n/g, " ")}
+                      {language === "en" && item.description_en 
+                        ? item.description_en.trim().replace(/\\n/g, " ") 
+                        : item.description?.trim().replace(/\\n/g, " ")}
                     </p>
                   )}
                 </div>
@@ -177,7 +180,7 @@ function CartDrawer({
                 <div className="flex items-center justify-between mt-1">
                    {/* Unit Price */}
                   <div className="flex flex-col">
-                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Precio Unid.</span>
+                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">{language === "en" ? "Unit Price" : "Precio Unid."}</span>
                     <span className="text-sm font-medium">S/ {item.price.toFixed(2)}</span>
                   </div>
 
@@ -208,7 +211,7 @@ function CartDrawer({
                     />
 
                     <button
-                      onClick={() => addToCart({ id: item.mealId, name: item.name, price: item.price, description: item.description })}
+                      onClick={() => addToCart({ id: item.mealId, name: item.name, name_en: item.name_en, price: item.price, description: item.description, description_en: item.description_en })}
                       className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary/20 transition-colors"
                     >
                       <Plus className="w-4 h-4" />
@@ -227,7 +230,7 @@ function CartDrawer({
                   onClick={() => removeItem(item.mealId)}
                   className="sm:hidden flex items-center justify-center gap-1.5 text-[10px] font-bold text-destructive py-1 border-t mt-1"
                 >
-                  <Trash2 className="w-3 h-3" /> ELIMINAR ITEM
+                  <Trash2 className="w-3 h-3" /> {language === "en" ? "REMOVE ITEM" : "ELIMINAR ITEM"}
                 </button>
               </div>
             ))
@@ -238,7 +241,7 @@ function CartDrawer({
         {items.length > 0 && (
           <div className="border-t p-5 space-y-4 bg-background">
             <div className="flex justify-between items-center">
-              <span className="text-muted-foreground font-medium">Total del Pedido</span>
+              <span className="text-muted-foreground font-medium">{language === "en" ? "Order Total" : "Total del Pedido"}</span>
               <span className="font-black text-2xl text-primary">
                 S/ {totalPrice.toFixed(2)}
               </span>
@@ -249,14 +252,14 @@ function CartDrawer({
               onClick={sendWhatsApp}
             >
               <MessageCircle className="w-6 h-6" />
-              Pedir por WhatsApp
+              {language === "en" ? "Order via WhatsApp" : "Pedir por WhatsApp"}
             </Button>
 
             <button
               onClick={clearCart}
               className="w-full text-xs text-muted-foreground hover:text-destructive transition-colors text-center py-1 font-medium"
             >
-              Vaciar carrito
+              {language === "en" ? "Clear cart" : "Vaciar carrito"}
             </button>
           </div>
         )}
@@ -348,10 +351,10 @@ function ProductCard({
           <Button
             size="sm"
             className="w-full rounded-full text-xs h-8"
-            onClick={() => addToCart({ id: meal.id, name, price: meal.price, description: desc })}
+            onClick={() => addToCart({ id: meal.id, name: meal.name, name_en: meal.name_en, price: meal.price, description: meal.description, description_en: meal.description_en })}
           >
             <Plus className="w-3 h-3 mr-1" />
-            Agregar
+            {language === "en" ? "Add" : "Agregar"}
           </Button>
         ) : (
           <div className="flex items-center justify-between bg-primary/10 rounded-full px-3 py-1.5">
@@ -364,7 +367,7 @@ function ProductCard({
             <span className="text-sm font-bold text-primary">{quantity}</span>
             <button
               onClick={() =>
-                addToCart({ id: meal.id, name, price: meal.price, description: desc })
+                addToCart({ id: meal.id, name: meal.name, name_en: meal.name_en, price: meal.price, description: meal.description, description_en: meal.description_en })
               }
               className="w-5 h-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-sm"
             >
@@ -594,7 +597,7 @@ export default function StoreCatalog({ data, restaurant }: StoreCatalogProps) {
           {filteredMeals.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-24 gap-3 text-muted-foreground">
               <Store className="w-12 h-12 opacity-20" />
-              <p className="text-sm">No se encontraron productos</p>
+              <p className="text-sm">{language === "en" ? "No products found" : "No se encontraron productos"}</p>
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">

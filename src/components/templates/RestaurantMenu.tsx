@@ -63,83 +63,163 @@ function HubScreen({
   language: string;
   onStart: (categoryId?: string) => void;
 }) {
+  const { toggleLanguage } = useLanguage();
   const t = (es?: string, en?: string) =>
     language === "en" && en ? en : es || "";
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 py-16 text-center">
-      {/* Logo */}
-      <div className="w-28 h-28 rounded-full border-4 border-primary/20 overflow-hidden bg-muted shadow-lg mb-6 relative">
-        {restaurant.image ? (
-          <Image
-            src={
-              restaurant.image.startsWith("http")
-                ? restaurant.image
-                : `/${restaurant.slug}/images/${restaurant.image}`
-            }
-            alt={restaurant.name}
-            fill
-            className="object-cover"
-            unoptimized
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-primary/10">
-            <ChefHat className="w-10 h-10 text-primary" />
+    <div className="min-h-dvh bg-background flex flex-col pb-24">
+      <div className="flex-1 flex flex-col px-4 pt-10 max-w-md mx-auto w-full">
+        {/* 1. Header: Logo centrado y nombre */}
+        <div className="flex flex-col items-center mb-8">
+          <div className="w-28 h-28 rounded-full border-4 border-primary/10 overflow-hidden bg-card shadow-sm mb-4 relative flex items-center justify-center">
+            {restaurant.image ? (
+              <Image
+                src={
+                  restaurant.image.startsWith("http")
+                    ? restaurant.image
+                    : `/${restaurant.slug}/images/${restaurant.image}`
+                }
+                alt={restaurant.name}
+                fill
+                className="object-contain p-2"
+                unoptimized
+              />
+            ) : (
+              <ChefHat className="w-12 h-12 text-primary" />
+            )}
           </div>
-        )}
-      </div>
+          <h1 className="text-3xl font-black tracking-tight text-foreground uppercase text-center">
+            {restaurant.name}
+          </h1>
+        </div>
 
-      {/* Name & description */}
-      <h1 className="text-3xl font-bold tracking-tight mb-2">
-        {restaurant.name}
-      </h1>
-      {restaurant.description && (
-        <p className="text-muted-foreground max-w-sm text-sm leading-relaxed mb-8">
-          {restaurant.description.trim()}
-        </p>
-      )}
+        {/* 2. Banners Promocionales 2:1 */}
+        <div className="w-full flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-none mb-8 -mx-4 px-4 pb-2">
+          {/* Banner Negocio (Placeholder) */}
+          <div className="snap-center shrink-0 w-[85%] aspect-2/1 rounded-3xl bg-linear-to-br from-primary/90 to-primary text-primary-foreground p-5 flex flex-col justify-end relative overflow-hidden shadow-lg shadow-primary/20">
+            <div className="absolute inset-0 bg-black/5" />
+            <div className="absolute top-0 right-0 p-3 opacity-20">
+              <ChefHat className="w-20 h-20" />
+            </div>
+            <div className="relative z-10">
+              <span className="inline-block px-2.5 py-1 bg-white/20 backdrop-blur-md rounded-lg text-[10px] font-bold uppercase tracking-widest mb-2">
+                {language === "en" ? "New" : "Novedad"}
+              </span>
+              <h3 className="font-bold text-xl leading-tight mb-1">
+                {language === "en" ? "Welcome to" : "¡Bienvenido a"} {restaurant.name}!
+              </h3>
+              <p className="text-xs text-primary-foreground/90 line-clamp-1">
+                {language === "en" && false // Optional: If we had restaurant.description_en we'd use it, for now generic
+                  ? "Discover our best dishes"
+                  : restaurant.description || (language === "en" ? "Discover our best dishes" : "Descubre nuestros mejores platillos")}
+              </p>
+            </div>
+          </div>
 
-      {/* Category grid */}
-      <div className="w-full max-w-sm space-y-3 mb-10">
-        {categories.map((cat) => (
-          <button
-            key={cat.id}
-            onClick={() => onStart(cat.id)}
-            className="w-full flex items-center justify-between px-5 py-4 rounded-2xl border bg-card hover:bg-primary/5 hover:border-primary/40 transition-all group shadow-sm"
+          {/* Banner Viw-Carta */}
+          <a
+            href="https://viw-carta.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="snap-center shrink-0 w-[85%] aspect-2/1 rounded-3xl bg-linear-to-br from-zinc-900 to-black text-white p-5 flex flex-col justify-end relative overflow-hidden shadow-lg group"
           >
-            <div className="text-left">
-              <span className="font-semibold text-base">
+            <div className="absolute top-4 right-4 opacity-10 group-hover:opacity-20 transition-opacity">
+              <Globe className="w-20 h-20" />
+            </div>
+            <div className="relative z-10">
+              <span className="inline-block px-2.5 py-1 bg-white/10 backdrop-blur-md rounded-lg text-[10px] font-bold uppercase tracking-widest mb-2">
+                Powered By
+              </span>
+              <h3 className="font-bold text-xl leading-tight text-[#70d8c8] mb-1">
+                Viw-Carta
+              </h3>
+              <p className="text-xs text-zinc-400">
+                {language === "en" ? "Digitize your restaurant today." : "Digitaliza tu restaurante hoy."}
+              </p>
+            </div>
+          </a>
+        </div>
+
+        {/* 3. Tarjetas de Categorías (2 Columnas) */}
+        <div className="grid grid-cols-2 gap-3 mb-8">
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => onStart(cat.id)}
+              className="flex flex-col items-start p-4 rounded-3xl bg-card border border-primary/10 shadow-sm hover:shadow-md hover:border-primary/40 transition-all active:scale-95 text-left group"
+            >
+              <span className="font-bold text-sm leading-tight text-foreground mb-3 line-clamp-2 w-full group-hover:text-primary transition-colors">
                 {t(cat.name, cat.name_en)}
               </span>
-              <span className="block text-xs text-muted-foreground mt-0.5">
-                {cat.meals.length} {language === "en" ? "items" : "productos"}
-              </span>
-            </div>
-            <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
-          </button>
-        ))}
+              <div className="flex items-center justify-between w-full mt-auto">
+                <span className="text-[11px] font-medium text-muted-foreground bg-muted px-2.5 py-1 rounded-full">
+                  {cat.meals.length} {language === "en" ? "items" : "prods"}
+                </span>
+                <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary transition-colors">
+                  <ArrowRight className="w-3 h-3 text-primary group-hover:text-primary-foreground transition-colors" />
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+
+        {/* Main action: Ver menú completo */}
+        <Button
+          onClick={() => onStart()}
+          className="w-full h-14 rounded-2xl text-base font-bold shadow-xl shadow-primary/25 mb-6"
+        >
+          {language === "en" ? "View Full Menu" : "Ver menú completo"}
+        </Button>
       </div>
 
-      {/* See all */}
-      <Button size="lg" onClick={() => onStart()} className="rounded-full px-8">
-        {language === "en" ? "View Full Menu" : "Ver menú completo"}
-      </Button>
+      {/* 4. Bottom Navigation Bar (Instagram style) */}
+      <div className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-xl border-t border-border/50 z-50">
+        <div className="max-w-md mx-auto flex items-center justify-around h-[72px] px-2 pb-1">
+          {/* Llamar */}
+          <a
+            href={`tel:${restaurant.phone}`}
+            className="flex flex-col items-center justify-center w-20 h-full gap-1.5 text-muted-foreground hover:text-primary transition-colors active:scale-95"
+          >
+            <Phone className="w-6 h-6" />
+            <span className="text-[10px] font-semibold tracking-wide">
+              {language === "en" ? "Call" : "Llamar"}
+            </span>
+          </a>
 
-      {/* Footer mini */}
-      <div className="mt-12 flex flex-col gap-2 items-center text-xs text-muted-foreground">
-        <a
-          href={`tel:${restaurant.phone}`}
-          className="flex items-center gap-1 hover:text-foreground transition-colors"
-        >
-          <Phone className="w-3 h-3" />
-          {restaurant.phone}
-        </a>
-        {restaurant.direction && (
-          <span className="flex items-center gap-1">
-            <MapPin className="w-3 h-3" />
-            {restaurant.direction}
-          </span>
-        )}
+          {/* Ubicación */}
+          {restaurant.location ? (
+            <a
+              href={restaurant.location}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-col items-center justify-center w-20 h-full gap-1.5 text-muted-foreground hover:text-primary transition-colors active:scale-95"
+            >
+              <MapPin className="w-6 h-6" />
+              <span className="text-[10px] font-semibold tracking-wide">
+                {language === "en" ? "Location" : "Ubicación"}
+              </span>
+            </a>
+          ) : (
+            <div className="flex flex-col items-center justify-center w-20 h-full gap-1.5 text-muted-foreground opacity-40">
+              <MapPin className="w-6 h-6" />
+              <span className="text-[10px] font-semibold tracking-wide">
+                {language === "en" ? "Location" : "Ubicación"}
+              </span>
+            </div>
+          )}
+
+          {/* Idioma Toggle */}
+          <button
+            onClick={toggleLanguage}
+            className="flex flex-col items-center justify-center w-20 h-full gap-1.5 text-muted-foreground hover:text-primary transition-colors active:scale-95"
+          >
+            <Globe className="w-6 h-6" />
+            <span className="text-[10px] font-semibold tracking-wide uppercase">
+              {language === "en" ? "ES / EN" : "ES / EN"}
+            </span>
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -278,7 +358,7 @@ function MenuScreen({
         <aside className="hidden md:block w-64 shrink-0 py-8 pr-6 sticky top-[65px] h-[calc(100vh-65px)] overflow-y-auto z-30 scrollbar-hide">
           <nav className="flex flex-col gap-1.5">
             <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 px-2">
-              Categorías
+              {language === "en" ? "Categories" : "Categorías"}
             </h3>
             {categories.map((cat) => (
               <button
@@ -344,7 +424,7 @@ function MenuScreen({
                           />
                           {hasDiscount && (
                             <div className="absolute top-2 left-2 bg-destructive text-destructive-foreground text-[10px] font-bold px-2 py-0.5 rounded-full">
-                              OFERTA
+                              {language === "en" ? "SALE" : "OFERTA"}
                             </div>
                           )}
                         </div>
@@ -427,7 +507,7 @@ function MenuScreen({
                 className="flex items-center gap-2 text-primary hover:underline"
               >
                 <Globe className="w-4 h-4" />
-                Ver en Mapa
+                {language === "en" ? "View on Map" : "Ver en Mapa"}
               </a>
             )}
           </div>

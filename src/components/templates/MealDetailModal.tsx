@@ -78,7 +78,7 @@ export function MealDetailModal({
             />
             {hasDiscount && (
               <div className="absolute top-3 left-3 bg-destructive text-destructive-foreground text-xs font-bold px-2 py-1 rounded-full">
-                OFERTA
+                {language === "en" ? "SALE" : "OFERTA"}
               </div>
             )}
           </div>

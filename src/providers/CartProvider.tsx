@@ -6,7 +6,9 @@ import { generateOrderIdentity, OrderIdentity } from "@/utils/orderIdentity";
 export interface CartItem {
   mealId: string;
   name: string;
+  name_en?: string;
   description?: string;
+  description_en?: string;
   price: number;
   comparePrice?: number;
   images?: { url: string; alt?: string }[];
@@ -16,7 +18,7 @@ export interface CartItem {
 interface CartContextType {
   items: CartItem[];
   identity: OrderIdentity | null;
-  addToCart: (product: { id: string; name: string; price: number; description?: string }) => void;
+  addToCart: (product: { id: string; name: string; name_en?: string; price: number; description?: string; description_en?: string }) => void;
   removeFromCart: (mealId: string) => void;
   updateQuantity: (mealId: string, quantity: number | string) => void;
   removeItem: (mealId: string) => void;
@@ -55,7 +57,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ items, identity }));
   }, [items, identity, isLoaded]);
 
-  const addToCart = (product: { id: string; name: string; price: number; description?: string }) => {
+  const addToCart = (product: { id: string; name: string; name_en?: string; price: number; description?: string; description_en?: string }) => {
     setItems((prev) => {
       const existing = prev.find((i) => i.mealId === product.id);
 
@@ -78,8 +80,10 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         {
           mealId: product.id,
           name: product.name,
+          name_en: product.name_en,
           price: product.price,
           description: product.description,
+          description_en: product.description_en,
           quantity: 1,
         },
       ];

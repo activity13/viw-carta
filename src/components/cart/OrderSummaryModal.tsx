@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/providers/CartProvider";
 import { generateWhatsAppLink } from "@/utils/whatsapp";
 import { Send, Plus, Minus } from "lucide-react";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface OrderSummaryModalProps {
   isOpen: boolean;
@@ -25,6 +26,7 @@ export const OrderSummaryModal = ({
   onClose,
   restaurantPhone,
 }: OrderSummaryModalProps) => {
+  const { language } = useLanguage();
   const { items, identity, totalPrice, addToCart, removeFromCart, clearCart } =
     useCart();
 
@@ -43,22 +45,24 @@ export const OrderSummaryModal = ({
       <DialogContent className="sm:max-w-xl bg-background text-foreground z-100 p-6 border border-border font-sans">
         <DialogHeader>
           <DialogTitle className="flex flex-col gap-2">
-            <span>Tu Pedido</span>
+            <span>{language === "en" ? "Your Order" : "Tu Pedido"}</span>
             {identity && (
               <span className="text-sm font-normal bg-secondary text-secondary-foreground px-2 py-1 rounded-md self-start">
-                Pedido #{identity.shortId}
+                {language === "en" ? "Order #" : "Pedido #"}{identity.shortId}
               </span>
             )}
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Revisa tu selección antes de enviar el pedido por WhatsApp.
+            {language === "en" 
+              ? "Review your selection before sending the order via WhatsApp." 
+              : "Revisa tu selección antes de enviar el pedido por WhatsApp."}
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-2 py-2 max-h-96 overflow-y-auto">
           {items.length === 0 ? (
             <p className="text-center text-muted-foreground">
-              Tu carrito está vacío.
+              {language === "en" ? "Your cart is empty." : "Tu carrito está vacío."}
             </p>
           ) : (
             <div className="flex flex-col gap-3 max-h-[60vh] overflow-y-auto">
@@ -68,7 +72,9 @@ export const OrderSummaryModal = ({
                   className="flex items-center justify-between border-b border-border pb-2 last:border-0"
                 >
                   <div className="flex flex-col flex-1">
-                    <span className="font-medium">{item.name}</span>
+                    <span className="font-medium">
+                      {language === "en" && item.name_en ? item.name_en : item.name}
+                    </span>
                     <span className="text-sm text-muted-foreground">
                       S/.{(item.price * Number(item.quantity || 0)).toFixed(2)}
                     </span>
@@ -95,8 +101,10 @@ export const OrderSummaryModal = ({
                           addToCart({
                             id: item.mealId,
                             name: item.name,
+                            name_en: item.name_en,
                             price: item.price,
                             description: item.description,
+                            description_en: item.description_en,
                           })
                         }
                       >
@@ -119,7 +127,7 @@ export const OrderSummaryModal = ({
           </div>
           <div className="flex gap-2 w-full">
             <Button variant="outline" className="flex-1" onClick={clearCart}>
-              Limpiar
+              {language === "en" ? "Clear" : "Limpiar"}
             </Button>
             <Button
               className="flex-1"
@@ -127,7 +135,7 @@ export const OrderSummaryModal = ({
               disabled={items.length === 0}
             >
               <Send className="mr-2 h-4 w-4" />
-              Pedir por WhatsApp
+              {language === "en" ? "Order via WhatsApp" : "Pedir por WhatsApp"}
             </Button>
           </div>
         </DialogFooter>
