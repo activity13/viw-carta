@@ -47,13 +47,15 @@ export default function Header({ restaurant }: HeaderProps) {
               }
             `}
           >
-            <Image
-              src={image}
-              alt={`Logo de ${name}`}
-              fill
-              className="object-contain p-1"
-              priority
-            />
+            {image && (
+              <Image
+                src={image}
+                alt={`Logo de ${name}`}
+                fill
+                className="object-contain p-1"
+                priority
+              />
+            )}
           </div>
         </div>
       </header>
