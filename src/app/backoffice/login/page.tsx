@@ -18,17 +18,16 @@ import { Loader2 } from "lucide-react";
 export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/backoffice";
-  
+
   // Custom hook to redirect if already logged in
   const { status } = useSession();
-  
-  const safeCallbackUrl = callbackUrl.includes("/backoffice/login") 
-    ? "/backoffice" 
+
+  const safeCallbackUrl = callbackUrl.includes("/backoffice/login")
+    ? "/backoffice"
     : callbackUrl;
-  
+
   useEffect(() => {
     if (status === "authenticated") {
       window.location.href = safeCallbackUrl;
