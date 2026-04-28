@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useState, useEffect } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -25,9 +25,15 @@ export default function Login() {
   // Custom hook to redirect if already logged in
   const { status } = useSession();
   
-  if (status === "authenticated") {
-    router.push(callbackUrl);
-  }
+  const safeCallbackUrl = callbackUrl.includes("/backoffice/login") 
+    ? "/backoffice" 
+    : callbackUrl;
+  
+  useEffect(() => {
+    if (status === "authenticated") {
+      window.location.href = safeCallbackUrl;
+    }
+  }, [status, safeCallbackUrl]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -45,7 +51,9 @@ export default function Login() {
         setLoading(false);
         return;
       }
-      if (responseLogin?.ok) router.push(callbackUrl);
+      if (responseLogin?.ok) {
+        window.location.href = safeCallbackUrl;
+      }
     } catch (error) {
       console.error(error);
       setError("An unexpected error occurred. Please try again.");
