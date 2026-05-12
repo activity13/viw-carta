@@ -43,7 +43,7 @@ export interface OrderCustomer {
   address?: string;
 }
 
-export type InvoiceType = "boleta" | "factura";
+export type InvoiceType = "boleta" | "factura" | "nota_venta";
 
 export interface Order {
   _id: string;
@@ -52,11 +52,14 @@ export interface Order {
   tableNumber?: string;
   customer?: Partial<OrderCustomer>;
   invoiceType?: InvoiceType;
+  fiscalDocumentPrefix?: string;
+  fiscalDocumentNumber?: number;
   items: OrderItem[];
   adjustment?: OrderAdjustment | null;
   payments?: OrderPayment[];
   createdAt?: string;
   updatedAt?: string;
+  createdByUserId?: { fullName: string } | string;
 }
 
 export type TicketMode = "prebill" | "paid";
@@ -64,6 +67,16 @@ export type TicketMode = "prebill" | "paid";
 export type TicketBrand = {
   name?: string;
   image?: string;
+  direction?: string;
+  phone?: string;
+  fiscal?: {
+    ruc?: string;
+    legalName?: string;
+    taxName?: string;
+    taxPercentage?: number;
+    invoiceSeries?: string;
+    receiptSeries?: string;
+  };
 };
 
 export type PrintTicketOptions = {

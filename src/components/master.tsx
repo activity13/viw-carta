@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, memo } from "react";
+import { createPortal } from "react-dom";
 import Axios from "axios";
 import { Reorder, useDragControls } from "motion/react";
 import { Switch } from "@/components/ui/switch";
@@ -698,7 +699,21 @@ export default function Master() {
   }, [meals, selectedCategories, searchTerm, sortOrder, filterStatus]);
 
   return (
-    <div className="space-y-6 w-full max-w-7xl mx-auto">
+    <>
+      {/* --- PRINT CONTAINER (PORTAL TO AVOID NESTING ISSUES) --- */}
+      {typeof document !== "undefined" && ticketToPrint && createPortal(
+        <div id="ticket-print-container" className="print-portal hidden print:block">
+          <PrintableTicket
+            order={ticketToPrint.order}
+            mode={ticketToPrint.mode}
+            brand={ticketToPrint.brand}
+            printedBy={session?.user?.username || session?.user?.name || "Personal"}
+          />
+        </div>,
+        document.body
+      )}
+
+      <div className="space-y-6 w-full max-w-7xl mx-auto print:hidden">
       {/* Category Filter */}
       <div className="flex flex-col gap-2">
         <div className="flex justify-between items-center">
@@ -790,17 +805,7 @@ export default function Master() {
           </div>
         </div>
 
-        {/* --- PRINT CONTAINER --- */}
-        {ticketToPrint && (
-          <div id="ticket-print-container" className="hidden print:block">
-            <PrintableTicket
-              order={ticketToPrint.order}
-              mode={ticketToPrint.mode}
-              brand={ticketToPrint.brand}
-              printedBy={session?.user?.username || session?.user?.name || "Personal"}
-            />
-          </div>
-        )}
+
 
         <div className="p-6 pt-0">
           <div className="rounded-2xl border border-gray-800 bg-black">
@@ -905,5 +910,6 @@ export default function Master() {
         mealId={productId}
       />
     </div>
+    </>
   );
 }

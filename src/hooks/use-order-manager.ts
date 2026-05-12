@@ -11,6 +11,7 @@ import {
   TicketBrand,
   DocumentType,
   InvoiceType,
+  TicketMode,
 } from "@/types/order";
 import {
   calculateOrderTotal,
@@ -48,7 +49,7 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
   });
   const [tableNumberDraft, setTableNumberDraft] = useState<string>("");
   const [invoiceTypeDraft, setInvoiceTypeDraft] =
-    useState<InvoiceType>("boleta");
+    useState<InvoiceType>("nota_venta");
   const [adjustmentDraft, setAdjustmentDraft] = useState<OrderAdjustment>({
     kind: "surcharge",
     percent: 0,
@@ -167,13 +168,16 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
     const fetchBrand = async () => {
       if (!restaurantId) return;
       try {
-        const res = await Axios.get<{ name?: string; image?: string }>(
+        const res = await Axios.get<any>(
           `/api/settings/${restaurantId}`,
         );
         if (cancelled) return;
         setTicketBrand({
           name: res.data?.name,
           image: res.data?.image,
+          direction: res.data?.direction,
+          phone: res.data?.phone,
+          fiscal: res.data?.fiscal,
         });
       } catch {
         if (cancelled) return;
@@ -199,7 +203,7 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
     });
 
     setTableNumberDraft(order.tableNumber ?? "");
-    setInvoiceTypeDraft(order.invoiceType ?? "boleta");
+    setInvoiceTypeDraft(order.invoiceType ?? "nota_venta");
     setAdjustmentDraft(
       order.adjustment ?? { kind: "discount", percent: 0, note: "" },
     );

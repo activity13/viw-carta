@@ -156,6 +156,18 @@ const RestaurantSchema = new Schema(
       logoUrl: { type: String },
       coverImageUrl: { type: String },
     },
+    fiscal: {
+      ruc: { type: String, trim: true, default: "" },
+      legalName: { type: String, trim: true, default: "" },
+      taxName: { type: String, trim: true, default: "IGV" },
+      taxPercentage: { type: Number, default: 18 },
+      invoiceSeries: { type: String, trim: true, default: "F001" },
+      receiptSeries: { type: String, trim: true, default: "B001" },
+      ticketSeries: { type: String, trim: true, default: "NV01" },
+      currentInvoiceNumber: { type: Number, default: 0 },
+      currentReceiptNumber: { type: Number, default: 0 },
+      currentTicketNumber: { type: Number, default: 0 },
+    },
   },
   {
     timestamps: true,

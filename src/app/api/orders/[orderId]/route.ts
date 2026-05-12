@@ -5,6 +5,7 @@ import Meal from "@/models/meals";
 import Order from "@/models/order";
 import Client from "@/models/client";
 import CashSession from "@/models/cashSession";
+import Restaurant from "@/models/restaurants";
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -156,7 +157,7 @@ export async function PATCH(
         order.tableNumber = body.tableNumber;
       }
 
-      if (typeof body.invoiceType === "string" && ["boleta", "factura"].includes(body.invoiceType)) {
+      if (typeof body.invoiceType === "string" && ["boleta", "factura", "nota_venta"].includes(body.invoiceType)) {
         order.invoiceType = body.invoiceType;
       }
 
@@ -393,6 +394,32 @@ export async function PATCH(
           amount: typeof rec.amount === "number" ? rec.amount : 0,
         };
       }) as unknown as typeof order.payments;
+
+      const invoiceType = order.invoiceType || "nota_venta";
+      
+      let updateQuery = {};
+      if (invoiceType === "factura") updateQuery = { $inc: { "fiscal.currentInvoiceNumber": 1 } };
+      else if (invoiceType === "boleta") updateQuery = { $inc: { "fiscal.currentReceiptNumber": 1 } };
+      else updateQuery = { $inc: { "fiscal.currentTicketNumber": 1 } };
+
+      const restaurant = await Restaurant.findOneAndUpdate(
+        { _id: session.user.restaurantId },
+        updateQuery,
+        { new: true }
+      );
+
+      if (restaurant && restaurant.fiscal) {
+        if (invoiceType === "factura") {
+          order.fiscalDocumentPrefix = restaurant.fiscal.invoiceSeries || "F001";
+          order.fiscalDocumentNumber = restaurant.fiscal.currentInvoiceNumber;
+        } else if (invoiceType === "boleta") {
+          order.fiscalDocumentPrefix = restaurant.fiscal.receiptSeries || "B001";
+          order.fiscalDocumentNumber = restaurant.fiscal.currentReceiptNumber;
+        } else {
+          order.fiscalDocumentPrefix = restaurant.fiscal.ticketSeries || "NV01";
+          order.fiscalDocumentNumber = restaurant.fiscal.currentTicketNumber;
+        }
+      }
 
       order.status = "paid";
       order.paidAt = new Date();

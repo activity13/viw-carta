@@ -1,6 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
+import { useSession as useNextAuthSession } from "next-auth/react";
+import Axios from "axios";
+import { PrintableTicket } from "@/components/orders/PrintableTicket";
+import { Order, TicketBrand } from "@/types/order";
 import {
   Wallet,
   TrendingUp,
@@ -19,6 +24,7 @@ import {
   X,
   CheckCircle,
   Info,
+  Printer,
 } from "lucide-react";
 
 interface OrderItem {
@@ -51,6 +57,9 @@ interface OrderType {
     kind: "discount" | "surcharge";
     percent: number;
   };
+  invoiceType?: string;
+  fiscalDocumentPrefix?: string;
+  fiscalDocumentNumber?: number;
 }
 
 interface StatsType {
@@ -101,6 +110,35 @@ export default function FinancesClient() {
     message: string;
     type: "success" | "error" | "info";
   } | null>(null);
+
+  const { data: authSession } = useNextAuthSession();
+  const [ticketBrand, setTicketBrand] = useState<TicketBrand | null>(null);
+
+  // Fetch ticket brand info
+  useEffect(() => {
+    const restaurantId = authSession?.user?.restaurantId;
+    if (!restaurantId) return;
+
+    let cancelled = false;
+    const fetchBrand = async () => {
+      try {
+        const res = await Axios.get(`/api/settings/${restaurantId}`);
+        if (cancelled) return;
+        setTicketBrand({
+          name: res.data?.name || "RESTAURANTE",
+          image: res.data?.image || "",
+          fiscal: res.data?.fiscal,
+        });
+      } catch {
+        if (cancelled) return;
+        setTicketBrand(null);
+      }
+    };
+    fetchBrand();
+    return () => {
+      cancelled = true;
+    };
+  }, [authSession?.user?.restaurantId]);
 
   // Initialize dates
   useEffect(() => {
@@ -809,176 +847,33 @@ export default function FinancesClient() {
           >
             <div className="flex justify-between items-center p-6 border-b border-[#3d4947]/30 bg-[#201f1f]">
               <h3 className="text-xl font-black text-[#e5e2e1]">
-                Previsualización de Ticket
+                Comprobante Emitido
               </h3>
-              <button
-                onClick={() => setSelectedOrder(null)}
-                className="text-[#bdc9c6] hover:text-white transition-colors"
-                title="Cerrar"
-              >
-                <X className="w-6 h-6" />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => window.print()}
+                  className="p-2 bg-[#70d8c8]/20 text-[#70d8c8] hover:bg-[#70d8c8]/40 rounded-full transition-colors"
+                  title="Imprimir Copia"
+                >
+                  <Printer className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => setSelectedOrder(null)}
+                  className="text-[#bdc9c6] hover:text-white transition-colors p-2"
+                  title="Cerrar"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
             </div>
-            <div className="p-6 overflow-y-auto max-h-[70vh]">
-              <div className="bg-white text-black p-6 rounded-md font-['Courier_New',Courier,monospace] shadow-md border border-[#e5e2e1]">
-                {(() => {
-                  let subtotal = 0;
-                  selectedOrder.items?.forEach((item: OrderItem) => {
-                    subtotal += item.qty * item.unitPrice;
-                  });
-                  let adjAmount = 0;
-                  if (selectedOrder.adjustment) {
-                    adjAmount =
-                      subtotal * (selectedOrder.adjustment.percent / 100);
-                    if (selectedOrder.adjustment.kind === "discount")
-                      adjAmount = -adjAmount;
-                  }
-                  const finalTotal = subtotal + adjAmount;
-
-                  return (
-                    <>
-                      <div className="text-center mb-6 border-b border-dashed border-gray-400 pb-4">
-                        <h4 className="font-bold text-xl uppercase tracking-widest">
-                          VeryFazty Resto
-                        </h4>
-                        <p className="text-sm">RUC: 20123456789</p>
-                        <p className="text-xs mt-2 uppercase">
-                          Ticket / Pre-Cuenta
-                        </p>
-                        <p className="font-bold text-lg mt-1">
-                          N° #{selectedOrder.orderNumber}
-                        </p>
-                      </div>
-
-                      <div className="text-xs mb-4 leading-tight">
-                        <p>
-                          FECHA :{" "}
-                          {new Date(selectedOrder.createdAt).toLocaleString()}
-                        </p>
-                        <p>
-                          MESA :{" "}
-                          {selectedOrder.tableNumber || "No especificada"}
-                        </p>
-                        <p>
-                          ESTADO:{" "}
-                          {selectedOrder.status === "paid"
-                            ? "PAGADO"
-                            : selectedOrder.status === "cancelled"
-                              ? "ANULADO"
-                              : "PENDIENTE"}
-                        </p>
-                      </div>
-
-                      {selectedOrder.customer &&
-                        selectedOrder.customer.documentType !== "none" && (
-                          <div className="text-xs mb-4 border-t border-dashed border-gray-400 pt-4 leading-tight">
-                            <p>
-                              CLIENTE: {selectedOrder.customer.name}{" "}
-                              {selectedOrder.customer.surname}
-                            </p>
-                            <p>
-                              DOC :{" "}
-                              {selectedOrder.customer.documentType.toUpperCase()}{" "}
-                              {selectedOrder.customer.documentNumber}
-                            </p>
-                            {selectedOrder.customer.address && (
-                              <p>DIR : {selectedOrder.customer.address}</p>
-                            )}
-                          </div>
-                        )}
-
-                      <table className="w-full text-xs mt-4">
-                        <thead className="border-y border-dashed border-gray-400">
-                          <tr>
-                            <th className="py-2 text-left font-normal">CANT</th>
-                            <th className="py-2 text-left font-normal">
-                              DESCRIPCIÓN
-                            </th>
-                            <th className="py-2 text-right font-normal">
-                              P.UNIT
-                            </th>
-                            <th className="py-2 text-right font-normal">
-                              IMPORT
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {selectedOrder.items?.map(
-                            (item: OrderItem, idx: number) => (
-                              <tr key={idx}>
-                                <td className="py-2 align-top">{item.qty}</td>
-                                <td className="py-2 pr-2">{item.name}</td>
-                                <td className="py-2 text-right align-top">
-                                  {item.unitPrice.toFixed(2)}
-                                </td>
-                                <td className="py-2 text-right align-top">
-                                  {(item.qty * item.unitPrice).toFixed(2)}
-                                </td>
-                              </tr>
-                            ),
-                          )}
-                        </tbody>
-                      </table>
-
-                      <div className="border-t border-dashed border-gray-400 mt-4 pt-4 text-xs space-y-1">
-                        <div className="flex justify-between">
-                          <span>SUBTOTAL:</span>
-                          <span>S/ {subtotal.toFixed(2)}</span>
-                        </div>
-                        {selectedOrder.adjustment && (
-                          <div className="flex justify-between">
-                            <span>
-                              {selectedOrder.adjustment.kind === "discount"
-                                ? "DESCUENTO"
-                                : "RECARGO"}{" "}
-                              ({selectedOrder.adjustment.percent}%):
-                            </span>
-                            <span>
-                              {selectedOrder.adjustment.kind === "discount"
-                                ? "-"
-                                : "+"}{" "}
-                              S/ {Math.abs(adjAmount).toFixed(2)}
-                            </span>
-                          </div>
-                        )}
-                        <div className="flex justify-between font-bold text-[15px] mt-2 pt-2 border-t border-dashed border-gray-400">
-                          <span>TOTAL A PAGAR:</span>
-                          <span>S/ {finalTotal.toFixed(2)}</span>
-                        </div>
-                      </div>
-
-                      {selectedOrder.payments &&
-                        selectedOrder.payments.length > 0 &&
-                        selectedOrder.status === "paid" && (
-                          <div className="border-t border-dashed border-gray-400 mt-4 pt-4 text-xs space-y-1">
-                            <p className="font-bold mb-1">MÉTODOS DE PAGO:</p>
-                            {selectedOrder.payments.map(
-                              (p: OrderPayment, idx: number) => {
-                                let typeName = "OTRO";
-                                if (p.type === "cash") typeName = "EFECTIVO";
-                                if (p.type === "card") typeName = "TARJETA";
-                                if (p.type === "transfer")
-                                  typeName = "TRANSFERENCIA";
-                                return (
-                                  <div
-                                    key={idx}
-                                    className="flex justify-between"
-                                  >
-                                    <span>{typeName}</span>
-                                    <span>S/ {p.amount.toFixed(2)}</span>
-                                  </div>
-                                );
-                              },
-                            )}
-                          </div>
-                        )}
-
-                      <div className="text-center mt-6 text-xs text-gray-500">
-                        *** COMPROBANTE INTERNO ***
-                      </div>
-                    </>
-                  );
-                })()}
+            <div className="p-6 overflow-y-auto max-h-[70vh] flex justify-center bg-[#131313] print:hidden">
+              <div className="transform scale-90 origin-top">
+                <PrintableTicket
+                  order={selectedOrder as unknown as Order}
+                  mode="paid"
+                  brand={ticketBrand ?? undefined}
+                  isCopy={true}
+                />
               </div>
             </div>
           </div>
@@ -1069,6 +964,19 @@ export default function FinancesClient() {
 
       {/* CUSTOM ALERT MODAL */}
       {alertModalUI}
+
+      {/* PRINT PORTAL */}
+      {typeof document !== "undefined" && selectedOrder && createPortal(
+        <div id="ticket-print-container" className="print-portal hidden print:block">
+          <PrintableTicket
+            order={selectedOrder as unknown as Order}
+            mode="paid"
+            brand={ticketBrand ?? undefined}
+            isCopy={true}
+          />
+        </div>,
+        document.body
+      )}
     </div>
   );
 }

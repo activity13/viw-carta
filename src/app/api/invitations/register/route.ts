@@ -24,7 +24,11 @@ export async function POST(request: Request) {
   try {
     await connectToDatabase();
 
-    const { code, restaurant: restaurantData, user: userData } = await request.json();
+    const {
+      code,
+      restaurant: restaurantData,
+      user: userData,
+    } = await request.json();
 
     // Validar invitación
     const invitation = await Invitation.findOne({
@@ -35,7 +39,7 @@ export async function POST(request: Request) {
     if (!invitation) {
       return NextResponse.json(
         { error: "Código de invitación no válido" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -43,7 +47,7 @@ export async function POST(request: Request) {
       await Invitation.findByIdAndUpdate(invitation._id, { status: "expired" });
       return NextResponse.json(
         { error: "El código de invitación ha expirado" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -53,11 +57,11 @@ export async function POST(request: Request) {
     const thereIsUser = await User.findOne({
       $or: [{ username }, { email }],
     });
-    
+
     if (thereIsUser) {
       return NextResponse.json(
         { error: "El nombre de usuario o email ya están registrados" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -69,11 +73,11 @@ export async function POST(request: Request) {
     if (invitation.type === "staff_invitation") {
       // Registrar colaborador en restaurante existente
       restaurantId = invitation.restaurantId;
-      
+
       if (!restaurantId) {
         return NextResponse.json(
           { error: "Error en la invitación: ID de restaurante no encontrado" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -86,14 +90,14 @@ export async function POST(request: Request) {
         role: invitation.role || "waiter",
         isActive: true,
       });
-      
+
       redirectTo = "/backoffice";
     } else {
       // Registrar nuevo restaurante y admin
       if (!restaurantData?.name || !restaurantData?.slug) {
         return NextResponse.json(
           { error: "Datos del restaurante incompletos" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -104,7 +108,7 @@ export async function POST(request: Request) {
       if (thereIsRestaurant) {
         return NextResponse.json(
           { error: "Ya existe un restaurante con ese slug" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -149,15 +153,18 @@ export async function POST(request: Request) {
     }
 
     // Marcar invitación como usada con el ID del usuario registrado
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (invitation as any).markAsUsed(newUser._id);
+    await (
+      invitation as unknown as {
+        markAsUsed: (userId: string) => Promise<void>;
+      }
+    ).markAsUsed(newUser._id.toString());
 
     return NextResponse.json(
-      { 
+      {
         message: "Registro completado exitosamente",
-        redirectTo 
+        redirectTo,
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     console.error("Error en registro por invitación:", error);
@@ -166,7 +173,7 @@ export async function POST(request: Request) {
         error: "Ha ocurrido un problema durante el registro",
         details: error instanceof Error ? error.message : "Error desconocido",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

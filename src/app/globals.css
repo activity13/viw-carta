@@ -172,3 +172,24 @@
   background-color: var(--background) !important;
   color: var(--foreground) !important;
 }
+
+/* --- PRINT RULES PARA EL TICKET --- */
+@media print {
+  body > *:not(.print-portal) {
+    display: none !important;
+  }
+  
+  .print-portal {
+    display: block !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  @page {
+    margin: 0; /* Important for thermal printers to avoid extra padding */
+  }
+}

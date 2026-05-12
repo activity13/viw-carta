@@ -42,6 +42,7 @@ export async function PUT(
       "frameQR",
       "theme",
       "businessType",
+      "fiscal",
     ]);
 
     const currentBusiness = await Restaurant.findById(id);
@@ -58,8 +59,8 @@ export async function PUT(
       }
       console.log("🔵 Procesando campo:", key, typeof value);
       if (typeof value === "string") {
-        // Handle theme object specially
-        if (key === "theme") {
+        // Handle theme and fiscal objects specially
+        if (key === "theme" || key === "fiscal") {
           try {
             updateData[key] = JSON.parse(value.trim());
           } catch {

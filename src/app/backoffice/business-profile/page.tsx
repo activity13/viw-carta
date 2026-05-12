@@ -46,6 +46,7 @@ import {
   Palette,
   Utensils,
   ShoppingBag,
+  ReceiptText,
 } from "lucide-react";
 
 // Componentes de la aplicación
@@ -84,6 +85,14 @@ interface Business {
     fontFamily?: string;
     logoUrl?: string;
     coverImageUrl?: string;
+  };
+  fiscal?: {
+    ruc?: string;
+    legalName?: string;
+    taxName?: string;
+    taxPercentage?: number;
+    invoiceSeries?: string;
+    receiptSeries?: string;
   };
 }
 
@@ -150,7 +159,21 @@ export default function BusinessProfileForm() {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    
+    // Handle nested fiscal fields
+    if (name.startsWith('fiscal.')) {
+      const field = name.split('.')[1];
+      setFormData(prev => ({
+        ...prev,
+        fiscal: {
+          ...prev.fiscal,
+          [field]: field === 'taxPercentage' ? Number(value) : value
+        }
+      }));
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const handleSave = async () => {
@@ -173,13 +196,16 @@ export default function BusinessProfileForm() {
       formDataToSend.append(key, String(value));
     });
 
-    // 2. Agregar el tema como JSON string
+    // 2. Agregar el tema y fiscal como JSON string
     if (selectedTheme.palette) {
       const themeData = {
         palette: selectedTheme.palette,
         customColors: selectedTheme.customColors,
       };
       formDataToSend.append("theme", JSON.stringify(themeData));
+    }
+    if (formData.fiscal) {
+      formDataToSend.append("fiscal", JSON.stringify(formData.fiscal));
     }
 
     // 3. Agregar archivos si existen
@@ -427,6 +453,91 @@ export default function BusinessProfileForm() {
                       Catálogo de productos con CTA
                     </span>
                   </button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Tarjeta de Datos Fiscales */}
+          <Card className={isEditing ? "border-primary/50 shadow-md" : ""}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <ReceiptText className="w-5 h-5 text-muted-foreground" />
+                Datos Fiscales e Impuestos
+              </CardTitle>
+              <CardDescription>
+                Configura los datos formales para la emisión de pre-cuentas y boletas.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="fiscal.ruc">RUC</Label>
+                  <Input
+                    id="fiscal.ruc"
+                    name="fiscal.ruc"
+                    value={formData.fiscal?.ruc || ""}
+                    onChange={handleChange}
+                    disabled={!isEditing}
+                    placeholder="20123456789"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="fiscal.legalName">Razón Social</Label>
+                  <Input
+                    id="fiscal.legalName"
+                    name="fiscal.legalName"
+                    value={formData.fiscal?.legalName || ""}
+                    onChange={handleChange}
+                    disabled={!isEditing}
+                    placeholder="Mi Empresa S.A.C."
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="fiscal.taxName">Nombre del Impuesto</Label>
+                  <Input
+                    id="fiscal.taxName"
+                    name="fiscal.taxName"
+                    value={formData.fiscal?.taxName || ""}
+                    onChange={handleChange}
+                    disabled={!isEditing}
+                    placeholder="IGV"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="fiscal.taxPercentage">Porcentaje (%)</Label>
+                  <Input
+                    id="fiscal.taxPercentage"
+                    name="fiscal.taxPercentage"
+                    type="number"
+                    step="0.1"
+                    value={formData.fiscal?.taxPercentage ?? 18}
+                    onChange={handleChange}
+                    disabled={!isEditing}
+                    placeholder="18"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="fiscal.invoiceSeries">Serie Facturas</Label>
+                  <Input
+                    id="fiscal.invoiceSeries"
+                    name="fiscal.invoiceSeries"
+                    value={formData.fiscal?.invoiceSeries || ""}
+                    onChange={handleChange}
+                    disabled={!isEditing}
+                    placeholder="F001"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="fiscal.receiptSeries">Serie Boletas</Label>
+                  <Input
+                    id="fiscal.receiptSeries"
+                    name="fiscal.receiptSeries"
+                    value={formData.fiscal?.receiptSeries || ""}
+                    onChange={handleChange}
+                    disabled={!isEditing}
+                    placeholder="B001"
+                  />
                 </div>
               </div>
             </CardContent>

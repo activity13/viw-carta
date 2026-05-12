@@ -489,6 +489,9 @@ export function ActiveOrderModal({
                         <SelectItem value="factura">
                           Factura Electrónica (F-001)
                         </SelectItem>
+                        <SelectItem value="nota_venta">
+                          Nota de Venta (Ticket Interno)
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

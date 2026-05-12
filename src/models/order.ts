@@ -76,7 +76,9 @@ const OrderSchema = new Schema(
       index: true,
     },
     tableNumber: { type: String, trim: true, default: "" },
-    invoiceType: { type: String, enum: ["boleta", "factura"], default: "boleta" },
+    invoiceType: { type: String, enum: ["boleta", "factura", "nota_venta"], default: "nota_venta" },
+    fiscalDocumentPrefix: { type: String, trim: true, default: "" },
+    fiscalDocumentNumber: { type: Number, default: null },
     customer: { type: OrderCustomerSchema, default: () => ({}) },
     items: { type: [OrderItemSchema], default: [] },
     // Discounts / surcharges (percentage)
@@ -135,6 +137,11 @@ const needsRebuild =
     !customerPath?.schema?.path?.("address") ||
     !customerPath?.schema?.path?.("surname") ||
     !existingModel.schema?.path?.("cashSessionId") ||
+    !existingModel.schema?.path?.("fiscalDocumentPrefix") ||
+    !existingModel.schema?.path?.("fiscalDocumentNumber") ||
+    !(
+      existingModel.schema?.path?.("invoiceType") as { enumValues?: string[] }
+    )?.enumValues?.includes?.("nota_venta") ||
     !(
       existingModel.schema?.path?.("status") as { enumValues?: string[] }
     )?.enumValues?.includes?.("cancelled"));
