@@ -1,7 +1,6 @@
 import MarketView from "@/app/fast-market/components/MarketView";
 import type { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
 export const revalidate = 60;
 
 const siteUrl =
@@ -33,32 +32,21 @@ export const metadata: Metadata = {
   },
 };
 
+import { getPublicMenuData } from "@/lib/public-menu";
+
 async function getData() {
   const subdomain = "fast-market";
-  const baseUrl =
-    process.env.API_INTERNAL_URL ||
-    (process.env.NODE_ENV === "development"
-      ? "http://localhost:3000"
-      : "https://viw-carta.com");
-
   try {
-    const res = await fetch(`${baseUrl}/api/public/menu/${subdomain}`, {
-      next: { tags: [`menu-${subdomain}`] },
-    });
-
-    if (!res.ok) {
-      if (process.env.NODE_ENV === "development") {
-        const fallbackRes = await fetch(`${baseUrl}/api/public/menu/la-k`, {
-          next: { tags: ["menu-la-k"] },
-        });
-        if (fallbackRes.ok) return await fallbackRes.json();
-      }
-      return null;
-    }
-
-    return await res.json();
+    return await getPublicMenuData(subdomain);
   } catch (e) {
     console.error("Error fetching market data:", e);
+    if (process.env.NODE_ENV === "development") {
+      try {
+        return await getPublicMenuData("la-k");
+      } catch (fallbackError) {
+        return null;
+      }
+    }
     return null;
   }
 }

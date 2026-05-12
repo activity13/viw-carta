@@ -21,9 +21,12 @@ export default withAuth(
     const mainDomain = "viw-carta.com";
     const currentHost = getCurrentHost(req);
 
+    // Identificamos el tipo de host actual:
+    // Root = viw-carta.com -> Landing Page pública
     const isRootHost =
       currentHost === mainDomain || currentHost === `www.${mainDomain}` || currentHost === "localhost";
 
+    // App = app.viw-carta.com -> Aplicación SaaS Backoffice (Dashboard)
     const isAppHost =
       currentHost === `app.${mainDomain}` ||
       currentHost === "app.localhost";
@@ -31,8 +34,10 @@ export default withAuth(
     // --- ROOT DOMAIN: siempre público (landing) ---
     if (isRootHost) return NextResponse.next();
 
-    // --- APP DOMAIN: no mostrar landing; forzar login/home ---
+    // --- APP DOMAIN: Rutas del backoffice ---
+    // Aquí no se muestra la landing. Se fuerza el flujo hacia la app interna.
     if (isAppHost) {
+      // Dejamos pasar libremente las rutas públicas necesarias para el Onboarding o Auth
       if (
         url.pathname.startsWith("/backoffice/login") ||
         url.pathname.startsWith("/api/auth") ||
@@ -43,7 +48,9 @@ export default withAuth(
         return NextResponse.next();
       }
 
-      // Si llegan a una ruta no-backoffice en app (excepto la raiz "/"), redirigir:
+      // Si el usuario intenta acceder a una ruta que no es de backoffice 
+      // (por ejemplo, /menu) dentro del subdominio de la app, lo redirigimos 
+      // de forma forzosa hacia /backoffice para proteger la app.
       if (url.pathname !== "/" && !url.pathname.startsWith("/backoffice")) {
         const destination = hasAuthToken(req)
           ? "/backoffice"
@@ -54,7 +61,8 @@ export default withAuth(
       return NextResponse.next();
     }
 
-    // --- RESTAURANTES (público) por subdominio ---
+    // --- TENANTS: RESTAURANTES (Carta Digital Pública) ---
+    // Si el usuario entra por "chifa-feliz.viw-carta.com", extraemos "chifa-feliz"
     let subdomain = "";
     if (currentHost.endsWith(`.${mainDomain}`)) {
       subdomain = currentHost.replace(`.${mainDomain}`, "");
@@ -64,6 +72,9 @@ export default withAuth(
 
     if (subdomain === "www" || subdomain === "app") subdomain = "";
 
+    // Reescribimos la URL internamente de Next.js.
+    // Ejemplo: chifa-feliz.viw-carta.com/menu -> viw-carta.com/chifa-feliz/menu
+    // Esto permite que el App Router renderice dinámicamente según la carpeta /[slug]
     if (
       subdomain &&
       url.pathname !== `/${subdomain}` &&
@@ -77,6 +88,8 @@ export default withAuth(
   },
   {
     callbacks: {
+      // Control de acceso para proteger el Backoffice.
+      // NextAuth ejecutará esto antes de dejar entrar a cualquier ruta protegida.
       authorized: ({ token, req }) => {
         const url = req.nextUrl;
         const mainDomain = "viw-carta.com";
@@ -87,6 +100,7 @@ export default withAuth(
           currentHost === "app.localhost";
 
         if (isAppHost) {
+          // Excepciones explícitas para subdominios app que no requieren estar logueados
           if (
             url.pathname.startsWith("/backoffice/login") ||
             url.pathname.startsWith("/api/auth") ||
@@ -97,16 +111,16 @@ export default withAuth(
             return true;
           }
 
-          // Importante: permitir que el middleware maneje "/" y no-backoffice
+          // Importante: permitir que el middleware principal maneje redirecciones en rutas base
           if (url.pathname === "/" || !url.pathname.startsWith("/backoffice")) {
             return true;
           }
 
-          // El resto del backoffice sí requiere sesión
+          // Para el resto del backoffice se requiere de forma estricta un token de sesión
           return !!token;
         }
 
-        // Todo lo demás es público
+        // Si es el root domain o un tenant (restaurante), el acceso es siempre público.
         return true;
       },
     },

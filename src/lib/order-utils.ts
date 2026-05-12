@@ -18,6 +18,9 @@ export function calculateSubtotal(order: Pick<Order, "items">): number {
   );
 }
 
+// Calcula el monto del ajuste (recargo o descuento).
+// CRÍTICO: Debe usarse de manera determinista (tanto en Frontend como en Backend)
+// para evitar problemas de redondeos y desbalances contables en la base de datos.
 export function calculateAdjustmentAmount(
   order: Pick<Order, "items" | "adjustment">,
 ): number {
@@ -31,6 +34,9 @@ export function calculateAdjustmentAmount(
   return adj.kind === "discount" ? -amount : amount;
 }
 
+// Calcula el Total general considerando subtotales y ajustes.
+// Usa round2 (redondeo seguro de Javascript) para mitigar los problemas
+// de punto flotante de JS en representaciones de monedas.
 export function calculateOrderTotal(
   order: Pick<Order, "items" | "adjustment">,
 ): number {
@@ -421,6 +427,9 @@ export function isMobileUserAgent(): boolean {
   return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 }
 
+// Imprime un ticket en una nueva ventana/pestaña usando el navegador nativo de manera silenciosa.
+// Está diseñado para impresoras térmicas ESC/POS configuradas en el OS cliente.
+// Se usa un iframe/nueva ventana porque los "window.prompt" o "alert" nativos están prohibidos en UX.
 export function printHtmlTicket(
   html: string,
   options?: { preOpenedWindow?: Window | null },
@@ -460,8 +469,11 @@ export function printHtmlTicket(
 
   printWindow.document.close();
 
-  // Esperar a que el contenido se cargue completamente
-  // En móviles es crítico esperar a que las imágenes y el DOM estén listos
+  // Gestión de carga asíncrona:
+  // Esperar a que el contenido (como imágenes de la marca del restaurante)
+  // se cargue completamente antes de gatillar print().
+  // En móviles es crítico esperar a que las imágenes y el DOM estén listos, 
+  // de lo contrario la impresora sacará un ticket en blanco.
   if (printWindow.document.readyState === "complete") {
     // Ya está listo
     setTimeout(() => {

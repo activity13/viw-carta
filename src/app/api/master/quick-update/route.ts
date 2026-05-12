@@ -42,6 +42,9 @@ export async function POST(request: Request) {
       );
     }
 
+    const { revalidateMenu } = await import("@/lib/public-menu");
+    await revalidateMenu(session.user.restaurantId);
+
     return NextResponse.json(
       { message: "Actualizado correctamente" },
       { status: 200 }

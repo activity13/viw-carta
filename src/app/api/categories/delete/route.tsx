@@ -45,6 +45,9 @@ export async function DELETE(request: Request) {
       );
     }
 
+    const { revalidateMenu } = await import("@/lib/public-menu");
+    await revalidateMenu(restaurantId);
+
     return NextResponse.json(
       { message: "Categoría eliminada exitosamente" },
       { status: 200 }

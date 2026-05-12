@@ -32,6 +32,9 @@ export async function DELETE(request: Request) {
       );
     }
 
+    const { revalidateMenu } = await import("@/lib/public-menu");
+    await revalidateMenu(session.user.restaurantId);
+
     return NextResponse.json(
       { message: "Producto eliminado exitosamente" },
       { status: 200 }
@@ -69,6 +72,9 @@ export async function POST(request: Request) {
         { status: 404 }
       );
     }
+
+    const { revalidateMenu } = await import("@/lib/public-menu");
+    await revalidateMenu(session.user.restaurantId);
 
     return NextResponse.json(
       { message: "Producto eliminado exitosamente" },

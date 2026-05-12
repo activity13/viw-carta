@@ -1,130 +1,26 @@
 import { NextResponse } from "next/server";
-import { connectToDatabase } from "@/lib/mongodb";
-
-import Restaurant from "@/models/restaurants";
-import CategorySchema from "@/models/categories";
-import SystemMessage from "@/models/SystemMessage";
-import MealSchema from "@/models/meals";
+import { getPublicMenuData } from "@/lib/public-menu";
 
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ subdomain: string }> },
 ) {
   try {
-    const { subdomain } = await params; //
-    const tag = `menu-${subdomain}`;
-    await connectToDatabase();
-    console.log("⚡ Regenerando menú desde la DB:", new Date().toISOString());
-    // 1. Buscar restaurante
-    const restaurant = await Restaurant.findOne({ slug: subdomain });
-    if (!restaurant) {
-      return NextResponse.json(
-        { error: "Restaurante no encontrado" },
-        { status: 404 },
-      );
-    }
+    const { subdomain } = await params;
+    
+    // Al usar getPublicMenuData, utilizamos el ISR optimizado (unstable_cache)
+    // Esto garantiza que la API pública también responda desde la memoria caché
+    const data = await getPublicMenuData(subdomain);
 
-    // Check subscription status
-    if (
-      restaurant.subscription?.status === "past_due" ||
-      restaurant.subscription?.status === "canceled" ||
-      restaurant.subscription?.status === "paused"
-    ) {
+    return NextResponse.json(data, { status: 200 });
+  } catch (error: any) {
+    console.error("Error fetching menu:", error);
+    if (error.message === "Restaurante no encontrado") {
+      return NextResponse.json({ error: "Restaurante no encontrado" }, { status: 404 });
+    }
+    if (error.message === "Service Suspended") {
       return NextResponse.json({ error: "Service Suspended" }, { status: 402 });
     }
-
-    // 2. Buscar categorías del restaurante
-    const categories = await CategorySchema.find({
-      restaurantId: restaurant._id,
-      isActive: true,
-    }).sort({ order: 1 });
-
-    // 2.1 Buscar mensajes del sistema activos
-    // Se usa { $ne: false } para incluir documentos donde isActive no existe (migración o inserción manual)
-    const systemMessages = await SystemMessage.find({
-      restaurantId: restaurant._id,
-      isActive: { $ne: false },
-    }).sort({ placement: 1, order: 1 });
-
-    console.log(
-      `DEBUG: Found ${systemMessages.length} messages for restaurant ${restaurant._id}`,
-    );
-    console.log("🚀 ~ route.ts:47 ~ GET ~ systemMessages:", systemMessages);
-
-    // 3. Buscar platos del restaurante
-    const meals = await MealSchema.find({
-      restaurantId: restaurant._id,
-      "display.showInMenu": true,
-    }).sort({ "display.order": 1 });
-
-    // 4. Agrupar platos en sus categorías
-    const categoriesWithMeals = categories.map((cat) => {
-      const catMeals = meals.filter(
-        (meal) => meal.categoryId.toString() === cat._id.toString(),
-      );
-
-      return {
-        id: cat._id,
-        name: cat.name,
-        name_en: cat.name_en,
-        slug: cat.slug,
-        description: cat.description,
-        description_en: cat.description_en,
-        meals: catMeals.map((m) => ({
-          id: m._id,
-          name: m.name,
-          name_en: m.name_en,
-          description: m.shortDescription || m.description,
-          description_en: m.shortDescription_en || m.description_en,
-          price: m.basePrice,
-          comparePrice: m.comparePrice,
-          images: m.images,
-          tags: m.dietaryTags,
-          featured: m.display.isFeatured,
-          ingredients: [m.ingredients],
-          ingredients_en: [m.ingredients_en],
-          variants: m.variants, // Include variants for complex layouts
-        })),
-        mealsCount: catMeals.length,
-      };
-    });
-
-    const activeSystemMessages = systemMessages.map((msg) => ({
-      placement: msg.placement,
-      type: msg.type,
-      content: msg.content,
-      content_en: msg.content_en,
-      isActive: msg.isActive,
-    }));
-
-    // 5. Respuesta final
-    return NextResponse.json(
-      {
-        restaurant: {
-          id: restaurant._id,
-          name: restaurant.name,
-          slug: restaurant.slug,
-          description: restaurant.description,
-          direction: restaurant.direction,
-          location: restaurant.location,
-          phone: restaurant.phone,
-          image: restaurant.image,
-          theme: restaurant.theme,
-          businessType: restaurant.businessType || "restaurant",
-        },
-        categories: categoriesWithMeals,
-        systemMessages: activeSystemMessages,
-      },
-      {
-        headers: {
-          // Header correcto para cache tags en Next 15
-          "x-next-cache-tags": tag,
-        },
-        status: 200,
-      },
-    );
-  } catch (error) {
-    console.error("Error fetching menu:", error);
     return NextResponse.json(
       { error: "Error interno del servidor" },
       { status: 500 },

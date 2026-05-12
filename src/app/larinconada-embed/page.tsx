@@ -1,26 +1,13 @@
 import StandardMenu from "@/components/templates/StandardMenu";
 
-export const dynamic = "force-dynamic";
+import { getPublicMenuData } from "@/lib/public-menu";
+
 export const revalidate = 60;
 
 async function getData() {
   const subdomain = "larinconada";
-  const baseUrl =
-    process.env.API_INTERNAL_URL ||
-    (process.env.NODE_ENV === "development"
-      ? "http://localhost:3000"
-      : "https://viw-carta.com");
-
   try {
-    const res = await fetch(`${baseUrl}/api/public/menu/${subdomain}`, {
-      next: { tags: [`menu-${subdomain}`] },
-    });
-
-    if (!res.ok) {
-      return null;
-    }
-
-    return await res.json();
+    return await getPublicMenuData(subdomain);
   } catch (e) {
     console.error("Error fetching menu data for La Rinconada:", e);
     return null;

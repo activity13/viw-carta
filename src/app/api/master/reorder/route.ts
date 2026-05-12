@@ -31,6 +31,9 @@ export async function PUT(req: Request) {
       await Meal.bulkWrite(operations);
     }
 
+    const { revalidateMenu } = await import("@/lib/public-menu");
+    await revalidateMenu(session.user.restaurantId);
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error reordering meals:", error);

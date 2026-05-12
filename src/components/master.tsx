@@ -41,6 +41,7 @@ import { usePermissions } from "@/hooks/usePermissions";
 import { useOrderManager } from "@/hooks/use-order-manager";
 import { ActiveOrderModal } from "@/components/orders/ActiveOrderModal";
 import { OrdersListModal } from "@/components/orders/OrdersListModal";
+import { PrintableTicket } from "@/components/orders/PrintableTicket";
 
 interface Category {
   _id: string;
@@ -398,6 +399,7 @@ export default function Master() {
     handleAddToOrder,
     handleOpenOrdersList,
     setIsOrderModalOpen,
+    ticketToPrint,
   } = orderManager;
 
   const [meals, setMeals] = useState<Meal[]>([]);
@@ -787,6 +789,19 @@ export default function Master() {
             </div>
           </div>
         </div>
+
+        {/* --- PRINT CONTAINER --- */}
+        {ticketToPrint && (
+          <div id="ticket-print-container" className="hidden print:block">
+            <PrintableTicket
+              order={ticketToPrint.order}
+              mode={ticketToPrint.mode}
+              brand={ticketToPrint.brand}
+              printedBy={session?.user?.username || session?.user?.name || "Personal"}
+            />
+          </div>
+        )}
+
         <div className="p-6 pt-0">
           <div className="rounded-2xl border border-gray-800 bg-black">
             {/* Desktop View (Table-like Grid) */}

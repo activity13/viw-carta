@@ -53,6 +53,9 @@ export async function PUT(request: Request) {
       );
     }
 
+    const { revalidateMenu } = await import("@/lib/public-menu");
+    await revalidateMenu(restaurantId);
+
     return NextResponse.json(
       { message: "Categoría actualizada exitosamente", category: updated },
       { status: 200 },

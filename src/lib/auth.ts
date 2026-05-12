@@ -81,6 +81,8 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       // 1. Initial Sign In
+      // Este bloque se ejecuta solo cuando el usuario se loguea por primera vez.
+      // Aquí armamos el Payload inicial del JWT que se guardará en la cookie (encriptada).
       if (user) {
         token.id = String(getUserIdFromAuthUser(user) ?? token.sub ?? "");
         token.username = getStringFieldFromUnknown(user, "username") ?? null;
@@ -91,6 +93,8 @@ export const authOptions: NextAuthOptions = {
         if (user.restaurantId) {
           await connectToDatabase();
           // Fetch Restaurant to get latest slug and subscription status
+          // Guardamos datos críticos de negocio (tenant id, rol, subscripción) en el token
+          // para no tener que consultarlos en cada request a la BD si no es estrictamente necesario.
           const restaurant = await Restaurant.findById(
             user.restaurantId
           ).select("slug subscription");
@@ -118,6 +122,9 @@ export const authOptions: NextAuthOptions = {
       const userId = token.id || token.sub || "";
 
       // Helper to clear session data (keeps user ID but removes permissions)
+      // Esta función es vital por seguridad: si detectamos que la sesión ya no es válida
+      // (ej. el admin desactivó la cuenta de este waiter), "vaciamos" los datos privilegiados
+      // para que en el frontend y backend pierda sus roles y se rechacen sus peticiones.
       const clearSession = () => {
         if (session.user) {
           session.user.id = userId;
@@ -138,14 +145,16 @@ export const authOptions: NextAuthOptions = {
       }
 
       await connectToDatabase();
+      // Buscamos al usuario en cada request que exige la sesión.
+      // Esto añade una query a MongoDB por petición, pero garantiza la seguridad en tiempo real.
       const user = await User.findById(userId).select(
         "passwordChangedAt isActive restaurantId"
       );
 
-      // Validate User Status
+      // Validate User Status: Si lo apagaron, borramos su sesión.
       if (!user?.isActive) return clearSession();
 
-      // Validate Restaurant Association matches Token
+      // Validate Restaurant Association matches Token: Prevención contra cambio de tenants.
       if (
         token.restaurantId &&
         user.restaurantId?.toString() !== token.restaurantId
@@ -154,6 +163,8 @@ export const authOptions: NextAuthOptions = {
       }
 
       // Validate Token vs Password Change Time
+      // Si el usuario cambió su contraseña después de que se generó este JWT,
+      // invalidamos la sesión actual. Fuerza a que otros dispositivos se deslogueen automáticamente.
       const tokenIatSeconds = typeof token.iat === "number" ? token.iat : null;
       const tokenIatMs = tokenIatSeconds ? tokenIatSeconds * 1000 : null;
 
@@ -165,6 +176,7 @@ export const authOptions: NextAuthOptions = {
       }
 
       // Populate Session with validated data
+      // Si todo es válido, rellenamos el objeto de sesión que consumirá el frontend (useSession).
       if (session.user) {
         session.user.id = userId;
         session.user.username = token.username ?? null;

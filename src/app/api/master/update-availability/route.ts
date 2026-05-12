@@ -28,6 +28,9 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "Meal not found" }, { status: 404 });
     }
 
+    const { revalidateMenu } = await import("@/lib/public-menu");
+    await revalidateMenu(session.user.restaurantId);
+
     return NextResponse.json({ success: true, meal });
   } catch (error) {
     console.error("Error updating meal availability:", error);

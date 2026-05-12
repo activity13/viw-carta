@@ -13,12 +13,9 @@ import {
   InvoiceType,
 } from "@/types/order";
 import {
-  buildKitchenOrderHtml,
-  buildTicketHtml,
   calculateOrderTotal,
   calculateSubtotal,
   isMobileUserAgent,
-  printHtmlTicket,
   round2,
 } from "@/lib/order-utils";
 
@@ -35,6 +32,13 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
   const [isOrderBusy, setIsOrderBusy] = useState(false);
   const [isOrdersBusy, setIsOrdersBusy] = useState(false);
   const [ticketBrand, setTicketBrand] = useState<TicketBrand | null>(null);
+
+  // Print State
+  const [ticketToPrint, setTicketToPrint] = useState<{
+    order: Order;
+    mode: TicketMode | "kitchen";
+    brand?: TicketBrand;
+  } | null>(null);
 
   // Draft State (for editing inside modal)
   const [customerDraft, setCustomerDraft] = useState<OrderCustomer>({
@@ -505,8 +509,17 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
         payments: res.data.payments ?? paymentsDraft,
       };
 
-      const html = buildTicketHtml(paidOrder, "paid", ticketBrand ?? undefined);
-      printHtmlTicket(html, { preOpenedWindow: mobilePrintWindow });
+      setTicketToPrint({
+        order: paidOrder,
+        mode: "paid",
+        brand: ticketBrand ?? undefined,
+      });
+
+      // Simular tiempo para renderizado antes de imprimir
+      setTimeout(() => {
+        window.print();
+        setTimeout(() => setTicketToPrint(null), 1000);
+      }, 200);
 
       toast.success("Orden pagada");
       setIsOrderModalOpen(false);
@@ -555,12 +568,15 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
       toast.error("No hay orden activa");
       return;
     }
-    const html = buildTicketHtml(
-      activeOrder,
-      "prebill",
-      ticketBrand ?? undefined,
-    );
-    printHtmlTicket(html);
+    setTicketToPrint({
+      order: activeOrder,
+      mode: "prebill",
+      brand: ticketBrand ?? undefined,
+    });
+    setTimeout(() => {
+      window.print();
+      setTimeout(() => setTicketToPrint(null), 1000);
+    }, 200);
   }, [activeOrder, ticketBrand]);
 
   const handlePrintKitchenOrder = useCallback(() => {
@@ -568,8 +584,15 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
       toast.error("No hay orden activa");
       return;
     }
-    const html = buildKitchenOrderHtml(activeOrder, ticketBrand ?? undefined);
-    printHtmlTicket(html);
+    setTicketToPrint({
+      order: activeOrder,
+      mode: "kitchen",
+      brand: ticketBrand ?? undefined,
+    });
+    setTimeout(() => {
+      window.print();
+      setTimeout(() => setTicketToPrint(null), 1000);
+    }, 200);
   }, [activeOrder, ticketBrand]);
 
   const handleOpenOrdersList = useCallback(async () => {
@@ -642,6 +665,7 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
     setIsOrdersListModalOpen,
     isOrderBusy,
     isOrdersBusy,
+    ticketToPrint,
     customerDraft,
     setCustomerDraft,
     isCustomerSaving,

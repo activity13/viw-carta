@@ -1,32 +1,16 @@
 import Header from "./components/Header";
 import LaKarta from "./components/Karta";
+import { getPublicMenuData } from "@/lib/public-menu";
 
 // interface catProps {
 //   name: string;
 // }
 
-export const dynamic = "force-dynamic";
 export const revalidate = 60; // revalida cada minuto o al revalidateTag()
 
 export default async function LaK() {
   const subdomain = "la-k";
-
-  // Usa el dominio correcto según el entorno
-  const baseUrl =
-    process.env.API_INTERNAL_URL ||
-    (process.env.NODE_ENV === "development"
-      ? "http://localhost:3000"
-      : "https://viw-carta.com");
-
-  const res = await fetch(`${baseUrl}/api/public/menu/${subdomain}`, {
-    next: { tags: [`menu-${subdomain}`] },
-  });
-
-  if (!res.ok) {
-    throw new Error("Failed to fetch menu");
-  }
-
-  const data = await res.json();
+  const data = await getPublicMenuData(subdomain);
 
   // Encontramos la categoría "Plato del día"
   // const platoDelDiaCategory = data?.categories?.find(

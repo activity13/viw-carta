@@ -51,6 +51,9 @@ export async function POST(request: Request) {
 
     await newCategory.save();
 
+    const { revalidateMenu } = await import("@/lib/public-menu");
+    await revalidateMenu(secureRestaurantId);
+
     return NextResponse.json(
       { message: "Categoría creada exitosamente", category: newCategory },
       { status: 201 }
