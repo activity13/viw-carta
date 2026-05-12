@@ -37,11 +37,11 @@ interface RestaurantMenuProps {
   restaurant: {
     name: string;
     slug: string;
-    phone: string;
+    phone?: string;
     direction?: string;
     location?: string;
     description?: string;
-    image: string;
+    image?: string;
     theme?: {
       palette?: string;
       customColors?: Record<string, string>;
@@ -519,7 +519,7 @@ function MenuScreen({
       </footer>
 
       {/* Floating cart */}
-      <OrderFloatingButton restaurantPhone={restaurant.phone} />
+      <OrderFloatingButton restaurantPhone={restaurant.phone || ""} />
 
       {/* Meal detail modal */}
       {selectedMeal && (

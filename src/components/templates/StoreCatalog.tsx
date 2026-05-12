@@ -46,11 +46,11 @@ interface StoreCatalogProps {
   restaurant: {
     name: string;
     slug: string;
-    phone: string;
+    phone?: string;
     direction?: string;
     location?: string;
     description?: string;
-    image: string;
+    image?: string;
     theme?: {
       palette?: string;
       customColors?: Record<string, string>;
@@ -691,7 +691,7 @@ export default function StoreCatalog({ data, restaurant }: StoreCatalogProps) {
       <CartDrawer
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
-        restaurantPhone={restaurant.phone}
+        restaurantPhone={restaurant.phone || ""}
         restaurantName={restaurant.name}
       />
 
