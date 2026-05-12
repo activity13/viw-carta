@@ -36,7 +36,7 @@ interface KartaData {
 
 interface KartaProps {
   data: KartaData;
-  restaurant: { phone: string };
+  restaurant: { phone?: string };
   systemMessages?: MessageSystem[];
 }
 
@@ -44,7 +44,7 @@ interface MessageSystem {
   placement: string;
   type: "info" | "warning" | "alert" | "promotion";
   content: string;
-  content_en: string;
+  content_en?: string;
   isActive: boolean;
 }
 

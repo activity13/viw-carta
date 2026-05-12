@@ -62,7 +62,7 @@ export interface PublicMenuData {
   }>;
   systemMessages: Array<{
     placement: string;
-    type: string;
+    type: "info" | "warning" | "alert" | "promotion";
     content: string;
     content_en?: string;
     isActive: boolean;

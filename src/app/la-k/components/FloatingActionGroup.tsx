@@ -3,7 +3,7 @@ import { Pizza, Utensils, MessageCircle } from "lucide-react";
 type MenuType = "principal" | "pizzas";
 
 interface FloatingActionGroupProps {
-  restaurant: { phone: string };
+  restaurant: { phone?: string };
   activeMenu: MenuType;
   onChange: (menu: MenuType) => void;
 }
@@ -13,7 +13,7 @@ export default function FloatingActionGroup({
   activeMenu,
   onChange,
 }: FloatingActionGroupProps) {
-  const phoneData = restaurant.phone;
+  const phoneData = restaurant.phone || "";
   const phoneNumber = phoneData.replace(/\s+/g, "").trim();
   const message = encodeURIComponent(
     "¡Hola! Quisiera hacer un pedido del restaurante La K. Estoy en: "

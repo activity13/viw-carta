@@ -37,5 +37,5 @@ export default async function MarketVichayitoPage() {
     );
   }
 
-  return <MarketView data={data} />;
+  return <MarketView data={data as unknown as Parameters<typeof MarketView>[0]["data"]} />;
 }
