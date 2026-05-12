@@ -155,12 +155,7 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
       if (saveCustomerTimeoutRef.current)
         clearTimeout(saveCustomerTimeoutRef.current);
     };
-  }, [
-    tableNumberDraft,
-    invoiceTypeDraft,
-    activeOrder,
-    isOrderModalOpen,
-  ]);
+  }, [tableNumberDraft, invoiceTypeDraft, activeOrder, isOrderModalOpen]);
 
   // --- BRAND FETCHING ---
   useEffect(() => {
@@ -168,7 +163,7 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
     const fetchBrand = async () => {
       if (!restaurantId) return;
       try {
-        const res = await Axios.get<any>(
+        const res = await Axios.get<TicketBrand>(
           `/api/settings/${restaurantId}`,
         );
         if (cancelled) return;
@@ -498,7 +493,7 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
     const mobilePrintWindow = isMobileUserAgent()
       ? window.open("", "_blank")
       : null;
-      
+
     setIsOrderBusy(true);
     try {
       const res = await Axios.patch<Order>(`/api/orders/${activeOrder._id}`, {

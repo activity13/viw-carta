@@ -3,7 +3,6 @@
 import React, { forwardRef } from "react";
 import { Order, TicketBrand, TicketMode, DocumentType } from "@/types/order";
 import {
-  calculateSubtotal,
   calculateAdjustmentAmount,
   calculateOrderTotal,
   paymentLabel,
@@ -20,20 +19,24 @@ interface PrintableTicketProps {
 export const PrintableTicket = forwardRef<HTMLDivElement, PrintableTicketProps>(
   ({ order, mode, brand, printedBy, isCopy }, ref) => {
     const createdAt = new Date(order.createdAt || Date.now());
-    const printedAt = new Date();
-    const waiterName = printedBy || (typeof order.createdByUserId === "object" ? order.createdByUserId?.fullName : undefined);
+    const waiterName =
+      printedBy ||
+      (typeof order.createdByUserId === "object"
+        ? order.createdByUserId?.fullName
+        : undefined);
 
     const customerName = order.customer?.name?.trim() ?? "";
     const customerSurname = order.customer?.surname?.trim() ?? "";
     const fullCustomerName = [customerName, customerSurname]
       .filter(Boolean)
       .join(" ");
-    
-    const docType = (order.customer?.documentType as DocumentType | undefined) ?? "none";
+
+    const docType =
+      (order.customer?.documentType as DocumentType | undefined) ?? "none";
     const docNumber = order.customer?.documentNumber?.trim() ?? "";
     const isFactura = order.invoiceType === "factura";
     const isBoleta = order.invoiceType === "boleta";
-    
+
     // Fiscal info from brand
     const taxPercentage = brand?.fiscal?.taxPercentage ?? 18;
     const taxName = brand?.fiscal?.taxName || "IGV";
@@ -41,17 +44,17 @@ export const PrintableTicket = forwardRef<HTMLDivElement, PrintableTicketProps>(
     const tableNumber = order.tableNumber?.trim() ?? "";
 
     const rawTotal = calculateOrderTotal(order);
-    
+
     // Calculate Base Imponible and IGV mathematically
     // Formula: Total = Base * (1 + Tax/100) => Base = Total / (1 + Tax/100)
-    const baseImponible = rawTotal / (1 + (taxPercentage / 100));
+    const baseImponible = rawTotal / (1 + taxPercentage / 100);
     const igvAmount = rawTotal - baseImponible;
 
     const adjustmentAmount = calculateAdjustmentAmount(order);
-    const payments = mode === "paid" ? order.payments ?? [] : [];
+    const payments = mode === "paid" ? (order.payments ?? []) : [];
     const paidSum = payments.reduce(
       (acc, p) => acc + (Number.isFinite(p.amount) ? p.amount : 0),
-      0
+      0,
     );
 
     const adj = order.adjustment;
@@ -65,22 +68,36 @@ export const PrintableTicket = forwardRef<HTMLDivElement, PrintableTicketProps>(
     if (mode === "kitchen") {
       title = "ORDEN DE COCINA";
     } else {
-      title = isFactura ? "FACTURA ELECTRÓNICA" : isBoleta ? "BOLETA ELECTRÓNICA" : "NOTA DE VENTA";
+      title = isFactura
+        ? "FACTURA ELECTRÓNICA"
+        : isBoleta
+          ? "BOLETA ELECTRÓNICA"
+          : "NOTA DE VENTA";
       if (mode === "prebill") title = "PRE-CUENTA";
     }
 
     // Number generation from backend fiscalDocument data or fallback
-    const documentId = mode === "kitchen" 
-      ? `#${order.orderNumber}` 
-      : order.fiscalDocumentPrefix && order.fiscalDocumentNumber
-        ? `${order.fiscalDocumentPrefix}-${String(order.fiscalDocumentNumber).padStart(6, '0')}`
-        : `ORD-${order.orderNumber}`;
+    const documentId =
+      mode === "kitchen"
+        ? `#${order.orderNumber}`
+        : order.fiscalDocumentPrefix && order.fiscalDocumentNumber
+          ? `${order.fiscalDocumentPrefix}-${String(order.fiscalDocumentNumber).padStart(6, "0")}`
+          : `ORD-${order.orderNumber}`;
 
-    const subtitle = mode === "paid" ? "PAGADO" : mode === "prebill" ? "DOCUMENTO NO VÁLIDO COMO COMPROBANTE DE PAGO" : "PREPARAR CON CUIDADO";
+    const subtitle =
+      mode === "paid"
+        ? "PAGADO"
+        : mode === "prebill"
+          ? "DOCUMENTO NO VÁLIDO COMO COMPROBANTE DE PAGO"
+          : "PREPARAR CON CUIDADO";
 
-    const dashedLine = <div className="border-b border-dashed border-black my-2"></div>;
+    const dashedLine = (
+      <div className="border-b border-dashed border-black my-2"></div>
+    );
     const solidLine = <div className="border-b-2 border-black my-2"></div>;
-    const doubleLine = <div className="border-b-4 border-double border-black my-2"></div>;
+    const doubleLine = (
+      <div className="border-b-4 border-double border-black my-2"></div>
+    );
 
     return (
       <div
@@ -101,7 +118,7 @@ export const PrintableTicket = forwardRef<HTMLDivElement, PrintableTicketProps>(
               {brand.name}
             </div>
           )}
-          
+
           <div className="text-[10px] uppercase font-mono mt-1 space-y-0.5">
             {brand?.fiscal?.legalName && <div>{brand.fiscal.legalName}</div>}
             {brand?.fiscal?.ruc && <div>RUC: {brand.fiscal.ruc}</div>}
@@ -153,7 +170,7 @@ export const PrintableTicket = forwardRef<HTMLDivElement, PrintableTicketProps>(
               ) : (
                 <div>CLIENTE: GENERAL</div>
               )}
-              
+
               {docType !== "none" && docNumber && (
                 <div>
                   {docType}: {docNumber}
@@ -169,16 +186,19 @@ export const PrintableTicket = forwardRef<HTMLDivElement, PrintableTicketProps>(
           {order.items.length === 0 && (
             <div className="text-center italic py-2">(Sin productos)</div>
           )}
-          
+
           <div className="space-y-1.5">
             {order.items.map((i, idx) => {
               const qty = Number.isFinite(i.qty) ? i.qty : 0;
               const unit = Number.isFinite(i.unitPrice) ? i.unitPrice : 0;
               const line = unit * qty;
-              
+
               if (mode === "kitchen") {
                 return (
-                  <div key={idx} className="border-b border-dashed border-gray-300 pb-1.5">
+                  <div
+                    key={idx}
+                    className="border-b border-dashed border-gray-300 pb-1.5"
+                  >
                     <div className="font-bold text-[14px]">
                       {qty}x {i.name.toUpperCase()}
                     </div>
@@ -224,20 +244,28 @@ export const PrintableTicket = forwardRef<HTMLDivElement, PrintableTicketProps>(
               <div className="flex justify-between items-baseline w-full">
                 <span className="flex-none pr-1">OP. GRAVADAS</span>
                 <div className="flex-grow border-b border-dotted border-black opacity-30 relative -top-1"></div>
-                <span className="flex-none pl-1">S/ {baseImponible.toFixed(2)}</span>
+                <span className="flex-none pl-1">
+                  S/ {baseImponible.toFixed(2)}
+                </span>
               </div>
 
               <div className="flex justify-between items-baseline w-full">
-                <span className="flex-none pr-1">{taxName} ({taxPercentage}%)</span>
+                <span className="flex-none pr-1">
+                  {taxName} ({taxPercentage}%)
+                </span>
                 <div className="flex-grow border-b border-dotted border-black opacity-30 relative -top-1"></div>
-                <span className="flex-none pl-1">S/ {igvAmount.toFixed(2)}</span>
+                <span className="flex-none pl-1">
+                  S/ {igvAmount.toFixed(2)}
+                </span>
               </div>
 
               {adjustmentLabel && (
                 <div className="flex justify-between items-baseline w-full">
                   <span className="flex-none pr-1">{adjustmentLabel}</span>
                   <div className="flex-grow border-b border-dotted border-black opacity-30 relative -top-1"></div>
-                  <span className="flex-none pl-1">S/ {adjustmentAmount.toFixed(2)}</span>
+                  <span className="flex-none pl-1">
+                    S/ {adjustmentAmount.toFixed(2)}
+                  </span>
                 </div>
               )}
               {adjustmentNote && (
@@ -274,7 +302,7 @@ export const PrintableTicket = forwardRef<HTMLDivElement, PrintableTicketProps>(
         )}
 
         {doubleLine}
-        
+
         {/* Footer */}
         <div className="text-center mt-3 text-[10px] font-serif space-y-1">
           {mode === "kitchen" ? (
@@ -297,7 +325,7 @@ export const PrintableTicket = forwardRef<HTMLDivElement, PrintableTicketProps>(
         </div>
       </div>
     );
-  }
+  },
 );
 
 PrintableTicket.displayName = "PrintableTicket";

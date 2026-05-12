@@ -38,12 +38,12 @@ async function getData() {
   const subdomain = "fast-market";
   try {
     return await getPublicMenuData(subdomain);
-  } catch (e) {
-    console.error("Error fetching market data:", e);
+  } catch (error) {
     if (process.env.NODE_ENV === "development") {
       try {
         return await getPublicMenuData("la-k");
       } catch (fallbackError) {
+        console.error("Error fetching fallback data:", fallbackError);
         return null;
       }
     }

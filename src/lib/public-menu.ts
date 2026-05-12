@@ -6,10 +6,55 @@ import CategorySchema from "@/models/categories";
 import SystemMessage from "@/models/SystemMessage";
 import MealSchema from "@/models/meals";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export interface PublicMenuData {
+  restaurant: {
+    id: string;
+    name: string;
+    slug: string;
+    description?: string;
+    direction?: string;
+    location?: string;
+    phone?: string;
+    image?: string;
+    theme?: any;
+    businessType: string;
+  };
+  categories: Array<{
+    id: string;
+    name: string;
+    name_en?: string;
+    slug: string;
+    description?: string;
+    description_en?: string;
+    meals: Array<{
+      id: string;
+      name: string;
+      name_en?: string;
+      description?: string;
+      description_en?: string;
+      price: number;
+      comparePrice?: number;
+      images: string[];
+      tags: string[];
+      featured: boolean;
+      ingredients: string[];
+      ingredients_en: string[];
+      variants: any[];
+    }>;
+    mealsCount: number;
+  }>;
+  systemMessages: Array<{
+    placement: string;
+    type: string;
+    content: string;
+    content_en?: string;
+    isActive: boolean;
+  }>;
+}
+
 export async function getPublicMenuDataOriginal(
   subdomain: string,
-): Promise<any> {
+): Promise<PublicMenuData> {
   await connectToDatabase();
   console.log(
     "⚡ Regenerando menú desde la DB para:",

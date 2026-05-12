@@ -18,9 +18,10 @@ export default async function TenantPage({ params }: Props) {
     const data = await getPublicMenuData(domain);
 
     return <StandardMenu data={data} restaurant={data.restaurant} />;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching menu:", error);
-    if (error.message === "Service Suspended") return <ServiceSuspended />;
+    if (error instanceof Error && error.message === "Service Suspended")
+      return <ServiceSuspended />;
     return notFound();
   }
 }
