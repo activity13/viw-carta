@@ -69,7 +69,7 @@ export default async function EmbedMarketVichayitoPage() {
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto p-4">
-        <MarketView data={data} />
+        <MarketView data={data as unknown as Parameters<typeof MarketView>[0]["data"]} />
       </div>
     </div>
   );

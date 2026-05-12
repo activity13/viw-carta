@@ -17,14 +17,16 @@ export interface PublicMenuData {
     phone?: string;
     image?: string;
     theme?: {
+      palette?: string;
+      customColors?: Record<string, string>;
       primaryColor?: string;
       secondaryColor?: string;
+      backgroundColor?: string;
       fontFamily?: string;
-      borderRadius?: string;
-      layout?: string;
-      [key: string]: string | undefined;
+      logoUrl?: string;
+      coverImageUrl?: string;
     };
-    businessType: string;
+    businessType: "restaurant" | "store";
   };
   categories: Array<{
     id: string;
