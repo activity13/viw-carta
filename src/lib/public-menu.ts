@@ -41,7 +41,7 @@ export interface PublicMenuData {
       description_en?: string;
       price: number;
       comparePrice?: number;
-      images: string[];
+      images: { url: string; alt?: string }[];
       tags: string[];
       featured: boolean;
       ingredients: string[];

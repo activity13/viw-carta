@@ -15,7 +15,7 @@ interface Meal {
   name_en?: string;
   description_en?: string;
   comparePrice?: number;
-  images?: { url: string; alt: string }[];
+  images?: { url: string; alt?: string }[];
 }
 
 interface Category {
@@ -34,11 +34,11 @@ interface StandardMenuProps {
   restaurant: {
     name: string;
     slug: string;
-    phone: string;
+    phone?: string;
     direction?: string;
     location?: string;
     description?: string;
-    image: string;
+    image?: string;
     businessType?: "restaurant" | "store";
     theme?: {
       palette?: string;
