@@ -39,6 +39,7 @@ async function getData() {
   try {
     return await getPublicMenuData(subdomain);
   } catch (error) {
+    console.log(error);
     if (process.env.NODE_ENV === "development") {
       try {
         return await getPublicMenuData("la-k");
