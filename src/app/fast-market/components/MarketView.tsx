@@ -12,11 +12,11 @@ import { OrderFloatingButton } from "@/components/cart/OrderFloatingButton";
 interface Restaurant {
   name: string;
   slug: string;
-  phone: string;
+  phone?: string;
   direction?: string;
   location?: string;
   description?: string;
-  image: string;
+  image?: string;
   theme?: {
     palette?: string;
     customColors?: {
@@ -291,7 +291,7 @@ export default function MarketView({ data }: MarketViewProps) {
           isOpen={!!selectedMeal}
           onClose={() => setSelectedMeal(null)}
         />
-        <OrderFloatingButton restaurantPhone={data.restaurant.phone} />
+        <OrderFloatingButton restaurantPhone={data.restaurant.phone || ""} />
       </div>
     </CartProvider>
   );

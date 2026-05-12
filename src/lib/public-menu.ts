@@ -16,7 +16,14 @@ export interface PublicMenuData {
     location?: string;
     phone?: string;
     image?: string;
-    theme?: any;
+    theme?: {
+      primaryColor?: string;
+      secondaryColor?: string;
+      fontFamily?: string;
+      borderRadius?: string;
+      layout?: string;
+      [key: string]: string | undefined;
+    };
     businessType: string;
   };
   categories: Array<{
@@ -39,7 +46,15 @@ export interface PublicMenuData {
       featured: boolean;
       ingredients: string[];
       ingredients_en: string[];
-      variants: any[];
+      variants: Array<{
+        name: string;
+        name_en?: string;
+        options: Array<{
+          name: string;
+          name_en?: string;
+          price?: number;
+        }>;
+      }>;
     }>;
     mealsCount: number;
   }>;
