@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import MarketView from "./components/MarketView";
 import { getPublicMenuData } from "@/lib/public-menu";
 
@@ -37,5 +38,9 @@ export default async function MarketVichayitoPage() {
     );
   }
 
-  return <MarketView data={data as unknown as Parameters<typeof MarketView>[0]["data"]} />;
+  return (
+    <Suspense>
+      <MarketView data={data as unknown as Parameters<typeof MarketView>[0]["data"]} />
+    </Suspense>
+  );
 }

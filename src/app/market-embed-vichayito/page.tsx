@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import MarketView from "@/app/fast-market/components/MarketView";
 import type { Metadata } from "next";
 
@@ -69,7 +70,9 @@ export default async function EmbedMarketVichayitoPage() {
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto p-4">
-        <MarketView data={data as unknown as Parameters<typeof MarketView>[0]["data"]} />
+        <Suspense>
+          <MarketView data={data as unknown as Parameters<typeof MarketView>[0]["data"]} />
+        </Suspense>
       </div>
     </div>
   );
