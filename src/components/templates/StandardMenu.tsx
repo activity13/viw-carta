@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { LanguageProvider, useLanguage } from "@/hooks/useLanguage";
+import { LanguageProvider } from "@/hooks/useLanguage";
 import { CartProvider } from "@/providers/CartProvider";
 import HubScreen from "./HubScreen";
 import RestaurantMenu from "./RestaurantMenu";
