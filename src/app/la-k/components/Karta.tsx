@@ -152,7 +152,6 @@ function CartOnboardingAlert({ onDismiss }: { onDismiss: () => void }) {
 
 function TappableMealRow({
   meal,
-  language,
   t,
   variant,
 }: {

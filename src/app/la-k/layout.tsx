@@ -1,6 +1,5 @@
 import React from "react";
 import localFont from "next/font/local";
-import styles from "./theme.module.css";
 import ThemeApplicator from "./components/ThemeApplicator";
 
 const avenir = localFont({
