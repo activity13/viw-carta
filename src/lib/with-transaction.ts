@@ -24,7 +24,7 @@ export async function withTransaction<T>(
     const isTransactionError =
       error instanceof Error &&
       (error.message.includes("Transaction numbers are only allowed on a replica set") ||
-        (error as Record<string, unknown>).codeName === "IllegalOperation");
+        (error as unknown as Record<string, unknown>).codeName === "IllegalOperation");
 
     if (isTransactionError) {
       // Clean up the failed session
