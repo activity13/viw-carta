@@ -42,15 +42,41 @@ export async function POST(
     // Para simplificar, buscamos órdenes asociadas a este cashSessionId
     const orders = await Order.find({ cashSessionId: id });
 
-    const hasUnfinishedOrders = orders.some(
+    // Auto-cancelar órdenes huérfanas (activas/en espera sin items)
+    // Estas ocurren cuando un cajero abre una orden pero nunca agrega productos
+    const unfinishedOrders = orders.filter(
       (o) => o.status === "active" || o.status === "on_hold"
     );
 
-    if (hasUnfinishedOrders) {
-      return NextResponse.json(
-        { error: "No se puede cerrar la caja si hay órdenes activas o en espera." },
-        { status: 400 }
+    if (unfinishedOrders.length > 0) {
+      const emptyOrders = unfinishedOrders.filter(
+        (o) => !o.items || o.items.length === 0
       );
+      const realOrders = unfinishedOrders.filter(
+        (o) => o.items && o.items.length > 0
+      );
+
+      // Auto-cancelar órdenes vacías (sin productos)
+      for (const emptyOrder of emptyOrders) {
+        emptyOrder.status = "cancelled";
+        await emptyOrder.save();
+        console.log(`🗑️ Orden vacía #${emptyOrder.orderNumber} auto-cancelada al cerrar caja.`);
+      }
+
+      // Solo bloquear si hay órdenes con productos reales
+      if (realOrders.length > 0) {
+        const blocking = realOrders.map(
+          (o) => `#${o.orderNumber} (${o.status}, ${o.items.length} items)`
+        );
+        console.warn("⚠️ Órdenes bloqueando cierre de caja:", blocking);
+        return NextResponse.json(
+          { 
+            error: "No se puede cerrar la caja si hay órdenes activas o en espera.",
+            blockingOrders: blocking,
+          },
+          { status: 400 }
+        );
+      }
     }
 
     let totalSales = 0;

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import { handleAuthError, requireAuth } from "@/lib/auth-helpers";
+import { withTransaction } from "@/lib/with-transaction";
 import Meal from "@/models/meals";
 import Order from "@/models/order";
 import Client from "@/models/client";
@@ -395,46 +396,58 @@ export async function PATCH(
         };
       }) as unknown as typeof order.payments;
 
-      const invoiceType = order.invoiceType || "nota_venta";
-      
-      let updateQuery = {};
-      if (invoiceType === "factura") updateQuery = { $inc: { "fiscal.currentInvoiceNumber": 1 } };
-      else if (invoiceType === "boleta") updateQuery = { $inc: { "fiscal.currentReceiptNumber": 1 } };
-      else updateQuery = { $inc: { "fiscal.currentTicketNumber": 1 } };
+      // --- TRANSACCIÓN ACID FISCAL (con fallback para dev local sin replica set) ---
+      // El correlativo fiscal y el cambio de estado de la orden son atómicos.
+      // Si order.save() falla, el correlativo fiscal hace rollback.
+      await withTransaction(async (mongoSession) => {
+        const sessionOpts = mongoSession ? { session: mongoSession } : {};
 
-      const restaurant = await Restaurant.findOneAndUpdate(
-        { _id: session.user.restaurantId },
-        updateQuery,
-        { new: true }
-      );
+        const invoiceType = order.invoiceType || "nota_venta";
+        
+        let updateQuery = {};
+        if (invoiceType === "factura") updateQuery = { $inc: { "fiscal.currentInvoiceNumber": 1 } };
+        else if (invoiceType === "boleta") updateQuery = { $inc: { "fiscal.currentReceiptNumber": 1 } };
+        else updateQuery = { $inc: { "fiscal.currentTicketNumber": 1 } };
 
-      if (restaurant && restaurant.fiscal) {
-        if (invoiceType === "factura") {
-          order.fiscalDocumentPrefix = restaurant.fiscal.invoiceSeries || "F001";
-          order.fiscalDocumentNumber = restaurant.fiscal.currentInvoiceNumber;
-        } else if (invoiceType === "boleta") {
-          order.fiscalDocumentPrefix = restaurant.fiscal.receiptSeries || "B001";
-          order.fiscalDocumentNumber = restaurant.fiscal.currentReceiptNumber;
-        } else {
-          order.fiscalDocumentPrefix = restaurant.fiscal.ticketSeries || "NV01";
-          order.fiscalDocumentNumber = restaurant.fiscal.currentTicketNumber;
+        const restaurant = await Restaurant.findOneAndUpdate(
+          { _id: session.user.restaurantId },
+          updateQuery,
+          { new: true, ...sessionOpts }
+        );
+
+        if (restaurant && restaurant.fiscal) {
+          if (invoiceType === "factura") {
+            order.fiscalDocumentPrefix = restaurant.fiscal.invoiceSeries || "F001";
+            order.fiscalDocumentNumber = restaurant.fiscal.currentInvoiceNumber;
+          } else if (invoiceType === "boleta") {
+            order.fiscalDocumentPrefix = restaurant.fiscal.receiptSeries || "B001";
+            order.fiscalDocumentNumber = restaurant.fiscal.currentReceiptNumber;
+          } else {
+            order.fiscalDocumentPrefix = restaurant.fiscal.ticketSeries || "NV01";
+            order.fiscalDocumentNumber = restaurant.fiscal.currentTicketNumber;
+          }
         }
-      }
 
-      order.status = "paid";
-      order.paidAt = new Date();
+        order.status = "paid";
+        order.paidAt = new Date();
 
-      const currentSession = await CashSession.findOne({
-        restaurantId: session.user.restaurantId,
-        status: "open",
+        const currentCashSession = mongoSession
+          ? await CashSession.findOne({
+              restaurantId: session.user.restaurantId,
+              status: "open",
+            }).session(mongoSession)
+          : await CashSession.findOne({
+              restaurantId: session.user.restaurantId,
+              status: "open",
+            });
+        if (currentCashSession) {
+          order.cashSessionId = currentCashSession._id;
+        }
+
+        await order.save(sessionOpts);
       });
-      if (currentSession) {
-        order.cashSessionId = currentSession._id;
-      }
 
-      await order.save();
-
-      // Guardar métricas y ventas en el cliente
+      // Guardar métricas del cliente (fuera de la transacción: no es crítico)
       if (order.customer?.documentNumber) {
         try {
           const client = await Client.findOne({
@@ -450,7 +463,7 @@ export async function PATCH(
             
             client.orderHistory = client.orderHistory || [];
             client.orderHistory.push({
-              orderId: order._id as unknown as React.Key, // safe casting for save
+              orderId: order._id as unknown as React.Key,
               date: new Date(),
               amount: total
             });

@@ -1,19 +1,10 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import { handleAuthError, requireAuth } from "@/lib/auth-helpers";
+import { withTransaction } from "@/lib/with-transaction";
 import Counter from "@/models/counter";
 import CashSession from "@/models/cashSession";
 import Order from "@/models/order";
-
-async function getNextOrderNumber(restaurantId: string) {
-  const counter = await Counter.findOneAndUpdate(
-    { restaurantId, key: "orderNumber" },
-    { $inc: { seq: 1 } },
-    { new: true, upsert: true, setDefaultsOnInsert: true }
-  );
-
-  return counter.seq as number;
-}
 
 export async function GET(request: Request) {
   try {
@@ -74,19 +65,48 @@ export async function POST() {
       );
     }
 
-    const orderNumber = await getNextOrderNumber(restaurantId);
+    // --- TRANSACCIÓN ACID (con fallback para dev local sin replica set) ---
+    // El contador y la orden se crean atómicamente.
+    // Si la orden falla, el contador hace rollback y no se pierden números.
+    const order = await withTransaction(async (mongoSession) => {
+      const sessionOpts = mongoSession ? { session: mongoSession } : {};
 
-    const order = await Order.create({
-      restaurantId,
-      createdByUserId: userId,
-      orderNumber,
-      status: "active",
-      tableNumber: "",
-      customer: { name: "", documentType: "none", documentNumber: "" },
-      items: [],
-      adjustment: null,
-      payments: [],
-      cashSessionId: cashSession._id,
+      const counter = await Counter.findOneAndUpdate(
+        { restaurantId, key: "orderNumber" },
+        { $inc: { seq: 1 } },
+        { new: true, upsert: true, setDefaultsOnInsert: true, ...sessionOpts }
+      );
+
+      const orderNumber = counter.seq as number;
+
+      if (mongoSession) {
+        const [created] = await Order.create([{
+          restaurantId,
+          createdByUserId: userId,
+          orderNumber,
+          status: "active",
+          tableNumber: "",
+          customer: { name: "", documentType: "none", documentNumber: "" },
+          items: [],
+          adjustment: null,
+          payments: [],
+          cashSessionId: cashSession._id,
+        }], { session: mongoSession });
+        return created;
+      }
+
+      return Order.create({
+        restaurantId,
+        createdByUserId: userId,
+        orderNumber,
+        status: "active",
+        tableNumber: "",
+        customer: { name: "", documentType: "none", documentNumber: "" },
+        items: [],
+        adjustment: null,
+        payments: [],
+        cashSessionId: cashSession._id,
+      });
     });
 
     return NextResponse.json(order, { status: 201 });

@@ -13,7 +13,8 @@ import {
   Plus,
   Search,
   CreditCard,
-  Printer,
+  Receipt,
+  ReceiptText,
   Banknote,
   Trash2,
   CheckCircle2,
@@ -990,7 +991,7 @@ export function ActiveOrderModal({
                 disabled={isOrderBusy}
                 className="flex-1 sm:flex-none h-14 bg-[#111] hover:bg-[#1a1a1a] border-[#333] text-muted-foreground hover:text-[#e5e5e5] uppercase font-mono tracking-widest text-[10px] sm:text-xs rounded-xl"
               >
-                <Printer className="w-4 h-4 sm:mr-2" />{" "}
+                <ReceiptText className="w-4 h-4 sm:mr-2" />{" "}
                 <span className="hidden sm:inline">COCINA</span>
               </Button>
               <Button
@@ -999,8 +1000,8 @@ export function ActiveOrderModal({
                 disabled={isOrderBusy}
                 className="flex-1 sm:flex-none h-14 bg-[#111] hover:bg-[#1a1a1a] border-[#333] text-muted-foreground hover:text-[#e5e5e5] uppercase font-mono tracking-widest text-[10px] sm:text-xs rounded-xl"
               >
-                <Printer className="w-4 h-4 sm:mr-2" />{" "}
-                <span className="hidden sm:inline">TICKET</span>
+                <Receipt className="w-4 h-4 sm:mr-2" />{" "}
+                <span className="hidden sm:inline">PRE-CUENTA</span>
               </Button>
             </div>
 
