@@ -56,6 +56,8 @@ interface StoreCatalogProps {
       customColors?: Record<string, string>;
     };
   };
+  initialCategory?: string;
+  onBack: () => void;
 }
 
 // ─── Cart Drawer ────────────────────────────────────────────────────────────
@@ -381,9 +383,9 @@ function ProductCard({
 }
 
 // ─── Root component ─────────────────────────────────────────────────────────
-export default function StoreCatalog({ data, restaurant }: StoreCatalogProps) {
+export default function StoreCatalog({ data, restaurant, initialCategory, onBack }: StoreCatalogProps) {
   const { language } = useLanguage();
-  const [activeCat, setActiveCat] = useState("__all__");
+  const [activeCat, setActiveCat] = useState(initialCategory || "__all__");
   const [search, setSearch] = useState("");
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
@@ -436,7 +438,10 @@ export default function StoreCatalog({ data, restaurant }: StoreCatalogProps) {
       <header className="bg-card border-b shadow-sm">
         <div className="max-w-6xl mx-auto px-4 py-5 flex items-center gap-4">
           {/* Logo */}
-          <div className="w-14 h-14 rounded-2xl border overflow-hidden relative shrink-0 bg-muted">
+          <button
+            onClick={onBack}
+            className="w-14 h-14 rounded-2xl border overflow-hidden relative shrink-0 bg-muted hover:ring-2 hover:ring-primary/30 transition-all active:scale-95"
+          >
             {restaurant.image ? (
               <Image
                 src={
@@ -454,7 +459,7 @@ export default function StoreCatalog({ data, restaurant }: StoreCatalogProps) {
                 <Store className="w-7 h-7 text-primary" />
               </div>
             )}
-          </div>
+          </button>
 
           {/* Name & description */}
           <div className="flex-1 min-w-0">

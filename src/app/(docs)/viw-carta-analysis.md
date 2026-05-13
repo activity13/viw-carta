@@ -82,7 +82,7 @@ Se usa `Counter.findOneAndUpdate({ $inc: { seq: 1 } })` para generar números de
 
 - **Lo que está mal:** Si la creación de la orden falla _después_ de haber incrementado el contador (ej. un error de validación en los items), el número de orden se pierde, dejando "huecos" en la correlación de los tickets (ej. Orden #10, Orden #11, Orden #13). Para auditorías fiscales o reportes de la SUNAT, estos huecos pueden ser problemáticos.
 
-### 🟢 Solución Propuesta
+### ✅ Solución Propuesta HECHO
 
 - **Transacciones de MongoDB (ACID):** Envuelve el incremento del contador y la creación de la orden dentro de una **Session de Transacción de MongoDB** (`session.startTransaction()`). Si la orden falla, el contador hace _rollback_ y no se pierde el número.
 

@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { LanguageProvider } from "@/hooks/useLanguage";
+import { LanguageProvider, useLanguage } from "@/hooks/useLanguage";
 import { CartProvider } from "@/providers/CartProvider";
+import HubScreen from "./HubScreen";
 import RestaurantMenu from "./RestaurantMenu";
 import StoreCatalog from "./StoreCatalog";
 import { generateThemeCSS } from "@/utils/colorPalettes";
@@ -54,12 +55,13 @@ interface StandardMenuProps {
 }
 
 /**
- * StandardMenu — Template router.
+ * StandardMenu — Universal template orchestrator.
  *
- * Selects the correct public-facing template based on
- * `restaurant.businessType`:
- *   - "restaurant" (default) → RestaurantMenu (hub + card grid + modal)
- *   - "store"                → StoreCatalog   (e-commerce catalog + WhatsApp CTA)
+ * Flow:
+ *   1. HubScreen (universal landing for ALL business types and plans)
+ *   2. On "start" → routes to the correct catalog view:
+ *        - "restaurant" → RestaurantMenu (scroll menu with categories)
+ *        - "store"      → StoreCatalog   (e-commerce grid + WhatsApp CTA)
  */
 export default function StandardMenu({ data, restaurant }: StandardMenuProps) {
   const [mounted, setMounted] = useState(false);
@@ -67,9 +69,6 @@ export default function StandardMenu({ data, restaurant }: StandardMenuProps) {
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  const Template =
-    restaurant.businessType === "store" ? StoreCatalog : RestaurantMenu;
 
   // Renderiza el CSS incrustado para prevenir el "flash de estilos"
   const themeCSS = generateThemeCSS({
@@ -101,8 +100,43 @@ export default function StandardMenu({ data, restaurant }: StandardMenuProps) {
     <LanguageProvider>
       <CartProvider>
         <style dangerouslySetInnerHTML={{ __html: themeCSS }} />
-        <Template data={data} restaurant={restaurant} />
+        <StandardMenuInner data={data} restaurant={restaurant} />
       </CartProvider>
     </LanguageProvider>
+  );
+}
+
+// ─── Inner component (needs LanguageProvider context) ────────────────────────
+function StandardMenuInner({ data, restaurant }: StandardMenuProps) {
+  const [showMenu, setShowMenu] = useState(false);
+  const [initialCategory, setInitialCategory] = useState<string | undefined>();
+
+  if (!showMenu) {
+    return (
+      <HubScreen
+        restaurant={restaurant}
+        categories={data.categories}
+        onStart={(categoryId) => {
+          setInitialCategory(categoryId);
+          setShowMenu(true);
+        }}
+      />
+    );
+  }
+
+  const Template =
+    restaurant.businessType === "store" ? StoreCatalog : RestaurantMenu;
+
+  return (
+    <Template
+      data={data}
+      restaurant={restaurant}
+      initialCategory={initialCategory}
+      onBack={() => {
+        setShowMenu(false);
+        setInitialCategory(undefined);
+        window.scrollTo({ top: 0 });
+      }}
+    />
   );
 }

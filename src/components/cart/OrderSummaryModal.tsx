@@ -35,7 +35,7 @@ export const OrderSummaryModal = ({
       restaurantPhone,
       items,
       identity,
-      totalPrice
+      totalPrice,
     );
     window.open(link, "_blank");
   };
@@ -48,21 +48,24 @@ export const OrderSummaryModal = ({
             <span>{language === "en" ? "Your Order" : "Tu Pedido"}</span>
             {identity && (
               <span className="text-sm font-normal bg-secondary text-secondary-foreground px-2 py-1 rounded-md self-start">
-                {language === "en" ? "Order #" : "Pedido #"}{identity.shortId}
+                {language === "en" ? "Order #" : "Pedido #"}
+                {identity.shortId}
               </span>
             )}
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            {language === "en" 
-              ? "Review your selection before sending the order via WhatsApp." 
-              : "Revisa tu selección antes de enviar el pedido por WhatsApp."}
+            {language === "en"
+              ? "Review your selection before sending the order via WhatsApp. The total price may vary due to costs related to disposable containers, delivery, among others."
+              : "Revisa tu selección antes de enviar el pedido por WhatsApp. El precio total podría variar por costos relacionados a recipientes descartables, delivery, entre otros."}
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-2 py-2 max-h-96 overflow-y-auto">
           {items.length === 0 ? (
             <p className="text-center text-muted-foreground">
-              {language === "en" ? "Your cart is empty." : "Tu carrito está vacío."}
+              {language === "en"
+                ? "Your cart is empty."
+                : "Tu carrito está vacío."}
             </p>
           ) : (
             <div className="flex flex-col gap-3 max-h-[60vh] overflow-y-auto">
@@ -73,7 +76,9 @@ export const OrderSummaryModal = ({
                 >
                   <div className="flex flex-col flex-1">
                     <span className="font-medium">
-                      {language === "en" && item.name_en ? item.name_en : item.name}
+                      {language === "en" && item.name_en
+                        ? item.name_en
+                        : item.name}
                     </span>
                     <span className="text-sm text-muted-foreground">
                       S/.{(item.price * Number(item.quantity || 0)).toFixed(2)}

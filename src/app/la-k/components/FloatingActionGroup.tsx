@@ -20,7 +20,7 @@ export default function FloatingActionGroup({
   );
 
   return (
-    <div className="fixed bottom-18 right-4 z-50 flex items-center gap-3 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full shadow-lg px-3 py-2">
+    <div className="fixed bottom-26 right-4 z-50 flex items-center gap-3 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full shadow-lg px-3 py-2">
       {/* Botón Carta Principal */}
       <button
         onClick={() => onChange("principal")}
