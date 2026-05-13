@@ -340,14 +340,9 @@ function KartaContent({ data, restaurant, systemMessages = [] }: KartaProps) {
   const right = filteredCategories.slice(half);
 
   return (
-    <div className="w-full min-h-3.5  md:min-h-screen relative">
+    <div className="w-full min-h-screen relative">
       {/* Onboarding alert */}
       {showOnboarding && <CartOnboardingAlert onDismiss={dismissOnboarding} />}
-
-      {/* Toggle de idioma fijo */}
-      <div className="fixed bottom-38 right-4 z-50">
-        <LanguageToggle />
-      </div>
 
       {/* Barra horizontal para móviles, se pueden ver las categorías (usa ancla estable por id) */}
       <div className="fixed bottom-0 left-0 w-full z-50 border-t border-black bg-neutral-50 shadow-inner overflow-x-auto xl:hidden">

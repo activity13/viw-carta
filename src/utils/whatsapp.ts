@@ -5,7 +5,7 @@ export const generateWhatsAppLink = (
   phone: string,
   items: CartItem[],
   identity: OrderIdentity | null,
-  totalPrice: number
+  totalPrice: number,
 ) => {
   if (!phone || items.length === 0) return "";
 
@@ -18,13 +18,11 @@ export const generateWhatsAppLink = (
   items.forEach((item) => {
     const q = Number(item.quantity) || 0;
     if (q > 0) {
-      message += `• ${q}x ${item.name} -S/.${(
-        item.price * q
-      ).toFixed(2)}\n`;
+      message += `• ${q}x ${item.name} -S/.${(item.price * q).toFixed(2)}\n`;
     }
   });
 
-  message += `\n*Total: S/.${totalPrice.toFixed(2)}*`;
+  message += `\n*Total: S/.${totalPrice.toFixed(2)} Approx.*`;
   message += `\n\nEspero confirmación. Gracias!`;
 
   return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
