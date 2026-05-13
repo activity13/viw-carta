@@ -8,7 +8,6 @@ import LaKLanding from "./LaKLanding";
 import Image from "next/image";
 import { LanguageProvider, useLanguage } from "@/hooks/useLanguage";
 import { CartProvider, useCart } from "@/providers/CartProvider";
-import LanguageToggle from "@/components/LanguageToggle";
 import { OrderFloatingButton } from "@/components/cart/OrderFloatingButton";
 
 // ─── Interfaces ────────────────────────────────────────────────────────────────

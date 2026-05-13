@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       restaurant.description ||
       `Explora la carta de ${restaurant.name}. ${restaurant.direction ? `Ubícanos en ${restaurant.direction}.` : ""} ¡Pide ahora!`;
 
-    const logo = restaurant.theme?.logoUrl || "/logo-c.svg";
+    const logo = restaurant.image || "/logo-c.svg";
 
     return {
       title,
