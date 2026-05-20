@@ -27,6 +27,12 @@ export interface PublicMenuData {
       coverImageUrl?: string;
     };
     businessType: "restaurant" | "store";
+    menuSections?: Array<{
+      name: string;
+      slug: string;
+      order: number;
+      isActive: boolean;
+    }>;
   };
   categories: Array<{
     id: string;
@@ -35,6 +41,7 @@ export interface PublicMenuData {
     slug: string;
     description?: string;
     description_en?: string;
+    menuSection?: string;
     meals: Array<{
       id: string;
       name: string;
@@ -125,6 +132,7 @@ export async function getPublicMenuDataOriginal(
       slug: cat.slug,
       description: cat.description,
       description_en: cat.description_en,
+      menuSection: cat.menuSection || "carta",
       meals: catMeals.map((m) => ({
         id: m._id.toString(),
         name: m.name,
@@ -168,6 +176,7 @@ export async function getPublicMenuDataOriginal(
         image: restaurant.image,
         theme: restaurant.theme,
         businessType: restaurant.businessType || "restaurant",
+        menuSections: restaurant.menuSections,
       },
       categories: categoriesWithMeals,
       systemMessages: activeSystemMessages,
