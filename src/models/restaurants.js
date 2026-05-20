@@ -40,6 +40,16 @@ const SubscriptionSchema = new Schema(
   { _id: false },
 );
 
+const MenuSectionSchema = new Schema(
+  {
+    name: { type: String, required: true, trim: true },
+    slug: { type: String, required: true, trim: true },
+    order: { type: Number, default: 0 },
+    isActive: { type: Boolean, default: true },
+  },
+  { _id: true }
+);
+
 const RestaurantSchema = new Schema(
   {
     name: {
@@ -155,6 +165,12 @@ const RestaurantSchema = new Schema(
       fontFamily: { type: String, default: "Inter" },
       logoUrl: { type: String },
       coverImageUrl: { type: String },
+    },
+    menuSections: {
+      type: [MenuSectionSchema],
+      default: [
+        { name: "Carta Principal", slug: "carta", order: 1, isActive: true },
+      ],
     },
     fiscal: {
       ruc: { type: String, trim: true, default: "" },

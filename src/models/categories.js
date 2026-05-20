@@ -45,6 +45,11 @@ const CategorySchema = new Schema(
       type: Boolean,
       default: false,
     },
+    menuSection: {
+      type: String,
+      trim: true,
+      default: "carta",
+    },
     restaurantId: {
       type: Schema.Types.ObjectId,
       ref: "Restaurant",

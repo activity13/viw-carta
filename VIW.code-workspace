@@ -1,25 +1,11 @@
 {
-  "folders": [
-    {
-      "path": ".",
-    },
-    {
-      "path": "../viw-mcp",
-    },
-    {
-      "path": "../.vscode",
-    },
-    {
-      "path": "../veryfazty-app",
-    },
-    {
-      "path": "G:/Mi unidad/Cerebro_Digital/viw-powered",
-    },
-    {
-      "path": "../my-agent",
-    },
-  ],
-  "settings": {
-    "better-comments.highlightPlainText": true,
-  },
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "G:/Mi unidad/Cerebro_Digital/viw-powered/30_Proyectos_Vivos/33_viw-carta"
+		}
+	],
+	"settings": {}
 }
