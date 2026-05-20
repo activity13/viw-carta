@@ -43,6 +43,7 @@ export async function PUT(
       "theme",
       "businessType",
       "fiscal",
+      "menuSections",
     ]);
 
     const currentBusiness = await Restaurant.findById(id);
@@ -59,8 +60,8 @@ export async function PUT(
       }
       console.log("🔵 Procesando campo:", key, typeof value);
       if (typeof value === "string") {
-        // Handle theme and fiscal objects specially
-        if (key === "theme" || key === "fiscal") {
+        // Handle theme, fiscal, and menuSections objects specially
+        if (key === "theme" || key === "fiscal" || key === "menuSections") {
           try {
             updateData[key] = JSON.parse(value.trim());
           } catch {

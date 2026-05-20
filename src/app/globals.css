@@ -18,6 +18,9 @@
   /* Fonts */
   --font-roboto: var(--font-roboto);
   --font-mono: var(--font-jetbrains-mono);
+  --font-friz: var(--font-friz);
+  --font-avenir: var(--font-avenir);
+  --font-open-sans: var(--font-open-sans);
   --font-sans: var(
     --font-jetbrains-mono
   ); /* Default to Mono for console feel */

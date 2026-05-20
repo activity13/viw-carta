@@ -13,6 +13,13 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface CategoryFormData {
   name: string;
@@ -21,6 +28,7 @@ interface CategoryFormData {
   slug: string;
   description: string;
   description_en: string;
+  menuSection: string;
 }
 
 interface CategoryFormDialogProps {
@@ -28,6 +36,7 @@ interface CategoryFormDialogProps {
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: CategoryFormData) => Promise<void>;
   loading: boolean;
+  menuSections?: { name: string; slug: string }[];
 }
 
 export function CategoryFormDialog({
@@ -35,6 +44,7 @@ export function CategoryFormDialog({
   onOpenChange,
   onSubmit,
   loading,
+  menuSections = [],
 }: CategoryFormDialogProps) {
   const [form, setForm] = useState({
     name: "",
@@ -43,6 +53,7 @@ export function CategoryFormDialog({
     slug: "",
     description: "",
     description_en: "",
+    menuSection: "carta",
   });
   const [showTranslation, setShowTranslation] = useState(false);
 
@@ -69,6 +80,7 @@ export function CategoryFormDialog({
       slug: "",
       description: "",
       description_en: "",
+      menuSection: "carta",
     });
     setShowTranslation(false);
   };
@@ -134,6 +146,28 @@ export function CategoryFormDialog({
                 required
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Sección del Menú (Frontend)</Label>
+            <Select
+              value={form.menuSection}
+              onValueChange={(value) =>
+                setForm((f) => ({ ...f, menuSection: value }))
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecciona una sección" />
+              </SelectTrigger>
+              <SelectContent>
+                {menuSections.map(sec => (
+                  <SelectItem key={sec.slug} value={sec.slug}>{sec.name}</SelectItem>
+                ))}
+                {menuSections.length === 0 && (
+                  <SelectItem value="carta">Carta Principal</SelectItem>
+                )}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">

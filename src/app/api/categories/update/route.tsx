@@ -6,7 +6,7 @@ export async function PUT(request: Request) {
   try {
     await connectToDatabase();
     const body = await request.json();
-    const { id, name, code, slug, description, restaurantId, order, isActive } =
+    const { id, name, code, slug, description, restaurantId, order, isActive, menuSection } =
       body;
 
     if (!id || !restaurantId) {
@@ -41,6 +41,7 @@ export async function PUT(request: Request) {
         slug,
         order,
         description: description || "",
+        menuSection,
         isActive,
       },
       { new: true },

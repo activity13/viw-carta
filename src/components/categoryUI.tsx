@@ -26,6 +26,14 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { useFab } from "@/providers/ActionProvider";
 import { CategoryFormDialog } from "@/components/category-form-dialog";
+import { MenuSectionsDialog } from "@/components/menu-sections-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Category {
   _id: string;
@@ -33,9 +41,9 @@ interface Category {
   code: number | string;
   slug: string;
   description?: string;
-  restaurantId: string;
   isActive?: boolean;
   order?: number;
+  menuSection?: string;
 }
 
 // Sub-component for individual category items to handle DragControls properly
@@ -49,6 +57,7 @@ const CategoryItem = ({
   handleDelete,
   handleEdit,
   handleToggle,
+  menuSections,
 }: {
   cat: Category;
   editingId: string | null;
@@ -59,6 +68,7 @@ const CategoryItem = ({
   handleDelete: (id: string) => void;
   handleEdit: (cat: Category) => void;
   handleToggle: (id: string, currentStatus: boolean) => void;
+  menuSections: { name: string; slug: string }[];
 }) => {
   const dragControls = useDragControls();
 
@@ -123,6 +133,29 @@ const CategoryItem = ({
                 />
               </div>
               <div className="space-y-1">
+                <Label className="text-xs">Sección del Menú (Frontend)</Label>
+                <Select
+                  value={editForm.menuSection || "carta"}
+                  onValueChange={(value) =>
+                    setEditForm((f) => ({ ...f, menuSection: value }))
+                  }
+                >
+                  <SelectTrigger className="h-8 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {menuSections.map((sec) => (
+                      <SelectItem key={sec.slug} value={sec.slug}>
+                        {sec.name}
+                      </SelectItem>
+                    ))}
+                    {menuSections.length === 0 && (
+                      <SelectItem value="carta">Carta Principal</SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
                 <Label className="text-xs">Descripción</Label>
                 <Textarea
                   value={editForm.description || ""}
@@ -164,8 +197,13 @@ const CategoryItem = ({
                     <Badge variant="secondary" className="text-xs font-mono">
                       {cat.code}
                     </Badge>
-                    <Badge variant="outline" className="text-xs">
-                      /{cat.slug}
+                    <Badge
+                      variant="outline"
+                      className="text-xs border-primary/30 text-primary/80"
+                    >
+                      {menuSections.find(
+                        (s) => s.slug === (cat.menuSection || "carta"),
+                      )?.name || "Carta"}
                     </Badge>
                   </div>
                 </div>
@@ -217,6 +255,10 @@ const CategoryItem = ({
 
 export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
   const { setActions } = useFab();
+  const [menuSections, setMenuSections] = useState<
+    { name: string; slug: string }[]
+  >([]);
+  const [isSectionsDialogOpen, setIsSectionsDialogOpen] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
@@ -226,24 +268,29 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
     code: "",
     slug: "",
     description: "",
+    menuSection: "carta",
     order: 0,
   });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<Category>>({});
   const [isSavingOrder, setIsSavingOrder] = useState(false);
 
-  // Fetch categories
-  const fetchCategories = useCallback(async () => {
+  // Fetch categories and settings
+  const fetchCategoriesAndSettings = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await Axios.get("/api/categories/get", {
-        params: { restaurantId },
-      });
+      const [catRes, restRes] = await Promise.all([
+        Axios.get("/api/categories/get", { params: { restaurantId } }),
+        Axios.get(`/api/settings/${restaurantId}`),
+      ]);
       // Ensure sorted by order
-      const sorted = res.data.sort(
+      const sorted = catRes.data.sort(
         (a: Category, b: Category) => (a.order || 0) - (b.order || 0),
       );
       setCategories(sorted);
+      if (restRes.data?.menuSections) {
+        setMenuSections(restRes.data.menuSections);
+      }
     } catch (error) {
       console.error(error);
       toast.error("Error al cargar las categorías");
@@ -273,7 +320,7 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
         order: categories.length + 1,
       });
       toast.success("Categoría creada exitosamente");
-      fetchCategories();
+      fetchCategoriesAndSettings();
       setIsDialogOpen(false); // Close dialog if open
       // Reset inline form
       setForm({
@@ -281,6 +328,7 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
         code: "",
         slug: "",
         description: "",
+        menuSection: "carta",
         order: 0,
       });
     } catch (error) {
@@ -359,6 +407,7 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
       code: cat.code,
       slug: cat.slug,
       description: cat.description,
+      menuSection: cat.menuSection || "carta",
       order: cat.order,
     });
   };
@@ -376,7 +425,7 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
       setEditForm({});
       toast.dismiss(toastId);
       toast.success("Categoría actualizada");
-      fetchCategories();
+      fetchCategoriesAndSettings();
     } catch (error) {
       console.error(error);
       toast.dismiss(toastId);
@@ -422,8 +471,8 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
   };
 
   useEffect(() => {
-    if (restaurantId && isAdmin) fetchCategories();
-  }, [restaurantId, isAdmin, fetchCategories]);
+    if (restaurantId && isAdmin) fetchCategoriesAndSettings();
+  }, [restaurantId, isAdmin, fetchCategoriesAndSettings]);
 
   // Register FAB Actions
   useEffect(() => {
@@ -443,6 +492,11 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
         onClick: saveOrder,
         disabled: isSavingOrder || categories.length === 0,
         loading: isSavingOrder,
+      },
+      {
+        label: "Gestionar Secciones",
+        icon: LayoutGrid,
+        onClick: () => setIsSectionsDialogOpen(true),
       },
     ]);
 
@@ -552,6 +606,30 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
               </div>
 
               <div className="space-y-2">
+                <Label>Sección del Menú</Label>
+                <Select
+                  value={form.menuSection}
+                  onValueChange={(value) =>
+                    setForm((f) => ({ ...f, menuSection: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecciona una sección" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {menuSections.map((sec) => (
+                      <SelectItem key={sec.slug} value={sec.slug}>
+                        {sec.name}
+                      </SelectItem>
+                    ))}
+                    {menuSections.length === 0 && (
+                      <SelectItem value="carta">Carta Principal</SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="description">Descripción (Opcional)</Label>
                 <Textarea
                   id="description"
@@ -608,6 +686,7 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
                   handleDelete={handleDelete}
                   handleEdit={handleEdit}
                   handleToggle={handleToggle}
+                  menuSections={menuSections}
                 />
               ))}
             </Reorder.Group>
@@ -620,6 +699,14 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
         onOpenChange={setIsDialogOpen}
         onSubmit={createCategory}
         loading={isCreating}
+        menuSections={menuSections}
+      />
+
+      <MenuSectionsDialog
+        open={isSectionsDialogOpen}
+        onOpenChange={setIsSectionsDialogOpen}
+        restaurantId={restaurantId}
+        onSectionsUpdated={setMenuSections}
       />
     </div>
   );

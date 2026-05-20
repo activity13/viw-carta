@@ -53,7 +53,7 @@ export const OrderSummaryModal = ({
               </span>
             )}
           </DialogTitle>
-          <DialogDescription className="text-muted-foreground">
+          <DialogDescription className="text-foreground/70 text-sm">
             {language === "en"
               ? "Review your selection before sending the order via WhatsApp. The total price may vary due to costs related to disposable containers, delivery, among others."
               : "Revisa tu selección antes de enviar el pedido por WhatsApp. El precio total podría variar por costos relacionados a recipientes descartables, delivery, entre otros."}
@@ -62,7 +62,7 @@ export const OrderSummaryModal = ({
 
         <div className="flex flex-col gap-2 py-2 max-h-96 overflow-y-auto">
           {items.length === 0 ? (
-            <p className="text-center text-muted-foreground">
+            <p className="text-center text-foreground/60 text-sm">
               {language === "en"
                 ? "Your cart is empty."
                 : "Tu carrito está vacío."}
@@ -80,7 +80,7 @@ export const OrderSummaryModal = ({
                         ? item.name_en
                         : item.name}
                     </span>
-                    <span className="text-sm text-muted-foreground">
+                    <span className="text-sm text-foreground/70 font-mono">
                       S/.{(item.price * Number(item.quantity || 0)).toFixed(2)}
                     </span>
                   </div>
@@ -131,7 +131,7 @@ export const OrderSummaryModal = ({
             </span>
           </div>
           <div className="flex gap-2 w-full">
-            <Button variant="outline" className="flex-1" onClick={clearCart}>
+            <Button variant="outline" className="flex-1 border-foreground/30 text-foreground hover:bg-foreground/5 hover:text-foreground" onClick={clearCart}>
               {language === "en" ? "Clear" : "Limpiar"}
             </Button>
             <Button
