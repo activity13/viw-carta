@@ -80,7 +80,7 @@ export default withAuth(
       url.pathname !== `/${subdomain}` &&
       !url.pathname.startsWith(`/${subdomain}/`)
     ) {
-      url.pathname = `/${subdomain}${url.pathname}`;
+      url.pathname = url.pathname === "/" ? `/${subdomain}` : `/${subdomain}${url.pathname}`;
       return NextResponse.rewrite(url);
     }
 

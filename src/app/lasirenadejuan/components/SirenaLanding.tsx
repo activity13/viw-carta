@@ -42,7 +42,7 @@ export default function SirenaLanding({
   return (
     <div className="min-h-dvh bg-background flex flex-col items-center justify-center relative overflow-hidden px-6 py-12">
       {/* Espiral Decorative (Top Right) */}
-      <div className="absolute top-8 z-20  md:top-40 left-6 md:left-96 opacity-70 md:w-80 md:h-80 w-32 h-32 rotate-12 pointer-events-none">
+      <div className="absolute top-8 z-20  md:top-40 left-6 md:left-96 opacity-70 md:w-80 md:h-80 w-16 h-16 rotate-12 pointer-events-none">
         <Image
           src="/lasirenadejuan/images/espiral.svg"
           alt="Decorative Spiral"
@@ -52,7 +52,7 @@ export default function SirenaLanding({
       </div>
 
       {/* Sirena Mascot (Bottom Right) */}
-      <div className="absolute bottom-20 right-1 md:right-64 opacity-90 md:w-80 md:h-80 w-32 h-32 pointer-events-none translate-y-10">
+      <div className="absolute bottom-16 right-1 md:right-64 opacity-90 md:w-80 md:h-80 w-32 h-32 pointer-events-none translate-y-10">
         <Image
           src="/lasirenadejuan/images/logo_2.svg"
           priority
