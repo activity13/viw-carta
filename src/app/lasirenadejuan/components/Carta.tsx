@@ -6,8 +6,7 @@ import { LanguageProvider, useLanguage } from "@/hooks/useLanguage";
 import { CartProvider, useCart } from "@/providers/CartProvider";
 import { OrderFloatingButton } from "@/components/cart/OrderFloatingButton";
 import { useRouter } from "next/navigation";
-import { Home, Globe, HandMetal, X } from "lucide-react";
-import SirenaLanding from "./SirenaLanding";
+import { Home, HandMetal, X } from "lucide-react";
 
 interface Meal {
   id: string;
