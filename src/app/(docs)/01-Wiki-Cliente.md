@@ -25,6 +25,7 @@ Las categorías agrupan tus platillos (ej. *Entradas*, *Cortes Especiales*, *Mix
 Es el momento de hacer brillar tus creaciones culinarias:
 1. Ve a la sección **Catálogo** y selecciona **+ Nuevo Plato**.
 2. Completa la ficha con el precio (impuestos incluidos) y una descripción que despierte antojo.
+   - **Código Interno / SKU / Barras:** Asigna un identificador corto y limpio a tu plato (ej. `CEV-01`). Si lo ingresas, este código premium se enviará a Nubefact/Efact en tus comprobantes en lugar del ID largo de base de datos, facilitando tus reportes contables.
 3. **Fotografías:** Sube imágenes cuadradas y bien iluminadas. ¡Una buena foto es la mejor herramienta de ventas!
 4. **Alérgenos y Etiquetas:** Protege a tus clientes marcando si un plato es picante, vegano o contiene mariscos. Se mostrarán iconos visuales premium en tu carta.
 5. **Variantes y Extras (Upselling):** Configura opciones personalizables. Por ejemplo, tamaños (*Personal* / *Familiar*) o extras (*Adición de queso*, *Doble carne*). ¡Aquí es donde aumentas tu ticket promedio!
@@ -58,3 +59,34 @@ La coordinación entre la sala (meseros) y el corazón del restaurante (cocina) 
 1. Al confirmar la orden, esta se envía automáticamente a las pantallas o impresoras de cocina.
 2. Cada ticket ingresa con indicaciones claras sobre variantes (ej. *Término medio*, *Sin cebolla*).
 3. Todo es fluido, ordenado y rápido, garantizando que el platillo llegue perfecto a la mesa.
+
+---
+
+## 📄 Facturación Electrónica e Integración SUNAT
+
+Viw-Carta se conecta de forma nativa con los proveedores líderes de facturación electrónica en el Perú (como Nubefact y Efact) para emitir boletas y facturas oficiales a SUNAT sin fricciones.
+
+### Configuración del Proveedor y Credenciales
+Los administradores pueden configurar o actualizar sus datos de conexión directamente desde el panel:
+1. Dirígete a **Perfil del Negocio**.
+2. Ve a la tarjeta **Datos Fiscales e Impuestos**.
+3. En la sección **Credenciales del Proveedor de Facturación**, podrás:
+   - Elegir el **Proveedor Fiscal** (`Nubefact` o `Efact`).
+   - Ingresar el **API Endpoint** y la **Clave de Acceso/Token API** de tu cuenta (demo o producción).
+4. Guarda los cambios. A partir de ese momento, cada comprobante emitido desde el módulo de **Finanzas** utilizará tus propias credenciales oficiales.
+
+> [!TIP]
+> **Enmascaramiento de Claves:** Para proteger tus claves de accesos oficiales, la interfaz enmascara automáticamente el token API. Puedes hacer clic en el botón del ojo para revelar el texto si necesitas realizar verificaciones de correspondencia.
+
+### 🔄 Flujo de Pago y Timbrado en Caliente (Sincronizado)
+En Viw-Carta, la velocidad del mesero y la tranquilidad del cliente son primordiales. Hemos sincronizado el registro del pago y el timbrado fiscal oficial en un solo flujo continuo y elegante:
+1. **Registro del Pago:** Al hacer clic en **Procesar Pago**, la caja de Viw-Carta asegura inmediatamente el registro del dinero en tu base de datos y sesión de caja activa.
+2. **Espera de Timbrado (CPE):** Si la orden es una Boleta o Factura, el sistema muestra una pantalla premium de carga (*"Timbrando CPE ante SUNAT..."*). Esta pantalla te mantiene al tanto en tiempo real del progreso técnico del timbrado con el OSE.
+3. **Impresión Automática con QR Legible:** En cuanto la SUNAT devuelve el código de aprobación (Hash), el sistema abre la ventana de impresión automáticamente.
+   - El ticket físico ahora incluye un **código QR 1:1 proporcional real** generado en alta fidelidad. Es 100% escaneable desde celulares o lectores térmicos, y cumple con el estándar de SUNAT (incluye RUC, serie, número, IGV, total y hash).
+
+### 🛡️ Plan de Contingencia ante Fallos de Conectividad o Rechazos
+Sabemos que la SUNAT o el internet pueden fallar en el momento menos oportuno. Para que tu negocio nunca se detenga, si ocurre un error de timbrado, Viw-Carta te ofrece tres opciones inmediatas en pantalla:
+* **Reintentar Timbrado:** Ideal si el fallo fue un micro-corte de internet. Intenta emitir el documento ante el OSE nuevamente en caliente.
+* **Imprimir Respaldo Local (Recomendado en Emergencias):** Imprime inmediatamente un ticket local interno (Nota de Venta de respaldo) para entregar al cliente sin hacerlo esperar. La orden quedará marcada como "pagada" en tu caja y podrás re-emitir el comprobante a la SUNAT con un solo clic más tarde, desde tu panel de **Finanzas > Comprobantes Pendientes**, cuando el servicio se restablezca.
+* **Omitir e Ir al Inicio:** Cierra la pantalla de control para seguir atendiendo a otros clientes en la fila.

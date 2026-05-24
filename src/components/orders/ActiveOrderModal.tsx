@@ -49,6 +49,7 @@ export interface Meal {
   description?: string;
   basePrice: number;
   categoryId?: string;
+  code?: string;
 }
 
 interface ClientSearchResult {
@@ -101,6 +102,12 @@ export function ActiveOrderModal({
     handleHoldOrder,
     handlePayOrder,
     handleSaveCustomer,
+    // Stamping and Billing Synchronous Flow States & Actions
+    paymentStep,
+    stampingError,
+    stampedOrder,
+    handleRetryStamping,
+    handlePrintWithoutStamping,
   } = manager;
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -120,6 +127,7 @@ export function ActiveOrderModal({
     if (invoiceTypeDraft === "factura") {
       if (customerDraft.documentType !== "ruc") return false;
       if (customerDraft.documentNumber?.length !== 11) return false;
+      if (!customerDraft.address?.trim()) return false;
     }
     if (invoiceTypeDraft === "boleta" && customerDraft.documentType === "dni") {
       if (customerDraft.documentNumber?.length !== 8) return false;
@@ -136,6 +144,7 @@ export function ActiveOrderModal({
       if (customerDraft.documentType !== "ruc") return "FACTURA REQUIERE RUC";
       if (customerDraft.documentNumber?.length !== 11)
         return "RUC = 11 DÍGITOS";
+      if (!customerDraft.address?.trim()) return "DIRECCIÓN REQUERIDA";
     }
     if (invoiceTypeDraft === "boleta" && customerDraft.documentType === "dni") {
       if (customerDraft.documentNumber?.length !== 8) return "DNI = 8 DÍGITOS";
@@ -244,7 +253,8 @@ export function ActiveOrderModal({
       .filter(
         (meal) =>
           meal.name.toLowerCase().includes(query) ||
-          meal.description?.toLowerCase().includes(query),
+          meal.description?.toLowerCase().includes(query) ||
+          meal.code?.toLowerCase().includes(query),
       )
       .slice(0, 5); // Limit suggestions
   }, [meals, searchQuery]);
@@ -1016,6 +1026,138 @@ export function ActiveOrderModal({
             </RoleGate>
           </div>
         </div>
+
+        {/* Synchronized Payment Stamping Overlay */}
+        {paymentStep !== "idle" && (
+          <div className="absolute inset-0 z-50 bg-[#0a0a0a]/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-fade-in" style={{ pointerEvents: "auto" }}>
+            <div className="w-full max-w-lg bg-[#111] border border-[#222] rounded-2xl p-8 shadow-2xl flex flex-col items-center">
+              
+              {/* Step: Paying */}
+              {paymentStep === "paying" && (
+                <div className="space-y-6 py-8">
+                  <div className="relative flex justify-center items-center">
+                    <div className="w-16 h-16 rounded-full border-t-2 border-r-2 border-[#70d8c8] animate-spin"></div>
+                    <CreditCard className="w-6 h-6 text-[#70d8c8] absolute" />
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-bold uppercase tracking-[0.2em] text-white font-mono">
+                      REGISTRANDO PAGO
+                    </h3>
+                    <p className="text-xs text-muted-foreground font-mono tracking-widest">
+                      Guardando detalles de transacción en la base de datos...
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Step: Stamping */}
+              {paymentStep === "stamping" && (
+                <div className="space-y-6 py-8 w-full">
+                  <div className="relative flex justify-center items-center">
+                    <div className="w-16 h-16 rounded-full border-2 border-[#70d8c8]/20 border-t-2 border-t-[#70d8c8] animate-spin"></div>
+                    <Loader2 className="w-6 h-6 text-[#70d8c8] absolute animate-pulse" />
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-bold uppercase tracking-[0.2em] text-[#70d8c8] font-mono animate-pulse">
+                      TIMBRANDO CPE
+                    </h3>
+                    <p className="text-xs text-muted-foreground font-mono tracking-widest">
+                      Conectando con SUNAT y Nubefact...
+                    </p>
+                    <div className="text-[10px] text-[#70d8c8]/60 font-mono tracking-widest border border-[#70d8c8]/20 rounded bg-[#70d8c8]/5 px-3 py-2.5 mt-4 max-w-sm mx-auto text-left leading-relaxed">
+                      &gt; FIRMANDO XML DOCUMENTO... <br />
+                      &gt; DESPACHANDO ADAPTADOR OSE...
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Step: Success */}
+              {paymentStep === "success" && (
+                <div className="space-y-6 py-8">
+                  <div className="w-16 h-16 rounded-full bg-[#70d8c8]/10 border border-[#70d8c8]/30 flex items-center justify-center text-[#70d8c8] animate-bounce mx-auto">
+                    <CheckCircle2 className="w-10 h-10" />
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-bold uppercase tracking-[0.2em] text-white font-mono">
+                      ¡OPERACIÓN EXITOSA!
+                    </h3>
+                    <p className="text-xs text-[#70d8c8] font-mono tracking-widest">
+                      Imprimiendo comprobante de pago electrónico...
+                    </p>
+                    {stampedOrder && (
+                      <div className="text-[11px] font-mono bg-[#1a1a1a] text-muted-foreground rounded px-3 py-2 mt-4 inline-block border border-[#333] uppercase">
+                        COMPROBANTE: {stampedOrder.fiscalDocumentPrefix}-{String(stampedOrder.fiscalDocumentNumber || "").padStart(8, "0")}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Step: Failed */}
+              {paymentStep === "failed" && (
+                <div className="space-y-6 w-full">
+                  <div className="w-16 h-16 rounded-full bg-[#5c1616]/20 border border-[#5c1616] flex items-center justify-center text-[#ffb4ab] mx-auto">
+                    <AlertTriangle className="w-8 h-8" />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h3 className="text-md font-bold uppercase tracking-[0.2em] text-[#ffb4ab] font-mono">
+                      ERROR DE EMISIÓN FISCAL
+                    </h3>
+                    <p className="text-[11px] text-muted-foreground font-mono tracking-wide leading-relaxed">
+                      El pago se registró correctamente, pero el OSE o SUNAT rechazó el timbrado automático.
+                    </p>
+                  </div>
+
+                  <div className="bg-[#1a1111] border border-[#5c1616]/40 rounded-xl p-4 text-left font-mono text-xs text-[#ffb4ab] max-h-[120px] overflow-y-auto w-full select-all">
+                    <div className="font-bold text-[10px] text-muted-foreground mb-1 uppercase tracking-widest border-b border-[#5c1616]/20 pb-1">
+                      Mensaje de Error SUNAT:
+                    </div>
+                    {stampingError || "Error desconocido al procesar facturación electrónica."}
+                  </div>
+
+                  <div className="flex flex-col gap-2 pt-2 w-full">
+                    <Button
+                      onClick={() => stampedOrder && handleRetryStamping(stampedOrder)}
+                      disabled={isOrderBusy}
+                      className="w-full h-12 bg-[#70d8c8] hover:bg-[#5bc2b2] text-[#0a0a0a] font-bold font-mono text-xs tracking-widest uppercase rounded-xl transition-all"
+                    >
+                      {isOrderBusy ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Loader2 className="w-4 h-4 mr-2" />
+                      )}
+                      REINTENTAR TIMBRADO
+                    </Button>
+                    
+                    <Button
+                      variant="outline"
+                      onClick={() => stampedOrder && handlePrintWithoutStamping(stampedOrder)}
+                      disabled={isOrderBusy}
+                      className="w-full h-12 bg-[#1a1a1a] hover:bg-[#252525] border-[#333] text-white font-bold font-mono text-xs tracking-widest uppercase rounded-xl transition-all"
+                    >
+                      <Receipt className="w-4 h-4 mr-2" /> IMPRIMIR RESPALDO LOCAL
+                    </Button>
+
+                    <Button
+                      variant="ghost"
+                      onClick={() => {
+                        setIsOrderModalOpen(false);
+                        manager.setActiveOrder(null);
+                      }}
+                      disabled={isOrderBusy}
+                      className="w-full h-10 text-muted-foreground hover:text-white hover:bg-transparent font-mono text-[10px] tracking-widest uppercase"
+                    >
+                      OMITIR E IR A INICIO
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+            </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

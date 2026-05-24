@@ -17,6 +17,7 @@ export async function POST(request: Request) {
       restaurantId: secureRestaurantId, // Usar ID de sesión, ignorar body
       categoryId: formData?.categoryId,
       name: formData.name,
+      code: formData.code || "",
       name_en: formData.name_en || "",
       description: formData.description,
       description_en: formData.description_en || "",

@@ -3,6 +3,7 @@ import { model, models, Schema } from "mongoose";
 const OrderItemSchema = new Schema(
   {
     mealId: { type: String, required: true },
+    code: { type: String, trim: true, default: "" },
     name: { type: String, required: true, trim: true },
     unitPrice: { type: Number, required: true, min: 0 },
     qty: { type: Number, required: true, min: 0 },
@@ -53,6 +54,27 @@ const OrderAdjustmentSchema = new Schema(
   { _id: false },
 );
 
+const FiscalStatusSchema = new Schema(
+  {
+    status: {
+      type: String,
+      enum: ["pending", "emitted", "failed", "cancelled"],
+      default: "pending",
+    },
+    provider: { type: String, enum: ["nubefact", "efact"], default: "nubefact" },
+    pdfUrl: { type: String, default: "" },
+    xmlUrl: { type: String, default: "" },
+    cdrUrl: { type: String, default: "" },
+    errorCode: { type: String, default: "" },
+    errorMessage: { type: String, default: "" },
+    emittedAt: { type: Date, default: null },
+    cancelledAt: { type: Date, default: null },
+    cancellationReason: { type: String, default: "" },
+    rawResponse: { type: Schema.Types.Mixed, default: null },
+  },
+  { _id: false },
+);
+
 const OrderSchema = new Schema(
   {
     restaurantId: {
@@ -79,6 +101,7 @@ const OrderSchema = new Schema(
     invoiceType: { type: String, enum: ["boleta", "factura", "nota_venta"], default: "nota_venta" },
     fiscalDocumentPrefix: { type: String, trim: true, default: "" },
     fiscalDocumentNumber: { type: Number, default: null },
+    fiscalStatus: { type: FiscalStatusSchema, default: null },
     customer: { type: OrderCustomerSchema, default: () => ({}) },
     items: { type: [OrderItemSchema], default: [] },
     // Discounts / surcharges (percentage)
@@ -139,6 +162,7 @@ const needsRebuild =
     !existingModel.schema?.path?.("cashSessionId") ||
     !existingModel.schema?.path?.("fiscalDocumentPrefix") ||
     !existingModel.schema?.path?.("fiscalDocumentNumber") ||
+    !existingModel.schema?.path?.("fiscalStatus") ||
     !(
       existingModel.schema?.path?.("invoiceType") as { enumValues?: string[] }
     )?.enumValues?.includes?.("nota_venta") ||

@@ -45,6 +45,20 @@ export interface OrderCustomer {
 
 export type InvoiceType = "boleta" | "factura" | "nota_venta";
 
+export interface IFiscalStatus {
+  status: 'pending' | 'emitted' | 'failed' | 'cancelled';
+  provider: 'nubefact' | 'efact';
+  pdfUrl?: string;
+  xmlUrl?: string;
+  cdrUrl?: string;
+  errorCode?: string;
+  errorMessage?: string;
+  emittedAt?: string;
+  cancelledAt?: string;
+  cancellationReason?: string;
+  rawResponse?: Record<string, unknown>;
+}
+
 export interface Order {
   _id: string;
   orderNumber: number;
@@ -54,6 +68,7 @@ export interface Order {
   invoiceType?: InvoiceType;
   fiscalDocumentPrefix?: string;
   fiscalDocumentNumber?: number;
+  fiscalStatus?: IFiscalStatus | null;
   items: OrderItem[];
   adjustment?: OrderAdjustment | null;
   payments?: OrderPayment[];

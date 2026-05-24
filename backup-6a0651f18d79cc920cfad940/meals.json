@@ -1,0 +1,4622 @@
+[
+  {
+    "_id": "6a065f6218643ea8e249a005",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0651f18d79cc920cfad944",
+    "name": "CONCHAS MÁNCORA",
+    "name_en_manual": false,
+    "slug": "conchas-mncora-1778802530220-0",
+    "description": "Conchas flambeadas en mantequilla de parmesano, acevichada de parmesano, palta, aceite de trufa.",
+    "description_en_manual": false,
+    "shortDescription": "Conchas flambeadas en mantequilla de parmesano, acevichada de parmesano, palta, aceite de trufa",
+    "shortDescription_en_manual": false,
+    "basePrice": 48,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 0,
+      "isFeatured": true,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.228Z",
+    "updatedAt": "2026-05-14T23:48:50.228Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a006",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0651f18d79cc920cfad944",
+    "name": "TIRADITO NIKKEI",
+    "name_en_manual": false,
+    "slug": "tiradito-nikkei-1778802530220-1",
+    "description": "Pesca del día, conchas, pulpo, leche de tigre, aromas de curry, alcaparras, algas.",
+    "description_en_manual": false,
+    "shortDescription": "Pesca del día, conchas, pulpo, leche de tigre, aromas de curry, alcaparras, algas.",
+    "shortDescription_en_manual": false,
+    "basePrice": 48,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 1,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.230Z",
+    "updatedAt": "2026-05-14T23:48:50.230Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a007",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0651f18d79cc920cfad944",
+    "name": "CARPACCIO DI TONNO",
+    "name_en_manual": false,
+    "slug": "carpaccio-di-tonno-1778802530220-2",
+    "description": "Atún ahumado, aceite de olivo, alcaparras, parmesano, balsámico.",
+    "description_en_manual": false,
+    "shortDescription": "Atún ahumado, aceite de olivo, alcaparras, parmesano, balsámico.",
+    "shortDescription_en_manual": false,
+    "basePrice": 48,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 2,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.230Z",
+    "updatedAt": "2026-05-14T23:48:50.230Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a008",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0651f18d79cc920cfad944",
+    "name": "CAUSA",
+    "name_en_manual": false,
+    "slug": "causa-1778802530220-3",
+    "description": "Cangrejo, atún, algas, palta, huancaína acevichada.",
+    "description_en_manual": false,
+    "shortDescription": "Cangrejo, atún, algas, palta, huancaína acevichada.",
+    "shortDescription_en_manual": false,
+    "basePrice": 48,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 3,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.231Z",
+    "updatedAt": "2026-05-14T23:48:50.231Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a009",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0651f18d79cc920cfad944",
+    "name": "TARTARE",
+    "name_en_manual": false,
+    "slug": "tartare-1778802530220-4",
+    "description": "Pesca del día, palta, jengibre crocante, galletas de arroz.",
+    "description_en_manual": false,
+    "shortDescription": "Pesca del día, palta, jengibre crocante, galletas de arroz.",
+    "shortDescription_en_manual": false,
+    "basePrice": 48,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 4,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.233Z",
+    "updatedAt": "2026-05-14T23:48:50.233Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a00a",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0651f18d79cc920cfad944",
+    "name": "CEVICHE",
+    "name_en_manual": false,
+    "slug": "ceviche-1778802530220-5",
+    "description": "Atún, pepino, ají limo, algas, leche de tigre nikkei.",
+    "description_en_manual": false,
+    "shortDescription": "Atún, pepino, ají limo, algas, leche de tigre nikkei.",
+    "shortDescription_en_manual": false,
+    "basePrice": 48,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 5,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.234Z",
+    "updatedAt": "2026-05-14T23:48:50.234Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a00b",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0651f18d79cc920cfad944",
+    "name": "PULPO Y PAPA",
+    "name_en_manual": false,
+    "slug": "pulpo-y-papa-1778802530220-6",
+    "description": "Pulpo grillado, cremoso de papa, aceite de trufa.",
+    "description_en_manual": false,
+    "shortDescription": "Pulpo grillado, cremoso de papa, aceite de trufa.",
+    "shortDescription_en_manual": false,
+    "basePrice": 48,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 6,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.235Z",
+    "updatedAt": "2026-05-14T23:48:50.235Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a00c",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0651f18d79cc920cfad944",
+    "name": "PASTEL DE CHOCLO",
+    "name_en_manual": false,
+    "slug": "pastel-de-choclo-1778802530220-7",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 45,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 7,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.236Z",
+    "updatedAt": "2026-05-14T23:48:50.236Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a00d",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0651f18d79cc920cfad944",
+    "name": "ENSALADA DEL CAMPO",
+    "name_en_manual": false,
+    "slug": "ensalada-del-campo-1778802530220-8",
+    "description": "Pollo del campo a la leña, mix de verdes, palta, huevo criollo, semillas de zapallo, manzana verde, pecanas caramelizadas, vinagreta de la casa.",
+    "description_en_manual": false,
+    "shortDescription": "Pollo del campo a la leña, mix de verdes, palta, huevo criollo, semillas de zapallo, manzana ve",
+    "shortDescription_en_manual": false,
+    "basePrice": 45,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 8,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.237Z",
+    "updatedAt": "2026-05-14T23:48:50.237Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a00e",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0651f18d79cc920cfad944",
+    "name": "LECHUGAS",
+    "name_en_manual": false,
+    "slug": "lechugas-1778802530220-9",
+    "description": "Lechuga, parmigiano regiano, atún ahumado, anchoas, Caesar dressing, balsámico.",
+    "description_en_manual": false,
+    "shortDescription": "Lechuga, parmigiano regiano, atún ahumado, anchoas, Caesar dressing, balsámico.",
+    "shortDescription_en_manual": false,
+    "basePrice": 45,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 9,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.237Z",
+    "updatedAt": "2026-05-14T23:48:50.237Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a00f",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0651f18d79cc920cfad946",
+    "name": "PEPPER TUNA",
+    "name_en_manual": false,
+    "slug": "pepper-tuna-1778802530220-0",
+    "description": "Atún a la brasa, salsa de pimientas, puré de papa, espárragos.",
+    "description_en_manual": false,
+    "shortDescription": "Atún a la brasa, salsa de pimientas, puré de papa, espárragos.",
+    "shortDescription_en_manual": false,
+    "basePrice": 68,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 0,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.238Z",
+    "updatedAt": "2026-05-14T23:48:50.238Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a010",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0651f18d79cc920cfad946",
+    "name": "TUNA PASSION",
+    "name_en_manual": false,
+    "slug": "tuna-passion-1778802530220-1",
+    "description": "Atún a la brasa, miel de maracuyá y kión, ensalada de papa, arúgula.",
+    "description_en_manual": false,
+    "shortDescription": "Atún a la brasa, miel de maracuyá y kión, ensalada de papa, arúgula.",
+    "shortDescription_en_manual": false,
+    "basePrice": 68,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 1,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.239Z",
+    "updatedAt": "2026-05-14T23:48:50.239Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a011",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0651f18d79cc920cfad946",
+    "name": "PESCA Y CURRY",
+    "name_en_manual": false,
+    "slug": "pesca-y-curry-1778802530220-2",
+    "description": "Pesca del día a la brasa, salsa de curry, zucchini, plátano asado, arroz.",
+    "description_en_manual": false,
+    "shortDescription": "Pesca del día a la brasa, salsa de curry, zucchini, plátano asado, arroz.",
+    "shortDescription_en_manual": false,
+    "basePrice": 68,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 2,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.240Z",
+    "updatedAt": "2026-05-14T23:48:50.240Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a012",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0651f18d79cc920cfad946",
+    "name": "OSOBUCCO Y RISOTTO DE ZAPALLO",
+    "name_en_manual": false,
+    "slug": "osobucco-y-risotto-de-zapallo-1778802530220-3",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 68,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 3,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.240Z",
+    "updatedAt": "2026-05-14T23:48:50.240Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a013",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0651f18d79cc920cfad946",
+    "name": "LOMO Y TOMATE",
+    "name_en_manual": false,
+    "slug": "lomo-y-tomate-1778802530220-4",
+    "description": "Lomo grillado, salsa de vino, risotto de tomate, tomate confitado.",
+    "description_en_manual": false,
+    "shortDescription": "Lomo grillado, salsa de vino, risotto de tomate, tomate confitado.",
+    "shortDescription_en_manual": false,
+    "basePrice": 70,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 4,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.241Z",
+    "updatedAt": "2026-05-14T23:48:50.241Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a014",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0651f18d79cc920cfad946",
+    "name": "TACU THAI",
+    "name_en_manual": false,
+    "slug": "tacu-thai-1778802530220-5",
+    "description": "Tacu tacu de lentejas, panceta glaseada, curry rojo, plátano asado, chalaquita.",
+    "description_en_manual": false,
+    "shortDescription": "Tacu tacu de lentejas, panceta glaseada, curry rojo, plátano asado, chalaquita.",
+    "shortDescription_en_manual": false,
+    "basePrice": 69,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 5,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.242Z",
+    "updatedAt": "2026-05-14T23:48:50.242Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a015",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0651f18d79cc920cfad946",
+    "name": "MOLLEJA DE RES",
+    "name_en_manual": false,
+    "slug": "molleja-de-res-1778802530220-6",
+    "description": "Molleja a la parrilla, zapallo loche, mantequilla de alcaparras, limón.",
+    "description_en_manual": false,
+    "shortDescription": "Molleja a la parrilla, zapallo loche, mantequilla de alcaparras, limón.",
+    "shortDescription_en_manual": false,
+    "basePrice": 68,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 6,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.242Z",
+    "updatedAt": "2026-05-14T23:48:50.242Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a016",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0651f18d79cc920cfad946",
+    "name": "ARROZ AL NERO DI SEPPIA",
+    "name_en_manual": false,
+    "slug": "arroz-al-nero-di-seppia-1778802530220-7",
+    "description": "Arroz negro, calamares, langostinos, alioli de limón.",
+    "description_en_manual": false,
+    "shortDescription": "Arroz negro, calamares, langostinos, alioli de limón.",
+    "shortDescription_en_manual": false,
+    "basePrice": 70,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 7,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.243Z",
+    "updatedAt": "2026-05-14T23:48:50.243Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a017",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0651f18d79cc920cfad946",
+    "name": "RAVIOLES",
+    "name_en_manual": false,
+    "slug": "ravioles-1778802530220-8",
+    "description": "- De cabrito y tamalito verde, salsa de guiso norteño, queso de cabra.\n- De zapallo loche al burro e salvia.",
+    "description_en_manual": false,
+    "shortDescription": "- De cabrito y tamalito verde, salsa de guiso norteño, queso de cabra.\n- De zapallo loche al bu",
+    "shortDescription_en_manual": false,
+    "basePrice": 55,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 8,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.244Z",
+    "updatedAt": "2026-05-14T23:48:50.244Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a01d",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0651f18d79cc920cfad948",
+    "name": "CURRY DE LENTEJAS",
+    "name_en_manual": false,
+    "slug": "curry-de-lentejas-1778802530220-0",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 45,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 0,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.248Z",
+    "updatedAt": "2026-05-14T23:48:50.248Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a01e",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0651f18d79cc920cfad948",
+    "name": "ARROZ CREMOSO DE ZAPALLO, ZUCCHINI HONGOS",
+    "name_en_manual": false,
+    "slug": "arroz-cremoso-de-zapallo-zucchini-hongos-1778802530220-1",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 55,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 1,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.249Z",
+    "updatedAt": "2026-05-14T23:48:50.249Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a01f",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0651f18d79cc920cfad948",
+    "name": "CREMA DE ZAPALLO CON LECHE DE COCO",
+    "name_en_manual": false,
+    "slug": "crema-de-zapallo-con-leche-de-coco-1778802530220-2",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 40,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 2,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.249Z",
+    "updatedAt": "2026-05-14T23:48:50.249Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a018",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a06534d8d79cc920cfad9b8",
+    "name": "MANCORA",
+    "name_en_manual": false,
+    "slug": "mancora-1778802530220-0",
+    "description": "Langosta, batayaki, loche.",
+    "description_en_manual": false,
+    "shortDescription": "Langosta, batayaki, loche.",
+    "shortDescription_en_manual": false,
+    "basePrice": 45,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 0,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.245Z",
+    "updatedAt": "2026-05-14T23:48:50.245Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a019",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a06534d8d79cc920cfad9b8",
+    "name": "KANI - MAGURO",
+    "name_en_manual": false,
+    "slug": "kani-maguro-1778802530220-1",
+    "description": "Foie gras, congrejo, atún, loche, tare.",
+    "description_en_manual": false,
+    "shortDescription": "Foie gras, congrejo, atún, loche, tare.",
+    "shortDescription_en_manual": false,
+    "basePrice": 50,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 1,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.245Z",
+    "updatedAt": "2026-05-14T23:48:50.245Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a01a",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a06534d8d79cc920cfad9b8",
+    "name": "HOTATE PARMIGIANO",
+    "name_en_manual": false,
+    "slug": "hotate-parmigiano-1778802530220-2",
+    "description": "Concha, parmigiano regiano, trufa oil, mantequilla de limón.",
+    "description_en_manual": false,
+    "shortDescription": "Concha, parmigiano regiano, trufa oil, mantequilla de limón.",
+    "shortDescription_en_manual": false,
+    "basePrice": 45,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 2,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.246Z",
+    "updatedAt": "2026-05-14T23:48:50.246Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a01b",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a06534d8d79cc920cfad9b8",
+    "name": "ACEVICHADO",
+    "name_en_manual": false,
+    "slug": "acevichado-1778802530220-3",
+    "description": "Pesca del día, leche de tigre ahumada, camote glaseado, algas, chalaquita.",
+    "description_en_manual": false,
+    "shortDescription": "Pesca del día, leche de tigre ahumada, camote glaseado, algas, chalaquita.",
+    "shortDescription_en_manual": false,
+    "basePrice": 40,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 3,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.247Z",
+    "updatedAt": "2026-05-14T23:48:50.247Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a01c",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a06534d8d79cc920cfad9b8",
+    "name": "TIRADITO DE VERANO",
+    "name_en_manual": false,
+    "slug": "tiradito-de-verano-1778802530220-4",
+    "description": "Pesca del día, leche de tigre de alcachofa, palta, wasabi, loche.",
+    "description_en_manual": false,
+    "shortDescription": "Pesca del día, leche de tigre de alcachofa, palta, wasabi, loche.",
+    "shortDescription_en_manual": false,
+    "basePrice": 50,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 4,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.247Z",
+    "updatedAt": "2026-05-14T23:48:50.247Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a020",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0653628d79cc920cfad9be",
+    "name": "Bloody Mary",
+    "name_en_manual": false,
+    "slug": "bloody-mary-1778802530220-0",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 35,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 0,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.250Z",
+    "updatedAt": "2026-05-14T23:48:50.250Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a021",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0653628d79cc920cfad9be",
+    "name": "Apple Martini",
+    "name_en_manual": false,
+    "slug": "apple-martini-1778802530220-1",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 35,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 1,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.250Z",
+    "updatedAt": "2026-05-14T23:48:50.250Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a022",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0653628d79cc920cfad9be",
+    "name": "Caipiriña",
+    "name_en_manual": false,
+    "slug": "caipiria-1778802530220-2",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 35,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 2,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.251Z",
+    "updatedAt": "2026-05-14T23:48:50.251Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a023",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0653628d79cc920cfad9be",
+    "name": "Manhattan",
+    "name_en_manual": false,
+    "slug": "manhattan-1778802530220-3",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 35,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 3,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.251Z",
+    "updatedAt": "2026-05-14T23:48:50.251Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a024",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0653628d79cc920cfad9be",
+    "name": "Algarrobina",
+    "name_en_manual": false,
+    "slug": "algarrobina-1778802530220-4",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 35,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 4,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.252Z",
+    "updatedAt": "2026-05-14T23:48:50.252Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a025",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0653628d79cc920cfad9be",
+    "name": "Michelada",
+    "name_en_manual": false,
+    "slug": "michelada-1778802530220-5",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 25,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 5,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.252Z",
+    "updatedAt": "2026-05-15T18:13:50.472Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a026",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0653628d79cc920cfad9be",
+    "name": "Margarita",
+    "name_en_manual": false,
+    "slug": "margarita-1778802530220-6",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 35,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 6,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.253Z",
+    "updatedAt": "2026-05-14T23:48:50.253Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a027",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0653628d79cc920cfad9be",
+    "name": "Negroni",
+    "name_en_manual": false,
+    "slug": "negroni-1778802530220-7",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 35,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 7,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.253Z",
+    "updatedAt": "2026-05-14T23:48:50.253Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a028",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0653628d79cc920cfad9be",
+    "name": "Gin Tonic",
+    "name_en_manual": false,
+    "slug": "gin-tonic-1778802530220-8",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 35,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 8,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.254Z",
+    "updatedAt": "2026-05-14T23:48:50.254Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a029",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0653688d79cc920cfad9c4",
+    "name": "Passion Mojito",
+    "name_en_manual": false,
+    "slug": "passion-mojito-1778802530220-0",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 35,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 0,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.254Z",
+    "updatedAt": "2026-05-14T23:48:50.254Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a02a",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0653688d79cc920cfad9c4",
+    "name": "Mojito de Mango Ciruelo",
+    "name_en_manual": false,
+    "slug": "mojito-de-mango-ciruelo-1778802530220-1",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 35,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 1,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.255Z",
+    "updatedAt": "2026-05-14T23:48:50.255Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a02b",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0653688d79cc920cfad9c4",
+    "name": "Mojito Clásico",
+    "name_en_manual": false,
+    "slug": "mojito-clsico-1778802530220-2",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 35,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 2,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.255Z",
+    "updatedAt": "2026-05-14T23:48:50.255Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a02c",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0653708d79cc920cfad9ca",
+    "name": "Pisco Sour Clásico",
+    "name_en_manual": false,
+    "slug": "pisco-sour-clsico-1778802530220-0",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 35,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 0,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.255Z",
+    "updatedAt": "2026-05-14T23:48:50.255Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a02d",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0653708d79cc920cfad9ca",
+    "name": "Pisco Sour de Maracuyá",
+    "name_en_manual": false,
+    "slug": "pisco-sour-de-maracuy-1778802530220-1",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 35,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 1,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.258Z",
+    "updatedAt": "2026-05-14T23:48:50.258Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a02e",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0653708d79cc920cfad9ca",
+    "name": "Sour de Maíz Morado",
+    "name_en_manual": false,
+    "slug": "sour-de-maz-morado-1778802530220-2",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 35,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 2,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.258Z",
+    "updatedAt": "2026-05-14T23:48:50.258Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a02f",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0653708d79cc920cfad9ca",
+    "name": "Chilcano Clásico",
+    "name_en_manual": false,
+    "slug": "chilcano-clsico-1778802530220-3",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 35,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 3,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.259Z",
+    "updatedAt": "2026-05-14T23:48:50.259Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a030",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0653708d79cc920cfad9ca",
+    "name": "Chilcano de Canela",
+    "name_en_manual": false,
+    "slug": "chilcano-de-canela-1778802530220-4",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 35,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 4,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.260Z",
+    "updatedAt": "2026-05-14T23:48:50.260Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a031",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0653708d79cc920cfad9ca",
+    "name": "Chilcano de Kión",
+    "name_en_manual": false,
+    "slug": "chilcano-de-kin-1778802530220-5",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 35,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 5,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.260Z",
+    "updatedAt": "2026-05-14T23:48:50.260Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a032",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0653738d79cc920cfad9d0",
+    "name": "Flor de jamaica, canela y kión",
+    "name_en_manual": false,
+    "slug": "flor-de-jamaica-canela-y-kin-1778802530220-0",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 20,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 0,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.261Z",
+    "updatedAt": "2026-05-14T23:48:50.261Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a033",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0653738d79cc920cfad9d0",
+    "name": "Hierba luisa, menta y piña",
+    "name_en_manual": false,
+    "slug": "hierba-luisa-menta-y-pia-1778802530220-1",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 20,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 1,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.261Z",
+    "updatedAt": "2026-05-14T23:48:50.261Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a034",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0653738d79cc920cfad9d0",
+    "name": "Piña, menta y cardamomo",
+    "name_en_manual": false,
+    "slug": "pia-menta-y-cardamomo-1778802530220-2",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 20,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 2,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.261Z",
+    "updatedAt": "2026-05-14T23:48:50.261Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a035",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0653788d79cc920cfad9d6",
+    "name": "Arándanos",
+    "name_en_manual": false,
+    "slug": "arndanos-1778802530220-0",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 25,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 0,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.262Z",
+    "updatedAt": "2026-05-14T23:48:50.262Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a036",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0653788d79cc920cfad9d6",
+    "name": "Hierba Luisa",
+    "name_en_manual": false,
+    "slug": "hierba-luisa-1778802530220-1",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 25,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 1,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.262Z",
+    "updatedAt": "2026-05-14T23:48:50.262Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a037",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0653788d79cc920cfad9d6",
+    "name": "Maracuyá",
+    "name_en_manual": false,
+    "slug": "maracuy-1778802530220-2",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 25,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 2,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.262Z",
+    "updatedAt": "2026-05-14T23:48:50.263Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a038",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0653788d79cc920cfad9d6",
+    "name": "Fresa",
+    "name_en_manual": false,
+    "slug": "fresa-1778802530220-3",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 25,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 3,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.263Z",
+    "updatedAt": "2026-05-14T23:48:50.263Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a039",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a06537b8d79cc920cfad9dc",
+    "name": "Corona",
+    "name_en_manual": false,
+    "slug": "corona-1778802530220-0",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 20,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 0,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.263Z",
+    "updatedAt": "2026-05-14T23:48:50.263Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a03a",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a06537b8d79cc920cfad9dc",
+    "name": "Pilsen",
+    "name_en_manual": false,
+    "slug": "pilsen-1778802530220-1",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 20,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 1,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.264Z",
+    "updatedAt": "2026-05-14T23:48:50.264Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a03b",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a06537b8d79cc920cfad9dc",
+    "name": "Cuzqueña",
+    "name_en_manual": false,
+    "slug": "cuzquea-1778802530220-2",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 20,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 2,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.264Z",
+    "updatedAt": "2026-05-14T23:48:50.264Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a03c",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0653808d79cc920cfad9e2",
+    "name": "Gaseosas / aguas nacionales",
+    "name_en_manual": false,
+    "slug": "gaseosas-aguas-nacionales-1778802530220-0",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 10,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 0,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.264Z",
+    "updatedAt": "2026-05-14T23:48:50.264Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a03d",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0653a18d79cc920cfad9e8",
+    "name": "Expresso",
+    "name_en_manual": false,
+    "slug": "expresso-1778802530220-0",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 8,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 0,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.265Z",
+    "updatedAt": "2026-05-14T23:48:50.265Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a03e",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0653a18d79cc920cfad9e8",
+    "name": "Americano",
+    "name_en_manual": false,
+    "slug": "americano-1778802530220-1",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 8,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 1,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.265Z",
+    "updatedAt": "2026-05-14T23:48:50.265Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a03f",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0653a18d79cc920cfad9e8",
+    "name": "Infusiones naturales",
+    "name_en_manual": false,
+    "slug": "infusiones-naturales-1778802530220-2",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 8,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 2,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.266Z",
+    "updatedAt": "2026-05-14T23:48:50.266Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a065f6218643ea8e249a040",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "categoryId": "6a0653a18d79cc920cfad9e8",
+    "name": "Capuccino",
+    "name_en_manual": false,
+    "slug": "capuccino-1778802530220-3",
+    "description": "",
+    "description_en_manual": false,
+    "shortDescription": "",
+    "shortDescription_en_manual": false,
+    "basePrice": 12,
+    "images": [],
+    "ingredients": [],
+    "ingredients_en": [],
+    "ingredients_en_manual": false,
+    "allergens": [],
+    "allergens_en": [],
+    "allergens_en_manual": false,
+    "dietaryTags": [],
+    "dietaryTags_en": [],
+    "dietaryTags_en_manual": false,
+    "availability": {
+      "isAvailable": true,
+      "schedule": {
+        "monday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "tuesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "wednesday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "thursday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "friday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "saturday": {
+          "isAvailable": true,
+          "timeSlots": []
+        },
+        "sunday": {
+          "isAvailable": true,
+          "timeSlots": []
+        }
+      }
+    },
+    "display": {
+      "order": 3,
+      "isFeatured": false,
+      "showInMenu": true
+    },
+    "status": "active",
+    "metrics": {
+      "rating": {
+        "average": 0,
+        "count": 0
+      },
+      "viewCount": 0,
+      "orderCount": 0
+    },
+    "searchTags": [],
+    "searchTags_en": [],
+    "serchTags_en_manual": false,
+    "variants": [],
+    "createdAt": "2026-05-14T23:48:50.266Z",
+    "updatedAt": "2026-05-14T23:48:50.266Z",
+    "__v": 0
+  }
+]

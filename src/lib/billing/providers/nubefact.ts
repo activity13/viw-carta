@@ -78,7 +78,7 @@ export class NubefactAdapter implements IBillingProvider {
         // Nubefact calcula automáticamente si proveemos unitPrice, qty e igv/subtotal.
         return {
           unidad_de_medida: 'NIU', // NIU es la unidad estándar SUNAT para bienes/servicios en restaurantes
-          codigo: item.id || 'PROD-GENERICO',
+          codigo: item.code || 'PROD-GENERICO',
           descripcion: item.description,
           cantidad: item.quantity,
           valor_unitario: Number(item.subtotal / item.quantity), // Sin IGV

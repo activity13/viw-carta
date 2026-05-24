@@ -42,6 +42,7 @@ const CreateMealForm = ({
     restaurantId: "",
     categoryId: "",
     name: "",
+    code: "",
     name_en: "",
     description: "",
     description_en: "",
@@ -100,6 +101,7 @@ const CreateMealForm = ({
     restaurantId: "",
     categoryId: "",
     name: "",
+    code: "",
     name_en: "",
     description: "",
     description_en: "",
@@ -371,6 +373,7 @@ const CreateMealForm = ({
         ...response.data,
         categoryId: response.data.categoryId?.toString() || "",
         name: response.data.name || "",
+        code: response.data.code || "",
         name_en: response.data.name_en || "",
         description: response.data.description || "",
         description_en: response.data.description_en || "",
@@ -538,10 +541,10 @@ const CreateMealForm = ({
                         }
                         required
                       >
-                        <SelectTrigger className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+                        <SelectTrigger className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-background">
                           <SelectValue placeholder="Seleccionar categoría" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-card">
                           <SelectGroup>
                             <SelectLabel>Categorías</SelectLabel>
                             {categories?.length === 0 && (
@@ -560,6 +563,20 @@ const CreateMealForm = ({
                           </SelectGroup>
                         </SelectContent>
                       </Select>
+                    </div>
+                    <div>
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                        Código Interno / SKU / Barras
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.code || ""}
+                        onChange={(e) =>
+                          handleInputChange("code", e.target.value)
+                        }
+                        className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-background"
+                        placeholder="Ej: PROD-101 o 75010203"
+                      />
                     </div>
                   </div>
                   <div>

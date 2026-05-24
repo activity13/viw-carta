@@ -183,6 +183,9 @@ const RestaurantSchema = new Schema(
       currentInvoiceNumber: { type: Number, default: 0 },
       currentReceiptNumber: { type: Number, default: 0 },
       currentTicketNumber: { type: Number, default: 0 },
+      provider: { type: String, trim: true, default: "nubefact" },
+      apiEndpoint: { type: String, trim: true, default: "" },
+      apiKey: { type: String, trim: true, default: "" },
     },
   },
   {

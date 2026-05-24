@@ -19,6 +19,7 @@ export async function POST(request: Request) {
       {
         $set: {
           name: formData.name,
+          code: formData.code || "",
           name_en: formData.name_en || "",
           description: formData.description,
           description_en: formData.description_en || "",

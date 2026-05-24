@@ -56,6 +56,7 @@ interface Meal {
   basePrice: number;
   categoryId: string;
   restaurantId: string;
+  code?: string;
   display: {
     showInMenu: boolean;
     order: number;
@@ -675,9 +676,9 @@ export default function Master() {
     return meals
       .filter((meal) => {
         const matchesCategory = selectedCategories.has(meal.categoryId);
-        const matchesSearch = meal.name
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase());
+        const matchesSearch =
+          meal.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (meal.code && meal.code.toLowerCase().includes(searchTerm.toLowerCase()));
 
         const matchesStatus =
           filterStatus === "all"

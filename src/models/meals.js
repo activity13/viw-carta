@@ -188,6 +188,11 @@ const MealSchema = new Schema(
       trim: true,
       maxlength: [100, "El nombre no puede exceder 100 caracteres"],
     },
+    code: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     name_en: {
       type: String,
       trim: true,

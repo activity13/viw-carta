@@ -1,0 +1,14 @@
+[
+  {
+    "_id": "6a0651f08d79cc920cfad93f",
+    "fullName": "Juan",
+    "username": "juanchi",
+    "email": "juanchichef@live.com",
+    "restaurantId": "6a0651f18d79cc920cfad940",
+    "role": "admin",
+    "isActive": true,
+    "createdAt": "2026-05-14T22:51:29.149Z",
+    "updatedAt": "2026-05-14T22:51:29.149Z",
+    "__v": 0
+  }
+]

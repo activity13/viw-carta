@@ -49,3 +49,6 @@ bitacora.txt
 # Documementos para ordenar la información
 /docs/
 /scripts/
+
+# Local MongoDB data
+.mongodb_data/

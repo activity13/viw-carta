@@ -7,6 +7,7 @@ import Order from "@/models/order";
 import Client from "@/models/client";
 import CashSession from "@/models/cashSession";
 import Restaurant from "@/models/restaurants";
+import { getBillingProvider } from "@/lib/billing/factory";
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -16,6 +17,7 @@ function isRecord(value: unknown): value is UnknownRecord {
 
 type OrderItemDoc = {
   mealId: string;
+  code?: string;
   name?: string;
   unitPrice?: number;
   qty: number;
@@ -208,7 +210,7 @@ export async function PATCH(
       const meal = await Meal.findOne({
         _id: mealId,
         restaurantId: session.user.restaurantId,
-      }).select("name basePrice");
+      }).select("name basePrice code");
 
       if (!meal) {
         return NextResponse.json(
@@ -231,6 +233,7 @@ export async function PATCH(
         if (qtyDelta > 0) {
           order.items.push({
             mealId,
+            code: (meal as { code?: string }).code || "",
             name: meal.name,
             unitPrice: meal.basePrice,
             qty: qtyDelta,
@@ -345,6 +348,62 @@ export async function PATCH(
             { status: 403 }
           );
         }
+
+        // Si ya fue emitido fiscalmente a SUNAT, debemos anularlo ante el OSE (Comunicación de Baja)
+        if (order.fiscalStatus && order.fiscalStatus.status === "emitted") {
+          const restaurant = await Restaurant.findById(session.user.restaurantId);
+          if (!restaurant) {
+            return NextResponse.json(
+              { error: "Restaurante no encontrado para validar credenciales." },
+              { status: 404 }
+            );
+          }
+
+          const providerName = restaurant.fiscal?.provider || "nubefact";
+          const apiEndpoint =
+            restaurant.fiscal?.apiEndpoint ||
+            process.env.NUBEFACT_DEFAULT_ENDPOINT ||
+            "https://api.nubefact.com/api/v1/79e79e3e-aefd-4584-9b42-661ee884cf46";
+          const apiKey =
+            restaurant.fiscal?.apiKey ||
+            process.env.NUBEFACT_DEFAULT_TOKEN ||
+            "b3a86a6c3d1b4de281a3be66ba2c72532f8ec95e72a54492bfb3d69a61418ad0";
+
+          const billingProvider = getBillingProvider({
+            provider: providerName,
+            endpoint: apiEndpoint,
+            token: apiKey,
+          });
+
+          const documentId = `${order.fiscalDocumentPrefix}-${order.fiscalDocumentNumber}`;
+          const reason = "Anulación de venta por el administrador en caja";
+
+          const cancelRes = await billingProvider.cancelInvoice(documentId, reason);
+
+          if (cancelRes.success) {
+            order.fiscalStatus = {
+              status: "cancelled",
+              provider: providerName as "nubefact" | "efact",
+              pdfUrl: order.fiscalStatus.pdfUrl || "",
+              xmlUrl: order.fiscalStatus.xmlUrl || "",
+              cdrUrl: order.fiscalStatus.cdrUrl || "",
+              errorCode: "",
+              errorMessage: "",
+              emittedAt: order.fiscalStatus.emittedAt,
+              cancelledAt: new Date(),
+              cancellationReason: reason,
+              rawResponse: cancelRes.rawResponse,
+            };
+          } else {
+            return NextResponse.json(
+              { 
+                error: `SUNAT/OSE Error al anular: ${cancelRes.errorMessage || "Error al comunicar la baja."}`,
+                details: cancelRes.rawResponse
+              },
+              { status: 500 }
+            );
+          }
+        }
       }
       order.status = "cancelled";
       await order.save();
@@ -426,6 +485,23 @@ export async function PATCH(
             order.fiscalDocumentPrefix = restaurant.fiscal.ticketSeries || "NV01";
             order.fiscalDocumentNumber = restaurant.fiscal.currentTicketNumber;
           }
+        }
+
+        if (invoiceType === "boleta" || invoiceType === "factura") {
+          order.fiscalStatus = {
+            status: "pending",
+            provider: (restaurant && restaurant.fiscal && restaurant.fiscal.provider) || "nubefact",
+            pdfUrl: "",
+            xmlUrl: "",
+            cdrUrl: "",
+            errorCode: "",
+            errorMessage: "",
+            emittedAt: null,
+            cancelledAt: null,
+            cancellationReason: "",
+          };
+        } else {
+          order.fiscalStatus = null;
         }
 
         order.status = "paid";

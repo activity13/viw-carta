@@ -1,7 +1,8 @@
 "use client";
 
-import React, { forwardRef } from "react";
+import React, { forwardRef, useState, useEffect } from "react";
 import { Order, TicketBrand, TicketMode, DocumentType } from "@/types/order";
+import QRCode from "qrcode";
 import {
   calculateAdjustmentAmount,
   calculateOrderTotal,
@@ -18,6 +19,62 @@ interface PrintableTicketProps {
 
 export const PrintableTicket = forwardRef<HTMLDivElement, PrintableTicketProps>(
   ({ order, mode, brand, printedBy, isCopy }, ref) => {
+    const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
+
+    useEffect(() => {
+      if (order.fiscalStatus?.status === "emitted") {
+        const generateQr = async () => {
+          try {
+            const mapDocTypeToSunat = (type?: string): string => {
+              const t = type?.toLowerCase();
+              if (t === "dni") return "1";
+              if (t === "ruc") return "6";
+              if (t === "ce") return "4";
+              if (t === "passport") return "7";
+              return "0";
+            };
+
+            const rucEmisor = brand?.fiscal?.ruc || "";
+            const tipoComp = order.invoiceType === "factura" ? "01" : "03";
+            const serie = order.fiscalDocumentPrefix || "";
+            const numero = String(order.fiscalDocumentNumber || "").padStart(8, "0");
+            
+            const total = calculateOrderTotal(order);
+            const taxPercentage = brand?.fiscal?.taxPercentage ?? 18;
+            const baseImponible = total / (1 + taxPercentage / 100);
+            const igv = total - baseImponible;
+            
+            const fecha = new Date(order.createdAt || Date.now())
+              .toISOString()
+              .split("T")[0];
+              
+            const tipoDocAdq = mapDocTypeToSunat(order.customer?.documentType);
+            const nroDocAdq = order.customer?.documentNumber || "";
+            const hash = order.fiscalStatus?.rawResponse?.codigo_hash || 
+                         order.fiscalStatus?.rawResponse?.hash || 
+                         "";
+
+            const qrText = rucEmisor
+              ? `${rucEmisor}|${tipoComp}|${serie}|${numero}|${igv.toFixed(2)}|${total.toFixed(2)}|${fecha}|${tipoDocAdq}|${nroDocAdq}|${hash}|`
+              : (order.fiscalStatus?.pdfUrl || "https://viw-carta.com");
+
+            const url = await QRCode.toDataURL(qrText, {
+              width: 256,
+              margin: 1,
+              color: {
+                dark: "#000000",
+                light: "#ffffff",
+              },
+            });
+            setQrCodeUrl(url);
+          } catch (err) {
+            console.error("Error generating QR code:", err);
+          }
+        };
+        generateQr();
+      }
+    }, [order, brand]);
+
     const createdAt = new Date(order.createdAt || Date.now());
     const waiterName =
       printedBy ||
@@ -297,6 +354,60 @@ export const PrintableTicket = forwardRef<HTMLDivElement, PrintableTicketProps>(
                   <span>S/ {paidSum.toFixed(2)}</span>
                 </div>
               </div>
+            )}
+
+            {order.fiscalStatus?.status === "emitted" && (order.invoiceType === "boleta" || order.invoiceType === "factura") && (
+              <>
+                {dashedLine}
+                <div className="my-3 text-[10px] font-mono space-y-1 uppercase text-black">
+                  <div className="text-center font-bold text-[11px] border border-black py-0.5 mb-2">
+                    CPE HOMOLOGADO POR SUNAT
+                  </div>
+                  
+                  <div className="flex justify-between items-baseline">
+                    <span className="flex-none pr-1">HASH:</span>
+                    <div className="flex-grow border-b border-dotted border-black opacity-30 relative -top-1"></div>
+                    <span className="flex-none pl-1 font-bold text-[9px] break-all select-all font-mono">
+                      {String(
+                        order.fiscalStatus.rawResponse?.codigo_hash || 
+                        order.fiscalStatus.rawResponse?.hash || 
+                        "NO DISPONIBLE"
+                      ).substring(0, 24)}...
+                    </span>
+                  </div>
+
+                  {order.fiscalStatus.pdfUrl && (
+                    <div className="text-left mt-2 normal-case leading-normal text-[9px] border-t border-dotted border-gray-400 pt-1">
+                      <span className="font-bold uppercase font-mono">CONSULTA:</span>
+                      <div className="break-all font-mono select-all mt-0.5 text-blue-900 underline text-[8px]">
+                        {order.fiscalStatus.pdfUrl}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* High-Fidelity Proportional 1:1 QR Code */}
+                  <div className="flex flex-col items-center justify-center mt-3 mb-1">
+                    <div className="bg-white p-1 border border-black inline-block">
+                      {qrCodeUrl ? (
+                        <img
+                          src={qrCodeUrl}
+                          alt="Código QR SUNAT"
+                          className="w-[38mm] h-[38mm] object-contain block grayscale"
+                        />
+                      ) : (
+                        <div className="w-[38mm] h-[38mm] flex items-center justify-center font-mono text-[9px] text-gray-500">
+                          GENERANDO QR...
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="text-[8px] text-center normal-case italic opacity-75 mt-2 leading-tight font-serif">
+                    Representación impresa del comprobante de pago electrónico.
+                    Este documento puede ser consultado mediante el enlace provisto o código QR.
+                  </div>
+                </div>
+              </>
             )}
           </>
         )}

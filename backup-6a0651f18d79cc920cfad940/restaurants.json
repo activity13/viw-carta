@@ -1,0 +1,69 @@
+[
+  {
+    "_id": "6a0651f18d79cc920cfad940",
+    "name": "La Sirena de Juan",
+    "slug": "lasirenadejuan",
+    "direction": "Av. Panamericana N 316, Máncora 20851",
+    "location": "https://maps.app.goo.gl/8R5VFRsY1e6a4gyj8",
+    "phone": "(073) 339311",
+    "description": "",
+    "businessType": "restaurant",
+    "ownerId": "6a0651f08d79cc920cfad93f",
+    "plan": "standard",
+    "theme": {
+      "palette": "viw",
+      "fontFamily": "Inter"
+    },
+    "fiscal": {
+      "ruc": "",
+      "legalName": "",
+      "taxName": "IGV",
+      "taxPercentage": 18,
+      "invoiceSeries": "F001",
+      "receiptSeries": "B001",
+      "ticketSeries": "NV01",
+      "currentInvoiceNumber": 0,
+      "currentReceiptNumber": 0,
+      "currentTicketNumber": 0
+    },
+    "subscription": {
+      "plan": "standard",
+      "status": "active",
+      "startedAt": null,
+      "trialEndsAt": null,
+      "currentPeriodEnd": null,
+      "provider": "manual",
+      "providerCustomerId": "",
+      "providerSubscriptionId": "",
+      "notes": "",
+      "audit": []
+    },
+    "createdAt": "2026-05-14T22:51:29.038Z",
+    "updatedAt": "2026-05-19T23:12:19.098Z",
+    "__v": 0,
+    "image": "https://cmdlh0w91m.ufs.sh/f/clZKlaPAwEpIPRMEI6g7emQ4SK9MsFbcqnOyJNTzpdHBotla",
+    "menuSections": [
+      {
+        "name": "Carta Principal",
+        "slug": "carta",
+        "order": 1,
+        "isActive": true,
+        "_id": "6a0aaaba77b2bdd09d62744f"
+      },
+      {
+        "name": "Bebidas",
+        "slug": "bebidas",
+        "order": 2,
+        "isActive": true,
+        "_id": "6a0aaacd77b2bdd09d627454"
+      },
+      {
+        "name": "Nigiris",
+        "slug": "nigiris",
+        "order": 3,
+        "isActive": true,
+        "_id": "6a0aaacd77b2bdd09d627455"
+      }
+    ]
+  }
+]

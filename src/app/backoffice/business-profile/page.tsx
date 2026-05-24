@@ -27,6 +27,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // Bibliotecas de efectos visuales
 import { toast } from "sonner";
@@ -47,6 +54,8 @@ import {
   Utensils,
   ShoppingBag,
   ReceiptText,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 
 // Componentes de la aplicación
@@ -93,6 +102,9 @@ interface Business {
     taxPercentage?: number;
     invoiceSeries?: string;
     receiptSeries?: string;
+    provider?: string;
+    apiEndpoint?: string;
+    apiKey?: string;
   };
 }
 
@@ -115,6 +127,7 @@ export default function BusinessProfileForm() {
     palette: "viw",
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [showApiKey, setShowApiKey] = useState(false);
 
   useEffect(() => {
     if (!restaurantId || !isAdmin) return;
@@ -538,6 +551,81 @@ export default function BusinessProfileForm() {
                     disabled={!isEditing}
                     placeholder="B001"
                   />
+                </div>
+
+                {/* Sección Facturación Electrónica */}
+                <div className="md:col-span-2 border-t pt-6 mt-4">
+                  <h3 className="text-sm font-bold text-foreground/80 mb-1">
+                    Credenciales del Proveedor de Facturación
+                  </h3>
+                  <p className="text-xs text-muted-foreground mb-4">
+                    Configura la conexión con tu Proveedor de Servicios Electrónicos (PSE) para la firma y envío oficial a SUNAT.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="fiscal.provider">Proveedor Fiscal</Label>
+                  <Select
+                    value={formData.fiscal?.provider || "nubefact"}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        fiscal: {
+                          ...prev.fiscal,
+                          provider: value,
+                        },
+                      }))
+                    }
+                    disabled={!isEditing}
+                  >
+                    <SelectTrigger className="bg-background border-border">
+                      <SelectValue placeholder="Selecciona un proveedor" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border">
+                      <SelectItem value="nubefact">Nubefact</SelectItem>
+                      <SelectItem value="efact">Efact</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="fiscal.apiEndpoint">API Endpoint</Label>
+                  <Input
+                    id="fiscal.apiEndpoint"
+                    name="fiscal.apiEndpoint"
+                    value={formData.fiscal?.apiEndpoint || ""}
+                    onChange={handleChange}
+                    disabled={!isEditing}
+                    placeholder="https://api.nubefact.com/api/v1/..."
+                  />
+                </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="fiscal.apiKey">Token API / Clave de Acceso</Label>
+                  <div className="relative">
+                    <Input
+                      id="fiscal.apiKey"
+                      name="fiscal.apiKey"
+                      type={showApiKey ? "text" : "password"}
+                      value={formData.fiscal?.apiKey || ""}
+                      onChange={handleChange}
+                      disabled={!isEditing}
+                      className="pr-10 border-gray-300/30 font-mono"
+                      placeholder="Token secreto de Nubefact o Efact"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowApiKey(!showApiKey)}
+                      className="absolute right-3 top-2 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+                      disabled={!formData.fiscal?.apiKey}
+                    >
+                      {showApiKey ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
             </CardContent>

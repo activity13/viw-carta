@@ -8,7 +8,7 @@ export interface BillingTax {
 }
 
 export interface BillingItem {
-  id: string;
+  code: string;
   description: string;
   quantity: number;
   unitPrice: number;    // Precio unitario con IGV/impuestos incluidos

@@ -30,3 +30,34 @@ El corazón de Viw Carta. Aprende a estructurar tu oferta gastronómica.
 
 - [Solución de problemas comunes](/docs/utilidades/problemas-comunes)
 - [Mejores prácticas para fotos y descripciones](/docs/utilidades/mejores-practicas)
+
+Viw-Carta - Módulo de Caja y Facturación Electrónica Sincronizada
+El lanzamiento de esta versión consolida e integra la facturación electrónica oficial de SUNAT/Nubefact de manera síncrona en el flujo del POS en caliente, garantizando tickets físicos completos con QR real y resiliencia total ante caídas de red.
+
+🎯 Nuevas Funcionalidades y Mejoras
+Comprobantes Térmicos de Alta Fidelidad con QR 1:1 Real:
+
+Reemplazo de la cuadrícula monospace simulada en el ticket por un código QR 1:1 real en formato Base64 PNG mediante la librería qrcode.
+Formateo de la cadena de datos bajo el estándar oficial de SUNAT en Perú (incluyendo RUC, tipo, serie, número, IGV, total, fecha, documento del cliente y hash).
+Redimensionamiento estricto a 38mm cuadrados, lo que asegura nitidez absoluta en cualquier impresora térmica estándar de 80mm.
+Flujo Sincronizado de Pago y Emisión (Timbrado en Caliente):
+
+Sincronización en el hook de gestión de caja. Al registrar un pago de Boleta/Factura, el sistema procesa el pago y ejecuta el timbrado fiscal síncronamente antes de disparar la impresión. Esto asegura que el ticket físico entregado al cliente cuente con todos los campos de homologación oficial de SUNAT.
+Interfaz de Transición Premium y Resiliencia POS (Overlay):
+
+Integración de un panel de carga animado en el modal de toma de pedidos que mantiene informado al personal de caja durante la latencia de respuesta del OSE ("Registrando Pago", "Timbrando CPE ante SUNAT").
+Pantalla de Contingencia ante Fallas: En caso de rechazo fiscal o cortes de red, el sistema expone los motivos exactos del error de SUNAT y habilita:
+Reintentar Timbrado: Intentar la comunicación en caliente inmediatamente.
+Imprimir Respaldo Local: Imprimir una Nota de Venta interna en segundos para entregar al cliente sin demorarlo, manteniendo el pago activo en caja para ser re-emitido a la SUNAT posteriormente con un solo clic.
+Anulación y Comunicación de Baja Automática:
+
+Al anular una orden pagada y emitida desde el panel de Finanzas, el backend despacha de forma síncrona la Comunicación de Baja ante Nubefact/SUNAT. Si es aprobada, el estado fiscal local cambia automáticamente a cancelled y archiva la traza contable correspondiente.
+Serialización de Nombres Completos (Nombres + Apellidos):
+
+Corrección en el mapeador del cliente. El API de facturación ahora concatena los nombres y apellidos del cliente para despachar el campo cliente_denominacion completo a SUNAT.
+Asistente de Homologación Automatizada:
+
+Creación del script interactivo scripts/nubefact-homologation.ts. Ejecuta con un solo comando las 6 pruebas obligatorias ante Nubefact Sandbox (boleta, consulta, baja, factura, consulta, baja), poblando los registros de logs del API para habilitar tu cuenta en producción en minutos.
+🛡️ Calidad y Control Técnico
+Validación TypeScript: Tipado estricto verificado mediante npx tsc --noEmit con cero errores de compilación.
+Integridad Contable: La base de datos local y SUNAT se mantienen en perfecta consistencia en transacciones de éxito y anulaciones.

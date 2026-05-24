@@ -52,7 +52,7 @@ export default function SirenaLanding({
       </div>
 
       {/* Sirena Mascot (Bottom Right) */}
-      <div className="absolute bottom-16 right-1 md:right-64 opacity-90 md:w-80 md:h-80 w-32 h-32 pointer-events-none translate-y-10">
+      <div className="absolute bottom-16 right-1 md:right-64 opacity-90 md:w-32 md:h-32 w-16 h-16 pointer-events-none translate-y-10">
         <Image
           src="/lasirenadejuan/images/logo_2.svg"
           priority

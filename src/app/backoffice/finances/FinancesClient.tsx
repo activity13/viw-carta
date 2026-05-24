@@ -60,6 +60,18 @@ interface OrderType {
   invoiceType?: string;
   fiscalDocumentPrefix?: string;
   fiscalDocumentNumber?: number;
+  fiscalStatus?: {
+    status: 'pending' | 'emitted' | 'failed' | 'cancelled';
+    provider: 'nubefact' | 'efact';
+    pdfUrl?: string;
+    xmlUrl?: string;
+    cdrUrl?: string;
+    errorCode?: string;
+    errorMessage?: string;
+    emittedAt?: string;
+    cancelledAt?: string;
+    cancellationReason?: string;
+  } | null;
 }
 
 interface StatsType {
@@ -90,6 +102,85 @@ export default function FinancesClient() {
   const [session, setSession] = useState<SessionType | null>(null);
   const [stats, setStats] = useState<StatsType | null>(null);
   const [orders, setOrders] = useState<OrderType[]>([]);
+  const [reemittingOrderId, setReemittingOrderId] = useState<string | null>(null);
+
+  const handleEmitFiscal = async (orderId: string, assignNewNumber = false) => {
+    try {
+      console.log(`[FRONTEND - handleEmitFiscal START] Order ID: ${orderId}, assignNewNumber: ${assignNewNumber}`);
+      setReemittingOrderId(orderId);
+      const res = await fetch(`/api/orders/${orderId}/emit-fiscal`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ assignNewNumber }),
+      });
+      console.log(`[FRONTEND - handleEmitFiscal FETCH COMPLETE] Response Status: ${res.status}`);
+      const data = await res.json();
+      console.log(`[FRONTEND - handleEmitFiscal RESPONSE BODY] data:`, data);
+
+      if (data.trace && Array.isArray(data.trace)) {
+        console.groupCollapsed(
+          `%c[FISCAL TRACE - ${assignNewNumber ? "ASSIGN NEW Nº" : "RE-EMIT"} - ORDER ${orderId}]`,
+          "color: #70d8c8; font-weight: bold; background: #1c1b1b; padding: 4px 8px; border-radius: 4px; border: 1px solid #3d4947;"
+        );
+        data.trace.forEach((line: string) => {
+          if (line.includes("[ERROR]") || line.includes("FAILED") || line.includes("CRITICAL")) {
+            console.log(`%c${line}`, "color: #ffb4ab; font-weight: bold;");
+          } else if (line.includes("[WARN]") || line.includes("COLLISION")) {
+            console.log(`%c${line}`, "color: #ffd885; font-weight: bold;");
+          } else if (line.includes("SUCCESS") || line.includes("DISPATCH") || line.includes("EVENT:")) {
+            console.log(`%c${line}`, "color: #70d8c8; font-weight: bold;");
+          } else {
+            console.log(`%c${line}`, "color: #e3e3e3;");
+          }
+        });
+        console.groupEnd();
+      }
+
+      if (res.ok && data.success) {
+        console.log(`[FRONTEND - handleEmitFiscal SUCCESS] Document emitted cleanly.`);
+        setAlertMessage({
+          title: "CPE Emitido",
+          message: `El comprobante electrónico fue emitido con éxito a SUNAT.`,
+          type: "success",
+        });
+        await fetchLiveStats();
+        // If the selected order is currently open in the modal, update its state too
+        if (selectedOrder && selectedOrder._id === orderId) {
+          setSelectedOrder(prev => prev ? {
+            ...prev,
+            fiscalStatus: data.fiscalStatus,
+            fiscalDocumentNumber: data.fiscalStatus?.status === "emitted" ? (data.fiscalStatus.rawResponse?.numero as number || prev.fiscalDocumentNumber) : prev.fiscalDocumentNumber,
+            fiscalDocumentPrefix: data.fiscalStatus?.status === "emitted" ? (data.fiscalStatus.rawResponse?.serie as string || prev.fiscalDocumentPrefix) : prev.fiscalDocumentPrefix,
+          } : null);
+        }
+      } else {
+        console.warn(`[FRONTEND - handleEmitFiscal FAILURE] API error:`, data.error || data.fiscalStatus?.errorMessage);
+        setAlertMessage({
+          title: "Error de Emisión",
+          message: data.fiscalStatus?.errorMessage || data.error || "Ocurrió un error al intentar timbrar el comprobante en SUNAT/OSE.",
+          type: "error",
+        });
+        await fetchLiveStats();
+        if (selectedOrder && selectedOrder._id === orderId) {
+          setSelectedOrder(prev => prev ? {
+            ...prev,
+            fiscalStatus: data.fiscalStatus
+          } : null);
+        }
+      }
+    } catch (err) {
+      console.error(`[FRONTEND - handleEmitFiscal EXCEPTION]:`, err);
+      setAlertMessage({
+        title: "Error de Conexión",
+        message: "No se pudo establecer conexión para emitir el comprobante fiscal.",
+        type: "error",
+      });
+    } finally {
+      setReemittingOrderId(null);
+    }
+  };
 
   // History states
   const [hStart, setHStart] = useState("");
@@ -643,6 +734,9 @@ export default function FinancesClient() {
                         <th className="px-4 py-4 font-bold uppercase tracking-widest text-[10px]">
                           Estado
                         </th>
+                        <th className="px-4 py-4 font-bold uppercase tracking-widest text-[10px]">
+                          Fiscal
+                        </th>
                         <th className="px-6 py-4 font-bold uppercase tracking-widest text-[10px] text-right">
                           Anular
                         </th>
@@ -715,6 +809,61 @@ export default function FinancesClient() {
                                   <span className="px-2.5 py-1 rounded-full bg-orange-500/10 text-orange-400 text-[9px] font-black uppercase tracking-widest border border-orange-500/20">
                                     Espera
                                   </span>
+                                )}
+                              </td>
+                              <td className="px-4 py-4">
+                                {order.invoiceType === "nota_venta" ? (
+                                  <span className="text-[#bdc9c6]/40 text-xs font-semibold">—</span>
+                                ) : (
+                                  <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                                    {isPaid && (!order.fiscalStatus || order.fiscalStatus.status === "pending") && (
+                                      <span className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 px-2.5 py-1 rounded-full" title="Emisión asíncrona pendiente">
+                                        <Clock className="w-3.5 h-3.5 animate-pulse text-yellow-400" /> Pendiente
+                                      </span>
+                                    )}
+
+                                    {order.fiscalStatus?.status === "emitted" && (
+                                      <div className="flex items-center gap-1.5">
+                                        <span className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-[#70d8c8] bg-[#005048]/30 border border-[#70d8c8]/20 px-2.5 py-1 rounded-full" title="Emitido y timbrado por SUNAT">
+                                          <CheckCircle className="w-3.5 h-3.5 text-[#70d8c8]" /> {order.fiscalStatus?.pdfUrl ? `${order.fiscalDocumentPrefix}-${order.fiscalDocumentNumber}` : "Emitido"}
+                                        </span>
+                                        {order.fiscalStatus.pdfUrl && (
+                                          <a
+                                            href={order.fiscalStatus.pdfUrl}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="p-1.5 text-[#70d8c8] hover:bg-[#70d8c8]/20 rounded-full transition-colors"
+                                            title="Ver PDF Oficial"
+                                          >
+                                            <Info className="w-4 h-4" />
+                                          </a>
+                                        )}
+                                      </div>
+                                    )}
+
+                                    {order.fiscalStatus?.status === "failed" && (
+                                      <div className="flex items-center gap-1.5">
+                                        <span 
+                                          className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-[#ffb4ab] bg-[#93000a]/20 border border-[#ffb4ab]/20 px-2.5 py-1 rounded-full cursor-help" 
+                                          title={order.fiscalStatus.errorMessage || "Fallo en la emisión fiscal"}
+                                        >
+                                          <ShieldAlert className="w-3.5 h-3.5 text-[#ffb4ab]" /> Falló
+                                        </span>
+                                        <button
+                                          disabled={reemittingOrderId === order._id}
+                                          onClick={() => handleEmitFiscal(order._id)}
+                                          className="flex items-center gap-1 text-[10px] font-extrabold text-[#70d8c8] bg-[#70d8c8]/10 hover:bg-[#70d8c8]/20 border border-[#70d8c8]/20 px-2.5 py-1 rounded-lg transition-all active:scale-95 disabled:opacity-50"
+                                          title="Re-emitir Comprobante a SUNAT"
+                                        >
+                                          {reemittingOrderId === order._id ? (
+                                            <div className="w-3.5 h-3.5 border-2 border-b-transparent border-[#70d8c8] rounded-full animate-spin"></div>
+                                          ) : (
+                                            <span>Re-emitir</span>
+                                          )}
+                                        </button>
+                                      </div>
+                                    )}
+                                  </div>
                                 )}
                               </td>
                               <td className="px-6 py-4 text-right">
@@ -866,6 +1015,89 @@ export default function FinancesClient() {
                 </button>
               </div>
             </div>
+            {selectedOrder.invoiceType !== "nota_venta" && (
+              <div className="p-4 bg-[#131313] border-b border-[#3d4947]/20 flex flex-col gap-2 print:hidden">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-[#bdc9c6] font-bold">Estado Fiscal (SUNAT):</span>
+                  {(!selectedOrder.fiscalStatus || selectedOrder.fiscalStatus.status === "pending") && (
+                    <span className="flex items-center gap-1 font-bold text-yellow-400">
+                      <Clock className="w-3.5 h-3.5 animate-pulse text-yellow-400" /> Emisión Pendiente
+                    </span>
+                  )}
+                  {selectedOrder.fiscalStatus?.status === "emitted" && (
+                    <span className="flex items-center gap-1 font-bold text-[#70d8c8]">
+                      <CheckCircle className="w-3.5 h-3.5 text-[#70d8c8]" /> Aceptado por SUNAT
+                    </span>
+                  )}
+                  {selectedOrder.fiscalStatus?.status === "failed" && (
+                    <span className="flex items-center gap-1 font-bold text-[#ffb4ab]">
+                      <ShieldAlert className="w-3.5 h-3.5 text-[#ffb4ab]" /> Error de Emisión
+                    </span>
+                  )}
+                </div>
+                
+                {/* PDF / XML Action Buttons */}
+                {selectedOrder.fiscalStatus?.status === "emitted" && (
+                  <div className="flex gap-2 mt-2">
+                    {selectedOrder.fiscalStatus.pdfUrl && (
+                      <a
+                        href={selectedOrder.fiscalStatus.pdfUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex-1 py-2.5 bg-[#70d8c8]/10 hover:bg-[#70d8c8]/20 border border-[#70d8c8]/20 rounded-lg text-center font-bold text-xs text-[#70d8c8] transition-colors"
+                      >
+                        Ver PDF Oficial
+                      </a>
+                    )}
+                    {selectedOrder.fiscalStatus.xmlUrl && (
+                      <a
+                        href={selectedOrder.fiscalStatus.xmlUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex-1 py-2.5 bg-[#3d4947]/50 hover:bg-[#3d4947] border border-[#3d4947]/80 rounded-lg text-center font-bold text-xs text-[#e5e2e1] transition-colors"
+                      >
+                        Descargar XML
+                      </a>
+                    )}
+                  </div>
+                )}
+
+                {/* Error log & Re-emit Action */}
+                {selectedOrder.fiscalStatus?.status === "failed" && (
+                  <div className="mt-2 space-y-2">
+                    <div className="p-3 bg-[#93000a]/10 border border-[#ffb4ab]/10 rounded-lg text-xs text-[#ffb4ab]">
+                      <p className="font-bold">Detalle del Error:</p>
+                      <p className="opacity-95">{selectedOrder.fiscalStatus.errorMessage || "Error al procesar el timbrado con el PSE."}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        disabled={reemittingOrderId === selectedOrder._id}
+                        onClick={() => handleEmitFiscal(selectedOrder._id, false)}
+                        className="flex-1 py-2.5 bg-[#70d8c8]/10 hover:bg-[#70d8c8]/20 border border-[#70d8c8]/30 text-[#70d8c8] rounded-lg font-bold text-xs transition-colors flex items-center justify-center gap-1.5"
+                      >
+                        {reemittingOrderId === selectedOrder._id ? (
+                          <div className="w-4 h-4 border-2 border-b-transparent border-[#70d8c8] rounded-full animate-spin"></div>
+                        ) : (
+                          <span>Reintentar</span>
+                        )}
+                      </button>
+                      <button
+                        disabled={reemittingOrderId === selectedOrder._id}
+                        onClick={() => handleEmitFiscal(selectedOrder._id, true)}
+                        className="flex-1 py-2.5 bg-[#70d8c8] hover:bg-[#70d8c8]/90 text-[#003731] rounded-lg font-black text-xs transition-colors flex items-center justify-center gap-1.5"
+                        title="Incrementa secuencialmente el correlativo del restaurante y re-emite"
+                      >
+                        {reemittingOrderId === selectedOrder._id ? (
+                          <div className="w-4 h-4 border-2 border-b-transparent border-[#003731] rounded-full animate-spin"></div>
+                        ) : (
+                          <span>Asignar Nuevo Nº</span>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
             <div className="p-6 overflow-y-auto max-h-[70vh] flex justify-center bg-[#131313] print:hidden">
               <div className="transform scale-90 origin-top">
                 <PrintableTicket

@@ -34,6 +34,11 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
   const [isOrdersBusy, setIsOrdersBusy] = useState(false);
   const [ticketBrand, setTicketBrand] = useState<TicketBrand | null>(null);
 
+  // Stamping and Billing Synchronous Flow States
+  const [paymentStep, setPaymentStep] = useState<"idle" | "paying" | "stamping" | "failed" | "success">("idle");
+  const [stampingError, setStampingError] = useState<string | null>(null);
+  const [stampedOrder, setStampedOrder] = useState<Order | null>(null);
+
   // Print State
   const [ticketToPrint, setTicketToPrint] = useState<{
     order: Order;
@@ -69,6 +74,9 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
   useEffect(() => {
     if (!isOrderModalOpen) {
       isFirstRender.current = true;
+      setPaymentStep("idle");
+      setStampingError(null);
+      setStampedOrder(null);
     }
   }, [isOrderModalOpen]);
 
@@ -87,7 +95,7 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
     // El cliente ahora se guarda de manera manual (Registro/Búsqueda Rápida)
     const hasChanges =
       (activeOrder.invoiceType || "boleta") !==
-        (invoiceTypeDraft || "boleta") ||
+      (invoiceTypeDraft || "boleta") ||
       (activeOrder.tableNumber || "") !== (tableNumberDraft || "");
 
     if (!hasChanges) {
@@ -100,6 +108,7 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
       if (invoiceTypeDraft === "factura") {
         if (customerDraft.documentType !== "ruc") return false;
         if (customerDraft.documentNumber.length !== 11) return false;
+        if (!customerDraft.address?.trim()) return false;
       }
       if (
         invoiceTypeDraft === "boleta" &&
@@ -187,9 +196,13 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
 
   // --- SYNC DRAFTS ---
   const syncDraftsFromOrder = useCallback((order: Order) => {
+    // 1. Extraemos y limpiamos
+    const name = order.customer?.name?.trim() || "";
+    const surname = order.customer?.surname?.trim() || "";
+    // 2. Normalizamos evitando espacios huérfanos o dobles
+    const fullName = [name, surname].filter(Boolean).join(" ");
     setCustomerDraft({
-      name: order.customer?.name ?? "",
-      surname: order.customer?.surname ?? "",
+      name: fullName,
       documentType: (order.customer?.documentType as DocumentType) ?? "none",
       documentNumber: order.customer?.documentNumber ?? "",
       email: order.customer?.email ?? "",
@@ -373,6 +386,10 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
         toast.error("RUC debe tener 11 dígitos");
         return;
       }
+      if (!customerDraft.address?.trim()) {
+        toast.error("Factura requiere dirección");
+        return;
+      }
     } else if (invoiceTypeDraft === "boleta") {
       if (
         customerDraft.documentType === "dni" &&
@@ -494,7 +511,11 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
       ? window.open("", "_blank")
       : null;
 
+    setPaymentStep("paying");
+    setStampingError(null);
+    setStampedOrder(null);
     setIsOrderBusy(true);
+
     try {
       const res = await Axios.patch<Order>(`/api/orders/${activeOrder._id}`, {
         action: "pay",
@@ -508,30 +529,172 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
         payments: res.data.payments ?? paymentsDraft,
       };
 
-      setTicketToPrint({
-        order: paidOrder,
-        mode: "paid",
-        brand: ticketBrand ?? undefined,
-      });
+      const invoiceType = paidOrder.invoiceType;
+      if (invoiceType === "boleta" || invoiceType === "factura") {
+        setPaymentStep("stamping");
+        try {
+          const emitRes = await Axios.post(`/api/orders/${paidOrder._id}/emit-fiscal`);
+          const emitData = emitRes.data;
 
-      // Simular tiempo para renderizado antes de imprimir
-      setTimeout(() => {
-        window.print();
-        setTimeout(() => setTicketToPrint(null), 1000);
-      }, 200);
+          const finalStampedOrder = {
+            ...paidOrder,
+            fiscalStatus: emitData.fiscalStatus || paidOrder.fiscalStatus,
+          };
+          setStampedOrder(finalStampedOrder);
 
-      toast.success("Orden pagada");
-      setIsOrderModalOpen(false);
-      setActiveOrder(null);
+          if (emitData.success) {
+            setPaymentStep("success");
+            setTicketToPrint({
+              order: finalStampedOrder,
+              mode: "paid",
+              brand: ticketBrand ?? undefined,
+            });
+
+            setTimeout(() => {
+              if (mobilePrintWindow) {
+                // En móviles, imprimir en la pestaña pre-abierta
+                mobilePrintWindow.location.href = `/api/orders/${finalStampedOrder._id}/print`; // o invocar print
+              } else {
+                window.print();
+              }
+              setTimeout(() => setTicketToPrint(null), 1000);
+            }, 200);
+
+            toast.success(`Comprobante ${invoiceType.toUpperCase()} emitido correctamente a SUNAT`);
+
+            setTimeout(() => {
+              setIsOrderModalOpen(false);
+              setActiveOrder(null);
+              setPaymentStep("idle");
+            }, 1500);
+          } else {
+            if (mobilePrintWindow) mobilePrintWindow.close();
+            setStampingError(emitData.fiscalStatus?.errorMessage || "Error al timbrar comprobante ante la SUNAT.");
+            setPaymentStep("failed");
+            toast.error("SUNAT: Error de Emisión", {
+              description: emitData.fiscalStatus?.errorMessage || "Ocurrió un error en el timbrado.",
+              duration: 8000,
+            });
+          }
+        } catch (emitErr) {
+          if (mobilePrintWindow) mobilePrintWindow.close();
+          console.error("Error en emisión fiscal síncrona:", emitErr);
+          setStampingError("Fallo de comunicación de red con el OSE/SUNAT.");
+          setPaymentStep("failed");
+          toast.error("Fallo al conectar con el servidor de facturación");
+        }
+      } else {
+        // Para Notas de Venta (local)
+        setPaymentStep("success");
+        setTicketToPrint({
+          order: paidOrder,
+          mode: "paid",
+          brand: ticketBrand ?? undefined,
+        });
+
+        setTimeout(() => {
+          if (mobilePrintWindow) {
+            mobilePrintWindow.location.href = `/api/orders/${paidOrder._id}/print`;
+          } else {
+            window.print();
+          }
+          setTimeout(() => setTicketToPrint(null), 1000);
+        }, 200);
+
+        toast.success("Pago procesado");
+
+        setTimeout(() => {
+          setIsOrderModalOpen(false);
+          setActiveOrder(null);
+          setPaymentStep("idle");
+        }, 1000);
+      }
+
       await fetchHoldOrders();
     } catch (error) {
       if (mobilePrintWindow) mobilePrintWindow.close();
+      setPaymentStep("idle");
       console.error("Error paying order:", error);
       toast.error("No se pudo registrar el pago");
     } finally {
       setIsOrderBusy(false);
     }
   }, [activeOrder, paymentsDraft, ticketBrand, fetchHoldOrders]);
+
+  const handleRetryStamping = useCallback(async (orderToRetry: Order) => {
+    setPaymentStep("stamping");
+    setStampingError(null);
+    setIsOrderBusy(true);
+
+    try {
+      const emitRes = await Axios.post(`/api/orders/${orderToRetry._id}/emit-fiscal`);
+      const emitData = emitRes.data;
+
+      const finalStampedOrder = {
+        ...orderToRetry,
+        fiscalStatus: emitData.fiscalStatus || orderToRetry.fiscalStatus,
+      };
+      setStampedOrder(finalStampedOrder);
+
+      if (emitData.success) {
+        setPaymentStep("success");
+        setTicketToPrint({
+          order: finalStampedOrder,
+          mode: "paid",
+          brand: ticketBrand ?? undefined,
+        });
+
+        setTimeout(() => {
+          window.print();
+          setTimeout(() => setTicketToPrint(null), 1000);
+        }, 200);
+
+        toast.success(`Comprobante emitido correctamente a SUNAT`);
+
+        setTimeout(() => {
+          setIsOrderModalOpen(false);
+          setActiveOrder(null);
+          setPaymentStep("idle");
+        }, 1500);
+      } else {
+        setStampingError(emitData.fiscalStatus?.errorMessage || "Error al timbrar comprobante ante la SUNAT.");
+        setPaymentStep("failed");
+        toast.error("SUNAT: Error de Emisión", {
+          description: emitData.fiscalStatus?.errorMessage || "Ocurrió un error en el timbrado.",
+          duration: 8000,
+        });
+      }
+    } catch (emitErr) {
+      console.error("Error en emisión fiscal síncrona:", emitErr);
+      setStampingError("Fallo de comunicación de red con el OSE/SUNAT.");
+      setPaymentStep("failed");
+      toast.error("Fallo al conectar con el servidor de facturación");
+    } finally {
+      setIsOrderBusy(false);
+    }
+  }, [ticketBrand]);
+
+  const handlePrintWithoutStamping = useCallback((orderToPrint: Order) => {
+    setPaymentStep("success");
+    setTicketToPrint({
+      order: orderToPrint,
+      mode: "paid",
+      brand: ticketBrand ?? undefined,
+    });
+
+    setTimeout(() => {
+      window.print();
+      setTimeout(() => setTicketToPrint(null), 1000);
+    }, 200);
+
+    toast.success("Imprimiendo comprobante local de respaldo");
+
+    setTimeout(() => {
+      setIsOrderModalOpen(false);
+      setActiveOrder(null);
+      setPaymentStep("idle");
+    }, 1000);
+  }, [ticketBrand]);
 
   const handleActivateOrder = useCallback(
     async (orderId: string) => {
@@ -657,6 +820,7 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
 
   return {
     activeOrder,
+    setActiveOrder,
     holdOrders,
     isOrderModalOpen,
     setIsOrderModalOpen,
@@ -676,6 +840,10 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
     setAdjustmentDraft,
     paymentsDraft,
     setPaymentsDraft,
+    // Stamping / Billing actions & states
+    paymentStep,
+    stampingError,
+    stampedOrder,
     // Actions
     handleNewOrder,
     handleAddToOrder,
@@ -690,5 +858,7 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
     handlePrintPrebill,
     handlePrintKitchenOrder,
     handleOpenOrdersList,
+    handleRetryStamping,
+    handlePrintWithoutStamping,
   };
 }
