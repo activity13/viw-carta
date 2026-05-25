@@ -199,6 +199,18 @@ export default function BusinessProfileForm() {
       // Solo validar si han ingresado algún dato o si el proveedor está seleccionado
       if (apiEndpoint.trim() || apiKey.trim()) {
         apiEndpoint = apiEndpoint.trim();
+
+        // Auto-curación de URL duplicada/concatenada accidentalmente (ej: https://...https://...)
+        const matches = apiEndpoint.match(/https?:\/\//gi);
+        if (matches && matches.length > 1) {
+          const parts = apiEndpoint.split(/https?:\/\//i);
+          const firstValidPart = parts.find(p => p.trim().length > 0);
+          if (firstValidPart) {
+            const protocol = apiEndpoint.toLowerCase().startsWith('https') ? 'https://' : 'http://';
+            apiEndpoint = `${protocol}${firstValidPart.trim()}`;
+            formData.fiscal.apiEndpoint = apiEndpoint;
+          }
+        }
         
         if (!apiEndpoint) {
           toast.error("Por favor, ingresa el API Endpoint para el proveedor seleccionado.");

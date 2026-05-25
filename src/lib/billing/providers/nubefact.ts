@@ -13,7 +13,18 @@ export class NubefactAdapter implements IBillingProvider {
     // 1. Sanitizar espacios en blanco
     let cleanEndpoint = endpoint.trim();
 
-    // 2. Si no especifica protocolo, auto-anteponer https://
+    // 2. Auto-curación de URL duplicada/concatenada accidentalmente (ej: https://...https://...)
+    const httpMatches = cleanEndpoint.match(/https?:\/\//gi);
+    if (httpMatches && httpMatches.length > 1) {
+      const parts = cleanEndpoint.split(/https?:\/\//i);
+      const firstValidPart = parts.find(p => p.trim().length > 0);
+      if (firstValidPart) {
+        const protocol = cleanEndpoint.toLowerCase().startsWith('https') ? 'https://' : 'http://';
+        cleanEndpoint = `${protocol}${firstValidPart.trim()}`;
+      }
+    }
+
+    // 3. Si no especifica protocolo, auto-anteponer https://
     if (!/^https?:\/\//i.test(cleanEndpoint)) {
       if (cleanEndpoint.startsWith('/') || cleanEndpoint.startsWith('.')) {
         // Dejar pasar rutas relativas
@@ -22,7 +33,7 @@ export class NubefactAdapter implements IBillingProvider {
       }
     }
 
-    // 3. Validar si es una URL base de Nubefact sin UUID
+    // 4. Validar si es una URL base de Nubefact sin UUID
     const baseCheck = cleanEndpoint.replace(/\/$/, ""); // quitar barra al final si tiene
     if (
       baseCheck === "https://api.nubefact.com/api/v1" ||
