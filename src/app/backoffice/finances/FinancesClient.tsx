@@ -116,7 +116,15 @@ export default function FinancesClient() {
         body: JSON.stringify({ assignNewNumber }),
       });
       console.log(`[FRONTEND - handleEmitFiscal FETCH COMPLETE] Response Status: ${res.status}`);
-      const data = await res.json();
+      let data;
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        console.error(`[FRONTEND - handleEmitFiscal NOT JSON] HTML/Text Response:`, text.substring(0, 1000));
+        throw new Error(`El servidor respondió con código ${res.status} y no es JSON. Detalle: ${text.substring(0, 120)}...`);
+      }
       console.log(`[FRONTEND - handleEmitFiscal RESPONSE BODY] data:`, data);
 
       if (data.trace && Array.isArray(data.trace)) {
@@ -173,8 +181,8 @@ export default function FinancesClient() {
     } catch (err) {
       console.error(`[FRONTEND - handleEmitFiscal EXCEPTION]:`, err);
       setAlertMessage({
-        title: "Error de Conexión",
-        message: "No se pudo establecer conexión para emitir el comprobante fiscal.",
+        title: "Error de Conexión o Servidor",
+        message: err instanceof Error ? err.message : "No se pudo establecer conexión para emitir el comprobante fiscal.",
         type: "error",
       });
     } finally {
