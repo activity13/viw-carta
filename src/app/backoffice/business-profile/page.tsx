@@ -190,6 +190,50 @@ export default function BusinessProfileForm() {
   };
 
   const handleSave = async () => {
+    // Validación de datos fiscales (especialmente API Endpoint si el proveedor es nubefact o efact)
+    if (formData.fiscal) {
+      const provider = formData.fiscal.provider || "nubefact";
+      let apiEndpoint = formData.fiscal.apiEndpoint || "";
+      const apiKey = formData.fiscal.apiKey || "";
+
+      // Solo validar si han ingresado algún dato o si el proveedor está seleccionado
+      if (apiEndpoint.trim() || apiKey.trim()) {
+        apiEndpoint = apiEndpoint.trim();
+        
+        if (!apiEndpoint) {
+          toast.error("Por favor, ingresa el API Endpoint para el proveedor seleccionado.");
+          return;
+        }
+        if (!apiKey.trim()) {
+          toast.error("Por favor, ingresa la clave de acceso / Token de la API.");
+          return;
+        }
+
+        // Sanitización rápida: si no tiene protocolo, agregar https://
+        if (apiEndpoint && !/^https?:\/\//i.test(apiEndpoint)) {
+          apiEndpoint = `https://${apiEndpoint}`;
+          // Actualizar en el estado del formulario para consistencia
+          formData.fiscal.apiEndpoint = apiEndpoint;
+        }
+
+        // Validación estricta para Nubefact
+        if (provider === "nubefact") {
+          const baseCheck = apiEndpoint.replace(/\/$/, "");
+          if (
+            baseCheck === "https://api.nubefact.com/api/v1" ||
+            baseCheck === "https://demo.nubefact.com/api/v1" ||
+            baseCheck === "http://api.nubefact.com/api/v1" ||
+            baseCheck === "http://demo.nubefact.com/api/v1"
+          ) {
+            toast.error(
+              "El API Endpoint de Nubefact está incompleto. Debe incluir tu identificador de local / UUID al final (ej: https://api.nubefact.com/api/v1/tu-uuid)."
+            );
+            return;
+          }
+        }
+      }
+    }
+
     const formDataToSend = new FormData();
 
     // 1. Agregar solo los campos de texto editables

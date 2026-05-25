@@ -369,6 +369,10 @@ export async function PATCH(
             process.env.NUBEFACT_DEFAULT_TOKEN ||
             "b3a86a6c3d1b4de281a3be66ba2c72532f8ec95e72a54492bfb3d69a61418ad0";
 
+          if (apiEndpoint && !/^https?:\/\//i.test(apiEndpoint)) {
+            console.warn(`[BILLING WARNING] Nubefact endpoint "${apiEndpoint}" has no protocol. Prepending https:// automatically.`);
+          }
+
           const billingProvider = getBillingProvider({
             provider: providerName,
             endpoint: apiEndpoint,

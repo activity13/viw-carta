@@ -176,6 +176,9 @@ export async function POST(
 
     logTrace(`Provider configured: ${providerName}`);
     logTrace(`API Endpoint: ${apiEndpoint}`);
+    if (apiEndpoint && !/^https?:\/\//i.test(apiEndpoint)) {
+      logTrace(`[WARNING] The API Endpoint "${apiEndpoint}" is missing a protocol (http:// or https://). It will be auto-corrected to secure https:// by the adapter, but please update your Restaurant Settings.`, "warn");
+    }
     logTrace(`API Key (truncated): ${apiKey ? apiKey.substring(0, 8) + "..." : "MISSING"}`);
 
     const billingProvider = getBillingProvider({

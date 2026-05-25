@@ -9,8 +9,34 @@ export class NubefactAdapter implements IBillingProvider {
     if (!endpoint || !token) {
       throw new Error('NubefactAdapter: Se requiere endpoint y token de autenticación.');
     }
-    this.endpoint = endpoint;
-    this.token = token;
+    
+    // 1. Sanitizar espacios en blanco
+    let cleanEndpoint = endpoint.trim();
+
+    // 2. Si no especifica protocolo, auto-anteponer https://
+    if (!/^https?:\/\//i.test(cleanEndpoint)) {
+      if (cleanEndpoint.startsWith('/') || cleanEndpoint.startsWith('.')) {
+        // Dejar pasar rutas relativas
+      } else {
+        cleanEndpoint = `https://${cleanEndpoint}`;
+      }
+    }
+
+    // 3. Validar si es una URL base de Nubefact sin UUID
+    const baseCheck = cleanEndpoint.replace(/\/$/, ""); // quitar barra al final si tiene
+    if (
+      baseCheck === "https://api.nubefact.com/api/v1" ||
+      baseCheck === "https://demo.nubefact.com/api/v1" ||
+      baseCheck === "http://api.nubefact.com/api/v1" ||
+      baseCheck === "http://demo.nubefact.com/api/v1"
+    ) {
+      throw new Error(
+        'NubefactAdapter: El API Endpoint ingresado está incompleto. Nubefact requiere que la URL incluya el identificador único (UUID) de tu local al final de la ruta (ej: https://api.nubefact.com/api/v1/tu-uuid-aqui).'
+      );
+    }
+
+    this.endpoint = cleanEndpoint;
+    this.token = token.trim();
   }
 
   /**
