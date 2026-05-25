@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: `${restaurantName} — Bienvenido`,
     description: data.restaurant.description || "Descubre nuestra propuesta gastronómica.",
     icons: {
-      icon: `/lasirenadejuan/images/LOGO.svg`,
+      icon: `/lasirenadejuan/images/logo.svg`,
     },
     alternates: {
       canonical: `https://viw-carta.com/lasirenadejuan`,
@@ -27,7 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
       type: "website",
       images: [
         {
-          url: "/lasirenadejuan/images/LOGO.svg",
+          url: "/lasirenadejuan/images/logo.svg",
           width: 600,
           height: 600,
           alt: `Logo de ${restaurantName}`,
@@ -74,7 +74,7 @@ export default async function LaSirenaDeJuan() {
               streetAddress: restaurant.direction,
               addressCountry: "PE",
             },
-            image: "/lasirenadejuan/images/LOGO.svg",
+            image: "/lasirenadejuan/images/logo.svg",
           }),
         }}
       />
