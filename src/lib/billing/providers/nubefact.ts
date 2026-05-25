@@ -126,7 +126,19 @@ export class NubefactAdapter implements IBillingProvider {
         body: JSON.stringify(payload),
       });
 
-      const data = (await response.json()) as Record<string, unknown>;
+      let data: Record<string, unknown> = {};
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        data = (await response.json()) as Record<string, unknown>;
+      } else {
+        const text = await response.text();
+        return {
+          success: false,
+          errorCode: 'NOT_JSON_RESPONSE',
+          errorMessage: `El servidor de facturación devolvió un formato no válido (HTML/Texto) con código ${response.status}. Detalle: ${text.substring(0, 150).trim()}...`,
+          rawResponse: { rawBody: text },
+        };
+      }
 
       if (!response.ok || data.errors) {
         return {
@@ -185,7 +197,19 @@ export class NubefactAdapter implements IBillingProvider {
         body: JSON.stringify(payload),
       });
 
-      const data = (await response.json()) as Record<string, unknown>;
+      let data: Record<string, unknown> = {};
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        data = (await response.json()) as Record<string, unknown>;
+      } else {
+        const text = await response.text();
+        return {
+          success: false,
+          errorCode: 'NOT_JSON_RESPONSE',
+          errorMessage: `El servidor de facturación devolvió un formato no válido al anular (código ${response.status}). Detalle: ${text.substring(0, 150).trim()}...`,
+          rawResponse: { rawBody: text },
+        };
+      }
 
       if (!response.ok || data.errors) {
         return {
@@ -238,7 +262,19 @@ export class NubefactAdapter implements IBillingProvider {
         body: JSON.stringify(payload),
       });
 
-      const data = (await response.json()) as Record<string, unknown>;
+      let data: Record<string, unknown> = {};
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        data = (await response.json()) as Record<string, unknown>;
+      } else {
+        const text = await response.text();
+        return {
+          success: false,
+          errorCode: 'NOT_JSON_RESPONSE',
+          errorMessage: `El servidor de facturación devolvió un formato no válido al consultar estado (código ${response.status}). Detalle: ${text.substring(0, 150).trim()}...`,
+          rawResponse: { rawBody: text },
+        };
+      }
 
       if (!response.ok || data.errors) {
         return {
