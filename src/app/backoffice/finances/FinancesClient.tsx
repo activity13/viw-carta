@@ -60,6 +60,7 @@ interface OrderType {
   invoiceType?: string;
   fiscalDocumentPrefix?: string;
   fiscalDocumentNumber?: number;
+  cashSessionId?: string;
   fiscalStatus?: {
     status: 'pending' | 'emitted' | 'failed' | 'cancelled';
     provider: 'nubefact' | 'efact';
@@ -194,7 +195,10 @@ export default function FinancesClient() {
   const [hStart, setHStart] = useState("");
   const [hEnd, setHEnd] = useState("");
   const [historyStats, setHistoryStats] = useState<StatsType | null>(null);
+  const [historySessions, setHistorySessions] = useState<any[]>([]);
   const [fetchingHistory, setFetchingHistory] = useState(false);
+  const [exportingHistory, setExportingHistory] = useState(false);
+  const [exportingSessionId, setExportingSessionId] = useState<string | null>(null);
 
   const [opening, setOpening] = useState(false);
   const [startCashInput, setStartCashInput] = useState("");
@@ -289,6 +293,7 @@ export default function FinancesClient() {
       const data = await res.json();
       if (res.ok) {
         setHistoryStats(data.stats);
+        setHistorySessions(data.sessions || []);
       } else {
         setAlertMessage({
           title: "Error",
@@ -398,6 +403,251 @@ export default function FinancesClient() {
       });
     } finally {
       setCancelOrderConfirm(null);
+    }
+  };
+
+  const generateCSV = (ordersList: OrderType[]) => {
+    const headers = [
+      "Numero de Orden",
+      "Fecha",
+      "Hora",
+      "Platos / Productos",
+      "Subtotal (S/)",
+      "Descuento/Recargo (%)",
+      "Total Pagado (S/)",
+      "Metodo de Pago",
+      "Estado",
+      "Tipo Comprobante",
+      "Serie CPE",
+      "Numero CPE",
+      "Estado CPE"
+    ];
+
+    const rows = ordersList.map(order => {
+      const orderDateObj = new Date(order.createdAt);
+      const dateStr = orderDateObj.toLocaleDateString();
+      const timeStr = orderDateObj.toLocaleTimeString([], { timeStyle: "short" });
+      
+      const itemsStr = order.items
+        ? order.items.map(item => `${item.qty}x ${item.name}`).join(" | ")
+        : "";
+
+      let subtotal = 0;
+      if (order.items && order.items.length) {
+        subtotal = order.items.reduce((acc, cur) => acc + cur.qty * cur.unitPrice, 0);
+      }
+      
+      let total = subtotal;
+      let adjustmentStr = "0%";
+      if (order.adjustment) {
+        const delta = subtotal * (order.adjustment.percent / 100);
+        if (order.adjustment.kind === "discount") {
+          total -= delta;
+          adjustmentStr = `-${order.adjustment.percent}%`;
+        } else {
+          total += delta;
+          adjustmentStr = `+${order.adjustment.percent}%`;
+        }
+      }
+
+      const pType = order.payments && order.payments[0]?.type;
+      let pLabel = "Otro";
+      if (pType === "cash") pLabel = "Efectivo";
+      if (pType === "card") pLabel = "Tarjeta";
+      if (pType === "transfer") pLabel = "Tr/Yape";
+
+      let statusLabel = "Espera";
+      if (order.status === "paid") statusLabel = "Pagada";
+      if (order.status === "cancelled") statusLabel = "Anulada";
+
+      let cpeType = "Nota de Venta";
+      if (order.invoiceType === "boleta") cpeType = "Boleta";
+      if (order.invoiceType === "factura") cpeType = "Factura";
+
+      let fiscalStatusLabel = "No emitido";
+      if (order.fiscalStatus) {
+        if (order.fiscalStatus.status === "emitted") fiscalStatusLabel = "Emitido / Aceptado";
+        if (order.fiscalStatus.status === "failed") fiscalStatusLabel = "Rechazado";
+        if (order.fiscalStatus.status === "pending") fiscalStatusLabel = "Pendiente";
+        if (order.fiscalStatus.status === "cancelled") fiscalStatusLabel = "Anulado CPE";
+      }
+
+      return [
+        `#${order.orderNumber}`,
+        dateStr,
+        timeStr,
+        `"${itemsStr.replace(/"/g, '""')}"`,
+        subtotal.toFixed(2),
+        adjustmentStr,
+        total.toFixed(2),
+        pLabel,
+        statusLabel,
+        cpeType,
+        order.fiscalDocumentPrefix || "-",
+        order.fiscalDocumentNumber || "-",
+        fiscalStatusLabel
+      ];
+    });
+
+    return [
+      headers.join(";"),
+      ...rows.map(e => e.join(";"))
+    ].join("\n");
+  };
+
+  const handleExportToCSV = () => {
+    if (!orders || orders.length === 0) {
+      setAlertMessage({
+        title: "Atención",
+        message: "No hay ventas en este turno para exportar.",
+        type: "info",
+      });
+      return;
+    }
+
+    try {
+      const csvContent = generateCSV(orders);
+      const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      
+      const fileName = `Reporte_Ventas_Turno_${session?._id || "Actual"}.csv`;
+      link.setAttribute("download", fileName);
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      setAlertMessage({
+        title: "Exportacion Exitosa",
+        message: "El reporte en formato .csv compatible con Excel fue descargado con éxito.",
+        type: "success",
+      });
+    } catch (err) {
+      console.error(err);
+      setAlertMessage({
+        title: "Error al Exportar",
+        message: "Ocurrió un error al compilar los datos para la descarga.",
+        type: "error",
+      });
+    }
+  };
+
+  const handleExportHistoryRangeCSV = async () => {
+    if (!hStart || !hEnd) {
+      setAlertMessage({
+        title: "Atención",
+        message: "Selecciona un rango de fechas para exportar.",
+        type: "info",
+      });
+      return;
+    }
+
+    try {
+      setExportingHistory(true);
+      const res = await fetch(
+        `/api/finances/history?start=${hStart}&end=${hEnd}&includeOrders=true`
+      );
+      const data = await res.json();
+      
+      if (!res.ok || !data.orders || data.orders.length === 0) {
+        setAlertMessage({
+          title: "Atención",
+          message: "No hay ventas en el rango seleccionado para exportar.",
+          type: "info",
+        });
+        return;
+      }
+
+      const csvContent = generateCSV(data.orders);
+      const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      
+      const fileName = `Reporte_Ventas_Historico_${hStart}_a_${hEnd}.csv`;
+      link.setAttribute("download", fileName);
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      setAlertMessage({
+        title: "Exportacion Exitosa",
+        message: `El reporte histórico de ventas (${hStart} a ${hEnd}) fue descargado con éxito.`,
+        type: "success",
+      });
+    } catch (err) {
+      console.error(err);
+      setAlertMessage({
+        title: "Error al Exportar",
+        message: "Ocurrió un error al descargar el reporte histórico.",
+        type: "error",
+      });
+    } finally {
+      setExportingHistory(false);
+    }
+  };
+
+  const handleExportSpecificSessionCSV = async (sessionId: string) => {
+    try {
+      setExportingSessionId(sessionId);
+      
+      const res = await fetch(
+        `/api/finances/history?start=${hStart}&end=${hEnd}&includeOrders=true`
+      );
+      const data = await res.json();
+      
+      if (!res.ok || !data.orders || data.orders.length === 0) {
+        setAlertMessage({
+          title: "Atención",
+          message: "No se encontraron ventas asociadas a este turno.",
+          type: "info",
+        });
+        return;
+      }
+
+      const sessionOrders = data.orders.filter(
+        (order: OrderType) => order.cashSessionId === sessionId
+      );
+
+      if (sessionOrders.length === 0) {
+        setAlertMessage({
+          title: "Atención",
+          message: "Este turno de caja no registró ventas.",
+          type: "info",
+        });
+        return;
+      }
+
+      const csvContent = generateCSV(sessionOrders);
+      const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      
+      const fileName = `Reporte_Ventas_Turno_Cerrado_${sessionId}.csv`;
+      link.setAttribute("download", fileName);
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      setAlertMessage({
+        title: "Exportacion Exitosa",
+        message: "El reporte de ventas del turno seleccionado fue descargado con éxito.",
+        type: "success",
+      });
+    } catch (err) {
+      console.error(err);
+      setAlertMessage({
+        title: "Error al Exportar",
+        message: "Ocurrió un error al descargar las ventas del turno.",
+        type: "error",
+      });
+    } finally {
+      setExportingSessionId(null);
     }
   };
 
@@ -721,6 +971,13 @@ export default function FinancesClient() {
                   <h2 className="font-black tracking-tight text-[#e5e2e1]">
                     REGISTRO DE VENTAS - ESTE TURNO
                   </h2>
+                  <button
+                    onClick={handleExportToCSV}
+                    className="flex items-center gap-2 px-4 py-2 bg-[#70d8c8]/10 hover:bg-[#70d8c8]/20 border border-[#70d8c8]/20 text-[#70d8c8] rounded-lg font-bold text-xs transition-all active:scale-95"
+                    title="Exportar ventas de este turno a formato Excel/CSV"
+                  >
+                    <Printer className="w-4 h-4" /> Exportar a Excel (.csv)
+                  </button>
                 </div>
 
                 <div className="overflow-x-auto">
@@ -905,16 +1162,112 @@ export default function FinancesClient() {
                 </div>
               </div>
             ) : (
-              <div className="bg-[#201f1f] rounded-xl border border-[#3d4947]/30 shadow-lg h-full p-8 flex flex-col items-center justify-center text-center">
-                <CalendarRange className="w-16 h-16 text-[#70d8c8] mb-4 opacity-70" />
-                <h3 className="text-xl font-bold text-[#e5e2e1] mb-2">
-                  Resumen Consolidado
-                </h3>
-                <p className="text-sm text-[#bdc9c6] opacity-80">
-                  Visualizando el saldo de {displayStats.orderCount} atenciones
-                  <br />
-                  registradas entre {hStart} y {hEnd}.
-                </p>
+              <div className="bg-[#201f1f] rounded-xl overflow-hidden border border-[#3d4947]/30 shadow-lg">
+                <div className="px-6 py-5 flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-[#3d4947]/20 bg-[#1c1b1b]/50">
+                  <h2 className="font-black tracking-tight text-[#e5e2e1] text-xs">
+                    HISTORIAL DE CAJAS (TURNOS CERRADOS)
+                  </h2>
+                  <button
+                    onClick={handleExportHistoryRangeCSV}
+                    disabled={exportingHistory}
+                    className="flex items-center gap-2 px-4 py-2 bg-[#70d8c8]/10 hover:bg-[#70d8c8]/20 border border-[#70d8c8]/20 text-[#70d8c8] rounded-lg font-bold text-xs transition-all active:scale-95 disabled:opacity-50"
+                    title="Exportar todas las ventas de este rango a Excel/CSV"
+                  >
+                    <Printer className="w-4 h-4" /> {exportingHistory ? "Exportando..." : "Exportar Rango a Excel (.csv)"}
+                  </button>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left font-['Plus_Jakarta_Sans'] text-sm">
+                    <thead>
+                      <tr className="text-[#bdc9c6] border-b border-[#3d4947]/20 opacity-80">
+                        <th className="px-6 py-4 font-bold uppercase tracking-widest text-[10px]">
+                          Fecha / Turno
+                        </th>
+                        <th className="px-4 py-4 font-bold uppercase tracking-widest text-[10px]">
+                          Apertura (S/)
+                        </th>
+                        <th className="px-4 py-4 font-bold uppercase tracking-widest text-[10px]">
+                          Ventas (S/)
+                        </th>
+                        <th className="px-4 py-4 font-bold uppercase tracking-widest text-[10px]">
+                          Cajero / Responsable
+                        </th>
+                        <th className="px-4 py-4 font-bold uppercase tracking-widest text-[10px]">
+                          Notas de Cierre
+                        </th>
+                        <th className="px-6 py-4 font-bold uppercase tracking-widest text-[10px] text-right">
+                          Reporte
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#3d4947]/10">
+                      {historySessions && historySessions.length > 0 ? (
+                        historySessions.map((histSession: any) => {
+                          const openDateStr = new Date(histSession.openedAt).toLocaleDateString();
+                          const openTimeStr = new Date(histSession.openedAt).toLocaleTimeString([], { timeStyle: "short" });
+                          const closeTimeStr = histSession.closedAt 
+                            ? new Date(histSession.closedAt).toLocaleTimeString([], { timeStyle: "short" })
+                            : "Abierto";
+
+                          return (
+                            <tr
+                              key={histSession._id}
+                              className="transition-colors group hover:bg-[#201f1f]"
+                            >
+                              <td className="px-6 py-4 font-black font-['Manrope']">
+                                <div className="text-[#70d8c8]">{openDateStr}</div>
+                                <div className="text-[10px] text-[#bdc9c6] opacity-60">
+                                  {openTimeStr} - {closeTimeStr}
+                                </div>
+                              </td>
+                              <td className="px-4 py-4 text-[#bdc9c6] font-semibold">
+                                S/ {(histSession.startingCash || 0).toFixed(2)}
+                              </td>
+                              <td className="px-4 py-4 font-black text-white">
+                                S/ {(histSession.summary?.totalSales || 0).toFixed(2)}
+                              </td>
+                              <td className="px-4 py-4 text-[#bdc9c6] text-xs">
+                                <div>A: {histSession.openedByUserId?.fullName || "—"}</div>
+                                {histSession.closedByUserId && (
+                                  <div>C: {histSession.closedByUserId?.fullName || "—"}</div>
+                                )}
+                              </td>
+                              <td className="px-4 py-4 text-[#bdc9c6] text-xs max-w-[150px] truncate" title={histSession.notes || ""}>
+                                {histSession.notes || <span className="opacity-40">—</span>}
+                              </td>
+                              <td className="px-6 py-4 text-right">
+                                <button
+                                  onClick={() => handleExportSpecificSessionCSV(histSession._id)}
+                                  disabled={exportingSessionId === histSession._id}
+                                  className="flex items-center gap-1.5 px-3 py-1.5 bg-[#70d8c8]/10 hover:bg-[#70d8c8]/20 border border-[#70d8c8]/20 text-[#70d8c8] rounded-lg font-bold text-xs transition-all active:scale-95 disabled:opacity-50 ml-auto"
+                                  title="Exportar ventas de este turno a formato Excel/CSV"
+                                >
+                                  {exportingSessionId === histSession._id ? (
+                                    <div className="w-3.5 h-3.5 border-2 border-b-transparent border-[#70d8c8] rounded-full animate-spin"></div>
+                                  ) : (
+                                    <>
+                                      <Printer className="w-3.5 h-3.5" /> <span>Exportar</span>
+                                    </>
+                                  )}
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      ) : (
+                        <tr>
+                          <td
+                            colSpan={6}
+                            className="px-6 py-12 text-center text-[#bdc9c6] opacity-40"
+                          >
+                            No hay turnos cerrados en este rango.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
           </div>

@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import Order from "@/models/order";
+import CashSession from "@/models/cashSession";
 
 export async function GET(request: Request) {
   try {
@@ -19,6 +20,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const startDateParam = searchParams.get("start");
     const endDateParam = searchParams.get("end");
+    const includeOrders = searchParams.get("includeOrders") === "true";
 
     if (!startDateParam || !endDateParam) {
       return NextResponse.json(
@@ -114,7 +116,21 @@ export async function GET(request: Request) {
       ticketPromedio: orderCount > 0 ? (totalSales / orderCount).toFixed(2) : 0,
     };
 
-    return NextResponse.json({ stats, orders: [] }, { status: 200 }); // Retornamos [] orders por peso de payload, el backoffice quizás solo necesita los totales por ahora. Pero si quiere tabla cruzada las pasamos
+    // Consultar turnos de caja en el rango de fechas
+    const sessionsFilter = {
+      restaurantId: session.user.restaurantId,
+      openedAt: { $gte: startDate, $lte: endDate },
+    };
+
+    const sessions = await CashSession.find(sessionsFilter)
+      .populate("openedByUserId", "fullName username")
+      .populate("closedByUserId", "fullName username")
+      .sort({ openedAt: -1 });
+
+    return NextResponse.json(
+      { stats, sessions, orders: includeOrders ? orders : [] },
+      { status: 200 }
+    );
   } catch (error: unknown) {
     console.error("Error fetching historical stats:", error);
     const msg = error instanceof Error ? error.message : "Unknown error";

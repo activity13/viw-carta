@@ -18,6 +18,8 @@ import {
   calculateSubtotal,
   isMobileUserAgent,
   round2,
+  buildTicketHtml,
+  printHtmlTicket,
 } from "@/lib/order-utils";
 
 function getAxiosStatus(error: unknown): number | undefined {
@@ -552,8 +554,9 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
 
             setTimeout(() => {
               if (mobilePrintWindow) {
-                // En móviles, imprimir en la pestaña pre-abierta
-                mobilePrintWindow.location.href = `/api/orders/${finalStampedOrder._id}/print`; // o invocar print
+                // En móviles, imprimir en la pestaña pre-abierta usando el HTML dinámico
+                const ticketHtml = buildTicketHtml(finalStampedOrder, "paid", ticketBrand ?? undefined);
+                printHtmlTicket(ticketHtml, { preOpenedWindow: mobilePrintWindow });
               } else {
                 window.print();
               }
@@ -594,7 +597,8 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
 
         setTimeout(() => {
           if (mobilePrintWindow) {
-            mobilePrintWindow.location.href = `/api/orders/${paidOrder._id}/print`;
+            const ticketHtml = buildTicketHtml(paidOrder, "paid", ticketBrand ?? undefined);
+            printHtmlTicket(ticketHtml, { preOpenedWindow: mobilePrintWindow });
           } else {
             window.print();
           }
