@@ -92,7 +92,31 @@ interface StatsType {
 interface SessionType {
   _id: string;
   openedAt: string;
+  closedAt?: string | null;
   startingCash?: number;
+  status?: "open" | "closed";
+  notes?: string;
+  openedByUserId?: {
+    _id: string;
+    fullName?: string;
+    username?: string;
+  } | null;
+  closedByUserId?: {
+    _id: string;
+    fullName?: string;
+    username?: string;
+  } | null;
+  summary?: {
+    totalSales: number;
+    totalCash: number;
+    totalCard: number;
+    totalTransfer: number;
+    totalDiscounts: number;
+    totalSurcharges: number;
+    orderCount: number;
+    cancelledOrderCount: number;
+    expectedCashInRegister: number;
+  };
 }
 
 export default function FinancesClient() {
@@ -195,7 +219,7 @@ export default function FinancesClient() {
   const [hStart, setHStart] = useState("");
   const [hEnd, setHEnd] = useState("");
   const [historyStats, setHistoryStats] = useState<StatsType | null>(null);
-  const [historySessions, setHistorySessions] = useState<any[]>([]);
+  const [historySessions, setHistorySessions] = useState<SessionType[]>([]);
   const [fetchingHistory, setFetchingHistory] = useState(false);
   const [exportingHistory, setExportingHistory] = useState(false);
   const [exportingSessionId, setExportingSessionId] = useState<string | null>(null);
@@ -1203,7 +1227,7 @@ export default function FinancesClient() {
                     </thead>
                     <tbody className="divide-y divide-[#3d4947]/10">
                       {historySessions && historySessions.length > 0 ? (
-                        historySessions.map((histSession: any) => {
+                        historySessions.map((histSession: SessionType) => {
                           const openDateStr = new Date(histSession.openedAt).toLocaleDateString();
                           const openTimeStr = new Date(histSession.openedAt).toLocaleTimeString([], { timeStyle: "short" });
                           const closeTimeStr = histSession.closedAt 
