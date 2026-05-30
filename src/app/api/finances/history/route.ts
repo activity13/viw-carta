@@ -8,6 +8,48 @@ import Meal from "@/models/meals";
 import "@/models/categories";
 
 
+interface LeanCategory {
+  _id: string;
+  name: string;
+}
+
+interface LeanMeal {
+  _id: string;
+  categoryId?: string | LeanCategory | null;
+}
+
+interface LeanOrderItem {
+  mealId: string;
+  name: string;
+  unitPrice: number;
+  qty: number;
+  notes?: string;
+  category?: string;
+}
+
+interface LeanOrderAdjustment {
+  kind: "discount" | "surcharge";
+  percent: number;
+  note?: string;
+}
+
+interface LeanOrderPayment {
+  type: "cash" | "card" | "transfer" | "other";
+  amount: number;
+}
+
+interface LeanOrder {
+  _id: string;
+  status: "active" | "on_hold" | "paid" | "cancelled";
+  items: LeanOrderItem[];
+  adjustment?: LeanOrderAdjustment | null;
+  payments: LeanOrderPayment[];
+  createdByUserId?: { fullName: string } | string | null;
+  orderNumber?: number;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
+}
+
 export async function GET(request: Request) {
   try {
     await connectToDatabase();
@@ -45,6 +87,8 @@ export async function GET(request: Request) {
       .populate("createdByUserId", "fullName")
       .sort({ createdAt: -1 });
 
+    const typedOrders = orders as unknown as LeanOrder[];
+
     let totalSales = 0;
     let totalCash = 0;
     let totalCard = 0;
@@ -56,7 +100,7 @@ export async function GET(request: Request) {
 
     const dishesRaw: Record<string, { name: string; qty: number }> = {};
 
-    orders.forEach((order) => {
+    typedOrders.forEach((order) => {
       if (order.status === "cancelled") {
         cancelledOrderCount++;
         return;
@@ -72,7 +116,7 @@ export async function GET(request: Request) {
         if(order.status !== "paid") return;
 
         let subtotal = 0;
-        order.items.forEach((item: { name: string; qty: number; unitPrice: number; mealId: string }) => {
+        order.items.forEach((item) => {
           subtotal += item.unitPrice * item.qty;
 
           if (!dishesRaw[item.mealId]) {
@@ -94,7 +138,7 @@ export async function GET(request: Request) {
         }
         totalSales += orderTotal;
 
-        order.payments.forEach((payment: { type: string; amount: number }) => {
+        order.payments.forEach((payment) => {
           if (payment.type === "cash") totalCash += payment.amount;
           else if (payment.type === "card") totalCard += payment.amount;
           else if (payment.type === "transfer") totalTransfer += payment.amount;
@@ -134,24 +178,24 @@ export async function GET(request: Request) {
       .populate("closedByUserId", "fullName username")
       .sort({ openedAt: -1 });
 
-    let ordersToSend = [];
+    let ordersToSend: LeanOrder[] = [];
     if (includeOrders) {
-      const meals = await Meal.find({ restaurantId: session.user.restaurantId })
+      const meals = (await Meal.find({ restaurantId: session.user.restaurantId })
         .populate("categoryId", "name")
-        .lean();
+        .lean()) as unknown as LeanMeal[];
       
       const mealCategoryMap: Record<string, string> = {};
-      meals.forEach((m: any) => {
-        if (m.categoryId && typeof m.categoryId === "object" && m.categoryId.name) {
+      meals.forEach((m) => {
+        if (m.categoryId && typeof m.categoryId === "object" && "name" in m.categoryId) {
           mealCategoryMap[String(m._id)] = m.categoryId.name;
         } else {
           mealCategoryMap[String(m._id)] = "Otros";
         }
       });
 
-      ordersToSend = orders.map((order: any) => {
-        const orderObj = order.toJSON ? order.toJSON() : JSON.parse(JSON.stringify(order));
-        const itemsWithCategory = (orderObj.items || []).map((item: any) => ({
+      ordersToSend = (orders as unknown as { toJSON?: () => LeanOrder }[]).map((order) => {
+        const orderObj = order.toJSON ? order.toJSON() : (order as unknown as LeanOrder);
+        const itemsWithCategory = (orderObj.items || []).map((item) => ({
           ...item,
           category: mealCategoryMap[String(item.mealId)] || "Otros"
         }));

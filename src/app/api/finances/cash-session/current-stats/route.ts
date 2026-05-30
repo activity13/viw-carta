@@ -7,6 +7,48 @@ import Order from "@/models/order";
 import Meal from "@/models/meals";
 import "@/models/categories";
 
+interface LeanCategory {
+  _id: string;
+  name: string;
+}
+
+interface LeanMeal {
+  _id: string;
+  categoryId?: string | LeanCategory | null;
+}
+
+interface LeanOrderItem {
+  mealId: string;
+  name: string;
+  unitPrice: number;
+  qty: number;
+  notes?: string;
+  category?: string;
+}
+
+interface LeanOrderAdjustment {
+  kind: "discount" | "surcharge";
+  percent: number;
+  note?: string;
+}
+
+interface LeanOrderPayment {
+  type: "cash" | "card" | "transfer" | "other";
+  amount: number;
+}
+
+interface LeanOrder {
+  _id: string;
+  status: "active" | "on_hold" | "paid" | "cancelled";
+  items: LeanOrderItem[];
+  adjustment?: LeanOrderAdjustment | null;
+  payments: LeanOrderPayment[];
+  createdByUserId?: { fullName: string } | string | null;
+  orderNumber?: number;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
+}
+
 export async function GET() {
   try {
     await connectToDatabase();
@@ -38,21 +80,21 @@ export async function GET() {
       .lean();
 
     // Obtener el mapeo de platos a categorías
-    const meals = await Meal.find({ restaurantId: session.user.restaurantId })
+    const meals = (await Meal.find({ restaurantId: session.user.restaurantId })
       .populate("categoryId", "name")
-      .lean();
+      .lean()) as unknown as LeanMeal[];
     
     const mealCategoryMap: Record<string, string> = {};
-    meals.forEach((m: any) => {
-      if (m.categoryId && typeof m.categoryId === "object" && m.categoryId.name) {
+    meals.forEach((m) => {
+      if (m.categoryId && typeof m.categoryId === "object" && "name" in m.categoryId) {
         mealCategoryMap[String(m._id)] = m.categoryId.name;
       } else {
         mealCategoryMap[String(m._id)] = "Otros";
       }
     });
 
-    const orders = ordersRaw.map((order: any) => {
-      const itemsWithCategory = (order.items || []).map((item: any) => ({
+    const orders: LeanOrder[] = (ordersRaw as unknown as LeanOrder[]).map((order) => {
+      const itemsWithCategory = (order.items || []).map((item) => ({
         ...item,
         category: mealCategoryMap[String(item.mealId)] || "Otros"
       }));
@@ -84,7 +126,7 @@ export async function GET() {
         orderCount++;
 
         let subtotal = 0;
-        order.items.forEach((item: { name: string; qty: number; unitPrice: number; mealId: string }) => {
+        order.items.forEach((item) => {
           subtotal += item.unitPrice * item.qty;
 
           if (!dishesRaw[item.mealId]) {
@@ -106,7 +148,7 @@ export async function GET() {
         }
         totalSales += orderTotal;
 
-        order.payments.forEach((payment: { type: string; amount: number }) => {
+        order.payments.forEach((payment) => {
           if (payment.type === "cash") totalCash += payment.amount;
           else if (payment.type === "card") totalCard += payment.amount;
           else if (payment.type === "transfer") totalTransfer += payment.amount;
