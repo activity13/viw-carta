@@ -1,5 +1,7 @@
 "use client";
 
+import { checkMealAvailability } from "@/lib/availability";
+
 export const HuaProductItem = ({ meal, variantColumns, language = "es" }) => {
   // variantColumns es un array de objetos ej: [{ name: "Personal", name_en: "Personal" }, { name: "Fuente", name_en: "Family" }]
 
@@ -59,13 +61,20 @@ export const HuaProductItem = ({ meal, variantColumns, language = "es" }) => {
       ? meal.description_en
       : meal.description;
 
+  const availabilityResult = checkMealAvailability(meal, language);
+
   return (
     // CAMBIO: py-2 -> py-0.5 para reducir drásticamente el espacio vertical entre platos
-    <div className="flex justify-between items-center py-0.5 px-2 -mx-2 rounded-lg group hover:bg-hua-dark-blue hover:text-white transition-all duration-300 hover:scale-[0.98] hover:font-bold cursor-default">
+    <div className={`flex justify-between items-center py-0.5 px-2 -mx-2 rounded-lg group transition-all duration-300 cursor-default ${availabilityResult.available ? "hover:bg-hua-dark-blue hover:text-white hover:scale-[0.98] hover:font-bold" : "opacity-50 grayscale-[50%]"}`}>
       <div className="pr-4 flex-1 leading-tight">
-        <span className="text-hua-gray group-hover:text-white text-sm uppercase tracking-tight">
+        <span className={`text-hua-gray group-hover:text-white text-sm uppercase tracking-tight ${!availabilityResult.available ? "line-through" : ""}`}>
           {mealName}
         </span>
+        {!availabilityResult.available && (
+          <span className="inline-block rounded-full bg-red-100 text-red-800 border border-red-200 text-[9px] font-bold px-1.5 py-0.5 ml-2 uppercase">
+            {availabilityResult.message || (language === "en" ? "Unavailable" : "Agotado")}
+          </span>
+        )}
         {mealDescription && (
           <span className="text-hua-gray group-hover:text-white text-xs ml-1 font-medium lowercase first-letter:capitalize inline">
             ({mealDescription})

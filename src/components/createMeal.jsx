@@ -27,6 +27,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Info } from "lucide-react";
 
 const CreateMealForm = ({
   restaurantId,
@@ -50,8 +52,8 @@ const CreateMealForm = ({
     shortDescription_en: "",
 
     // Precios
-    basePrice: Number(),
-    comparePrice: Number(),
+    basePrice: "",
+    comparePrice: "",
 
     // Imágenes
     images: [],
@@ -68,6 +70,15 @@ const CreateMealForm = ({
     availability: {
       isAvailable: true,
       availableQuantity: "",
+      schedule: {
+        monday: { isAvailable: true, timeSlots: [] },
+        tuesday: { isAvailable: true, timeSlots: [] },
+        wednesday: { isAvailable: true, timeSlots: [] },
+        thursday: { isAvailable: true, timeSlots: [] },
+        friday: { isAvailable: true, timeSlots: [] },
+        saturday: { isAvailable: true, timeSlots: [] },
+        sunday: { isAvailable: true, timeSlots: [] },
+      }
     },
 
     // Tiempo de preparación
@@ -109,8 +120,8 @@ const CreateMealForm = ({
     shortDescription_en: "",
 
     // Precios
-    basePrice: Number(),
-    comparePrice: Number(),
+    basePrice: "",
+    comparePrice: "",
 
     // Imágenes
     images: [],
@@ -127,6 +138,15 @@ const CreateMealForm = ({
     availability: {
       isAvailable: true,
       availableQuantity: "",
+      schedule: {
+        monday: { isAvailable: true, timeSlots: [] },
+        tuesday: { isAvailable: true, timeSlots: [] },
+        wednesday: { isAvailable: true, timeSlots: [] },
+        thursday: { isAvailable: true, timeSlots: [] },
+        friday: { isAvailable: true, timeSlots: [] },
+        saturday: { isAvailable: true, timeSlots: [] },
+        sunday: { isAvailable: true, timeSlots: [] },
+      }
     },
 
     // Tiempo de preparación
@@ -252,6 +272,145 @@ const CreateMealForm = ({
     }
   };
 
+  const handleAvailabilityToggle = (checked) => {
+    setFormData((prev) => {
+      const schedule = prev.availability.schedule || {
+        monday: { isAvailable: true, timeSlots: [] },
+        tuesday: { isAvailable: true, timeSlots: [] },
+        wednesday: { isAvailable: true, timeSlots: [] },
+        thursday: { isAvailable: true, timeSlots: [] },
+        friday: { isAvailable: true, timeSlots: [] },
+        saturday: { isAvailable: true, timeSlots: [] },
+        sunday: { isAvailable: true, timeSlots: [] },
+      };
+
+      const newSchedule = { ...schedule };
+
+      // Update all days to match the main toggle
+      Object.keys(newSchedule).forEach((day) => {
+        const currentDay = newSchedule[day] || { isAvailable: true, timeSlots: [] };
+        newSchedule[day] = {
+          ...currentDay,
+          isAvailable: checked,
+          // The user specifically requested to NOT add a default time slot
+          timeSlots: currentDay.timeSlots || []
+        };
+      });
+
+      return {
+        ...prev,
+        availability: {
+          ...prev.availability,
+          isAvailable: checked,
+          schedule: newSchedule,
+        },
+      };
+    });
+  };
+
+  const handleScheduleDayToggle = (day, checked) => {
+    setFormData((prev) => {
+      const schedule = prev.availability.schedule || {
+        monday: { isAvailable: true, timeSlots: [] },
+        tuesday: { isAvailable: true, timeSlots: [] },
+        wednesday: { isAvailable: true, timeSlots: [] },
+        thursday: { isAvailable: true, timeSlots: [] },
+        friday: { isAvailable: true, timeSlots: [] },
+        saturday: { isAvailable: true, timeSlots: [] },
+        sunday: { isAvailable: true, timeSlots: [] },
+      };
+
+      const currentDay = schedule[day] || { isAvailable: true, timeSlots: [] };
+
+      const newSchedule = {
+        ...schedule,
+        [day]: {
+          ...currentDay,
+          isAvailable: checked,
+          timeSlots: currentDay.timeSlots || []
+        }
+      };
+
+      const anyDayChecked = Object.values(newSchedule).some(d => d.isAvailable);
+
+      return {
+        ...prev,
+        availability: {
+          ...prev.availability,
+          isAvailable: anyDayChecked ? true : prev.availability.isAvailable,
+          schedule: newSchedule
+        }
+      };
+    });
+  };
+
+  const handleScheduleTimeChange = (day, index, field, value) => {
+    setFormData((prev) => {
+      const schedule = prev.availability.schedule;
+      const currentDay = schedule[day];
+      const newTimeSlots = [...(currentDay.timeSlots || [])];
+
+      newTimeSlots[index] = {
+        ...newTimeSlots[index],
+        [field]: value
+      };
+
+      return {
+        ...prev,
+        availability: {
+          ...prev.availability,
+          schedule: {
+            ...schedule,
+            [day]: {
+              ...currentDay,
+              timeSlots: newTimeSlots
+            }
+          }
+        }
+      };
+    });
+  };
+
+  const addScheduleTimeSlot = (day) => {
+    setFormData((prev) => {
+      const schedule = prev.availability.schedule;
+      const currentDay = schedule[day];
+      return {
+        ...prev,
+        availability: {
+          ...prev.availability,
+          schedule: {
+            ...schedule,
+            [day]: {
+              ...currentDay,
+              timeSlots: [...(currentDay.timeSlots || []), { start: "12:00", end: "23:00" }]
+            }
+          }
+        }
+      };
+    });
+  };
+
+  const removeScheduleTimeSlot = (day, index) => {
+    setFormData((prev) => {
+      const schedule = prev.availability.schedule;
+      const currentDay = schedule[day];
+      return {
+        ...prev,
+        availability: {
+          ...prev.availability,
+          schedule: {
+            ...schedule,
+            [day]: {
+              ...currentDay,
+              timeSlots: (currentDay.timeSlots || []).filter((_, i) => i !== index)
+            }
+          }
+        }
+      };
+    });
+  };
+
   const handleArrayAdd = (field, value = "") => {
     setFormData((prev) => ({
       ...prev,
@@ -321,12 +480,12 @@ const CreateMealForm = ({
       variants: prev.variants.map((group, i) =>
         i === groupIndex
           ? {
-              ...group,
-              options: [
-                ...group.options,
-                { name: "", priceModifier: 0, price: "", isAvailable: true },
-              ],
-            }
+            ...group,
+            options: [
+              ...group.options,
+              { name: "", priceModifier: 0, price: "", isAvailable: true },
+            ],
+          }
           : group,
       ),
     }));
@@ -338,9 +497,9 @@ const CreateMealForm = ({
       variants: prev.variants.map((group, i) =>
         i === groupIndex
           ? {
-              ...group,
-              options: group.options.filter((_, j) => j !== optionIndex),
-            }
+            ...group,
+            options: group.options.filter((_, j) => j !== optionIndex),
+          }
           : group,
       ),
     }));
@@ -352,11 +511,11 @@ const CreateMealForm = ({
       variants: prev.variants.map((group, i) =>
         i === groupIndex
           ? {
-              ...group,
-              options: group.options.map((opt, j) =>
-                j === optionIndex ? { ...opt, [field]: value } : opt,
-              ),
-            }
+            ...group,
+            options: group.options.map((opt, j) =>
+              j === optionIndex ? { ...opt, [field]: value } : opt,
+            ),
+          }
           : group,
       ),
     }));
@@ -421,7 +580,7 @@ const CreateMealForm = ({
           },
           formData,
         });
-        // revalidateMenu(slug);
+        revalidateMenu(slug);
         console.log("Response from backend:", actionResponse.data);
         fetchMeals();
         setFormData(initialFormData);
@@ -461,7 +620,6 @@ const CreateMealForm = ({
   const tabs = [
     { id: "basic", label: "Información Básica" },
     { id: "variants", label: "Variantes" },
-    { id: "media", label: "Imágenes" },
     { id: "ingredients", label: "Ingredientes" },
     { id: "translation", label: "🌐 Traducción" },
     { id: "availability", label: "Disponibilidad" },
@@ -504,218 +662,253 @@ const CreateMealForm = ({
             Completa el formulario para agregar un nuevo plato al menú.
           </DialogDescription>
         </DialogHeader>
-        <div className="flex-1 overflow-y-auto pr-1">
-          <div>
-            <div className="border-b border-gray-200 mb-4">
-              <nav className="flex flex-wrap gap-2 sm:gap-4 overflow-x-auto">
+        <div className="flex-1 overflow-y-auto pr-1 pb-20 relative">
+          <div className="flex flex-col h-full">
+            {/* Fix 1: Sticky Tabs with Horizontal Scroll */}
+            <div className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border/40 mb-6 -mx-1 px-1">
+              <nav className="flex flex-nowrap overflow-x-auto scrollbar-hide gap-6 pb-px">
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`py-2 px-2 sm:px-3 border-b-2 font-medium text-xs sm:text-sm transition-colors ${
-                      activeTab === tab.id
-                        ? "border-emerald-600 text-emerald-600"
-                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                    }`}
+                    className={`py-3 whitespace-nowrap border-b-2 font-medium text-sm transition-all duration-300 relative ${activeTab === tab.id
+                        ? "border-emerald-500 text-emerald-500"
+                        : "border-transparent text-muted-foreground hover:text-foreground"
+                      }`}
                   >
                     {tab.label}
                   </button>
                 ))}
               </nav>
             </div>
+
             {/* Form Content */}
             <div className="space-y-6">
               {/* Información Básica */}
               {activeTab === "basic" && (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                        Categoría *
-                      </label>
+                <div className="space-y-6 bg-[#111111] text-gray-100 p-6 -mx-4 sm:-mx-6 -mt-6 rounded-b-lg shadow-inner min-h-[60vh]">
 
-                      <Select
-                        value={formData.categoryId}
-                        onValueChange={(value) =>
-                          handleInputChange("categoryId", value)
-                        }
-                        required
-                      >
-                        <SelectTrigger className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-background">
-                          <SelectValue placeholder="Seleccionar categoría" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-card">
-                          <SelectGroup>
-                            <SelectLabel>Categorías</SelectLabel>
-                            {categories?.length === 0 && (
-                              <SelectItem value="no-categories" disabled>
-                                No hay categorías disponibles
-                              </SelectItem>
-                            )}
-                            {categories.map((cat) => (
-                              <SelectItem
-                                key={cat._id}
-                                value={cat._id.toString()}
-                              >
-                                {cat.name}
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                        Código Interno / SKU / Barras
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.code || ""}
-                        onChange={(e) =>
-                          handleInputChange("code", e.target.value)
-                        }
-                        className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-background"
-                        placeholder="Ej: PROD-101 o 75010203"
-                      />
-                    </div>
-                  </div>
+                  {/* Categoria */}
                   <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                      Nombre del Plato *
+                    <div className="flex justify-between items-center mb-1.5">
+                      <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                        Categoría
+                      </label>
+                      <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-wider">Obligatorio</span>
+                    </div>
+                    <Select
+                      value={formData.categoryId}
+                      onValueChange={(value) => handleInputChange("categoryId", value)}
+                      required
+                    >
+                      <SelectTrigger className="w-full p-3 bg-[#1A1A1A] text-white border border-gray-800 rounded-xl focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors outline-none h-12">
+                        <SelectValue placeholder="Seleccionar Categoría" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-[#1A1A1A] border-gray-800 text-white">
+                        <SelectGroup>
+                          <SelectLabel className="text-gray-400">Categorías</SelectLabel>
+                          {categories?.length === 0 && (
+                            <SelectItem value="no-categories" disabled className="text-gray-500">
+                              No hay categorías disponibles
+                            </SelectItem>
+                          )}
+                          {categories.map((cat) => (
+                            <SelectItem
+                              key={cat._id}
+                              value={cat._id.toString()}
+                              className="focus:bg-gray-800 focus:text-white cursor-pointer"
+                            >
+                              {cat.name}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Código Interno / SKU */}
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wider">
+                      Código Interno / SKU / Barras
                     </label>
                     <input
                       type="text"
+                      value={formData.code || ""}
+                      onChange={(e) => handleInputChange("code", e.target.value)}
+                      className="w-full p-3 bg-[#1A1A1A] text-white border border-gray-800 rounded-xl focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors placeholder:text-gray-600 outline-none h-12"
+                      placeholder="P-00123"
+                    />
+                  </div>
+
+                  {/* Nombre del Plato */}
+                  <div>
+                    <div className="flex justify-between items-center mb-1.5">
+                      <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                        Nombre del Plato
+                      </label>
+                      <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-wider">Obligatorio</span>
+                    </div>
+                    <input
+                      type="text"
                       value={formData.name}
-                      onChange={(e) =>
-                        handleInputChange("name", e.target.value)
-                      }
+                      onChange={(e) => handleInputChange("name", e.target.value)}
                       maxLength={100}
-                      className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                      placeholder="Ej: Ceviche Mixto"
+                      className="w-full p-3 bg-[#1A1A1A] text-white border border-gray-800 rounded-xl focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors placeholder:text-gray-600 outline-none h-12"
+                      placeholder="Ej: Risotto de Hongos Silvestres"
                       required
                     />
-                    <p className="text-xs text-gray-500 mt-1">
-                      {(formData.name || "").length}/100 caracteres
-                    </p>
                   </div>
+
+                  {/* Descripción Corta */}
                   <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                      Descripción
-                    </label>
-                    <textarea
-                      value={formData.description}
-                      onChange={(e) =>
-                        handleInputChange("description", e.target.value)
-                      }
-                      maxLength={500}
-                      rows={4}
-                      className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                      placeholder="Descripción detallada del plato..."
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      {(formData.description || "").length}/500 caracteres
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wider">
                       Descripción Corta (para móviles)
                     </label>
                     <input
                       type="text"
                       value={formData.shortDescription}
-                      onChange={(e) =>
-                        handleInputChange("shortDescription", e.target.value)
-                      }
+                      onChange={(e) => handleInputChange("shortDescription", e.target.value)}
                       maxLength={100}
-                      className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                      placeholder="Descripción breve..."
+                      className="w-full p-3 bg-[#1A1A1A] text-white border border-gray-800 rounded-xl focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors placeholder:text-gray-600 outline-none h-12"
+                      placeholder="Breve descripción de una línea..."
                     />
-                    <p className="text-xs text-gray-500 mt-1">
-                      {(formData.shortDescription || "").length}/100 caracteres
-                    </p>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                        Precio Base *
-                      </label>
-                      <div className="relative">
-                        <span className="absolute left-2 sm:left-3 top-2 sm:top-3 text-gray-500 text-sm">
-                          S/.
-                        </span>
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={formData.basePrice}
-                          onChange={(e) =>
-                            handleInputChange("basePrice", e.target.value)
-                          }
-                          className="w-full pl-8 sm:pl-10 pr-2 sm:pr-3 py-2 sm:py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                          placeholder="0.00"
-                          required
-                        />
+
+                  {/* Descripción */}
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wider">
+                      Descripción
+                    </label>
+                    <textarea
+                      value={formData.description}
+                      onChange={(e) => handleInputChange("description", e.target.value)}
+                      maxLength={500}
+                      rows={4}
+                      className="w-full p-3 bg-[#1A1A1A] text-white border border-gray-800 rounded-xl focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors placeholder:text-gray-600 outline-none resize-none"
+                      placeholder="Describe los ingredientes, preparación y notas de sabor..."
+                    />
+                  </div>
+
+                  {/* Gestión de Precios */}
+                  <div className="pt-4 border-t border-gray-800/60">
+                    <h3 className="text-sm font-semibold text-emerald-500 tracking-wide mb-4">Gestión de Precios</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-[#1A1A1A] border border-gray-800 rounded-xl p-3 flex flex-col justify-center">
+                        <div className="flex justify-between items-center mb-1">
+                          <label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+                            Precio Base
+                          </label>
+                          <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-wider">Obligatorio</span>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="text-emerald-500 font-bold mr-2">$</span>
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={formData.basePrice}
+                            onChange={(e) => handleInputChange("basePrice", e.target.value)}
+                            className="w-full bg-transparent text-white font-bold text-lg border-none focus:ring-0 p-0 outline-none placeholder:text-gray-600"
+                            placeholder="0.00"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div className="bg-[#1A1A1A] border border-gray-800 rounded-xl p-3 flex flex-col justify-center">
+                        <label className="block text-[10px] font-semibold text-gray-400 mb-1 uppercase tracking-wider">
+                          Precio Comparativo
+                        </label>
+                        <div className="flex items-center">
+                          <span className="text-gray-500 font-bold mr-2">$</span>
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={formData.comparePrice}
+                            onChange={(e) => handleInputChange("comparePrice", e.target.value)}
+                            className="w-full bg-transparent text-white font-bold text-lg border-none focus:ring-0 p-0 outline-none placeholder:text-gray-600"
+                            placeholder="0.00"
+                          />
+                        </div>
                       </div>
                     </div>
-                    <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                        Precio Comparativo (precio tachado)
-                      </label>
-                      <div className="relative">
-                        <span className="absolute left-2 sm:left-3 top-2 sm:top-3 text-gray-500 text-sm">
-                          S/.
-                        </span>
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={formData.comparePrice}
-                          onChange={(e) =>
-                            handleInputChange("comparePrice", e.target.value)
-                          }
-                          className="w-full pl-8 sm:pl-10 pr-2 sm:pr-3 py-2 sm:py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                          placeholder="0.00"
-                        />
-                      </div>
-                    </div>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                        Tiempo de Preparación Mínimo (minutos)
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        value={formData.preparationTime.min}
-                        onChange={(e) =>
-                          handleInputChange(
-                            "preparationTime.min",
-                            e.target.value,
-                          )
-                        }
-                        className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                        placeholder="10"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                        Tiempo de Preparación Máximo (minutos)
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        value={formData.preparationTime.max}
-                        onChange={(e) =>
-                          handleInputChange(
-                            "preparationTime.max",
-                            e.target.value,
-                          )
-                        }
-                        className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                        placeholder="15"
-                      />
-                    </div>
+
+                  {/* Image Upload Area */}
+                  <div className="pt-4 border-t border-gray-800/60 pb-4">
+                    <h3 className="text-sm font-semibold text-emerald-500 tracking-wide mb-4">Imagen del Plato</h3>
+                    {formData.images && formData.images.length > 0 ? (
+                      <div className="grid grid-cols-2 gap-4">
+                        {formData.images.map((img, idx) => (
+                          <div
+                            key={idx}
+                            className="relative group aspect-square rounded-xl overflow-hidden border border-gray-800 bg-[#1A1A1A]"
+                          >
+                            <img
+                              src={img.url}
+                              alt={`Imagen ${idx + 1}`}
+                              className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
+                            />
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                try {
+                                  await Axios.post("/api/uploadthing/delete", { url: img.url });
+                                  const newImages = [...formData.images];
+                                  newImages.splice(idx, 1);
+                                  setFormData((prev) => ({ ...prev, images: newImages }));
+                                } catch (error) {
+                                  console.error("Error deleting image:", error);
+                                }
+                              }}
+                              className="absolute top-2 right-2 bg-red-500/80 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="border border-dashed border-gray-700 hover:border-emerald-500/50 transition-colors rounded-xl p-8 flex flex-col items-center justify-center bg-[#1A1A1A]/50 relative overflow-hidden group min-h-[160px]">
+                        <div className="relative z-10 flex flex-col items-center">
+                          <UploadButton
+                            endpoint="mealImage"
+                            onClientUploadComplete={(res) => {
+                              if (res && res[0]) {
+                                const newImage = {
+                                  url: res[0].url,
+                                  alt: formData.name || "Imagen del plato",
+                                  isPrimary: true,
+                                };
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  images: [newImage],
+                                }));
+                              }
+                            }}
+                            onUploadError={(error) => {
+                              alert(`ERROR! ${error.message}`);
+                            }}
+                            appearance={{
+                              button: "bg-emerald-600/20 text-emerald-500 border border-emerald-500/30 hover:bg-emerald-600 hover:text-white transition-all rounded-full px-6 py-2 font-medium text-sm",
+                              allowedContent: "text-gray-500 text-xs mt-3 uppercase tracking-wider",
+                            }}
+                            content={{
+                              button({ ready }) {
+                                if (ready) return "Subir Imagen (Opcional)";
+                                return "Cargando...";
+                              },
+                              allowedContent({ ready, fileTypes, isUploading }) {
+                                if (!ready) return "Verificando...";
+                                if (isUploading) return "Subiendo...";
+                                return `Máx 2MB. ${fileTypes.join(", ")}`;
+                              },
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -924,11 +1117,10 @@ const CreateMealForm = ({
                                         )
                                       }
                                       placeholder="0.00"
-                                      className={`w-full p-2 text-sm border rounded-md focus:ring-emerald-500 focus:border-emerald-500 ${
-                                        group.replacesBasePrice
+                                      className={`w-full p-2 text-sm border rounded-md focus:ring-emerald-500 focus:border-emerald-500 ${group.replacesBasePrice
                                           ? "border-emerald-300 bg-emerald-950 text-white"
                                           : "border-gray-300"
-                                      }`}
+                                        }`}
                                     />
                                   </div>
                                   <div className="col-span-2 flex justify-center">
@@ -973,469 +1165,479 @@ const CreateMealForm = ({
                   ))}
                 </div>
               )}
-              {/* 
-            {/* Imágenes */}
-              {activeTab === "media" && (
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                      Imágenes del Plato
-                    </label>
-
-                    {/* Lista de imágenes existentes */}
-                    {formData.images && formData.images.length > 0 ? (
-                      <div className="grid grid-cols-2 gap-4 mb-4">
-                        {formData.images.map((img, idx) => (
-                          <div
-                            key={idx}
-                            className="relative group aspect-square rounded-lg overflow-hidden border border-gray-200"
-                          >
-                            <img
-                              src={img.url}
-                              alt={`Imagen ${idx + 1}`}
-                              className="w-full h-full object-cover"
-                            />
-                            <button
-                              type="button"
-                              onClick={async () => {
-                                try {
-                                  // Eliminar del servidor UploadThing
-                                  await Axios.post("/api/uploadthing/delete", {
-                                    url: img.url,
-                                  });
-
-                                  // Eliminar del estado local
-                                  const newImages = [...formData.images];
-                                  newImages.splice(idx, 1);
-                                  setFormData((prev) => ({
-                                    ...prev,
-                                    images: newImages,
-                                  }));
-                                } catch (error) {
-                                  console.error("Error deleting image:", error);
-                                  alert("Error al eliminar la imagen");
-                                }
-                              }}
-                              className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
-                              title="Eliminar imagen"
-                            >
-                              <X className="h-4 w-4" />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    ) : null}
-
-                    {/* Uploader */}
-                    {!formData.images || formData.images.length < 1 ? (
-                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-gray-50">
-                        <UploadButton
-                          endpoint="mealImage"
-                          onClientUploadComplete={(res) => {
-                            if (res && res[0]) {
-                              const newImage = {
-                                url: res[0].url,
-                                alt: formData.name || "Imagen del plato",
-                                isPrimary: formData.images.length === 0,
-                              };
-                              setFormData((prev) => ({
-                                ...prev,
-                                images: [...prev.images, newImage],
-                              }));
-                              console.log("Files: ", res);
-                            }
-                          }}
-                          onUploadError={(error) => {
-                            alert(`ERROR! ${error.message}`);
-                          }}
-                          appearance={{
-                            button:
-                              "bg-emerald-600 text-white hover:bg-emerald-700 ut-uploading:cursor-not-allowed rounded-md px-4 py-2",
-                            allowedContent: "text-gray-500 text-xs mt-2",
-                          }}
-                          content={{
-                            button({ ready }) {
-                              if (ready) return "Subir Imagen";
-                              return "Cargando...";
-                            },
-                            allowedContent({ ready, fileTypes, isUploading }) {
-                              if (!ready) return "Verificando...";
-                              if (isUploading) return "Subiendo...";
-                              return `Máx 2MB. Formatos: ${fileTypes.join(", ")}`;
-                            },
-                          }}
-                        />
-                      </div>
-                    ) : (
-                      <p className="text-sm text-gray-500 text-center italic">
-                        Límite de 1 imagen alcanzado. Elimina la actual para
-                        subir otra.
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )}
-              {/* Ingredientes */}
-              {activeTab === "ingredients" && (
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                      Ingredientes
-                    </label>
-                    {formData.ingredients.map((ingredient, index) => (
-                      <div key={index} className="flex gap-2 mb-2">
-                        <input
-                          type="text"
-                          value={ingredient}
-                          onChange={(e) =>
-                            handleArrayUpdate(
-                              "ingredients",
-                              index,
-                              e.target.value,
-                            )
-                          }
-                          className="flex-1 p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                          placeholder="Ej: Pescado fresco"
-                        />
-                        <button
-                          type="button"
-                          onClick={() =>
-                            handleArrayRemove("ingredients", index)
-                          }
-                          className="p-2 sm:p-3 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      </div>
-                    ))}
-                    <button
-                      type="button"
-                      onClick={() => handleArrayAdd("ingredients")}
-                      className="flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-medium text-sm"
-                    >
-                      <Plus className="h-4 w-4" />
-                      Agregar Ingrediente
-                    </button>
-                  </div>
-                  <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                      Alérgenos
-                    </label>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                      {allergenOptions.map((allergen) => (
-                        <label
-                          key={allergen}
-                          className="flex items-center space-x-2"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={formData.allergens.includes(allergen)}
-                            onChange={() =>
-                              handleMultiSelect("allergens", allergen)
-                            }
-                            className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
-                          />
-                          <span className="text-xs sm:text-sm text-gray-700 capitalize">
-                            {allergen}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                      Etiquetas Dietéticas
-                    </label>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                      {dietaryTagOptions.map((tag) => (
-                        <label
-                          key={tag}
-                          className="flex items-center space-x-2"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={formData.dietaryTags.includes(tag)}
-                            onChange={() =>
-                              handleMultiSelect("dietaryTags", tag)
-                            }
-                            className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
-                          />
-                          <span className="text-xs sm:text-sm text-gray-700 capitalize">
-                            {tag.replace("-", " ")}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-              {/* Traducción (Inglés) */}
-              {activeTab === "translation" && (
-                <div className="space-y-4">
-                  <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
-                    <p className="text-sm text-emerald-700">
-                      🌐 Agrega las traducciones en inglés para que tu menú sea
-                      bilingüe.
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                      Nombre en Inglés
-                    </label>
+          {/* Ingredientes */}
+          {activeTab === "ingredients" && (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                  Ingredientes
+                </label>
+                {formData.ingredients.map((ingredient, index) => (
+                  <div key={index} className="flex gap-2 mb-2">
                     <input
                       type="text"
-                      value={formData.name_en || ""}
+                      value={ingredient}
                       onChange={(e) =>
-                        handleInputChange("name_en", e.target.value)
-                      }
-                      maxLength={100}
-                      className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                      placeholder="Ej: Mixed Ceviche"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      {(formData.name_en || "").length}/100 caracteres
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                      Descripción en Inglés
-                    </label>
-                    <textarea
-                      value={formData.description_en || ""}
-                      onChange={(e) =>
-                        handleInputChange("description_en", e.target.value)
-                      }
-                      maxLength={500}
-                      rows={4}
-                      className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                      placeholder="Detailed description of the dish in English..."
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      {(formData.description_en || "").length}/500 caracteres
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                      Descripción Corta en Inglés (para móviles)
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.shortDescription_en || ""}
-                      onChange={(e) =>
-                        handleInputChange("shortDescription_en", e.target.value)
-                      }
-                      maxLength={100}
-                      className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                      placeholder="Brief description..."
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      {(formData.shortDescription_en || "").length}/100
-                      caracteres
-                    </p>
-                  </div>
-                </div>
-              )}
-              {/* Disponibilidad */}
-              {activeTab === "availability" && (
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="isAvailable"
-                      checked={formData.availability.isAvailable}
-                      onChange={(e) =>
-                        handleInputChange(
-                          "availability.isAvailable",
-                          e.target.checked,
-                        )
-                      }
-                      className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
-                    />
-                    <label
-                      htmlFor="isAvailable"
-                      className="text-xs sm:text-sm font-medium text-gray-700"
-                    >
-                      Plato disponible
-                    </label>
-                  </div>
-                  <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                      Cantidad Disponible (opcional)
-                    </label>
-                    <input
-                      type="number"
-                      min="0"
-                      value={formData.availability.availableQuantity}
-                      onChange={(e) =>
-                        handleInputChange(
-                          "availability.availableQuantity",
+                        handleArrayUpdate(
+                          "ingredients",
+                          index,
                           e.target.value,
                         )
                       }
-                      className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                      placeholder="Dejar vacío para disponibilidad ilimitada"
+                      className="flex-1 p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                      placeholder="Ej: Pescado fresco"
                     />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Para platos con cantidad limitada
-                    </p>
-                  </div>
-                </div>
-              )}
-              {/* Configuración */}
-              {activeTab === "display" && (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                        Orden en la Categoría
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        value={formData.display.order}
-                        onChange={(e) =>
-                          handleInputChange("display.order", e.target.value)
-                        }
-                        className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                        placeholder="0"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                        Estado
-                      </label>
-                      <select
-                        value={formData.status}
-                        onChange={(e) =>
-                          handleInputChange("status", e.target.value)
-                        }
-                        className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                      >
-                        {statusOptions.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                  <div className="space-y-3">
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        id="isFeatured"
-                        checked={formData.display.isFeatured}
-                        onChange={(e) =>
-                          handleInputChange(
-                            "display.isFeatured",
-                            e.target.checked,
-                          )
-                        }
-                        className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
-                      />
-                      <label
-                        htmlFor="isFeatured"
-                        className="text-xs sm:text-sm font-medium text-gray-700"
-                      >
-                        Plato destacado (aparece en la página principal)
-                      </label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        id="showInMenu"
-                        checked={formData.display.showInMenu}
-                        onChange={(e) =>
-                          handleInputChange(
-                            "display.showInMenu",
-                            e.target.checked,
-                          )
-                        }
-                        className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
-                      />
-                      <label
-                        htmlFor="showInMenu"
-                        className="text-xs sm:text-sm font-medium text-gray-700"
-                      >
-                        Mostrar en el menú
-                      </label>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                      Etiquetas de Búsqueda
-                    </label>
-                    {formData.searchTags.map((tag, index) => (
-                      <div key={index} className="flex gap-2 mb-2">
-                        <input
-                          type="text"
-                          value={tag}
-                          onChange={(e) =>
-                            handleArrayUpdate(
-                              "searchTags",
-                              index,
-                              e.target.value,
-                            )
-                          }
-                          className="flex-1 p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                          placeholder="Ej: ceviche, pescado, limón"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => handleArrayRemove("searchTags", index)}
-                          className="p-2 sm:p-3 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      </div>
-                    ))}
                     <button
                       type="button"
-                      onClick={() => handleArrayAdd("searchTags")}
-                      className="flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-medium text-sm"
+                      onClick={() =>
+                        handleArrayRemove("ingredients", index)
+                      }
+                      className="p-2 sm:p-3 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                     >
-                      <Plus className="h-4 w-4" />
-                      Agregar Etiqueta
+                      <X className="h-4 w-4" />
                     </button>
                   </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Action Buttons (sticky footer) */}
-        <div className="shrink-0 pt-4 border-t border-gray-200">
-          <div className="flex flex-col sm:flex-row justify-end items-center gap-3">
-            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-              <DialogClose asChild>
-                <Button
-                  onClick={onClose}
-                  variant={"outline"}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 hover:text-gray-900 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                ))}
+                <button
+                  type="button"
+                  onClick={() => handleArrayAdd("ingredients")}
+                  className="flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-medium text-sm"
                 >
-                  Cancelar
-                </Button>
-              </DialogClose>
-
-              <Button
-                type="submit"
-                disabled={loading}
-                className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm"
-                onClick={handleSubmit}
-              >
-                {loading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Save className="h-4 w-4" />
-                )}
-                {editMode ? "Guardar Cambios" : "Crear Plato"}
-              </Button>
+                  <Plus className="h-4 w-4" />
+                  Agregar Ingrediente
+                </button>
+              </div>
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                  Alérgenos
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {allergenOptions.map((allergen) => (
+                    <label
+                      key={allergen}
+                      className="flex items-center space-x-2"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={formData.allergens.includes(allergen)}
+                        onChange={() =>
+                          handleMultiSelect("allergens", allergen)
+                        }
+                        className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                      />
+                      <span className="text-xs sm:text-sm text-gray-700 capitalize">
+                        {allergen}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                  Etiquetas Dietéticas
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {dietaryTagOptions.map((tag) => (
+                    <label
+                      key={tag}
+                      className="flex items-center space-x-2"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={formData.dietaryTags.includes(tag)}
+                        onChange={() =>
+                          handleMultiSelect("dietaryTags", tag)
+                        }
+                        className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                      />
+                      <span className="text-xs sm:text-sm text-gray-700 capitalize">
+                        {tag.replace("-", " ")}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
+          )}
+          {/* Traducción (Inglés) */}
+          {activeTab === "translation" && (
+            <div className="space-y-4">
+              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+                <p className="text-sm text-emerald-700">
+                  🌐 Agrega las traducciones en inglés para que tu menú sea
+                  bilingüe.
+                </p>
+              </div>
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  Nombre en Inglés
+                </label>
+                <input
+                  type="text"
+                  value={formData.name_en || ""}
+                  onChange={(e) =>
+                    handleInputChange("name_en", e.target.value)
+                  }
+                  maxLength={100}
+                  className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  placeholder="Ej: Mixed Ceviche"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  {(formData.name_en || "").length}/100 caracteres
+                </p>
+              </div>
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  Descripción en Inglés
+                </label>
+                <textarea
+                  value={formData.description_en || ""}
+                  onChange={(e) =>
+                    handleInputChange("description_en", e.target.value)
+                  }
+                  maxLength={500}
+                  rows={4}
+                  className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  placeholder="Detailed description of the dish in English..."
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  {(formData.description_en || "").length}/500 caracteres
+                </p>
+              </div>
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  Descripción Corta en Inglés (para móviles)
+                </label>
+                <input
+                  type="text"
+                  value={formData.shortDescription_en || ""}
+                  onChange={(e) =>
+                    handleInputChange("shortDescription_en", e.target.value)
+                  }
+                  maxLength={100}
+                  className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  placeholder="Brief description..."
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  {(formData.shortDescription_en || "").length}/100
+                  caracteres
+                </p>
+              </div>
+            </div>
+          )}
+          {/* Disponibilidad */}
+          {activeTab === "availability" && (
+            <div className="space-y-8 bg-[#111111] text-gray-100 p-6 -mx-4 sm:-mx-6 -mt-6 rounded-b-lg shadow-inner min-h-[60vh]">
+              {/* General Availability Toggle */}
+              <div className="flex items-center justify-between border-b border-gray-800 pb-6">
+                <div className="flex flex-col space-y-1">
+                  <span className="text-base font-semibold text-white tracking-wide">Plato disponible</span>
+                  <span className="text-sm text-gray-400">Plato disponible para pedidos</span>
+                </div>
+                <Switch
+                  checked={formData.availability.isAvailable}
+                  onCheckedChange={(checked) => handleAvailabilityToggle(checked)}
+                  className="data-[state=checked]:bg-emerald-500 w-11 h-6"
+                />
+              </div>
+
+              {/* Available Quantity */}
+              <div className="space-y-3">
+                <div className="flex items-center space-x-2">
+                  <label className="text-sm font-medium text-white tracking-wide">
+                    Cantidad disponible <span className="text-gray-500 font-normal">(Opcional)</span>
+                  </label>
+                  <Info className="w-4 h-4 text-gray-500" />
+                </div>
+                <input
+                  type="number"
+                  min="0"
+                  value={formData.availability.availableQuantity}
+                  onChange={(e) => handleInputChange("availability.availableQuantity", e.target.value)}
+                  className="w-full p-3 bg-[#1A1A1A] text-white border border-gray-800 rounded-xl focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors placeholder:text-gray-600 outline-none"
+                  placeholder="Ej: 50"
+                />
+              </div>
+
+              {/* Weekly Schedule */}
+              <div className="pt-4 space-y-4">
+                <h3 className="text-lg font-semibold text-white tracking-wide mb-2">Programación Semanal</h3>
+
+                <div className="flex flex-col space-y-1">
+                  {[
+                    { key: "monday", label: "Lunes" },
+                    { key: "tuesday", label: "Martes" },
+                    { key: "wednesday", label: "Miércoles" },
+                    { key: "thursday", label: "Jueves" },
+                    { key: "friday", label: "Viernes" },
+                    { key: "saturday", label: "Sábados" },
+                    { key: "sunday", label: "Domingos" },
+                  ].map(({ key, label }) => {
+                    const dayData = formData.availability.schedule?.[key] || { isAvailable: true, timeSlots: [] };
+                    const hasTimeSlots = dayData.timeSlots && dayData.timeSlots.length > 0;
+                    const subTitle = !dayData.isAvailable ? "Desactivado" : (hasTimeSlots ? `${dayData.timeSlots.length} horario(s)` : "Todo el día");
+
+                    return (
+                      <div key={key} className="flex flex-col">
+                        <div className="flex items-center justify-between py-4 border-b border-gray-800/60">
+                          <div className="flex items-center space-x-4">
+                            <Switch
+                              checked={dayData.isAvailable}
+                              onCheckedChange={(checked) => handleScheduleDayToggle(key, checked)}
+                              className="data-[state=checked]:bg-emerald-500 w-11 h-6 shrink-0"
+                            />
+                            <div className="flex flex-col">
+                              <span className="text-base text-white tracking-wide">{label}</span>
+                              <span className={`text-xs ${dayData.isAvailable ? "text-gray-400" : "text-gray-600"}`}>
+                                {subTitle}
+                              </span>
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (!dayData.isAvailable) handleScheduleDayToggle(key, true);
+                              addScheduleTimeSlot(key);
+                            }}
+                            className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 hover:scale-105 active:scale-95 transition-all"
+                          >
+                            <Plus className="w-4 h-4" />
+                            <span className="text-sm font-medium">Horario</span>
+                          </button>
+                        </div>
+
+                        {/* Time Slots Area */}
+                        {dayData.isAvailable && hasTimeSlots && (
+                          <div className="py-3 pl-16 space-y-3 bg-[#111111]">
+                            {dayData.timeSlots.map((slot, index) => (
+                              <div key={index} className="flex items-center gap-3">
+                                <div className="flex items-center bg-[#1A1A1A] border border-gray-800 rounded-lg overflow-hidden">
+                                  <input
+                                    type="time"
+                                    value={slot.start || "12:00"}
+                                    onChange={(e) => handleScheduleTimeChange(key, index, "start", e.target.value)}
+                                    className="p-2 text-sm bg-transparent text-white border-none focus:ring-0 w-[100px] outline-none"
+                                  />
+                                  <span className="text-gray-600">-</span>
+                                  <input
+                                    type="time"
+                                    value={slot.end || "23:00"}
+                                    onChange={(e) => handleScheduleTimeChange(key, index, "end", e.target.value)}
+                                    className="p-2 text-sm bg-transparent text-white border-none focus:ring-0 w-[100px] outline-none"
+                                  />
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => removeScheduleTimeSlot(key, index)}
+                                  className="w-8 h-8 flex items-center justify-center rounded-full bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-colors"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+          {/* Configuración */}
+          {activeTab === "display" && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    Tiempo de Preparación Mínimo (minutos)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={formData.preparationTime?.min || ""}
+                    onChange={(e) =>
+                      handleInputChange("preparationTime.min", e.target.value)
+                    }
+                    className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    placeholder="10"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    Tiempo de Preparación Máximo (minutos)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={formData.preparationTime?.max || ""}
+                    onChange={(e) =>
+                      handleInputChange("preparationTime.max", e.target.value)
+                    }
+                    className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    placeholder="15"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    Orden en la Categoría
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={formData.display.order}
+                    onChange={(e) =>
+                      handleInputChange("display.order", e.target.value)
+                    }
+                    className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    placeholder="0"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    Estado
+                  </label>
+                  <select
+                    value={formData.status}
+                    onChange={(e) =>
+                      handleInputChange("status", e.target.value)
+                    }
+                    className="w-full p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  >
+                    {statusOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="isFeatured"
+                    checked={formData.display.isFeatured}
+                    onChange={(e) =>
+                      handleInputChange(
+                        "display.isFeatured",
+                        e.target.checked,
+                      )
+                    }
+                    className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                  />
+                  <label
+                    htmlFor="isFeatured"
+                    className="text-xs sm:text-sm font-medium text-gray-700"
+                  >
+                    Plato destacado (aparece en la página principal)
+                  </label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="showInMenu"
+                    checked={formData.display.showInMenu}
+                    onChange={(e) =>
+                      handleInputChange(
+                        "display.showInMenu",
+                        e.target.checked,
+                      )
+                    }
+                    className="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                  />
+                  <label
+                    htmlFor="showInMenu"
+                    className="text-xs sm:text-sm font-medium text-gray-700"
+                  >
+                    Mostrar en el menú
+                  </label>
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                  Etiquetas de Búsqueda
+                </label>
+                {formData.searchTags.map((tag, index) => (
+                  <div key={index} className="flex gap-2 mb-2">
+                    <input
+                      type="text"
+                      value={tag}
+                      onChange={(e) =>
+                        handleArrayUpdate(
+                          "searchTags",
+                          index,
+                          e.target.value,
+                        )
+                      }
+                      className="flex-1 p-2 sm:p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                      placeholder="Ej: ceviche, pescado, limón"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleArrayRemove("searchTags", index)}
+                      className="p-2 sm:p-3 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => handleArrayAdd("searchTags")}
+                  className="flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-medium text-sm"
+                >
+                  <Plus className="h-4 w-4" />
+                  Agregar Etiqueta
+                </button>
+              </div>
+            </div>
+          )}
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
+
+    {/* Action Buttons (sticky footer) */ }
+    <div className={`shrink-0 pt-4 border-t transition-colors duration-300 ${activeTab === "availability" ? "border-gray-800 bg-[#111111] -mx-4 sm:-mx-6 px-4 sm:px-6 pb-4 sm:pb-6 -mb-4 sm:-mb-6 rounded-b-lg" : "border-gray-200"}`}>
+    <div className="flex flex-col sm:flex-row justify-end items-center gap-3">
+      <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto mt-2">
+        <DialogClose asChild>
+          <Button
+            onClick={onClose}
+            variant={"outline"}
+            className={`w-full sm:w-32 h-12 rounded-2xl font-medium transition-colors ${activeTab === "availability"
+                ? "border-gray-700 text-gray-300 bg-transparent hover:bg-gray-800 hover:text-white"
+                : "border-gray-300 text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+              }`}
+          >
+            Cancelar
+          </Button>
+        </DialogClose>
+
+        <Button
+          type="submit"
+          disabled={loading}
+          className={`w-full sm:w-32 h-12 rounded-2xl font-medium text-white transition-colors flex items-center justify-center gap-2 ${activeTab === "availability"
+              ? "bg-emerald-600 hover:bg-emerald-500"
+              : "bg-emerald-600 hover:bg-emerald-700"
+            }`}
+          onClick={handleSubmit}
+        >
+          {loading ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : (
+            <Save className="h-5 w-5" />
+          )}
+          {editMode ? "Guardar" : "Crear"}
+        </Button>
+      </div>
+    </div>
+  </div>
+      </DialogContent >
+    </Dialog >
   );
 };
 

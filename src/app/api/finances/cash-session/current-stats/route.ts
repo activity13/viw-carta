@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import CashSession from "@/models/cashSession";
 import Order from "@/models/order";
+import Meal from "@/models/meals";
+import "@/models/categories";
 
 export async function GET() {
   try {
@@ -30,9 +32,35 @@ export async function GET() {
     }
 
     // Calcular estadísticas en vivo
-    const orders = await Order.find({ cashSessionId: openSession._id })
+    const ordersRaw = await Order.find({ cashSessionId: openSession._id })
       .populate("createdByUserId", "fullName")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // Obtener el mapeo de platos a categorías
+    const meals = await Meal.find({ restaurantId: session.user.restaurantId })
+      .populate("categoryId", "name")
+      .lean();
+    
+    const mealCategoryMap: Record<string, string> = {};
+    meals.forEach((m: any) => {
+      if (m.categoryId && typeof m.categoryId === "object" && m.categoryId.name) {
+        mealCategoryMap[String(m._id)] = m.categoryId.name;
+      } else {
+        mealCategoryMap[String(m._id)] = "Otros";
+      }
+    });
+
+    const orders = ordersRaw.map((order: any) => {
+      const itemsWithCategory = (order.items || []).map((item: any) => ({
+        ...item,
+        category: mealCategoryMap[String(item.mealId)] || "Otros"
+      }));
+      return {
+        ...order,
+        items: itemsWithCategory
+      };
+    });
 
     let totalSales = 0;
     let totalCash = 0;

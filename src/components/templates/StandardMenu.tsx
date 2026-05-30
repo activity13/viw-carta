@@ -17,6 +17,19 @@ interface Meal {
   description_en?: string;
   comparePrice?: number;
   images?: { url: string; alt?: string }[];
+  availability?: {
+    isAvailable: boolean;
+    availableQuantity?: number;
+    schedule?: {
+      monday: { isAvailable: boolean; timeSlots: { start: string; end: string }[] };
+      tuesday: { isAvailable: boolean; timeSlots: { start: string; end: string }[] };
+      wednesday: { isAvailable: boolean; timeSlots: { start: string; end: string }[] };
+      thursday: { isAvailable: boolean; timeSlots: { start: string; end: string }[] };
+      friday: { isAvailable: boolean; timeSlots: { start: string; end: string }[] };
+      saturday: { isAvailable: boolean; timeSlots: { start: string; end: string }[] };
+      sunday: { isAvailable: boolean; timeSlots: { start: string; end: string }[] };
+    };
+  };
 }
 
 interface Category {

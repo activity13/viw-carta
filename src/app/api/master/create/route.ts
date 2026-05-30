@@ -65,6 +65,10 @@ export async function POST(request: Request) {
       searchTags: formData?.searchTags || [""],
     });
     await newMeal.save();
+
+    const { revalidateMenu } = await import("@/lib/public-menu");
+    await revalidateMenu(secureRestaurantId);
+
     return NextResponse.json(
       { message: "Conexión exitosa a la base de datos" },
       { status: 200 }

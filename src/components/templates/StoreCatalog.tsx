@@ -32,7 +32,10 @@ interface Meal {
   price: number;
   comparePrice?: number;
   images?: { url: string; alt?: string }[];
+  availability?: MealAvailability;
 }
+
+import { checkMealAvailability, MealAvailability } from "@/lib/availability";
 
 interface Category {
   id: string;
@@ -293,8 +296,13 @@ function ProductCard({
     ? Math.round((1 - meal.price / meal.comparePrice!) * 100)
     : 0;
 
+  const availabilityResult = checkMealAvailability(meal, language);
+
   return (
-    <div className="group bg-card rounded-2xl border shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden flex flex-col">
+    <div className={cn(
+      "group bg-card rounded-2xl border shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden flex flex-col",
+      !availabilityResult.available && "opacity-90"
+    )}>
       {/* Image */}
       <div
         className="relative aspect-square overflow-hidden cursor-pointer bg-muted"
@@ -305,17 +313,28 @@ function ProductCard({
             src={meal.images[0].url}
             alt={meal.images[0].alt || name}
             fill
-            className="object-cover group-hover:scale-105 transition-transform duration-500"
+            className={cn(
+              "object-cover group-hover:scale-105 transition-transform duration-500",
+              !availabilityResult.available && "grayscale-[35%] opacity-75"
+            )}
             unoptimized
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <Store className="w-10 h-10 text-muted-foreground/20" />
+          <div className="w-full h-full flex items-center justify-center relative">
+            <Store className={cn(
+              "w-10 h-10 text-muted-foreground/20",
+              !availabilityResult.available && "opacity-50"
+            )} />
           </div>
         )}
         {hasDiscount && (
           <div className="absolute top-2 left-2 bg-destructive text-destructive-foreground text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-0.5">
             <Tag className="w-2.5 h-2.5" />-{discountPct}%
+          </div>
+        )}
+        {!availabilityResult.available && (
+          <div className="absolute top-2 right-2 bg-destructive text-destructive-foreground text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm max-w-[85%] truncate">
+            {availabilityResult.message || (language === "en" ? "Unavailable" : "No Disponible")}
           </div>
         )}
       </div>
@@ -349,7 +368,18 @@ function ProductCard({
         </div>
 
         {/* Cart controls */}
-        {quantity === 0 ? (
+        {!availabilityResult.available ? (
+          <Button
+            disabled
+            size="sm"
+            className="w-full rounded-full text-xs h-8 bg-muted/60 text-muted-foreground border font-bold cursor-not-allowed active:scale-100 hover:bg-muted/60"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
+            {language === "en" ? "Unavailable" : "No Disponible"}
+          </Button>
+        ) : quantity === 0 ? (
           <Button
             size="sm"
             className="w-full rounded-full text-xs h-8"

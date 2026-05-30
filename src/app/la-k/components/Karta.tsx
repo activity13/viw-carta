@@ -9,6 +9,7 @@ import Image from "next/image";
 import { LanguageProvider, useLanguage } from "@/hooks/useLanguage";
 import { CartProvider, useCart } from "@/providers/CartProvider";
 import { OrderFloatingButton } from "@/components/cart/OrderFloatingButton";
+import { checkMealAvailability, MealAvailability } from "@/lib/availability";
 
 // ─── Interfaces ────────────────────────────────────────────────────────────────
 
@@ -21,6 +22,7 @@ interface Meal {
   name_en?: string;
   description_en?: string;
   ingredients_en?: string[];
+  availability?: MealAvailability;
 }
 
 interface Category {
@@ -151,6 +153,7 @@ function CartOnboardingAlert({ onDismiss }: { onDismiss: () => void }) {
 
 function TappableMealRow({
   meal,
+  language,
   t,
   variant,
 }: {
@@ -172,7 +175,10 @@ function TappableMealRow({
       : parseFloat(cartItem.quantity as string) || 0
     : 0;
 
+  const availabilityResult = checkMealAvailability(meal, language);
+
   const fireAdd = useCallback(() => {
+    if (!availabilityResult.available) return;
     addToCart({
       id: meal.id,
       name: meal.name,
@@ -187,13 +193,14 @@ function TappableMealRow({
   }, [addToCart, meal]);
 
   const handlePointerDown = useCallback(() => {
+    if (!availabilityResult.available) return;
     didFire.current = false;
     setPressing(true);
     pressTimer.current = setTimeout(() => {
       fireAdd();
       setPressing(false);
     }, 300);
-  }, [fireAdd]);
+  }, [fireAdd, availabilityResult.available]);
 
   const handlePointerUp = useCallback(() => {
     if (pressTimer.current) {
@@ -213,7 +220,7 @@ function TappableMealRow({
   const isPizzaVariant = variant === "pizzas";
 
   return (
-    <div className="flex items-start justify-between gap-4 group leading-none transition-transform duration-150">
+    <div className={`flex items-start justify-between gap-4 group leading-none transition-transform duration-150 ${!availabilityResult.available ? "opacity-50 grayscale-[50%]" : ""}`}>
       <div className={`flex-1 ${isPizzaVariant ? "xl:flex" : ""}`}>
         {/* Long-press name to add */}
         <button
@@ -225,13 +232,19 @@ function TappableMealRow({
             isPizzaVariant ? "md:text-lg" : ""
           } text-primary uppercase tracking-wide leading-tight m-0 p-0 ${
             isPizzaVariant ? "whitespace-nowrap" : ""
-          } cursor-pointer select-none transition-all duration-150 inline-flex items-center gap-1.5 ${
+          } ${availabilityResult.available ? "cursor-pointer" : "cursor-not-allowed"} select-none transition-all duration-150 inline-flex items-center gap-1.5 ${
             pressing
               ? "scale-95 text-primary/60"
-              : "hover:text-primary/70 active:scale-95"
+              : availabilityResult.available ? "hover:text-primary/70 active:scale-95" : ""
           }`}
         >
-          <span>{t(meal.name, meal.name_en)}</span>
+          <span className={!availabilityResult.available ? "line-through" : ""}>{t(meal.name, meal.name_en)}</span>
+          
+          {!availabilityResult.available && (
+             <span className="inline-flex items-center justify-center rounded-full bg-red-100 text-red-800 border border-red-200 text-[9px] font-bold px-1.5 py-0.5 whitespace-nowrap ml-1">
+               {availabilityResult.message || (language === "en" ? "Unavailable" : "Agotado")}
+             </span>
+          )}
 
           {/* Blue quantity badge — small */}
           {quantity > 0 && (

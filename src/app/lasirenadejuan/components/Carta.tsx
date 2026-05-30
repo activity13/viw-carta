@@ -7,6 +7,7 @@ import { CartProvider, useCart } from "@/providers/CartProvider";
 import { OrderFloatingButton } from "@/components/cart/OrderFloatingButton";
 import { useRouter } from "next/navigation";
 import { Home, HandMetal, X } from "lucide-react";
+import { checkMealAvailability, MealAvailability } from "@/lib/availability";
 
 interface Meal {
   id: string;
@@ -15,6 +16,7 @@ interface Meal {
   description?: string;
   name_en?: string;
   description_en?: string;
+  availability?: MealAvailability;
 }
 
 interface Category {
@@ -189,6 +191,8 @@ function TappableMealRow({
   commonPrice: number | null;
 }) {
   const { items, addToCart } = useCart();
+  const { language } = useLanguage();
+  const availabilityResult = checkMealAvailability(meal, language);
   const [justAdded, setJustAdded] = useState(false);
   const [pressing, setPressing] = useState(false);
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -210,12 +214,13 @@ function TappableMealRow({
   }, [addToCart, meal]);
 
   const handlePointerDown = useCallback(() => {
+    if (!availabilityResult.available) return;
     setPressing(true);
     pressTimer.current = setTimeout(() => {
       fireAdd();
       setPressing(false);
     }, 300);
-  }, [fireAdd]);
+  }, [fireAdd, availabilityResult.available]);
 
   const handlePointerUp = useCallback(() => {
     if (pressTimer.current) {
@@ -245,14 +250,22 @@ function TappableMealRow({
           onPointerUp={handlePointerUp}
           onPointerLeave={handlePointerUp}
           onContextMenu={(e) => e.preventDefault()}
+          disabled={!availabilityResult.available}
           className={`text-left text-foreground tracking-wide m-0 p-0 cursor-pointer select-none transition-all duration-150 inline-flex items-center gap-2 ${pressing
             ? "scale-95 opacity-70"
-            : "hover:opacity-80 active:scale-95"
+            : !availabilityResult.available 
+              ? "opacity-50 cursor-not-allowed grayscale"
+              : "hover:opacity-80 active:scale-95"
             }`}
         >
-          <span className={titleClass}>
+          <span className={`${titleClass} ${!availabilityResult.available ? "line-through text-foreground/50" : ""}`}>
             {isBeverage ? capitalizeFirstLetter(mealName) : mealName}
           </span>
+          {!availabilityResult.available && (
+            <span className="inline-flex items-center justify-center rounded-full bg-red-100 text-red-800 text-[9px] font-bold px-1.5 py-0.5 whitespace-nowrap uppercase tracking-wider ml-1">
+              {availabilityResult.message || (language === "en" ? "Unavailable" : "Agotado")}
+            </span>
+          )}
           {quantity > 0 && (
             <span
               className={`inline-flex items-center justify-center min-w-[16px] h-[16px] rounded-full bg-foreground text-background text-[10px] font-bold px-1 transition-all duration-300 ${justAdded ? "scale-125" : "scale-100"

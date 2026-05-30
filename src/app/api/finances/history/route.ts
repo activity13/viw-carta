@@ -4,6 +4,9 @@ import { authOptions } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import Order from "@/models/order";
 import CashSession from "@/models/cashSession";
+import Meal from "@/models/meals";
+import "@/models/categories";
+
 
 export async function GET(request: Request) {
   try {
@@ -116,10 +119,14 @@ export async function GET(request: Request) {
       ticketPromedio: orderCount > 0 ? (totalSales / orderCount).toFixed(2) : 0,
     };
 
-    // Consultar turnos de caja en el rango de fechas
+    // Consultar turnos de caja en el rango de fechas (abiertas, cerradas o con actividad en el periodo)
     const sessionsFilter = {
       restaurantId: session.user.restaurantId,
-      openedAt: { $gte: startDate, $lte: endDate },
+      $or: [
+        { openedAt: { $gte: startDate, $lte: endDate } },
+        { closedAt: { $gte: startDate, $lte: endDate } },
+        { status: "open", openedAt: { $lte: endDate } }
+      ]
     };
 
     const sessions = await CashSession.find(sessionsFilter)
@@ -127,8 +134,36 @@ export async function GET(request: Request) {
       .populate("closedByUserId", "fullName username")
       .sort({ openedAt: -1 });
 
+    let ordersToSend = [];
+    if (includeOrders) {
+      const meals = await Meal.find({ restaurantId: session.user.restaurantId })
+        .populate("categoryId", "name")
+        .lean();
+      
+      const mealCategoryMap: Record<string, string> = {};
+      meals.forEach((m: any) => {
+        if (m.categoryId && typeof m.categoryId === "object" && m.categoryId.name) {
+          mealCategoryMap[String(m._id)] = m.categoryId.name;
+        } else {
+          mealCategoryMap[String(m._id)] = "Otros";
+        }
+      });
+
+      ordersToSend = orders.map((order: any) => {
+        const orderObj = order.toJSON ? order.toJSON() : JSON.parse(JSON.stringify(order));
+        const itemsWithCategory = (orderObj.items || []).map((item: any) => ({
+          ...item,
+          category: mealCategoryMap[String(item.mealId)] || "Otros"
+        }));
+        return {
+          ...orderObj,
+          items: itemsWithCategory
+        };
+      });
+    }
+
     return NextResponse.json(
-      { stats, sessions, orders: includeOrders ? orders : [] },
+      { stats, sessions, orders: ordersToSend },
       { status: 200 }
     );
   } catch (error: unknown) {

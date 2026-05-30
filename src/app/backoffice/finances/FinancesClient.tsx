@@ -31,6 +31,7 @@ interface OrderItem {
   qty: number;
   name: string;
   unitPrice: number;
+  category?: string;
 }
 
 interface OrderPayment {
@@ -435,10 +436,14 @@ export default function FinancesClient() {
       "Numero de Orden",
       "Fecha",
       "Hora",
-      "Platos / Productos",
-      "Subtotal (S/)",
+      "Plato / Producto",
+      "Categoria",
+      "Cantidad",
+      "Precio Unitario (S/)",
+      "Total Item (S/)",
+      "Subtotal Orden (S/)",
       "Descuento/Recargo (%)",
-      "Total Pagado (S/)",
+      "Total Orden (S/)",
       "Metodo de Pago",
       "Estado",
       "Tipo Comprobante",
@@ -447,15 +452,11 @@ export default function FinancesClient() {
       "Estado CPE"
     ];
 
-    const rows = ordersList.map(order => {
+    const rows = ordersList.flatMap(order => {
       const orderDateObj = new Date(order.createdAt);
       const dateStr = orderDateObj.toLocaleDateString();
       const timeStr = orderDateObj.toLocaleTimeString([], { timeStyle: "short" });
       
-      const itemsStr = order.items
-        ? order.items.map(item => `${item.qty}x ${item.name}`).join(" | ")
-        : "";
-
       let subtotal = 0;
       if (order.items && order.items.length) {
         subtotal = order.items.reduce((acc, cur) => acc + cur.qty * cur.unitPrice, 0);
@@ -496,21 +497,50 @@ export default function FinancesClient() {
         if (order.fiscalStatus.status === "cancelled") fiscalStatusLabel = "Anulado CPE";
       }
 
-      return [
-        `#${order.orderNumber}`,
-        dateStr,
-        timeStr,
-        `"${itemsStr.replace(/"/g, '""')}"`,
-        subtotal.toFixed(2),
-        adjustmentStr,
-        total.toFixed(2),
-        pLabel,
-        statusLabel,
-        cpeType,
-        order.fiscalDocumentPrefix || "-",
-        order.fiscalDocumentNumber || "-",
-        fiscalStatusLabel
-      ];
+      if (!order.items || order.items.length === 0) {
+        return [[
+          `#${order.orderNumber}`,
+          dateStr,
+          timeStr,
+          "-",
+          "-", // Categoria fallback
+          "0",
+          "0.00",
+          "0.00",
+          subtotal.toFixed(2),
+          adjustmentStr,
+          total.toFixed(2),
+          pLabel,
+          statusLabel,
+          cpeType,
+          order.fiscalDocumentPrefix || "-",
+          order.fiscalDocumentNumber || "-",
+          fiscalStatusLabel
+        ]];
+      }
+
+      return order.items.map(item => {
+        const itemTotal = item.qty * item.unitPrice;
+        return [
+          `#${order.orderNumber}`,
+          dateStr,
+          timeStr,
+          `"${item.name.replace(/"/g, '""')}"`,
+          `"${(item.category || "Otros").replace(/"/g, '""')}"`, // Categoria
+          item.qty.toString(),
+          item.unitPrice.toFixed(2),
+          itemTotal.toFixed(2),
+          subtotal.toFixed(2),
+          adjustmentStr,
+          total.toFixed(2),
+          pLabel,
+          statusLabel,
+          cpeType,
+          order.fiscalDocumentPrefix || "-",
+          order.fiscalDocumentNumber || "-",
+          fiscalStatusLabel
+        ];
+      });
     });
 
     return [

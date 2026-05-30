@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import CashSession from "@/models/cashSession";
 
+
 export async function GET(request: Request) {
   try {
     await connectToDatabase();

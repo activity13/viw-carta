@@ -15,6 +15,7 @@ interface Meal {
   price: number;
   comparePrice?: number;
   images?: { url: string; alt?: string }[];
+  availability?: MealAvailability;
 }
 
 interface MealDetailModalProps {
@@ -22,6 +23,8 @@ interface MealDetailModalProps {
   language: string;
   onClose: () => void;
 }
+
+import { checkMealAvailability, MealAvailability } from "@/lib/availability";
 
 export function MealDetailModal({
   meal,
@@ -37,6 +40,8 @@ export function MealDetailModal({
       : meal.description;
   const hasImage = meal.images && meal.images.length > 0;
   const hasDiscount = meal.comparePrice && meal.comparePrice > meal.price;
+
+  const availabilityResult = checkMealAvailability(meal, language);
 
   return (
     <div
@@ -112,8 +117,25 @@ export function MealDetailModal({
             </p>
           )}
 
+          {/* Availability Alert */}
+          {!availabilityResult.available && (
+            <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-bold px-4 py-3 rounded-lg flex items-center gap-2 mb-1 shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0"></span>
+              <span>{availabilityResult.message}</span>
+            </div>
+          )}
+
           {/* CTA */}
-          <AddToCartButton meal={meal} className="w-full mt-2" />
+          {availabilityResult.available ? (
+            <AddToCartButton meal={meal} className="w-full mt-1" />
+          ) : (
+            <button
+              disabled
+              className="w-full mt-1 py-3 px-4 rounded-full bg-gray-200/10 text-gray-500 border border-gray-200/10 font-bold text-sm cursor-not-allowed flex items-center justify-center gap-2 active:scale-100"
+            >
+              <span>{language === "en" ? "Unavailable" : "No Disponible"}</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { connectToDatabase } from "@/lib/mongodb";
-import { unstable_cache, revalidateTag } from "next/cache";
+import { unstable_cache, revalidateTag, revalidatePath } from "next/cache";
 
 import Restaurant from "@/models/restaurants";
 import CategorySchema from "@/models/categories";
@@ -64,6 +64,19 @@ export interface PublicMenuData {
           price?: number;
         }>;
       }>;
+      availability?: {
+        isAvailable: boolean;
+        availableQuantity?: number;
+        schedule?: {
+          monday: { isAvailable: boolean; timeSlots: { start: string; end: string }[] };
+          tuesday: { isAvailable: boolean; timeSlots: { start: string; end: string }[] };
+          wednesday: { isAvailable: boolean; timeSlots: { start: string; end: string }[] };
+          thursday: { isAvailable: boolean; timeSlots: { start: string; end: string }[] };
+          friday: { isAvailable: boolean; timeSlots: { start: string; end: string }[] };
+          saturday: { isAvailable: boolean; timeSlots: { start: string; end: string }[] };
+          sunday: { isAvailable: boolean; timeSlots: { start: string; end: string }[] };
+        };
+      };
     }>;
     mealsCount: number;
   }>;
@@ -116,6 +129,7 @@ export async function getPublicMenuDataOriginal(
   // 3. Buscar platos del restaurante
   const meals = await MealSchema.find({
     restaurantId: restaurant._id,
+    status: "active",
     "display.showInMenu": true,
   }).sort({ "display.order": 1 });
 
@@ -147,6 +161,7 @@ export async function getPublicMenuDataOriginal(
         ingredients: [m.ingredients],
         ingredients_en: [m.ingredients_en],
         variants: m.variants, // Include variants for complex layouts
+        availability: m.availability,
       })),
       mealsCount: catMeals.length,
     };
@@ -206,6 +221,9 @@ export async function revalidateMenu(restaurantId: string | undefined) {
         `🧹 Revalidando caché bajo demanda para: menu-${restaurant.slug}`,
       );
       revalidateTag(`menu-${restaurant.slug}`);
+      // También revalidar la ruta completa para limpiar el caché de enrutador del cliente
+      revalidatePath(`/${restaurant.slug}`, 'layout');
+      revalidatePath(`/api/public/menu/${restaurant.slug}`, 'page');
     }
   } catch (e) {
     console.error("Error revalidating menu cache:", e);

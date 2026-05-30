@@ -57,9 +57,14 @@ interface Meal {
   categoryId: string;
   restaurantId: string;
   code?: string;
+  status?: string;
+  availability?: {
+    isAvailable: boolean;
+  };
   display: {
     showInMenu: boolean;
     order: number;
+    isFeatured?: boolean;
   };
 }
 
@@ -157,10 +162,10 @@ const EditableCell = ({
         {type === "number" && typeof value === "number"
           ? `S/. ${value.toFixed(2)}`
           : value || (
-              <span className="text-muted-foreground italic text-xs">
-                Sin contenido
-              </span>
-            )}
+            <span className="text-muted-foreground italic text-xs">
+              Sin contenido
+            </span>
+          )}
       </div>
     );
   }
@@ -174,10 +179,10 @@ const EditableCell = ({
       {type === "number" && typeof value === "number"
         ? `S/. ${value.toFixed(2)}`
         : value || (
-            <span className="text-muted-foreground italic text-xs">
-              Sin contenido
-            </span>
-          )}
+          <span className="text-muted-foreground italic text-xs">
+            Sin contenido
+          </span>
+        )}
       <Edit3 className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-50 inline-block ml-2 align-middle" />
     </div>
   );
@@ -214,7 +219,7 @@ const DraggableMobileCard = memo(
         value={meal}
         dragListener={false}
         dragControls={controls}
-        className="bg-card border rounded-lg shadow-sm flex overflow-hidden touch-none"
+        className={`bg-card border rounded-lg shadow-sm flex overflow-hidden touch-none transition-all duration-300 ${meal.status === "inactive" ? "opacity-50 grayscale" : ""}`}
       >
         {/* Left: Big Drag Handle */}
         {canDrag && (
@@ -321,7 +326,7 @@ const DraggableRow = memo(
         as="div"
         dragListener={false}
         dragControls={controls}
-        className="grid grid-cols-[5%_55%_20%_20%] items-center p-2 border-b bg-background hover:bg-muted/20 transition-colors"
+        className={`grid grid-cols-[5%_55%_20%_20%] items-center p-2 border-b transition-all duration-300 ${meal.status === "inactive" ? "opacity-50 grayscale bg-background hover:bg-muted/10" : "bg-background hover:bg-muted/20"}`}
       >
         <div className="flex justify-center">
           {canDrag ? (
@@ -415,8 +420,8 @@ export default function Master() {
   const [isDialogEditing, setIsDialogEditing] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<
-    "all" | "active" | "inactive"
-  >("all");
+    "all" | "active" | "hidden" | "unavailable" | "featured" | "disabled"
+  >("active");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | null>(null);
   const [reorderTimer, setReorderTimer] = useState<NodeJS.Timeout | null>(null);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
@@ -680,12 +685,18 @@ export default function Master() {
           meal.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           (meal.code && meal.code.toLowerCase().includes(searchTerm.toLowerCase()));
 
-        const matchesStatus =
-          filterStatus === "all"
-            ? true
-            : filterStatus === "active"
-              ? meal.display?.showInMenu
-              : !meal.display?.showInMenu;
+        const matchesStatus = (() => {
+          if (filterStatus === "all") return true;
+          if (filterStatus === "disabled") return meal.status === "inactive";
+          if (meal.status === "inactive") return false;
+          
+          if (filterStatus === "active") return true;
+          if (filterStatus === "hidden") return !meal.display?.showInMenu;
+          if (filterStatus === "unavailable") return meal.availability?.isAvailable === false;
+          if (filterStatus === "featured") return meal.display?.isFeatured === true;
+          
+          return true;
+        })();
 
         return matchesCategory && matchesSearch && matchesStatus;
       })
@@ -715,202 +726,209 @@ export default function Master() {
       )}
 
       <div className="space-y-6 w-full max-w-7xl mx-auto print:hidden">
-      {/* Category Filter */}
-      <div className="flex flex-col gap-2">
-        <div className="flex justify-between items-center">
-          <h3 className="text-lg font-semibold">Categorías</h3>
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-muted-foreground">
-              {selectedCategories.size} de {categories.length} visibles
-            </span>
-            <Link
-              href="/backoffice/categories"
-              className="flex items-center gap-1 text-xs text-primary hover:underline"
-            >
-              <Settings2 className="w-3.5 h-3.5" />
-              Editar
-            </Link>
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-2 p-4">
-          {categories.map((cat) => {
-            const isSelected = selectedCategories.has(cat._id);
-            return (
-              <Badge
-                key={cat._id}
-                variant={isSelected ? "default" : "outline"}
-                className={`cursor-pointer select-none transition-all hover:scale-105 px-3 py-3 text-sm ${
-                  isSelected
-                    ? "bg-primary text-black shadow-lg shadow-emerald-500/20 hover:bg-primary/90"
-                    : "bg-muted hover:bg-inactive-background text-muted-foreground"
-                }`}
-                onClick={() => toggleCategory(cat._id)}
-                onDoubleClick={toggleAllCategories}
-              >
-                {cat.name}
-              </Badge>
-            );
-          })}
-          {categories.length === 0 && (
-            <p className="text-sm text-muted-foreground">No hay categorías.</p>
-          )}
-        </div>
-        <p className="text-[10px] text-muted-foreground text-left">
-          * Doble click para seleccionar todas
-        </p>
-      </div>
-
-      {/* Product List */}
-      <div className="w-full bg-black border-none shadow-none rounded-xl">
-        <div className="flex flex-col md:flex-row items-start md:items-center md:justify-between space-y-0 p-6 pb-4">
-          <h3 className="text-xl font-bold flex items-center gap-2 text-white">
-            Productos
-            {isSavingOrder && (
-              <span className="flex items-center gap-1 text-xs font-normal text-muted-foreground bg-muted px-2 py-1 rounded-full animate-pulse">
-                <Loader2 className="w-3 h-3 animate-spin" />
-                Guardando orden...
+        {/* Category Filter */}
+        <div className="flex flex-col gap-2">
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-semibold">Categorías</h3>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-muted-foreground">
+                {selectedCategories.size} de {categories.length} visibles
               </span>
-            )}
-          </h3>
-          <div className="flex flex-col md:flex-row items-start md:items-center gap-2">
-            <Select
-              value={filterStatus}
-              onValueChange={(val: "all" | "active" | "inactive") =>
-                setFilterStatus(val)
-              }
-            >
-              <SelectTrigger className="w-[130px] rounded-2xl bg-gray-900 border-gray-800 text-white">
-                <SelectValue placeholder="Estado" />
-              </SelectTrigger>
-              <SelectContent className="rounded-xl border-gray-800 bg-gray-900 text-white">
-                <SelectItem className="rounded-xl" value="all">
-                  Todos
-                </SelectItem>
-                <SelectItem className="rounded-xl" value="active">
-                  Activos
-                </SelectItem>
-                <SelectItem className="rounded-xl" value="inactive">
-                  Inactivos
-                </SelectItem>
-              </SelectContent>
-            </Select>
-            <div className="relative w-64">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-              <Input
-                placeholder="Buscar producto..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-11 pr-4 py-2.5 bg-gray-900 border border-gray-800 rounded-xl text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all duration-200 w-80"
-              />
+              <Link
+                href="/backoffice/categories"
+                className="flex items-center gap-1 text-xs text-primary hover:underline"
+              >
+                <Settings2 className="w-3.5 h-3.5" />
+                Editar
+              </Link>
             </div>
           </div>
+          <div className="flex flex-wrap gap-2 p-4">
+            {categories.map((cat) => {
+              const isSelected = selectedCategories.has(cat._id);
+              return (
+                <Badge
+                  key={cat._id}
+                  variant={isSelected ? "default" : "outline"}
+                  className={`cursor-pointer select-none transition-all hover:scale-105 px-3 py-3 text-sm ${isSelected
+                      ? "bg-primary text-black shadow-lg shadow-emerald-500/20 hover:bg-primary/90"
+                      : "bg-muted hover:bg-inactive-background text-muted-foreground"
+                    }`}
+                  onClick={() => toggleCategory(cat._id)}
+                  onDoubleClick={toggleAllCategories}
+                >
+                  {cat.name}
+                </Badge>
+              );
+            })}
+            {categories.length === 0 && (
+              <p className="text-sm text-muted-foreground">No hay categorías.</p>
+            )}
+          </div>
+          <p className="text-[10px] text-muted-foreground text-left">
+            * Doble click para seleccionar todas
+          </p>
         </div>
 
+        {/* Product List */}
+        <div className="w-full bg-black border-none shadow-none rounded-xl">
+          <div className="flex flex-col space-y-4 p-6 pb-4">
+            <h3 className="text-xl font-bold flex items-center gap-2 text-white">
+              Productos
+              {isSavingOrder && (
+                <span className="flex items-center gap-1 text-xs font-normal text-muted-foreground bg-muted px-2 py-1 rounded-full animate-pulse">
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  Guardando orden...
+                </span>
+              )}
+            </h3>
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-2 w-full">
+              <Select
+                value={filterStatus}
+                onValueChange={(val: "all" | "active" | "hidden" | "unavailable" | "featured" | "disabled") =>
+                  setFilterStatus(val)
+                }
+              >
+                <SelectTrigger className="w-[160px] rounded-2xl bg-gray-900 border-gray-800 text-white">
+                  <SelectValue placeholder="Estado" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl border-gray-800 bg-gray-900 text-white">
+                  <SelectItem className="rounded-xl" value="all">
+                    Todos
+                  </SelectItem>
+                  <SelectItem className="rounded-xl" value="active">
+                    Activos
+                  </SelectItem>
+                  <SelectItem className="rounded-xl" value="hidden">
+                    Ocultos
+                  </SelectItem>
+                  <SelectItem className="rounded-xl" value="unavailable">
+                    No Disponibles
+                  </SelectItem>
+                  <SelectItem className="rounded-xl" value="featured">
+                    Destacados
+                  </SelectItem>
+                  <SelectItem className="rounded-xl" value="disabled">
+                    Deshabilitados
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="relative w-full flex-1">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <Input
+                  placeholder="Buscar producto..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-11 pr-4 py-2.5 bg-gray-900 border border-gray-800 rounded-xl text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all duration-200 w-full"
+                />
+              </div>
+            </div>
+          </div>
 
 
-        <div className="p-6 pt-0">
-          <div className="rounded-2xl border border-gray-800 bg-black">
-            {/* Desktop View (Table-like Grid) */}
-            <div className="hidden md:block">
-              <div className="grid grid-cols-[5%_55%_20%_20%] bg-inactive-background p-3 font-medium text-sm text-muted-foreground border-b">
-                <div className="text-center">#</div>
-                <div>Nombre</div>
-                <div
-                  className="cursor-pointer hover:text-primary flex items-center gap-1"
-                  onClick={() =>
-                    setSortOrder((prev) =>
-                      prev === "asc" ? "desc" : prev === "desc" ? null : "asc",
-                    )
-                  }
-                >
-                  Precio
-                  <ArrowUpDown
-                    className={`h-3 w-3 ${
-                      sortOrder ? "text-primary" : "text-muted-foreground"
-                    }`}
-                  />
+
+          <div className="p-6 pt-0">
+            <div className="rounded-2xl border border-gray-800 bg-black">
+              {/* Desktop View (Table-like Grid) */}
+              <div className="hidden md:block">
+                <div className="grid grid-cols-[5%_55%_20%_20%] bg-inactive-background p-3 font-medium text-sm text-muted-foreground border-b">
+                  <div className="text-center">#</div>
+                  <div>Nombre</div>
+                  <div
+                    className="cursor-pointer hover:text-primary flex items-center gap-1"
+                    onClick={() =>
+                      setSortOrder((prev) =>
+                        prev === "asc" ? "desc" : prev === "desc" ? null : "asc",
+                      )
+                    }
+                  >
+                    Precio
+                    <ArrowUpDown
+                      className={`h-3 w-3 ${sortOrder ? "text-primary" : "text-muted-foreground"
+                        }`}
+                    />
+                  </div>
+                  <div className="text-center">Acciones</div>
                 </div>
-                <div className="text-center">Acciones</div>
+
+                <Reorder.Group
+                  axis="y"
+                  values={filteredMeals}
+                  onReorder={handleReorder}
+                  className="divide-y"
+                >
+                  {filteredMeals.length === 0 ? (
+                    <div className="p-8 text-center text-muted-foreground">
+                      No se encontraron productos.
+                    </div>
+                  ) : (
+                    filteredMeals.map((meal) => (
+                      <DraggableRow
+                        key={meal._id}
+                        meal={meal}
+                        handleQuickUpdate={handleQuickUpdate}
+                        handleToggleAvailable={handleToggleAvailable}
+                        handleAddToOrder={handleAddToOrder}
+                        openFullEdit={openFullEdit}
+                        loadingId={loadingId}
+                        canDrag={canReorder}
+                        canEdit={canEditMaster}
+                      />
+                    ))
+                  )}
+                </Reorder.Group>
               </div>
 
-              <Reorder.Group
-                axis="y"
-                values={filteredMeals}
-                onReorder={handleReorder}
-                className="divide-y"
-              >
-                {filteredMeals.length === 0 ? (
-                  <div className="p-8 text-center text-muted-foreground">
-                    No se encontraron productos.
-                  </div>
-                ) : (
-                  filteredMeals.map((meal) => (
-                    <DraggableRow
-                      key={meal._id}
-                      meal={meal}
-                      handleQuickUpdate={handleQuickUpdate}
-                      handleToggleAvailable={handleToggleAvailable}
-                      handleAddToOrder={handleAddToOrder}
-                      openFullEdit={openFullEdit}
-                      loadingId={loadingId}
-                      canDrag={canReorder}
-                      canEdit={canEditMaster}
-                    />
-                  ))
-                )}
-              </Reorder.Group>
-            </div>
-
-            {/* Mobile View (Cards) */}
-            <div className="md:hidden p-4 bg-muted/10">
-              <Reorder.Group
-                axis="y"
-                values={filteredMeals}
-                onReorder={handleReorder}
-                className="space-y-3"
-              >
-                {filteredMeals.length === 0 ? (
-                  <div className="p-8 text-center text-muted-foreground">
-                    No se encontraron productos.
-                  </div>
-                ) : (
-                  filteredMeals.map((meal) => (
-                    <DraggableMobileCard
-                      key={meal._id}
-                      meal={meal}
-                      handleQuickUpdate={handleQuickUpdate}
-                      handleToggleAvailable={handleToggleAvailable}
-                      handleAddToOrder={handleAddToOrder}
-                      openFullEdit={openFullEdit}
-                      loadingId={loadingId}
-                      canDrag={canReorder}
-                      canEdit={canEditMaster}
-                    />
-                  ))
-                )}
-              </Reorder.Group>
+              {/* Mobile View (Cards) */}
+              <div className="md:hidden p-4 bg-muted/10">
+                <Reorder.Group
+                  axis="y"
+                  values={filteredMeals}
+                  onReorder={handleReorder}
+                  className="space-y-3"
+                >
+                  {filteredMeals.length === 0 ? (
+                    <div className="p-8 text-center text-muted-foreground">
+                      No se encontraron productos.
+                    </div>
+                  ) : (
+                    filteredMeals.map((meal) => (
+                      <DraggableMobileCard
+                        key={meal._id}
+                        meal={meal}
+                        handleQuickUpdate={handleQuickUpdate}
+                        handleToggleAvailable={handleToggleAvailable}
+                        handleAddToOrder={handleAddToOrder}
+                        openFullEdit={openFullEdit}
+                        loadingId={loadingId}
+                        canDrag={canReorder}
+                        canEdit={canEditMaster}
+                      />
+                    ))
+                  )}
+                </Reorder.Group>
+              </div>
             </div>
           </div>
         </div>
+
+        {/* Order Modal */}
+        <ActiveOrderModal manager={orderManager} meals={meals} />
+
+        {/* Orders List Modal */}
+        <OrdersListModal manager={orderManager} />
+
+        <CreateMealForm
+          restaurantId={restaurantId}
+          isOpen={isDialogEditing}
+          onClose={() => {
+            setIsDialogEditing(false);
+            setProductId(null);
+          }}
+          fetchMeals={fetchData}
+          mealId={productId}
+        />
       </div>
-
-      {/* Order Modal */}
-      <ActiveOrderModal manager={orderManager} meals={meals} />
-
-      {/* Orders List Modal */}
-      <OrdersListModal manager={orderManager} />
-
-      <CreateMealForm
-        restaurantId={restaurantId}
-        isOpen={isDialogEditing}
-        onClose={() => {
-          setIsDialogEditing(false);
-          setProductId(null);
-        }}
-        fetchMeals={fetchData}
-        mealId={productId}
-      />
-    </div>
     </>
   );
 }

@@ -20,7 +20,10 @@ interface Meal {
   price: number;
   comparePrice?: number;
   images?: { url: string; alt?: string }[];
+  availability?: MealAvailability;
 }
+
+import { checkMealAvailability, MealAvailability } from "@/lib/availability";
 
 interface Category {
   id: string;
@@ -234,12 +237,16 @@ function MenuScreen({
                   const mealDesc = t(meal.description, meal.description_en);
                   const hasDiscount =
                     meal.comparePrice && meal.comparePrice > meal.price;
+                  const availabilityResult = checkMealAvailability(meal, language);
 
                   return (
                     <div
                       key={meal.id}
                       onClick={() => setSelectedMeal(meal)}
-                      className="group relative bg-card rounded-2xl border shadow-sm hover:shadow-md cursor-pointer transition-all duration-200 overflow-hidden flex flex-col"
+                      className={cn(
+                        "group relative bg-card rounded-2xl border shadow-sm hover:shadow-md cursor-pointer transition-all duration-200 overflow-hidden flex flex-col",
+                        !availabilityResult.available && "opacity-90"
+                      )}
                     >
                       {/* Image */}
                       {meal.images && meal.images.length > 0 ? (
@@ -248,7 +255,10 @@ function MenuScreen({
                             src={meal.images[0].url}
                             alt={meal.images[0].alt || mealName}
                             fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                            className={cn(
+                              "object-cover group-hover:scale-105 transition-transform duration-500",
+                              !availabilityResult.available && "grayscale-[35%] opacity-75"
+                            )}
                             unoptimized
                           />
                           {hasDiscount && (
@@ -256,10 +266,23 @@ function MenuScreen({
                               {language === "en" ? "SALE" : "OFERTA"}
                             </div>
                           )}
+                          {!availabilityResult.available && (
+                            <div className="absolute top-2 right-2 bg-destructive text-destructive-foreground text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm max-w-[85%] truncate">
+                              {availabilityResult.message || (language === "en" ? "Unavailable" : "No Disponible")}
+                            </div>
+                          )}
                         </div>
                       ) : (
-                        <div className="h-44 bg-muted/50 flex items-center justify-center">
-                          <ChefHat className="w-10 h-10 text-muted-foreground/20" />
+                        <div className="h-44 bg-muted/50 flex items-center justify-center relative">
+                          <ChefHat className={cn(
+                            "w-10 h-10 text-muted-foreground/20",
+                            !availabilityResult.available && "opacity-50"
+                          )} />
+                          {!availabilityResult.available && (
+                            <div className="absolute top-2 right-2 bg-destructive text-destructive-foreground text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm max-w-[85%] truncate">
+                              {availabilityResult.message || (language === "en" ? "Unavailable" : "No Disponible")}
+                            </div>
+                          )}
                         </div>
                       )}
 
@@ -287,10 +310,22 @@ function MenuScreen({
                           </p>
                         )}
 
-                        <AddToCartButton
-                          meal={meal}
-                          className="w-full mt-auto text-xs"
-                        />
+                        {availabilityResult.available ? (
+                          <AddToCartButton
+                            meal={meal}
+                            className="w-full mt-auto text-xs"
+                          />
+                        ) : (
+                          <button
+                            disabled
+                            onClick={(e) => {
+                              e.stopPropagation();
+                            }}
+                            className="w-full mt-auto text-xs py-2 px-3 rounded-full bg-muted/60 text-muted-foreground border font-bold cursor-not-allowed flex items-center justify-center gap-1 active:scale-100"
+                          >
+                            {language === "en" ? "Unavailable" : "No Disponible"}
+                          </button>
+                        )}
                       </div>
                     </div>
                   );

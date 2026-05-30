@@ -11,6 +11,8 @@ import Image from "next/image";
 import { formatPrice } from "@/lib/utils";
 import { X } from "lucide-react";
 import { AddToCartButton } from "@/components/cart/AddToCartButton";
+import { checkMealAvailability, MealAvailability } from "@/lib/availability";
+import { useLanguage } from "@/hooks/useLanguage";
 import { Lilita_One, Nunito } from "next/font/google";
 
 const lilitaOne = Lilita_One({
@@ -31,6 +33,7 @@ interface Meal {
   price: number;
   comparePrice?: number;
   images?: { url: string; alt?: string }[];
+  availability?: MealAvailability;
 }
 
 interface ProductModalProps {
@@ -44,9 +47,12 @@ export default function ProductModal({
   isOpen,
   onClose,
 }: ProductModalProps) {
+  const { language } = useLanguage();
+
   if (!meal) return null;
 
   const image = meal.images?.find((img) => img.url) || meal.images?.[0];
+  const availabilityResult = checkMealAvailability(meal, language);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -79,10 +85,15 @@ export default function ProductModal({
         <div className="p-6">
           <DialogHeader className="mb-4 text-left">
             <DialogTitle
-              className={`text-xl font-bold text-slate-900 mb-2 ${lilitaOne.className}`}
+              className={`text-xl font-bold text-slate-900 mb-2 ${lilitaOne.className} ${!availabilityResult.available ? "line-through text-slate-400" : ""}`}
             >
               {meal.name}
             </DialogTitle>
+            {!availabilityResult.available && (
+              <span className="inline-block rounded-full bg-red-100 text-red-800 border border-red-200 text-xs font-bold px-3 py-1 mb-3">
+                {availabilityResult.message || (language === "en" ? "Unavailable" : "Agotado")}
+              </span>
+            )}
             <DialogDescription className="text-slate-600 text-sm leading-relaxed">
               {meal.description || "Sin descripción disponible."}
             </DialogDescription>
@@ -104,17 +115,23 @@ export default function ProductModal({
               </span>
             </div>
 
-            <AddToCartButton
-              meal={{
-                id: meal.id || meal._id,
-                name: meal.name,
-                price:
-                  meal.comparePrice && meal.comparePrice < meal.price
-                    ? meal.comparePrice
-                    : meal.price,
-              }}
-              className="h-12 px-6 rounded-xl"
-            />
+            {availabilityResult.available ? (
+              <AddToCartButton
+                meal={{
+                  id: meal.id || meal._id,
+                  name: meal.name,
+                  price:
+                    meal.comparePrice && meal.comparePrice < meal.price
+                      ? meal.comparePrice
+                      : meal.price,
+                }}
+                className="h-12 px-6 rounded-xl"
+              />
+            ) : (
+              <div className="h-12 px-6 rounded-xl bg-slate-100 flex items-center justify-center font-bold text-slate-400">
+                {language === "en" ? "Not Available" : "No Disponible"}
+              </div>
+            )}
           </div>
         </div>
       </DialogContent>

@@ -79,6 +79,10 @@ export async function POST(request: Request) {
     if (mealUpdated.modifiedCount === 0) {
       console.log("No se realizaron cambios en el documento.");
     }
+
+    const { revalidateMenu } = await import("@/lib/public-menu");
+    await revalidateMenu(session.user.restaurantId);
+
     return NextResponse.json(
       { message: "Comida actualizada con éxito" },
       { status: 200 }
