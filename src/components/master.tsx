@@ -611,16 +611,17 @@ export default function Master() {
     canEditMaster &&
     selectedCategories.size === 1 &&
     searchTerm === "" &&
-    filterStatus === "all" &&
     sortOrder === null;
 
   const handleReorder = (newOrder: Meal[]) => {
     if (!canReorder) return;
 
     // 1. Identify indices of the items currently in the view (the ones being reordered)
+    // Usamos filteredMeals para saber exactamente qué items estamos viendo
+    const visibleMealIds = new Set(newOrder.map(m => m._id));
     const indicesToUpdate: number[] = [];
     meals.forEach((meal, index) => {
-      if (selectedCategories.has(meal.categoryId)) {
+      if (visibleMealIds.has(meal._id)) {
         indicesToUpdate.push(index);
       }
     });
