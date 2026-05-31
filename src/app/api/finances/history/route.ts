@@ -58,7 +58,7 @@ export async function GET(request: Request) {
 
     // Garantizar el registro del alias singular Category bajo Next.js HMR/caching
     if (!mongoose.models.Category) {
-      mongoose.model("Category", Categories.schema);
+      mongoose.model("Categories", Categories.schema);
     }
     const session = await getServerSession(authOptions);
 
@@ -114,20 +114,20 @@ export async function GET(request: Request) {
       }
 
       if (order.status === "paid" || order.status === "active" || order.status === "on_hold") {
-        if(order.status === "paid") {
-           orderCount++;
+        if (order.status === "paid") {
+          orderCount++;
         }
-        
+
         // Sumamos items incluso si está en espera, pero para facturación real el filtro es útil 
         // Acordamos sumar dinero SOLO en pagadas, igual que en el shift:
-        if(order.status !== "paid") return;
+        if (order.status !== "paid") return;
 
         let subtotal = 0;
         order.items.forEach((item) => {
           subtotal += item.unitPrice * item.qty;
 
           if (!dishesRaw[item.mealId]) {
-             dishesRaw[item.mealId] = { name: item.name, qty: 0 };
+            dishesRaw[item.mealId] = { name: item.name, qty: 0 };
           }
           dishesRaw[item.mealId].qty += item.qty;
           totalItemsSold += item.qty;
@@ -190,7 +190,7 @@ export async function GET(request: Request) {
       const meals = (await Meal.find({ restaurantId: session.user.restaurantId })
         .populate("categoryId", "name")
         .lean()) as unknown as LeanMeal[];
-      
+
       const mealCategoryMap: Record<string, string> = {};
       meals.forEach((m) => {
         if (m.categoryId && typeof m.categoryId === "object" && "name" in m.categoryId) {
