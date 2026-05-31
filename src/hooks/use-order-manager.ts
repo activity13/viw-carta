@@ -312,7 +312,7 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
         });
         setActiveOrder(res.data);
         toast.success("Agregado al pedido");
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("Error adding item:", error);
         if (Axios.isAxiosError(error) && error.response?.data?.error) {
           toast.error(error.response.data.error);
@@ -337,7 +337,7 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
           qty,
         });
         setActiveOrder(res.data);
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("Error setting qty:", error);
         if (Axios.isAxiosError(error) && error.response?.data?.error) {
           toast.error(error.response.data.error);

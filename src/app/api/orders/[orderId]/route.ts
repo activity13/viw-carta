@@ -612,8 +612,8 @@ export async function PATCH(
     }
 
     return NextResponse.json({ error: "Acción no soportada" }, { status: 400 });
-  } catch (error: any) {
-    if (error && error.message && error.message.startsWith("Stock insuficiente")) {
+  } catch (error: unknown) {
+    if (error instanceof Error && error.message.startsWith("Stock insuficiente")) {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
     return handleAuthError(error);
