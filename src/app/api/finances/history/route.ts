@@ -5,7 +5,9 @@ import { connectToDatabase } from "@/lib/mongodb";
 import Order from "@/models/order";
 import CashSession from "@/models/cashSession";
 import Meal from "@/models/meals";
-import "@/models/categories";
+import mongoose from "mongoose";
+import Categories from "@/models/categories";
+
 
 
 interface LeanCategory {
@@ -53,6 +55,11 @@ interface LeanOrder {
 export async function GET(request: Request) {
   try {
     await connectToDatabase();
+
+    // Garantizar el registro del alias singular Category bajo Next.js HMR/caching
+    if (!mongoose.models.Category) {
+      mongoose.model("Category", Categories.schema);
+    }
     const session = await getServerSession(authOptions);
 
     if (

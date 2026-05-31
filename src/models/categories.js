@@ -94,5 +94,7 @@ CategorySchema.index({ restaurantId: 1, order: 1 }, { sparse: true }); // para o
 // delete models.Categories;
 
 const Categories = models.Categories || model("Categories", CategorySchema);
+const Category = models.Category || model("Category", CategorySchema);
 
 export default Categories;
+

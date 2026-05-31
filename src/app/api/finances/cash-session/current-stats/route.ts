@@ -5,7 +5,9 @@ import { connectToDatabase } from "@/lib/mongodb";
 import CashSession from "@/models/cashSession";
 import Order from "@/models/order";
 import Meal from "@/models/meals";
-import "@/models/categories";
+import mongoose from "mongoose";
+import Categories from "@/models/categories";
+
 
 interface LeanCategory {
   _id: string;
@@ -52,6 +54,11 @@ interface LeanOrder {
 export async function GET() {
   try {
     await connectToDatabase();
+
+    // Garantizar el registro del alias singular Category bajo Next.js HMR/caching
+    if (!mongoose.models.Category) {
+      mongoose.model("Category", Categories.schema);
+    }
     const session = await getServerSession(authOptions);
 
     if (
@@ -83,7 +90,7 @@ export async function GET() {
     const meals = (await Meal.find({ restaurantId: session.user.restaurantId })
       .populate("categoryId", "name")
       .lean()) as unknown as LeanMeal[];
-    
+
     const mealCategoryMap: Record<string, string> = {};
     meals.forEach((m) => {
       if (m.categoryId && typeof m.categoryId === "object" && "name" in m.categoryId) {
