@@ -14,6 +14,7 @@ import {
   Settings,
   Users,
   Banknote,
+  Package,
 } from "lucide-react";
 import LogoutButton from "./ui/LogoutButton";
 import { useSession } from "next-auth/react";
@@ -83,6 +84,17 @@ export default function NavBar() {
             icon: User,
             color: "text-blue-500",
             description: "Directorio de clientes",
+          },
+        ]
+      : []),
+    ...(isAdmin || isSuperAdmin
+      ? [
+          {
+            href: "/backoffice/inventory",
+            label: "Inventario",
+            icon: Package,
+            color: "text-amber-500",
+            description: "Control de stock",
           },
         ]
       : []),

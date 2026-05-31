@@ -138,6 +138,8 @@ const CreateMealForm = ({
     availability: {
       isAvailable: true,
       availableQuantity: "",
+      lowStockThreshold: 5,
+      continueSellingWhenOutOfStock: false,
       schedule: {
         monday: { isAvailable: true, timeSlots: [] },
         tuesday: { isAvailable: true, timeSlots: [] },
@@ -257,13 +259,23 @@ const CreateMealForm = ({
   const handleInputChange = (field, value) => {
     if (field.includes(".")) {
       const [parent, child] = field.split(".");
-      setFormData((prev) => ({
-        ...prev,
-        [parent]: {
-          ...prev[parent],
+      setFormData((prev) => {
+        const newValue = { ...prev };
+        newValue[parent] = {
+          ...newValue[parent],
           [child]: value,
-        },
-      }));
+        };
+
+        // Regla de negocio: Si reponemos stock mayor a 0, marcar como disponible automáticamente
+        if (parent === "availability" && child === "availableQuantity") {
+           const numericValue = typeof value === "string" ? Number(value) : value;
+           if (!isNaN(numericValue) && numericValue > 0) {
+              newValue[parent].isAvailable = true;
+           }
+        }
+        
+        return newValue;
+      });
     } else {
       setFormData((prev) => ({
         ...prev,
@@ -550,6 +562,10 @@ const CreateMealForm = ({
           ...(response.data.availability || {}),
           availableQuantity:
             response.data.availability?.availableQuantity ?? "",
+          lowStockThreshold:
+            response.data.availability?.lowStockThreshold ?? 5,
+          continueSellingWhenOutOfStock:
+            response.data.availability?.continueSellingWhenOutOfStock ?? false,
         },
         preparationTime: {
           ...initialFormData.preparationTime,
@@ -1351,13 +1367,49 @@ const CreateMealForm = ({
                 </div>
                 <input
                   type="number"
-                  min="0"
                   value={formData.availability.availableQuantity}
                   onChange={(e) => handleInputChange("availability.availableQuantity", e.target.value)}
                   className="w-full p-3 bg-[#1A1A1A] text-white border border-gray-800 rounded-xl focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors placeholder:text-gray-600 outline-none"
                   placeholder="Ej: 50"
                 />
               </div>
+
+              {/* Low Stock Threshold */}
+              {formData.availability.availableQuantity !== "" && formData.availability.availableQuantity !== null && (
+                <div className="space-y-5">
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-2">
+                      <label className="text-sm font-medium text-white tracking-wide">
+                        Alerta de Stock Bajo <span className="text-gray-500 font-normal">(Recibe aviso cuando el stock llegue a este nivel)</span>
+                      </label>
+                    </div>
+                    <input
+                      type="number"
+                      min="0"
+                      value={formData.availability.lowStockThreshold}
+                      onChange={(e) => handleInputChange("availability.lowStockThreshold", e.target.value)}
+                      className="w-full p-3 bg-[#1A1A1A] text-white border border-gray-800 rounded-xl focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors placeholder:text-gray-600 outline-none"
+                      placeholder="Ej: 5"
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-4 bg-[#1A1A1A] border border-gray-800 rounded-xl">
+                    <div className="space-y-0.5">
+                      <label className="text-sm font-medium text-white">Continuar vendiendo si se agota</label>
+                      <p className="text-xs text-gray-500">Permite ventas en negativo. El producto no se ocultará del menú al llegar a 0.</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.availability.continueSellingWhenOutOfStock || false}
+                        onChange={(e) => handleInputChange("availability.continueSellingWhenOutOfStock", e.target.checked)}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                    </label>
+                  </div>
+                </div>
+              )}
 
               {/* Weekly Schedule */}
               <div className="pt-4 space-y-4">

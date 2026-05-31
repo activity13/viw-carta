@@ -177,7 +177,7 @@ const MealSchema = new Schema(
     },
     categoryId: {
       type: Schema.Types.ObjectId,
-      ref: "Category",
+      ref: "Categories",
       required: true,
     },
 
@@ -380,8 +380,16 @@ const MealSchema = new Schema(
       },
       availableQuantity: {
         type: Number,
-        min: 0,
       }, // para platos limitados
+      lowStockThreshold: {
+        type: Number,
+        min: 0,
+        default: 5,
+      },
+      continueSellingWhenOutOfStock: {
+        type: Boolean,
+        default: false,
+      },
       schedule: AvailabilityScheduleSchema,
       seasonalAvailability: {
         startDate: Date, // para platos estacionales
@@ -529,6 +537,15 @@ MealSchema.pre("save", function (next) {
       this.images.forEach((img, index) => {
         img.isPrimary = index === 0;
       });
+    }
+  }
+
+  // Lógica de stock: si availableQuantity llega a 0, marcar como no disponible
+  // SOLO si no está permitido el overselling
+  if (this.availability && this.availability.availableQuantity !== undefined && this.availability.availableQuantity !== null) {
+    if (this.availability.availableQuantity <= 0 && !this.availability.continueSellingWhenOutOfStock) {
+      this.availability.isAvailable = false;
+      this.availability.availableQuantity = 0; // Asegurar que no sea negativo si oversell no está activo
     }
   }
 

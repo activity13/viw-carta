@@ -55,10 +55,6 @@ export async function GET() {
   try {
     await connectToDatabase();
 
-    // Garantizar el registro del alias singular Category bajo Next.js HMR/caching
-    if (!mongoose.models.Category) {
-      mongoose.model("Category", Categories.schema);
-    }
     const session = await getServerSession(authOptions);
 
     if (

@@ -312,9 +312,13 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
         });
         setActiveOrder(res.data);
         toast.success("Agregado al pedido");
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error adding item:", error);
-        toast.error("No se pudo agregar al pedido");
+        if (Axios.isAxiosError(error) && error.response?.data?.error) {
+          toast.error(error.response.data.error);
+        } else {
+          toast.error("No se pudo agregar al pedido");
+        }
       } finally {
         setIsOrderBusy(false);
       }
@@ -333,9 +337,13 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
           qty,
         });
         setActiveOrder(res.data);
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error setting qty:", error);
-        toast.error("No se pudo actualizar cantidad");
+        if (Axios.isAxiosError(error) && error.response?.data?.error) {
+          toast.error(error.response.data.error);
+        } else {
+          toast.error("No se pudo actualizar cantidad");
+        }
       } finally {
         setIsOrderBusy(false);
       }

@@ -210,7 +210,7 @@ export async function PATCH(
       const meal = await Meal.findOne({
         _id: mealId,
         restaurantId: session.user.restaurantId,
-      }).select("name basePrice code");
+      }).select("name basePrice code availability");
 
       if (!meal) {
         return NextResponse.json(
@@ -222,8 +222,20 @@ export async function PATCH(
       const items = order.items as unknown as OrderItemDoc[];
 
       const existing = items.find((i) => i.mealId === mealId);
+      const newQty = Math.max(0, (existing?.qty ?? 0) + qtyDelta);
+
+      // Validar inventario si aplica
+      if (meal.availability && typeof meal.availability.availableQuantity === "number") {
+         if (newQty > meal.availability.availableQuantity && !meal.availability.continueSellingWhenOutOfStock) {
+            return NextResponse.json(
+               { error: `No se puede añadir al carrito porque el stock está agotado. Quedan ${meal.availability.availableQuantity} disponibles y no se permiten sobreventas.` },
+               { status: 400 }
+            );
+         }
+      }
+
       if (existing) {
-        existing.qty = Math.max(0, (existing.qty ?? 0) + qtyDelta);
+        existing.qty = newQty;
         if (existing.qty === 0) {
           order.items = items.filter(
             (i) => i.mealId !== mealId,
@@ -267,6 +279,23 @@ export async function PATCH(
           { error: "Item no encontrado" },
           { status: 404 },
         );
+      }
+
+      if (qty > 0) {
+         // Validar inventario si aplica
+         const meal = await Meal.findOne({
+           _id: mealId,
+           restaurantId: session.user.restaurantId,
+         }).select("availability");
+         
+         if (meal && meal.availability && typeof meal.availability.availableQuantity === "number") {
+            if (qty > meal.availability.availableQuantity && !meal.availability.continueSellingWhenOutOfStock) {
+               return NextResponse.json(
+                  { error: `No se puede añadir al carrito porque el stock está agotado. Quedan ${meal.availability.availableQuantity} disponibles y no se permiten sobreventas.` },
+                  { status: 400 }
+               );
+            }
+         }
       }
 
       if (qty === 0) {
@@ -524,6 +553,30 @@ export async function PATCH(
           order.cashSessionId = currentCashSession._id;
         }
 
+        // Descontar inventario y validar stock final
+        if (order.items && Array.isArray(order.items)) {
+          for (const item of order.items) {
+             const anyItem = item as any;
+             if (!anyItem.mealId) continue;
+             const mealQuery = mongoSession
+               ? Meal.findOne({ _id: anyItem.mealId, restaurantId: session.user.restaurantId }).session(mongoSession)
+               : Meal.findOne({ _id: anyItem.mealId, restaurantId: session.user.restaurantId });
+               
+             const meal = await mealQuery;
+             
+             if (meal && meal.availability && typeof meal.availability.availableQuantity === "number") {
+                // Verificar si hay stock suficiente si no se permiten sobreventas
+                if (!meal.availability.continueSellingWhenOutOfStock && meal.availability.availableQuantity < anyItem.qty) {
+                  throw new Error(`Stock insuficiente para "${meal.name}". Quedan ${meal.availability.availableQuantity} y la orden pide ${anyItem.qty}. Por favor, ajusta la cantidad o retira el producto.`);
+                }
+                
+                meal.availability.availableQuantity -= anyItem.qty;
+                // El hook pre-save de Meal se encargará de ponerlo en no disponible si llega a <= 0
+                await meal.save(sessionOpts);
+             }
+          }
+        }
+
         await order.save(sessionOpts);
       });
 
@@ -559,7 +612,10 @@ export async function PATCH(
     }
 
     return NextResponse.json({ error: "Acción no soportada" }, { status: 400 });
-  } catch (error) {
+  } catch (error: any) {
+    if (error && error.message && error.message.startsWith("Stock insuficiente")) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
     return handleAuthError(error);
   }
 }

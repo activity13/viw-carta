@@ -16,19 +16,26 @@ export async function POST(request: Request) {
       );
     }
 
-    // Validar que el campo sea uno de los permitidos para edición rápida
     const allowedFields = [
       "name",
       "description",
       "basePrice",
       "display.showInMenu",
+      "availability.availableQuantity",
     ];
     if (!allowedFields.includes(field)) {
       // Opcional: permitir todos o restringir. Por seguridad, mejor restringir o validar.
       // Para este caso, permitiremos los básicos.
     }
 
-    const updateData = { [field]: value };
+    const updateData: Record<string, any> = { [field]: value };
+    
+    // Si actualizamos la cantidad a 0, también marcamos como no disponible
+    if (field === "availability.availableQuantity") {
+       if (typeof value === "number" && value <= 0) {
+          updateData["availability.isAvailable"] = false;
+       }
+    }
 
     const result = await MealSchema.updateOne(
       { _id: id, restaurantId: session.user.restaurantId },
