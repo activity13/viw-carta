@@ -28,7 +28,7 @@ export async function POST(request: Request) {
       // Para este caso, permitiremos los básicos.
     }
 
-    const updateData: Record<string, any> = { [field]: value };
+    const updateData: Record<string, unknown> = { [field]: value };
     
     // Si actualizamos la cantidad a 0, también marcamos como no disponible
     if (field === "availability.availableQuantity") {

@@ -5,7 +5,9 @@ import { connectToDatabase } from "@/lib/mongodb";
 import CashSession from "@/models/cashSession";
 import Order from "@/models/order";
 import Meal from "@/models/meals";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import mongoose from "mongoose";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Categories from "@/models/categories";
 
 

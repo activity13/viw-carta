@@ -556,7 +556,7 @@ export async function PATCH(
         // Descontar inventario y validar stock final
         if (order.items && Array.isArray(order.items)) {
           for (const item of order.items) {
-             const anyItem = item as any;
+             const anyItem = item as { mealId?: string; qty: number };
              if (!anyItem.mealId) continue;
              const mealQuery = mongoSession
                ? Meal.findOne({ _id: anyItem.mealId, restaurantId: session.user.restaurantId }).session(mongoSession)

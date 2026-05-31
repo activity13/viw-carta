@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import Meal from "@/models/meals";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Category from "@/models/categories";
 import { requireAuth, handleAuthError } from "@/lib/auth-helpers";
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const session = await requireAuth("staff");
     await connectToDatabase();
