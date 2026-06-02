@@ -10,6 +10,7 @@ import mongoose from "mongoose";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Categories from "@/models/categories";
 
+export const dynamic = "force-dynamic";
 
 interface LeanCategory {
   _id: string;

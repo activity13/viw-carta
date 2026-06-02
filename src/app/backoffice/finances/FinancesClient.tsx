@@ -283,7 +283,7 @@ export default function FinancesClient() {
   const fetchLiveStats = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/finances/cash-session/current-stats");
+      const res = await fetch(`/api/finances/cash-session/current-stats?_t=${Date.now()}`, { cache: "no-store" });
       const data = await res.json();
       if (res.ok) {
         setSession(data.activeSession);
