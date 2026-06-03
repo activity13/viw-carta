@@ -150,17 +150,15 @@ export function SmartFAB() {
                   transition={{ delay: index * 0.05 }}
                   className="flex items-center gap-3 group"
                 >
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                  <button
                     onClick={() => {
                       action.onClick();
                       setIsOpen(false);
                     }}
-                    className="bg-background/90 backdrop-blur px-4 py-2 rounded-md text-sm font-medium shadow-md border hidden md:block cursor-pointer hover:bg-accent hover:text-accent-foreground transition-colors"
+                    className="bg-background/90 backdrop-blur px-4 py-2 rounded-md text-sm font-medium shadow-md border cursor-pointer hover:bg-accent hover:text-accent-foreground transition-colors"
                   >
                     {action.label}
-                  </motion.button>
+                  </button>
 
                   <TooltipProvider>
                     <Tooltip>
@@ -183,7 +181,7 @@ export function SmartFAB() {
                           ) : (
                             <action.icon className="h-5 w-5" />
                           )}
-                          <TooltipContent side="left" className="md:hidden">
+                          <TooltipContent side="left" className="hidden md:block">
                             <p>{action.label}</p>
                           </TooltipContent>
                         </Button>

@@ -40,6 +40,7 @@ interface CartaProps {
     image?: string;
     menuSections?: Array<{
       name: string;
+      name_en?: string;
       slug: string;
       order: number;
       isActive: boolean;
@@ -588,7 +589,7 @@ function SirenaContent({ data, restaurant, activeMenu }: CartaProps) {
                   : "bg-transparent text-foreground/60 border border-foreground/20 hover:border-foreground/40 hover:text-foreground"
                   }`}
               >
-                {sec.name}
+                {t(sec.name, sec.name_en)}
               </button>
             ))}
         </div>

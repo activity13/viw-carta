@@ -14,7 +14,7 @@ interface SirenaRestaurantInfo {
   location?: string;
   description?: string;
   image?: string;
-  menuSections?: Array<{ name: string; slug: string; order: number; isActive: boolean }>;
+  menuSections?: Array<{ name: string; name_en?: string; slug: string; order: number; isActive: boolean }>;
 }
 
 interface SirenaLandingProps {
@@ -26,6 +26,9 @@ export default function SirenaLanding({
 }: SirenaLandingProps) {
   const router = useRouter();
   const { language, toggleLanguage } = useLanguage();
+
+  const t = (es?: string, en?: string) =>
+    language === "en" && en ? en : es || "";
 
   const handleCall = () => {
     if (restaurant.phone) {
@@ -92,7 +95,7 @@ export default function SirenaLanding({
               className="group w-full flex items-center justify-center px-6 py-5 rounded-2xl border border-foreground/15 bg-card/50 backdrop-blur-sm hover:bg-foreground hover:text-background transition-all duration-500 active:scale-[0.98] shadow-sm"
             >
               <span className="text-xl font-serif capitalize tracking-tight group-hover:text-background transition-colors duration-500">
-                {sec.name}
+                {t(sec.name, sec.name_en)}
               </span>
             </button>
           ))}

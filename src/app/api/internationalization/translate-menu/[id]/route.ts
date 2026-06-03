@@ -3,6 +3,7 @@ import translate from "google-translate-api-x";
 import { connectToDatabase } from "@/lib/mongodb";
 import CategorySchema from "@/models/categories";
 import MealSchema from "@/models/meals";
+import VariantTemplate from "@/models/VariantTemplate";
 import { requireAuth, handleAuthError } from "@/lib/auth-helpers";
 
 // Config
@@ -23,6 +24,14 @@ type CatOut = {
     name: string;
     description?: string;
     ingredients: string[];
+  }[];
+};
+
+type VariantOut = {
+  id: string;
+  title: string;
+  options: {
+    name: string;
   }[];
 };
 
@@ -94,6 +103,11 @@ export async function POST(req: Request) {
         restaurantId: id,
       }).lean();
 
+      // 2.5) Variantes
+      const variants = await VariantTemplate.find({
+        restaurantId: id,
+      }).lean();
+
       // 3) Estructurar
       const categoriesWithMeals: CatOut[] = categories.map((cat) => {
         const catMeals = meals.filter(
@@ -129,6 +143,15 @@ export async function POST(req: Request) {
         }
       }
 
+      for (const variant of variants) {
+        if (variant.title) bucket.push(variant.title);
+        if (Array.isArray(variant.options)) {
+          for (const opt of variant.options) {
+            if (opt.name) bucket.push(opt.name);
+          }
+        }
+      }
+
       // Si no hay nada que traducir
       if (bucket.length === 0) {
         return NextResponse.json({
@@ -158,6 +181,15 @@ export async function POST(req: Request) {
             : undefined,
           ingredients: meal.ingredients.map((ing) => map.get(ing) ?? ing),
         })),
+      }));
+
+      const translatedVariants: VariantOut[] = variants.map((variant) => ({
+        id: String(variant._id),
+        title: map.get(variant.title) ?? variant.title,
+        options: Array.isArray(variant.options) ? variant.options.map((opt: any) => ({
+          ...opt,
+          name: map.get(opt.name) ?? opt.name,
+        })) : [],
       }));
 
       // 7) Si el flag save está activado, actualizar la base de datos
@@ -255,7 +287,35 @@ export async function POST(req: Request) {
           }
         }
 
-        await Promise.all([...categoryOps, ...mealOps]);
+        // Variantes: actualizar title_en y options_en
+        const variantOps: Promise<unknown>[] = [];
+        for (const variant of translatedVariants) {
+          const original = variants.find(v => String(v._id) === variant.id);
+          if (!original) continue;
+
+          // Merge options preserving price, default
+          const updatedOptions = original.options.map((opt: any, idx: number) => ({
+            ...opt,
+            name_en: variant.options[idx]?.name || opt.name_en,
+          }));
+
+          variantOps.push(
+            VariantTemplate.updateOne(
+              {
+                _id: variant.id,
+                restaurantId: id,
+              },
+              { 
+                $set: { 
+                  title_en: variant.title,
+                  options: updatedOptions
+                } 
+              }
+            )
+          );
+        }
+
+        await Promise.all([...categoryOps, ...mealOps, ...variantOps]);
       }
 
       return NextResponse.json({
@@ -264,6 +324,7 @@ export async function POST(req: Request) {
         translatedCount: map.size,
         saved: save,
         categories: translated,
+        variants: translatedVariants,
       });
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Translation failed";

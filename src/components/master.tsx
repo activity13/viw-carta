@@ -690,12 +690,12 @@ export default function Master() {
           if (filterStatus === "all") return true;
           if (filterStatus === "disabled") return meal.status === "inactive";
           if (meal.status === "inactive") return false;
-          
+
           if (filterStatus === "active") return true;
           if (filterStatus === "hidden") return !meal.display?.showInMenu;
           if (filterStatus === "unavailable") return meal.availability?.isAvailable === false;
           if (filterStatus === "featured") return meal.display?.isFeatured === true;
-          
+
           return true;
         })();
 
@@ -735,13 +735,6 @@ export default function Master() {
               <span className="text-xs text-muted-foreground">
                 {selectedCategories.size} de {categories.length} visibles
               </span>
-              <Link
-                href="/backoffice/categories"
-                className="flex items-center gap-1 text-xs text-primary hover:underline"
-              >
-                <Settings2 className="w-3.5 h-3.5" />
-                Editar
-              </Link>
             </div>
           </div>
           <div className="flex flex-wrap gap-2 p-4">
@@ -752,8 +745,8 @@ export default function Master() {
                   key={cat._id}
                   variant={isSelected ? "default" : "outline"}
                   className={`cursor-pointer select-none transition-all hover:scale-105 px-3 py-3 text-sm ${isSelected
-                      ? "bg-primary text-black shadow-lg shadow-emerald-500/20 hover:bg-primary/90"
-                      : "bg-muted hover:bg-inactive-background text-muted-foreground"
+                    ? "bg-primary text-black shadow-lg shadow-emerald-500/20 hover:bg-primary/90"
+                    : "bg-muted hover:bg-inactive-background text-muted-foreground"
                     }`}
                   onClick={() => toggleCategory(cat._id)}
                   onDoubleClick={toggleAllCategories}
@@ -832,7 +825,7 @@ export default function Master() {
             <div className="rounded-2xl border border-gray-800 bg-black">
               {/* Desktop View (Table-like Grid) */}
               <div className="hidden md:block">
-                <div className="grid grid-cols-[5%_55%_20%_20%] bg-inactive-background p-3 font-medium text-sm text-muted-foreground border-b">
+                <div className="grid grid-cols-[5%_55%_20%_20%] bg-inactive-background p-3 rounded-2xl font-medium text-sm text-muted-foreground border-b">
                   <div className="text-center">#</div>
                   <div>Nombre</div>
                   <div

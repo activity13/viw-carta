@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import Axios from "axios";
 import { Reorder, useDragControls } from "motion/react";
 import {
@@ -25,8 +25,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { useFab } from "@/providers/ActionProvider";
-import { CategoryFormDialog } from "@/components/category-form-dialog";
-import { MenuSectionsDialog } from "@/components/menu-sections-dialog";
+
 import {
   Select,
   SelectContent,
@@ -183,9 +182,9 @@ const CategoryItem = ({
             </div>
           ) : (
             <>
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="font-semibold text-lg flex items-center gap-2">
+              <div className="flex flex-col md:flex-row justify-between items-start gap-3 w-full">
+                <div className="flex-1 min-w-0 w-full">
+                  <h3 className="font-semibold text-lg flex flex-wrap items-center gap-2 break-words">
                     {cat.name}
                     {!cat.isActive && (
                       <Badge variant="secondary" className="text-[10px] h-5">
@@ -193,13 +192,13 @@ const CategoryItem = ({
                       </Badge>
                     )}
                   </h3>
-                  <div className="flex gap-2 mt-1">
+                  <div className="flex flex-wrap gap-2 mt-1">
                     <Badge variant="secondary" className="text-xs font-mono">
                       {cat.code}
                     </Badge>
                     <Badge
                       variant="outline"
-                      className="text-xs border-primary/30 text-primary/80"
+                      className="text-xs border-primary/30 text-primary/80 truncate max-w-[120px]"
                     >
                       {menuSections.find(
                         (s) => s.slug === (cat.menuSection || "carta"),
@@ -207,11 +206,11 @@ const CategoryItem = ({
                     </Badge>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-2 mr-2">
+                <div className="flex items-center gap-1 sm:gap-2 self-end md:self-center bg-muted/20 md:bg-transparent p-1.5 md:p-0 rounded-lg">
+                  <div className="flex items-center gap-2 mr-1 sm:mr-2">
                     <Label
                       htmlFor={`switch-${cat._id}`}
-                      className="text-xs text-muted-foreground cursor-pointer"
+                      className="text-xs text-muted-foreground cursor-pointer hidden sm:block"
                     >
                       {cat.isActive ? "Visible" : "Oculto"}
                     </Label>
@@ -258,11 +257,11 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
   const [menuSections, setMenuSections] = useState<
     { name: string; slug: string }[]
   >([]);
-  const [isSectionsDialogOpen, setIsSectionsDialogOpen] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isSectionAssignDialogOpen, setIsSectionAssignDialogOpen] = useState(false);
   const [form, setForm] = useState({
     name: "",
     code: "",
@@ -433,30 +432,34 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
     }
   };
 
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   // Handle Reorder
   const handleReorder = (newOrder: Category[]) => {
     setCategories(newOrder);
-  };
-
-  // Save Order to Backend
-  const saveOrder = useCallback(async () => {
-    setIsSavingOrder(true);
-    try {
-      const payload = {
-        categories: categories.map((c) => ({ id: c._id })),
-        restaurantId,
-      };
-
-      await Axios.put("/api/categories/reorder", payload);
-
-      toast.success("Orden actualizado");
-    } catch (error) {
-      console.error(error);
-      toast.error("Error al guardar el orden");
-    } finally {
-      setIsSavingOrder(false);
+    
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
     }
-  }, [categories, restaurantId]);
+    
+    toast.loading("Guardando nuevo orden...", { id: "reorder-toast" });
+    
+    saveTimeoutRef.current = setTimeout(async () => {
+      setIsSavingOrder(true);
+      try {
+        await Axios.put("/api/categories/reorder", {
+          categories: newOrder.map((c) => ({ id: c._id })),
+          restaurantId,
+        });
+        toast.success("Orden actualizado correctamente", { id: "reorder-toast" });
+      } catch (error) {
+        console.error(error);
+        toast.error("Error al guardar el orden", { id: "reorder-toast" });
+      } finally {
+        setIsSavingOrder(false);
+      }
+    }, 2000);
+  };
 
   const generateSlug = (text: string): string => {
     return text
@@ -486,24 +489,11 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
         icon: Plus,
         onClick: () => setIsDialogOpen(true),
       },
-      {
-        label: "Guardar Orden",
-        icon: Save,
-        onClick: saveOrder,
-        disabled: isSavingOrder || categories.length === 0,
-        loading: isSavingOrder,
-      },
-      {
-        label: "Gestionar Secciones",
-        icon: LayoutGrid,
-        onClick: () => setIsSectionsDialogOpen(true),
-      },
     ]);
 
     // Cleanup on unmount
     return () => setActions([]);
-  }, [categories, isSavingOrder, setActions, saveOrder, isAdmin]);
-
+  }, [setActions, isAdmin]);
   if (!isAdmin) {
     return (
       <AccessDeniedCard message="No tienes los permisos necesarios para gestionar las categorías. Esta sección es exclusiva para administradores." />
@@ -519,23 +509,9 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
             Gestión de Categorías
           </h1>
           <p className="text-muted-foreground mt-1">
-            Crea, edita y organiza las categorías de tu menú.
+            Crea, edita y organiza las categorías de tu menú. Arrastra para reordenar (auto-guardado).
           </p>
         </div>
-        {/* Desktop Save Button - Hidden on Mobile since it's in FAB */}
-        <Button
-          onClick={saveOrder}
-          disabled={isSavingOrder || categories.length === 0}
-          variant="outline"
-          className="hidden md:flex"
-        >
-          {isSavingOrder ? (
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-          ) : (
-            <Save className="w-4 h-4 mr-2" />
-          )}
-          Guardar Orden
-        </Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -689,25 +665,14 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
                   menuSections={menuSections}
                 />
               ))}
+  // Register FAB Actions
             </Reorder.Group>
           )}
         </div>
       </div>
-      {/* Mobile Dialog for Creation */}
-      <CategoryFormDialog
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        onSubmit={createCategory}
-        loading={isCreating}
-        menuSections={menuSections}
-      />
 
-      <MenuSectionsDialog
-        open={isSectionsDialogOpen}
-        onOpenChange={setIsSectionsDialogOpen}
-        restaurantId={restaurantId}
-        onSectionsUpdated={setMenuSections}
-      />
+      {/* Mobile Spacer */}
+      <div className="h-16 md:hidden"></div>
     </div>
   );
 }

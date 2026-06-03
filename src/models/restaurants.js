@@ -43,6 +43,7 @@ const SubscriptionSchema = new Schema(
 const MenuSectionSchema = new Schema(
   {
     name: { type: String, required: true, trim: true },
+    name_en: { type: String, trim: true, default: "" },
     slug: { type: String, required: true, trim: true },
     order: { type: Number, default: 0 },
     isActive: { type: Boolean, default: true },

@@ -315,20 +315,20 @@ if (!isAdmin) {
   }
 
   return (
-    <div className="p-8 max-w-5xl mx-auto space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="container mx-auto py-10 px-4 max-w-5xl space-y-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b pb-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-emerald-950">
+          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
             Biblioteca de Variantes
           </h1>
-          <p className="text-gray-500">
+          <p className="text-muted-foreground mt-1">
             Crea grupos de opciones reutilizables para tus platos (ej. Tamaños
             de Pizza, Términos de cocción).
           </p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-emerald-600 hover:bg-emerald-700">
+            <Button className="bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4" /> Crear Plantilla
             </Button>
           </DialogTrigger>

@@ -3,6 +3,7 @@ import { connectToDatabase } from "@/lib/mongodb";
 import CategorySchema from "@/models/categories";
 import MealSchema from "@/models/meals";
 import SystemMessage from "@/models/SystemMessage";
+import VariantTemplate from "@/models/VariantTemplate";
 import { requireAuth, handleAuthError } from "@/lib/auth-helpers";
 
 export async function POST(
@@ -30,10 +31,11 @@ export async function POST(
     const hasMeals = Array.isArray(body.meals);
     const hasCategories = Array.isArray(body.categories);
     const hasMessages = Array.isArray(body.messages);
+    const hasVariants = Array.isArray(body.variants);
 
-    if (!hasMeals && !hasCategories && !hasMessages) {
+    if (!hasMeals && !hasCategories && !hasMessages && !hasVariants) {
       return NextResponse.json(
-        { error: "No se enviaron categorías, platos ni mensajes válidos." },
+        { error: "No se enviaron categorías, platos, mensajes o variantes válidas." },
         { status: 400 }
       );
     }
@@ -42,10 +44,12 @@ export async function POST(
       updatedMeals: unknown[];
       updatedCategories: unknown[];
       updatedMessages: unknown[];
+      updatedVariants: unknown[];
     } = {
       updatedMeals: [],
       updatedCategories: [],
       updatedMessages: [],
+      updatedVariants: [],
     };
 
     // 🔹 Actualizar categorías si vienen
@@ -150,6 +154,30 @@ export async function POST(
         );
 
         if (updated) results.updatedMessages.push(updated);
+      }
+    }
+
+    // 🔹 Actualizar variantes si vienen
+    if (hasVariants) {
+      for (const variant of body.variants) {
+        if (!variant.id) continue;
+
+        const updateFields: Record<string, unknown> = {};
+
+        if (variant.title_en !== undefined) {
+          updateFields.title_en = variant.title_en;
+        }
+        if (variant.options !== undefined) {
+          updateFields.options = variant.options;
+        }
+
+        const updated = await VariantTemplate.findOneAndUpdate(
+          { _id: variant.id, restaurantId },
+          { $set: updateFields },
+          { new: true }
+        );
+
+        if (updated) results.updatedVariants.push(updated);
       }
     }
 

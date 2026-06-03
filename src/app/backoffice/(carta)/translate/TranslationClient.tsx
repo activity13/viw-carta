@@ -30,6 +30,13 @@ import { Badge } from "@/components/ui/badge";
 // -------------------------------
 // Tipos
 // -------------------------------
+interface Section {
+  id: string;
+  name: string;
+  name_en?: string;
+  slug: string;
+}
+
 interface Category {
   id: string;
   name: string;
@@ -59,11 +66,26 @@ interface SystemMessage {
   isActive: boolean;
 }
 
+interface VariantOption {
+  name: string;
+  name_en?: string;
+  price: number;
+}
+
+interface Variant {
+  id: string;
+  title: string;
+  title_en?: string;
+  options: VariantOption[];
+}
+
 interface MenuResponse {
   restaurant: { id: string; name: string };
+  sections: Section[];
   categories: Category[];
   meals: Meal[];
   messages: SystemMessage[];
+  variants: Variant[];
 }
 
 // -------------------------------
@@ -76,15 +98,18 @@ export default function TranslationClient() {
   const restaurantId = session?.user?.restaurantId;
 
   const [menuData, setMenuData] = useState<MenuResponse | null>(null);
+  const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
   const [editingMealId, setEditingMealId] = useState<string | null>(null);
-  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(
-    null
-  );
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
+  const [editingVariantId, setEditingVariantId] = useState<string | null>(null);
+
+  const [savingSectionId, setSavingSectionId] = useState<string | null>(null);
   const [savingCategoryId, setSavingCategoryId] = useState<string | null>(null);
   const [savingMealId, setSavingMealId] = useState<string | null>(null);
   const [savingMessageId, setSavingMessageId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<string>("categories");
+  const [savingVariantId, setSavingVariantId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<string>("sections");
 
   // -------------------------------
   // Query: Obtener menú
@@ -138,6 +163,45 @@ export default function TranslationClient() {
       console.error(err);
     },
   });
+
+  // -------------------------------
+  // Guardar una sección
+  // -------------------------------
+  const saveSingleSection = async (section: Section) => {
+    try {
+      setSavingSectionId(section.id);
+      
+      const updatedSections = menuData!.sections.map((s) => 
+        s.id === section.id ? { ...s, name_en: section.name_en } : s
+      );
+
+      const formData = new FormData();
+      formData.append("menuSections", JSON.stringify(updatedSections));
+
+      await axios.put(`/api/settings/update/${restaurantId}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      
+      toast.success("Sección actualizada");
+      setEditingSectionId(null);
+      await refreshMenu();
+    } catch (err) {
+      toast.error("Error al guardar la sección");
+      console.error(err);
+    } finally {
+      setSavingSectionId(null);
+    }
+  };
+
+  const handleSectionFieldChange = (id: string, field: keyof Section, value: any) => {
+    setMenuData((prev) => {
+      if (!prev) return prev;
+      const updated = prev.sections.map((s) =>
+        s.id === id ? { ...s, [field]: value } : s
+      );
+      return { ...prev, sections: updated };
+    });
+  };
 
   // -------------------------------
   // Guardar una categoría
@@ -230,6 +294,39 @@ export default function TranslationClient() {
   };
 
   // -------------------------------
+  // Guardar una variante
+  // -------------------------------
+  const saveSingleVariant = async (variant: Variant) => {
+    try {
+      setSavingVariantId(variant.id);
+      const payload = {
+        variants: [
+          {
+            id: variant.id,
+            title_en: variant.title_en ?? "",
+            options: variant.options.map(opt => ({
+              ...opt,
+              name_en: opt.name_en ?? "",
+            })),
+          },
+        ],
+      };
+      await axios.post(
+        `/api/internationalization/update-menu/${restaurantId}`,
+        payload
+      );
+      toast.success("Variante actualizada");
+      setEditingVariantId(null);
+      await refreshMenu();
+    } catch (err) {
+      toast.error("Error al guardar la variante");
+      console.error(err);
+    } finally {
+      setSavingVariantId(null);
+    }
+  };
+
+  // -------------------------------
   // Handlers para categorías
   // -------------------------------
   const handleCategoryFieldChange = (
@@ -295,11 +392,44 @@ export default function TranslationClient() {
     });
   };
 
+  const handleVariantFieldChange = (
+    variantId: string,
+    field: "title_en",
+    value: string
+  ) => {
+    setMenuData((prev) => {
+      if (!prev) return prev;
+      const variants = prev.variants.map((v) =>
+        v.id === variantId ? { ...v, [field]: value } : v
+      );
+      return { ...prev, variants };
+    });
+  };
+
+  const handleVariantOptionFieldChange = (
+    variantId: string,
+    optionIndex: number,
+    value: string
+  ) => {
+    setMenuData((prev) => {
+      if (!prev) return prev;
+      const variants = prev.variants.map((v) => {
+        if (v.id !== variantId) return v;
+        const newOptions = [...v.options];
+        newOptions[optionIndex] = { ...newOptions[optionIndex], name_en: value };
+        return { ...v, options: newOptions };
+      });
+      return { ...prev, variants };
+    });
+  };
+
   // Verificar si hay alguna edición activa
   const isAnyEditActive =
+    editingSectionId !== null ||
     editingMealId !== null ||
     editingCategoryId !== null ||
-    editingMessageId !== null;
+    editingMessageId !== null ||
+    editingVariantId !== null;
 
   // -------------------------------
   // Render
@@ -343,16 +473,16 @@ export default function TranslationClient() {
             Gestiona las traducciones de tu carta para llegar a más clientes.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="px-3 py-1">
+        <div className="flex flex-wrap items-center gap-2 mt-4 md:mt-0">
+          <Badge variant="outline" className="px-3 py-1 shrink-0">
             <Languages className="w-3.5 h-3.5 mr-2" />
             {menuData.categories.length} Categorías
           </Badge>
-          <Badge variant="outline" className="px-3 py-1">
+          <Badge variant="outline" className="px-3 py-1 shrink-0">
             <Utensils className="w-3.5 h-3.5 mr-2" />
             {menuData.meals.length} Platos
           </Badge>
-          <Badge variant="outline" className="px-3 py-1">
+          <Badge variant="outline" className="px-3 py-1 shrink-0">
             <MessageSquare className="w-3.5 h-3.5 mr-2" />
             {menuData.messages?.length || 0} Mensajes
           </Badge>
@@ -360,20 +490,150 @@ export default function TranslationClient() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full max-w-lg grid-cols-3 mb-8">
-          <TabsTrigger value="categories" className="flex items-center gap-2">
-            <LayoutGrid className="w-4 h-4" />
-            Categorías
+        <TabsList className="flex flex-wrap w-full max-w-lg mb-8 h-auto">
+          <TabsTrigger value="sections" className="flex-1 flex items-center justify-center gap-2 py-2">
+            <LayoutGrid className="w-4 h-4 shrink-0" />
+            <span className="hidden sm:inline">Secciones</span>
           </TabsTrigger>
-          <TabsTrigger value="meals" className="flex items-center gap-2">
-            <Utensils className="w-4 h-4" />
-            Platos
+          <TabsTrigger value="categories" className="flex-1 flex items-center justify-center gap-2 py-2">
+            <LayoutGrid className="w-4 h-4 shrink-0" />
+            <span className="hidden sm:inline">Categorías</span>
           </TabsTrigger>
-          <TabsTrigger value="messages" className="flex items-center gap-2">
-            <MessageSquare className="w-4 h-4" />
-            Mensajes
+          <TabsTrigger value="meals" className="flex-1 flex items-center justify-center gap-2 py-2">
+            <Utensils className="w-4 h-4 shrink-0" />
+            <span className="hidden sm:inline">Platos</span>
+          </TabsTrigger>
+          <TabsTrigger value="messages" className="flex-1 flex items-center justify-center gap-2 py-2">
+            <MessageSquare className="w-4 h-4 shrink-0" />
+            <span className="hidden sm:inline">Mensajes</span>
+          </TabsTrigger>
+          <TabsTrigger value="variants" className="flex-1 flex items-center justify-center gap-2 py-2">
+            <Sparkles className="w-4 h-4 shrink-0" />
+            <span className="hidden sm:inline">Variantes</span>
           </TabsTrigger>
         </TabsList>
+
+        {/* PESTAÑA DE SECCIONES */}
+        <TabsContent value="sections" className="space-y-6">
+          {menuData.sections.length === 0 ? (
+            <div className="text-center py-10 border-2 border-dashed rounded-xl">
+              <p className="text-muted-foreground">No hay secciones registradas.</p>
+            </div>
+          ) : (
+            menuData.sections.map((sec) => {
+              const isEditingThis = editingSectionId === sec.id;
+              return (
+                <Card
+                  key={sec.id}
+                  className={`transition-all duration-200 ${
+                    isEditingThis ? "ring-2 ring-primary shadow-lg" : "hover:shadow-md"
+                  }`}
+                >
+                  <CardHeader className="pb-4 border-b bg-muted/30">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                      <CardTitle className="text-lg font-semibold flex items-center gap-2 break-words min-w-0">
+                        <LayoutGrid className="w-4 h-4 text-muted-foreground shrink-0" />
+                        <span className="truncate">{sec.name}</span>
+                      </CardTitle>
+                      {!isEditingThis ? (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setEditingSectionId(sec.id)}
+                          disabled={isAnyEditActive}
+                          className="self-end sm:self-auto"
+                        >
+                          <Edit2 className="w-4 h-4 mr-2" />
+                          Editar
+                        </Button>
+                      ) : (
+                        <div className="flex gap-2 self-end sm:self-auto">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={async () => {
+                              setEditingSectionId(null);
+                              await refreshMenu();
+                            }}
+                            disabled={savingSectionId === sec.id}
+                          >
+                            <X className="w-4 h-4 mr-2" />
+                            Cancelar
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => saveSingleSection(sec)}
+                            disabled={savingSectionId === sec.id}
+                          >
+                            {savingSectionId === sec.id ? (
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            ) : (
+                              <Save className="w-4 h-4 mr-2" />
+                            )}
+                            {savingSectionId === sec.id ? "Guardando..." : "Guardar"}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      {/* Español */}
+                      <div className="space-y-4 p-4 rounded-xl bg-muted/20 border border-dashed">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge variant="outline" className="text-xs bg-background">
+                            ES
+                          </Badge>
+                          <span className="text-sm font-medium text-muted-foreground">Original</span>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                            Nombre
+                          </label>
+                          <div className="text-sm bg-background p-2 px-3 rounded-md border min-h-[40px] flex items-center shadow-sm">
+                            {sec.name}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Inglés */}
+                      <div
+                        className={`space-y-4 p-4 rounded-xl border transition-all duration-300 ${
+                          isEditingThis
+                            ? "bg-background border-primary/40 shadow-sm ring-4 ring-primary/10"
+                            : "bg-muted/10 border-transparent"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge className="text-xs bg-blue-100 text-blue-700 hover:bg-blue-200 border-blue-200">
+                            EN
+                          </Badge>
+                          <span className="text-sm font-medium text-muted-foreground">Traducción</span>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                            Nombre (EN)
+                          </label>
+                          <Input
+                            value={sec.name_en || ""}
+                            onChange={(e) => handleSectionFieldChange(sec.id, "name_en", e.target.value)}
+                            placeholder="Section Name"
+                            disabled={!isEditingThis}
+                            className={
+                              !isEditingThis
+                                ? "border-transparent bg-transparent px-0 h-auto font-medium shadow-none opacity-90"
+                                : "bg-muted/30 border-input focus-visible:ring-primary shadow-sm"
+                            }
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })
+          )}
+        </TabsContent>
 
         {/* PESTAÑA DE CATEGORÍAS */}
         <TabsContent value="categories" className="space-y-6">
@@ -389,10 +649,10 @@ export default function TranslationClient() {
                 }`}
               >
                 <CardHeader className="pb-4 border-b bg-muted/30">
-                  <div className="flex justify-between items-center">
-                    <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                      <LayoutGrid className="w-4 h-4 text-muted-foreground" />
-                      {cat.name}
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                    <CardTitle className="text-lg font-semibold flex items-center gap-2 break-words min-w-0">
+                      <LayoutGrid className="w-4 h-4 text-muted-foreground shrink-0" />
+                      <span className="truncate">{cat.name}</span>
                     </CardTitle>
                     {!isEditingThis ? (
                       <Button
@@ -400,12 +660,13 @@ export default function TranslationClient() {
                         variant="ghost"
                         onClick={() => setEditingCategoryId(cat.id)}
                         disabled={isAnyEditActive}
+                        className="self-end sm:self-auto"
                       >
                         <Edit2 className="w-4 h-4 mr-2" />
                         Editar
                       </Button>
                     ) : (
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 self-end sm:self-auto">
                         <Button
                           size="sm"
                           variant="ghost"
@@ -470,9 +731,9 @@ export default function TranslationClient() {
 
                     {/* Inglés */}
                     <div
-                      className={`space-y-4 p-4 rounded-lg border transition-colors ${
+                      className={`space-y-4 p-4 rounded-xl border transition-all duration-300 ${
                         isEditingThis
-                          ? "bg-background border-primary/20"
+                          ? "bg-background border-primary/40 shadow-sm ring-4 ring-primary/10"
                           : "bg-muted/10 border-transparent"
                       }`}
                     >
@@ -485,7 +746,7 @@ export default function TranslationClient() {
                         </span>
                       </div>
                       <div className="space-y-2">
-                        <label className="text-xs font-medium text-muted-foreground uppercase">
+                        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                           Nombre (EN)
                         </label>
                         <Input
@@ -501,13 +762,13 @@ export default function TranslationClient() {
                           disabled={!isEditingThis}
                           className={
                             !isEditingThis
-                              ? "border-transparent bg-transparent px-0 h-auto font-medium shadow-none"
-                              : ""
+                              ? "border-transparent bg-transparent px-0 h-auto font-medium shadow-none opacity-90"
+                              : "bg-muted/30 border-input focus-visible:ring-primary shadow-sm"
                           }
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-xs font-medium text-muted-foreground uppercase">
+                        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                           Descripción (EN)
                         </label>
                         <Textarea
@@ -524,8 +785,8 @@ export default function TranslationClient() {
                           rows={3}
                           className={`resize-none ${
                             !isEditingThis
-                              ? "border-transparent bg-transparent px-0 min-h-0 shadow-none text-muted-foreground"
-                              : ""
+                              ? "border-transparent bg-transparent px-0 min-h-0 shadow-none text-muted-foreground opacity-90"
+                              : "bg-muted/30 border-input focus-visible:ring-primary shadow-sm min-h-[100px]"
                           }`}
                         />
                       </div>
@@ -581,12 +842,12 @@ export default function TranslationClient() {
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             {/* Español */}
                             <div className="space-y-4">
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <h3 className="font-semibold text-lg">
+                              <div className="flex flex-col sm:flex-row sm:justify-between items-start gap-3 w-full">
+                                <div className="flex-1 min-w-0 w-full">
+                                  <h3 className="font-semibold text-lg break-words">
                                     {meal.name}
                                   </h3>
-                                  <p className="text-sm text-muted-foreground mt-1">
+                                  <p className="text-sm text-muted-foreground mt-1 break-words">
                                     {meal.description || "Sin descripción"}
                                   </p>
                                 </div>
@@ -596,7 +857,7 @@ export default function TranslationClient() {
                                     variant="ghost"
                                     onClick={() => setEditingMealId(meal.id)}
                                     disabled={isAnyEditActive}
-                                    className="shrink-0"
+                                    className="shrink-0 self-end sm:self-auto"
                                   >
                                     <Edit2 className="w-4 h-4" />
                                   </Button>
@@ -621,15 +882,23 @@ export default function TranslationClient() {
 
                             {/* Inglés */}
                             <div
-                              className={`space-y-4 ${
+                              className={`space-y-4 p-4 rounded-xl border transition-all duration-300 ${
                                 isEditingThis
-                                  ? "pl-0 md:pl-8 md:border-l"
-                                  : "pl-0 md:pl-8 md:border-l border-dashed"
+                                  ? "bg-background border-primary/40 shadow-sm ring-4 ring-primary/10"
+                                  : "bg-muted/10 border-transparent"
                               }`}
                             >
-                              <div className="space-y-3">
-                                <div className="space-y-1">
-                                  <label className="text-xs font-medium text-muted-foreground uppercase flex items-center gap-2">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Badge className="text-xs bg-blue-100 text-blue-700 hover:bg-blue-200 border-blue-200">
+                                  EN
+                                </Badge>
+                                <span className="text-sm font-medium text-muted-foreground">
+                                  Traducción
+                                </span>
+                              </div>
+                              <div className="space-y-4">
+                                <div className="space-y-2">
+                                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
                                     <Globe className="w-3 h-3" /> Nombre (EN)
                                   </label>
                                   <Input
@@ -645,14 +914,14 @@ export default function TranslationClient() {
                                     disabled={!isEditingThis}
                                     className={
                                       !isEditingThis
-                                        ? "border-transparent bg-transparent px-0 h-auto font-medium shadow-none"
-                                        : ""
+                                        ? "border-transparent bg-transparent px-0 h-auto font-medium shadow-none opacity-90"
+                                        : "bg-muted/30 border-input focus-visible:ring-primary shadow-sm"
                                     }
                                   />
                                 </div>
 
-                                <div className="space-y-1">
-                                  <label className="text-xs font-medium text-muted-foreground uppercase">
+                                <div className="space-y-2">
+                                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                                     Descripción (EN)
                                   </label>
                                   <Textarea
@@ -669,14 +938,14 @@ export default function TranslationClient() {
                                     rows={2}
                                     className={`resize-none ${
                                       !isEditingThis
-                                        ? "border-transparent bg-transparent px-0 min-h-0 shadow-none text-muted-foreground"
-                                        : ""
+                                        ? "border-transparent bg-transparent px-0 min-h-0 shadow-none text-muted-foreground opacity-90"
+                                        : "bg-muted/30 border-input focus-visible:ring-primary shadow-sm"
                                     }`}
                                   />
                                 </div>
 
-                                <div className="space-y-1">
-                                  <label className="text-xs font-medium text-muted-foreground uppercase">
+                                <div className="space-y-2">
+                                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                                     Ingredientes (EN)
                                   </label>
                                   <Textarea
@@ -694,15 +963,15 @@ export default function TranslationClient() {
                                     rows={2}
                                     className={`resize-none ${
                                       !isEditingThis
-                                        ? "border-transparent bg-transparent px-0 min-h-0 shadow-none text-muted-foreground"
-                                        : ""
+                                        ? "border-transparent bg-transparent px-0 min-h-0 shadow-none text-muted-foreground opacity-90"
+                                        : "bg-muted/30 border-input focus-visible:ring-primary shadow-sm"
                                     }`}
                                   />
                                 </div>
                               </div>
 
                               {isEditingThis && (
-                                <div className="flex justify-end gap-2 pt-2">
+                                <div className="flex justify-end gap-2 pt-4">
                                   <Button
                                     size="sm"
                                     variant="ghost"
@@ -905,27 +1174,206 @@ export default function TranslationClient() {
             </div>
           )}
         </TabsContent>
+
+        {/* PESTAÑA DE VARIANTES */}
+        <TabsContent value="variants" className="space-y-6">
+          {menuData.variants?.length > 0 ? (
+            menuData.variants.map((variant) => {
+              const isEditing = editingVariantId === variant.id;
+              const isSaving = savingVariantId === variant.id;
+              return (
+                <Card
+                  key={variant.id}
+                  className={`overflow-hidden transition-all duration-300 ${
+                    isEditing
+                      ? "ring-2 ring-primary shadow-lg scale-[1.01]"
+                      : "hover:border-primary/50"
+                  }`}
+                >
+                  <CardHeader className="bg-muted/30 py-4 px-6 border-b flex flex-row items-center justify-between">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-primary" />
+                      Variante: {variant.title}
+                    </CardTitle>
+                    {!isEditing ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setEditingVariantId(variant.id)}
+                        disabled={isAnyEditActive}
+                      >
+                        <Edit2 className="w-4 h-4 mr-2" />
+                        Editar
+                      </Button>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setEditingVariantId(null)}
+                          disabled={isSaving}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => saveSingleVariant(variant)}
+                          disabled={isSaving}
+                        >
+                          {isSaving ? (
+                            <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                          ) : (
+                            <Save className="w-4 h-4 mr-2" />
+                          )}
+                          Guardar
+                        </Button>
+                      </div>
+                    )}
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x">
+                      {/* Original (Español) */}
+                      <div className="p-6 space-y-4 bg-muted/10">
+                        <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground mb-4">
+                          <span className="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-primary">
+                            ES
+                          </span>
+                          Texto Original
+                        </div>
+                        <div className="space-y-4">
+                          <div>
+                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                              Título
+                            </span>
+                            <p className="mt-1 font-medium">{variant.title}</p>
+                          </div>
+                          <div>
+                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                              Opciones
+                            </span>
+                            <ul className="mt-1 space-y-1">
+                              {variant.options.map((opt, i) => (
+                                <li key={i} className="text-sm">
+                                  - {opt.name}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Traducción (Inglés) */}
+                      <div className="p-6 space-y-4">
+                        <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground mb-4">
+                          <span className="w-6 h-6 rounded bg-blue-500/10 flex items-center justify-center text-blue-600">
+                            EN
+                          </span>
+                          Traducción
+                        </div>
+                        <div className="space-y-4">
+                          <div>
+                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                              Título (EN)
+                            </span>
+                            {isEditing ? (
+                              <Input
+                                value={variant.title_en || ""}
+                                onChange={(e) =>
+                                  handleVariantFieldChange(
+                                    variant.id,
+                                    "title_en",
+                                    e.target.value
+                                  )
+                                }
+                                placeholder="Ej. Size"
+                                className="mt-1 bg-blue-50/50 focus-visible:ring-blue-500 border-blue-200"
+                              />
+                            ) : (
+                              <p className="mt-1 font-medium text-blue-900">
+                                {variant.title_en || (
+                                  <span className="text-muted-foreground italic">
+                                    Sin traducción
+                                  </span>
+                                )}
+                              </p>
+                            )}
+                          </div>
+                          <div>
+                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                              Opciones (EN)
+                            </span>
+                            <div className="mt-1 space-y-2">
+                              {variant.options.map((opt, i) => (
+                                <div key={i} className="flex flex-col">
+                                  <span className="text-xs text-muted-foreground">De: {opt.name}</span>
+                                  {isEditing ? (
+                                    <Input
+                                      value={opt.name_en || ""}
+                                      onChange={(e) =>
+                                        handleVariantOptionFieldChange(
+                                          variant.id,
+                                          i,
+                                          e.target.value
+                                        )
+                                      }
+                                      placeholder="Traducir opción..."
+                                      className="h-8 mt-1 bg-blue-50/50 focus-visible:ring-blue-500 border-blue-200"
+                                    />
+                                  ) : (
+                                    <p className="text-sm text-blue-900">
+                                      {opt.name_en || (
+                                        <span className="text-muted-foreground italic">
+                                          Sin traducción
+                                        </span>
+                                      )}
+                                    </p>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })
+          ) : (
+            <div className="text-center py-16 border-2 border-dashed rounded-xl">
+              <Sparkles className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-lg font-medium">No hay variantes creadas</h3>
+              <p className="text-sm text-muted-foreground mt-2">
+                Agrega variantes desde la configuración del menú para poder traducirlas.
+              </p>
+            </div>
+          )}
+        </TabsContent>
       </Tabs>
 
       {/* Barra flotante de acciones */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4">
-        <div className="bg-background/80 backdrop-blur-lg border shadow-lg rounded-full p-2 flex items-center justify-between gap-4 pr-4">
+      <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
+        <div className="bg-background/80 backdrop-blur-lg border shadow-lg rounded-full p-1.5 sm:p-2 flex items-center justify-center gap-2 sm:gap-4 max-w-full pointer-events-auto">
           <Button
             onClick={() => translateMutation.mutate()}
             disabled={
               !restaurantId || translateMutation.isPending || isAnyEditActive
             }
-            className="rounded-full shadow-sm"
-            size="lg"
+            className="rounded-full shadow-sm text-xs sm:text-sm px-4 sm:px-6 h-10 sm:h-12"
           >
             {translateMutation.isPending ? (
-              <Sparkles className="w-4 h-4 mr-2 animate-spin" />
+              <Sparkles className="w-4 h-4 mr-2 animate-spin shrink-0" />
             ) : (
-              <Sparkles className="w-4 h-4 mr-2" />
+              <Sparkles className="w-4 h-4 mr-2 shrink-0" />
             )}
-            {translateMutation.isPending
-              ? "Traduciendo..."
-              : "Traducir Todo Automáticamente"}
+            <span className="hidden sm:inline">
+              {translateMutation.isPending
+                ? "Traduciendo..."
+                : "Traducir Todo Automáticamente"}
+            </span>
+            <span className="sm:hidden">
+              {translateMutation.isPending ? "Traduciendo..." : "Traducir Todo"}
+            </span>
           </Button>
 
           {isAnyEditActive && (
