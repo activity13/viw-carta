@@ -99,16 +99,18 @@ export async function GET() {
       }
     });
 
-    const orders: LeanOrder[] = (ordersRaw as unknown as LeanOrder[]).map((order) => {
-      const itemsWithCategory = (order.items || []).map((item) => ({
-        ...item,
-        category: mealCategoryMap[String(item.mealId)] || "Otros"
-      }));
-      return {
-        ...order,
-        items: itemsWithCategory
-      };
-    });
+    const orders: LeanOrder[] = ((ordersRaw || []) as unknown as LeanOrder[])
+      .filter(Boolean)
+      .map((order) => {
+        const itemsWithCategory = (order.items || []).map((item) => ({
+          ...item,
+          category: mealCategoryMap[String(item.mealId)] || "Otros"
+        }));
+        return {
+          ...order,
+          items: itemsWithCategory
+        };
+      });
 
     let totalSales = 0;
     let totalCash = 0;
@@ -123,6 +125,7 @@ export async function GET() {
     const dishesRaw: Record<string, { name: string; qty: number }> = {};
 
     orders.forEach((order) => {
+      if (!order) return;
       if (order.status === "cancelled") {
         cancelledOrderCount++;
         return;
@@ -132,19 +135,25 @@ export async function GET() {
         orderCount++;
 
         let subtotal = 0;
-        order.items.forEach((item) => {
-          subtotal += item.unitPrice * item.qty;
+        (order.items || []).forEach((item) => {
+          if (!item) return;
+          const qty = item.qty || 0;
+          const unitPrice = item.unitPrice || 0;
+          subtotal += unitPrice * qty;
 
-          if (!dishesRaw[item.mealId]) {
-            dishesRaw[item.mealId] = { name: item.name, qty: 0 };
+          if (item.mealId) {
+            if (!dishesRaw[item.mealId]) {
+              dishesRaw[item.mealId] = { name: item.name || "Producto sin nombre", qty: 0 };
+            }
+            dishesRaw[item.mealId].qty += qty;
           }
-          dishesRaw[item.mealId].qty += item.qty;
-          totalItemsSold += item.qty;
+          totalItemsSold += qty;
         });
 
         let orderTotal = subtotal;
         if (order.adjustment) {
-          const adjAmount = subtotal * (order.adjustment.percent / 100);
+          const percent = order.adjustment.percent || 0;
+          const adjAmount = subtotal * (percent / 100);
           if (order.adjustment.kind === "discount") {
             orderTotal -= adjAmount;
             totalDiscounts += adjAmount;
@@ -154,10 +163,12 @@ export async function GET() {
         }
         totalSales += orderTotal;
 
-        order.payments.forEach((payment) => {
-          if (payment.type === "cash") totalCash += payment.amount;
-          else if (payment.type === "card") totalCard += payment.amount;
-          else if (payment.type === "transfer") totalTransfer += payment.amount;
+        (order.payments || []).forEach((payment) => {
+          if (!payment) return;
+          const amount = payment.amount || 0;
+          if (payment.type === "cash") totalCash += amount;
+          else if (payment.type === "card") totalCard += amount;
+          else if (payment.type === "transfer") totalTransfer += amount;
         });
       }
     });
@@ -175,7 +186,7 @@ export async function GET() {
       orderCount,
       cancelledOrderCount,
       totalItemsSold,
-      expectedCashInRegister: openSession.startingCash + totalCash,
+      expectedCashInRegister: (openSession.startingCash || 0) + totalCash,
       topDishes,
       ticketPromedio: orderCount > 0 ? (totalSales / orderCount).toFixed(2) : 0,
     };

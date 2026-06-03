@@ -289,9 +289,21 @@ export default function FinancesClient() {
         setSession(data.activeSession);
         setStats(data.stats);
         setOrders(data.orders || []);
+      } else {
+        console.error("API error response fetching stats:", data);
+        setAlertMessage({
+          title: "Error de servidor",
+          message: data?.error || "Error al obtener estado de caja.",
+          type: "error",
+        });
       }
     } catch (err) {
-      console.error(err);
+      console.error("Failed to fetch live stats:", err);
+      setAlertMessage({
+        title: "Error de conexión",
+        message: "No se pudo establecer conexión para obtener datos de la caja.",
+        type: "error",
+      });
     } finally {
       setLoading(false);
     }
