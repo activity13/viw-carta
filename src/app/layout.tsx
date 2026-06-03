@@ -9,6 +9,7 @@ import { ThemeProvider } from "@/providers/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
 import Providers from "@/app/Providers";
 import "./globals.css";
+import "@material-symbols/font-400/rounded.css";
 
 const roboto = Roboto({
   variable: "--font-roboto",

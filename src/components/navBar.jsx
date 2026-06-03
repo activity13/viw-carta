@@ -1,21 +1,15 @@
 import * as React from "react";
 import Link from "next/link";
 import {
-  HousePlug,
-  Languages,
-  MessageSquareQuote,
   Crown,
   User,
   LogOut,
-  House,
   Menu,
-  X,
   ChevronRight,
   Settings,
-  Users,
-  Banknote,
-  Package,
 } from "lucide-react";
+import "@material-symbols/font-400/rounded.css";
+import { usePathname } from "next/navigation";
 import LogoutButton from "./ui/LogoutButton";
 import { useSession } from "next-auth/react";
 import { usePermissions } from "@/hooks/usePermissions";
@@ -41,12 +35,11 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function NavBar() {
+  const pathname = usePathname() || "";
   const { data: session } = useSession();
-  const { role, can } = usePermissions();
+  const { role } = usePermissions();
   const isSuperAdmin = role === "superadmin";
   const isAdmin = role === "admin";
-  const canTranslate = can("manage_translations");
-  const canEditBusiness = can("edit_menu");
 
   const [businessLogo, setBusinessLogo] = React.useState(null);
 
@@ -71,89 +64,70 @@ export default function NavBar() {
   const baseNavItems = [
     {
       href: "/backoffice",
-      label: "Inicio",
-      icon: House,
+      label: "POS",
+      icon: "point_of_sale",
+      color: "text-emerald-500",
+      description: "Punto de venta interactivo",
+    },
+    {
+      href: "/backoffice",
+      label: "Carta",
+      icon: "menu_book",
       color: "text-emerald-600",
-      description: "Panel principal",
+      description: "Gestor de carta y traducciones",
     },
     ...(isAdmin || isSuperAdmin
       ? [
-          {
-            href: "/backoffice/clients",
-            label: "Clientes",
-            icon: User,
-            color: "text-blue-500",
-            description: "Directorio de clientes",
-          },
-        ]
+        {
+          href: "/backoffice/finances",
+          label: "Dash",
+          icon: "dashboard",
+          color: "text-sky-500",
+          description: "Control de caja y reportes",
+        },
+      ]
       : []),
     ...(isAdmin || isSuperAdmin
       ? [
-          {
-            href: "/backoffice/inventory",
-            label: "Inventario",
-            icon: Package,
-            color: "text-amber-500",
-            description: "Control de stock",
-          },
-        ]
+        {
+          href: "/backoffice/personas",
+          label: "Personas",
+          icon: "group",
+          color: "text-purple-600",
+          description: "Equipo y clientes",
+        },
+      ]
       : []),
     ...(isAdmin || isSuperAdmin
       ? [
-          {
-            href: "/backoffice/business-profile",
-            label: "Negocio",
-            icon: HousePlug,
-            color: "text-emerald-600",
-            description: "Configuración del establecimiento",
-          },
-        ]
-      : []),
-    ...(isAdmin || isSuperAdmin
-      ? [
-          {
-            href: "/backoffice/team",
-            label: "Equipo",
-            icon: Users,
-            color: "text-purple-600",
-            description: "Gestión de colaboradores",
-          },
-        ]
-      : []),
-    ...(isAdmin || isSuperAdmin
-      ? [
-          {
-            href: "/backoffice/translate",
-            label: "Traductor",
-            icon: Languages,
-            color: "text-orange-500",
-            description: "Idiomas y traducciones",
-          },
-        ]
-      : []),
-    ...(isAdmin || isSuperAdmin
-      ? [
-          {
-            href: "/backoffice/messages",
-            label: "Textos",
-            icon: MessageSquareQuote,
-            color: "text-blue-500",
-            description: "Personalización de mensajes",
-          },
-        ]
-      : []),
-    ...(isAdmin || isSuperAdmin
-      ? [
-          {
-            href: "/backoffice/finances",
-            label: "Caja",
-            icon: Banknote,
-            color: "text-sky-500",
-            description: "Control de caja y reportes",
-          },
-        ]
+        {
+          href: "/backoffice/business-profile",
+          label: "Ajustes",
+          icon: "settings",
+          color: "text-zinc-600",
+          description: "Configuración del negocio",
+        },
+      ]
       : []),
   ];
+
+  const checkIsActive = (href) => {
+    if (href === "/") return pathname === "/";
+    if (href === "/backoffice") {
+      const cartaSubPaths = [
+        "/backoffice/categories",
+        "/backoffice/sections",
+        "/backoffice/meals",
+        "/backoffice/variants",
+        "/backoffice/translate",
+      ];
+      return (
+        pathname === "/backoffice" ||
+        cartaSubPaths.some((sub) => pathname.startsWith(sub))
+      );
+    }
+    return pathname.startsWith(href);
+  };
 
   const navItems = baseNavItems;
 
@@ -178,19 +152,30 @@ export default function NavBar() {
         <div className="hidden md:flex flex-1 items-center justify-center">
           <NavigationMenu>
             <NavigationMenuList className="flex items-center gap-2 rounded-2xl">
-              {navItems.map((item) => (
-                <NavigationMenuItem key={item.href}>
-                  <NavigationMenuLink asChild>
-                    <Link
-                      href={item.href}
-                      className="group flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border hover:rounded-2xl hover:shadow-md hover:border-emerald-500/30 hover:bg-inactive-background"
-                    >
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.label}</span>
-                    </Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-              ))}
+              {navItems.map((item) => {
+                const isActive = checkIsActive(item.href);
+                return (
+                  <NavigationMenuItem key={item.href}>
+                    <NavigationMenuLink asChild>
+                      <Link
+                        href={item.href}
+                        className={`group flex items-center gap-2 h-16 px-4 text-sm font-medium transition-all duration-300 relative 
+                          ${isActive
+                            ? "text-emerald-500 bg-emerald-500/5"
+                            : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                          }`}
+                      >
+                        <span className="material-symbols-rounded text-[20px]">{item.icon}</span>
+                        <span>{item.label}</span>
+                        {/* Horizontal Active Indicator (Bottom Bar) */}
+                        {isActive && (
+                          <div className="absolute bottom-0 left-0 right-0 h-1 bg-emerald-500 rounded-t-full shadow-[0_-2px_10px_rgba(16,185,129,0.3)] animate-in slide-in-from-bottom-2 fade-in" />
+                        )}
+                      </Link>
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                );
+              })}
             </NavigationMenuList>
           </NavigationMenu>
         </div>
@@ -296,29 +281,41 @@ export default function NavBar() {
                     <h4 className="px-2 text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wider">
                       Gestión
                     </h4>
-                    {navItems.map((item) => (
-                      <SheetClose asChild key={item.href}>
-                        <Link
-                          href={item.href}
-                          className="flex items-start gap-4 p-3 rounded-lg hover:bg-emerald-50/80 transition-all group"
-                        >
-                          <div
-                            className={`mt-0.5 p-2 rounded-md bg-background shadow-sm ring-1 ring-border group-hover:ring-emerald-200 group-hover:bg-white transition-all ${item.color}`}
+                    {navItems.map((item) => {
+                      const isActive = checkIsActive(item.href);
+                      return (
+                        <SheetClose asChild key={item.href}>
+                          <Link
+                            href={item.href}
+                            className={`relative flex items-start gap-4 p-3 rounded-lg transition-all group overflow-hidden ${isActive
+                              ? "bg-emerald-50/80 hover:bg-emerald-100"
+                              : "hover:bg-muted"
+                              }`}
                           >
-                            <item.icon className="h-5 w-5" />
-                          </div>
-                          <div className="flex-1 space-y-0.5">
-                            <p className="text-sm font-medium font-foreground group-hover:text-emerald-900 leading-none">
-                              {item.label}
-                            </p>
-                            <p className="text-xs text-muted-foreground line-clamp-1">
-                              {item.description}
-                            </p>
-                          </div>
-                          <ChevronRight className="h-4 w-4 text-muted-foreground/30 group-hover:text-emerald-400 self-center" />
-                        </Link>
-                      </SheetClose>
-                    ))}
+                            {isActive && (
+                              <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500 rounded-r-full shadow-[2px_0_8px_rgba(16,185,129,0.3)]" />
+                            )}
+                            <div
+                              className={`mt-0.5 p-2 rounded-md bg-background shadow-sm ring-1 ring-border transition-all flex items-center justify-center ${isActive
+                                ? "ring-emerald-300 shadow-emerald-500/20 text-emerald-600"
+                                : `group-hover:ring-emerald-200 group-hover:bg-white ${item.color}`
+                                }`}
+                            >
+                              <span className="material-symbols-rounded text-[20px]">{item.icon}</span>
+                            </div>
+                            <div className="flex-1 space-y-0.5">
+                              <p className={`text-sm font-medium leading-none ${isActive ? "text-emerald-900" : "text-foreground group-hover:text-emerald-900"}`}>
+                                {item.label}
+                              </p>
+                              <p className="text-xs text-muted-foreground line-clamp-1">
+                                {item.description}
+                              </p>
+                            </div>
+                            <ChevronRight className={`h-4 w-4 self-center ${isActive ? "text-emerald-500" : "text-muted-foreground/30 group-hover:text-emerald-400"}`} />
+                          </Link>
+                        </SheetClose>
+                      );
+                    })}
                   </div>
 
                   <Separator className="bg-border/60" />
