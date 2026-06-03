@@ -29,12 +29,10 @@ import {
   Loader2,
   PlusCircle,
   ShoppingCart,
-  Settings2,
   Plus,
   Lock,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
-import Link from "next/link";
 import { toast } from "sonner";
 import { useFab, type FabAction } from "@/providers/ActionProvider";
 import { usePermission } from "@/hooks/use-permission";

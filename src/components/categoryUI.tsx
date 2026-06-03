@@ -260,8 +260,6 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isSectionAssignDialogOpen, setIsSectionAssignDialogOpen] = useState(false);
   const [form, setForm] = useState({
     name: "",
     code: "",
@@ -272,7 +270,6 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
   });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<Category>>({});
-  const [isSavingOrder, setIsSavingOrder] = useState(false);
 
   // Fetch categories and settings
   const fetchCategoriesAndSettings = useCallback(async () => {
@@ -320,7 +317,6 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
       });
       toast.success("Categoría creada exitosamente");
       fetchCategoriesAndSettings();
-      setIsDialogOpen(false); // Close dialog if open
       // Reset inline form
       setForm({
         name: "",
@@ -445,7 +441,6 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
     toast.loading("Guardando nuevo orden...", { id: "reorder-toast" });
     
     saveTimeoutRef.current = setTimeout(async () => {
-      setIsSavingOrder(true);
       try {
         await Axios.put("/api/categories/reorder", {
           categories: newOrder.map((c) => ({ id: c._id })),
@@ -455,8 +450,6 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
       } catch (error) {
         console.error(error);
         toast.error("Error al guardar el orden", { id: "reorder-toast" });
-      } finally {
-        setIsSavingOrder(false);
       }
     }, 2000);
   };
@@ -487,7 +480,7 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
       {
         label: "Nueva Categoría",
         icon: Plus,
-        onClick: () => setIsDialogOpen(true),
+        onClick: () => {},
       },
     ]);
 
