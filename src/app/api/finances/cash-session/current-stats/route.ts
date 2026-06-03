@@ -7,7 +7,6 @@ import Order from "@/models/order";
 import Meal from "@/models/meals";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import mongoose from "mongoose";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Categories from "@/models/categories";
 
 export const dynamic = "force-dynamic";
@@ -57,6 +56,9 @@ interface LeanOrder {
 export async function GET() {
   try {
     await connectToDatabase();
+
+    // Prevent Webpack tree-shaking of Categories model (required for Mongoose populate)
+    const _categoriesModel = Categories;
 
     const session = await getServerSession(authOptions);
 

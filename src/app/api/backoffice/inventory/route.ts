@@ -10,6 +10,9 @@ export async function GET() {
     const session = await requireAuth("staff");
     await connectToDatabase();
 
+    // Prevent Webpack tree-shaking of Category model (required for Mongoose populate)
+    const _categoryModel = Category;
+
     // Buscar solo productos que tienen control de stock (availableQuantity es un número)
     const meals = await Meal.find({
       restaurantId: session.user.restaurantId,
