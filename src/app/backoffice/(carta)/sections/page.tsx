@@ -106,7 +106,6 @@ export default function SectionsPage() {
   const [sections, setSections] = useState<MenuSection[]>([]);
   const [loading, setLoading] = useState(true);
   const [newName, setNewName] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const firstLoadRef = useRef(true);
 
@@ -160,7 +159,6 @@ export default function SectionsPage() {
     }
 
     toast.loading("Guardando cambios...", { id: "save-sections" });
-    setIsSaving(true);
 
     saveTimeoutRef.current = setTimeout(async () => {
       try {
@@ -181,8 +179,6 @@ export default function SectionsPage() {
       } catch (error) {
         console.error(error);
         toast.error("Error al guardar secciones", { id: "save-sections" });
-      } finally {
-        setIsSaving(false);
       }
     }, 1500);
   };

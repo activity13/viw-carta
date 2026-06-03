@@ -193,7 +193,7 @@ export default function TranslationClient() {
     }
   };
 
-  const handleSectionFieldChange = (id: string, field: keyof Section, value: any) => {
+  const handleSectionFieldChange = (id: string, field: keyof Section, value: string) => {
     setMenuData((prev) => {
       if (!prev) return prev;
       const updated = prev.sections.map((s) =>

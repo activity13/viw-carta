@@ -27,6 +27,13 @@ type CatOut = {
   }[];
 };
 
+interface VariantOption {
+  name: string;
+  name_en?: string;
+  price?: number;
+  priceModifier?: number;
+}
+
 type VariantOut = {
   id: string;
   title: string;
@@ -186,7 +193,7 @@ export async function POST(req: Request) {
       const translatedVariants: VariantOut[] = variants.map((variant) => ({
         id: String(variant._id),
         title: map.get(variant.title) ?? variant.title,
-        options: Array.isArray(variant.options) ? variant.options.map((opt: any) => ({
+        options: Array.isArray(variant.options) ? (variant.options as VariantOption[]).map((opt) => ({
           ...opt,
           name: map.get(opt.name) ?? opt.name,
         })) : [],
@@ -294,7 +301,7 @@ export async function POST(req: Request) {
           if (!original) continue;
 
           // Merge options preserving price, default
-          const updatedOptions = original.options.map((opt: any, idx: number) => ({
+          const updatedOptions = (original.options as VariantOption[]).map((opt, idx) => ({
             ...opt,
             name_en: variant.options[idx]?.name || opt.name_en,
           }));

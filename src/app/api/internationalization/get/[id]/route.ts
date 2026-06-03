@@ -8,6 +8,22 @@ import SystemMessage from "@/models/SystemMessage";
 import VariantTemplate from "@/models/VariantTemplate";
 import { requireAuth, handleAuthError } from "@/lib/auth-helpers";
 
+interface IMenuSection {
+  _id?: { toString(): string };
+  name: string;
+  name_en?: string;
+  slug: string;
+  order: number;
+  isActive: boolean;
+}
+
+interface IVariantOption {
+  name: string;
+  name_en?: string;
+  price?: number;
+  priceModifier?: number;
+}
+
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -58,7 +74,7 @@ export async function GET(
     }).sort({ createdAt: -1 });
 
     // 5️⃣ Estructurar respuesta separada
-    const formattedSections = (restaurant.menuSections || []).map((sec: any) => ({
+    const formattedSections = (restaurant.menuSections || []).map((sec: IMenuSection) => ({
       id: sec._id ? sec._id.toString() : sec.slug,
       name: sec.name,
       name_en: sec.name_en,
@@ -100,7 +116,7 @@ export async function GET(
       id: variant._id.toString(),
       title: variant.title,
       title_en: variant.title_en,
-      options: variant.options.map((opt: any) => ({
+      options: (variant.options as IVariantOption[]).map((opt) => ({
         name: opt.name,
         name_en: opt.name_en,
         price: opt.price || opt.priceModifier,

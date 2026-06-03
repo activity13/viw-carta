@@ -77,9 +77,8 @@ const CategoryItem = ({
       id={cat._id}
       dragListener={false}
       dragControls={dragControls}
-      className={`bg-card border rounded-lg shadow-sm relative transition-opacity ${
-        !cat.isActive ? "opacity-60" : ""
-      }`}
+      className={`bg-card border rounded-lg shadow-sm relative transition-opacity ${!cat.isActive ? "opacity-60" : ""
+        }`}
     >
       <div className="p-4 flex items-start gap-4">
         {/* Drag Handle */}
@@ -433,13 +432,13 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
   // Handle Reorder
   const handleReorder = (newOrder: Category[]) => {
     setCategories(newOrder);
-    
+
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
     }
-    
+
     toast.loading("Guardando nuevo orden...", { id: "reorder-toast" });
-    
+
     saveTimeoutRef.current = setTimeout(async () => {
       try {
         await Axios.put("/api/categories/reorder", {
@@ -480,7 +479,7 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
       {
         label: "Nueva Categoría",
         icon: Plus,
-        onClick: () => {},
+        onClick: () => { },
       },
     ]);
 
@@ -658,7 +657,6 @@ export default function CategoryUI({ restaurantId }: { restaurantId: string }) {
                   menuSections={menuSections}
                 />
               ))}
-  // Register FAB Actions
             </Reorder.Group>
           )}
         </div>
