@@ -58,7 +58,9 @@ export async function GET() {
     await connectToDatabase();
 
     // Prevent Webpack tree-shaking of Categories model (required for Mongoose populate)
-    const _categoriesModel = Categories;
+    if (!Categories) {
+      console.warn("Categories model not registered");
+    }
 
     const session = await getServerSession(authOptions);
 

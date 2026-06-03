@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import Meal from "@/models/meals";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Category from "@/models/categories";
 import { requireAuth, handleAuthError } from "@/lib/auth-helpers";
 
@@ -11,7 +10,9 @@ export async function GET() {
     await connectToDatabase();
 
     // Prevent Webpack tree-shaking of Category model (required for Mongoose populate)
-    const _categoryModel = Category;
+    if (!Category) {
+      console.warn("Category model not registered");
+    }
 
     // Buscar solo productos que tienen control de stock (availableQuantity es un número)
     const meals = await Meal.find({
