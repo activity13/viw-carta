@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Fragment } from "react";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
@@ -85,10 +85,21 @@ export function SmartFAB() {
   const holdOrdersAction = actions.find((a) => a.label.startsWith("Órdenes"));
   const createOrderAction = actions.find((a) => a.label.startsWith("Nueva Orden"));
 
-  const primarySellAction = activeOrderAction || holdOrdersAction || createOrderAction;
+  // Promote both "Nueva Orden" and "Órdenes" if there are hold orders and no active order
+  const isHoldWithCreate = !activeOrderAction && holdOrdersAction && createOrderAction;
 
-  // Exclude the promoted action from the expanded vertical list
-  const menuActions = actions.filter((a) => a !== primarySellAction);
+  const promotedActions = activeOrderAction
+    ? [activeOrderAction]
+    : isHoldWithCreate
+      ? [createOrderAction, holdOrdersAction]
+      : holdOrdersAction
+        ? [holdOrdersAction]
+        : createOrderAction
+          ? [createOrderAction]
+          : [];
+
+  // Exclude all promoted actions from the expanded vertical list
+  const menuActions = actions.filter((a) => !promotedActions.includes(a));
   const allActions = [...menuActions, ...fixedActions];
 
   const toggleButtonVariants = {
@@ -194,58 +205,62 @@ export function SmartFAB() {
           )}
         </AnimatePresence>
 
-        {primarySellAction ? (
-          /* Sleek unified control containing the primary selling action and sparkles menu toggler */
+        {promotedActions.length > 0 ? (
+          /* Sleek unified control containing the primary selling actions and sparkles menu toggler */
           <motion.div
             className="pointer-events-auto flex items-center gap-2 bg-background/95 backdrop-blur border border-border shadow-2xl rounded-full p-1.5"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
           >
-            {/* Direct Action Button */}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    onClick={() => {
-                      primarySellAction.onClick();
-                      setIsOpen(false);
-                    }}
-                    disabled={
-                      ("disabled" in primarySellAction && primarySellAction.disabled) ||
-                      ("loading" in primarySellAction && primarySellAction.loading)
-                    }
-                    className={cn(
-                      "rounded-full px-4 h-11 text-xs md:text-sm font-semibold flex items-center gap-2 cursor-pointer transition-all duration-300 border-0 text-white shrink-0 active:scale-[0.98] select-none",
-                      primarySellAction.label.startsWith("Ver Orden")
-                        ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.35)]"
-                        : primarySellAction.label.startsWith("Órdenes")
-                          ? "bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 shadow-[0_0_15px_rgba(245,158,11,0.35)]"
-                          : "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 shadow-[0_0_15px_rgba(16,185,129,0.35)]"
-                    )}
-                  >
-                    {"loading" in primarySellAction && primarySellAction.loading ? (
-                      <Loader2 className="h-4 w-4 animate-spin shrink-0" />
-                    ) : (
-                      <primarySellAction.icon className="h-4 w-4 shrink-0" />
-                    )}
+            {promotedActions.map((action, idx) => (
+              <Fragment key={idx}>
+                {idx > 0 && <div className="w-[1px] h-6 bg-border/85 self-center" />}
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        onClick={() => {
+                          action.onClick();
+                          setIsOpen(false);
+                        }}
+                        disabled={
+                          ("disabled" in action && action.disabled) ||
+                          ("loading" in action && action.loading)
+                        }
+                        className={cn(
+                          "rounded-full px-4 h-11 text-xs md:text-sm font-semibold flex items-center gap-2 cursor-pointer transition-all duration-300 border-0 text-white shrink-0 active:scale-[0.98] select-none",
+                          action.label.startsWith("Ver Orden")
+                            ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.35)]"
+                            : action.label.startsWith("Órdenes")
+                              ? "bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 shadow-[0_0_15px_rgba(245,158,11,0.35)]"
+                              : "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 shadow-[0_0_15px_rgba(16,185,129,0.35)]"
+                        )}
+                      >
+                        {"loading" in action && action.loading ? (
+                          <Loader2 className="h-4 w-4 animate-spin shrink-0" />
+                        ) : (
+                          <action.icon className="h-4 w-4 shrink-0" />
+                        )}
 
-                    {/* Responsive text presentation */}
-                    <span className="hidden sm:inline">{primarySellAction.label}</span>
-                    <span className="inline sm:hidden">
-                      {primarySellAction.label.startsWith("Ver Orden")
-                        ? primarySellAction.label.replace("Ver Orden #", "#")
-                        : primarySellAction.label.startsWith("Órdenes")
-                          ? primarySellAction.label
-                          : "Vender"}
-                    </span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="top">
-                  <p>{primarySellAction.label}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+                        {/* Responsive text presentation */}
+                        <span className="hidden sm:inline">{action.label}</span>
+                        <span className="inline sm:hidden">
+                          {action.label.startsWith("Ver Orden")
+                            ? action.label.replace("Ver Orden #", "#")
+                            : action.label.startsWith("Órdenes")
+                              ? action.label
+                              : "Vender"}
+                        </span>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">
+                      <p>{action.label}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </Fragment>
+            ))}
 
             {/* Visual Separator */}
             <div className="w-[1px] h-6 bg-border/85 self-center" />
