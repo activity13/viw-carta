@@ -149,16 +149,25 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
 
     // Define validation first
     const isValid = () => {
+      const total = calculateOrderTotal(activeOrder);
       if (invoiceTypeDraft === "factura") {
         if (customerDraft.documentType !== "ruc") return false;
-        if (customerDraft.documentNumber.length !== 11) return false;
+        if (customerDraft.documentNumber?.length !== 11) return false;
+        if (!customerDraft.name?.trim()) return false;
         if (!customerDraft.address?.trim()) return false;
       }
-      if (
-        invoiceTypeDraft === "boleta" &&
-        customerDraft.documentType === "dni"
-      ) {
+      if (invoiceTypeDraft === "boleta" && total >= 700) {
+        if (customerDraft.documentType === "none" || !customerDraft.documentType) return false;
+        if (!customerDraft.documentNumber?.trim()) return false;
+        if (customerDraft.documentType === "dni" && customerDraft.documentNumber?.length !== 8) return false;
+        if (customerDraft.documentType === "ruc" && customerDraft.documentNumber?.length !== 11) return false;
+        if (!customerDraft.name?.trim()) return false;
+      }
+      if (customerDraft.documentType === "dni" && customerDraft.documentNumber) {
         if (customerDraft.documentNumber.length !== 8) return false;
+      }
+      if (customerDraft.documentType === "ruc" && customerDraft.documentNumber) {
+        if (customerDraft.documentNumber.length !== 11) return false;
       }
       return true;
     };
@@ -584,6 +593,39 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
       return;
     }
 
+    // Client/Fiscal validations before processing
+    if (invoiceTypeDraft === "factura") {
+      if (
+        customerDraft.documentType !== "ruc" ||
+        customerDraft.documentNumber?.length !== 11 ||
+        !customerDraft.name?.trim() ||
+        !customerDraft.address?.trim()
+      ) {
+        toast.error("La Factura requiere RUC de 11 dígitos, Razón Social y Dirección válidos.");
+        return;
+      }
+    }
+
+    if (invoiceTypeDraft === "boleta" && total >= 700) {
+      if (
+        customerDraft.documentType === "none" ||
+        !customerDraft.documentType ||
+        !customerDraft.documentNumber?.trim() ||
+        !customerDraft.name?.trim()
+      ) {
+        toast.error("Las Boletas de monto mayor o igual a S/. 700 requieren identificación obligatoria del cliente (DNI o RUC y Nombre).");
+        return;
+      }
+      if (customerDraft.documentType === "dni" && customerDraft.documentNumber?.length !== 8) {
+        toast.error("El DNI del cliente para Boletas mayores a S/. 700 debe tener exactamente 8 dígitos.");
+        return;
+      }
+      if (customerDraft.documentType === "ruc" && customerDraft.documentNumber?.length !== 11) {
+        toast.error("El RUC del cliente para Boletas mayores a S/. 700 debe tener exactamente 11 dígitos.");
+        return;
+      }
+    }
+
     // Pre-abrir ventana SOLO en móviles (para evitar bloqueo de popup)
     const mobilePrintWindow = isMobileUserAgent()
       ? window.open("", "_blank")
@@ -595,6 +637,30 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
     setIsOrderBusy(true);
 
     try {
+      // Auto-save customer details if dirty before payment
+      const isCustomerDirty =
+        (activeOrder.invoiceType || "boleta") !== (invoiceTypeDraft || "boleta") ||
+        (activeOrder.tableNumber || "") !== (tableNumberDraft || "") ||
+        (activeOrder.observations || "") !== (observationsDraft || "") ||
+        (activeOrder.customer?.name || "").trim() !== (customerDraft.name || "").trim() ||
+        (activeOrder.customer?.surname || "").trim() !== (customerDraft.surname || "").trim() ||
+        (activeOrder.customer?.documentType || "none") !== (customerDraft.documentType || "none") ||
+        (activeOrder.customer?.documentNumber || "").trim() !== (customerDraft.documentNumber || "").trim() ||
+        (activeOrder.customer?.email || "").trim() !== (customerDraft.email || "").trim() ||
+        (activeOrder.customer?.phone || "").trim() !== (customerDraft.phone || "").trim() ||
+        (activeOrder.customer?.address || "").trim() !== (customerDraft.address || "").trim();
+
+      if (isCustomerDirty) {
+        const saveRes = await Axios.patch<Order>(`/api/orders/${activeOrder._id}`, {
+          action: "setCustomer",
+          customer: customerDraft,
+          tableNumber: tableNumberDraft,
+          observations: observationsDraft,
+          invoiceType: invoiceTypeDraft,
+        });
+        setActiveOrder(saveRes.data);
+      }
+
       const res = await Axios.patch<Order>(`/api/orders/${activeOrder._id}`, {
         action: "pay",
         payments: paymentsDraft,
@@ -942,5 +1008,6 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
     handleOpenOrdersList,
     handleRetryStamping,
     handlePrintWithoutStamping,
+    syncDraftsFromOrder,
   };
 }

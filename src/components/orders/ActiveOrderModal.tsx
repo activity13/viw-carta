@@ -22,7 +22,7 @@ import {
   ShoppingBag as ShoppingBagIcon,
   X,
 } from "lucide-react";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import Axios from "axios";
 import { toast } from "sonner";
 
@@ -112,8 +112,16 @@ export function ActiveOrderModal({
     handlePrintWithoutStamping,
   } = manager;
 
+  // Safe totals
+  const subtotal = activeOrder ? calculateSubtotal(activeOrder) : 0;
+  const total = activeOrder ? calculateOrderTotal(activeOrder) : 0;
+  const adjustmentAmount = activeOrder
+    ? calculateAdjustmentAmount(activeOrder)
+    : 0;
+
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchResults, setShowSearchResults] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const [clientSearchStatus, setClientSearchStatus] = useState<
     "idle" | "searching" | "found" | "not_found"
@@ -126,37 +134,78 @@ export function ActiveOrderModal({
   const [isConfirming, setIsConfirming] = useState(false);
 
   const isCustomerValid = useMemo(() => {
+    // 1. Factura validation
     if (invoiceTypeDraft === "factura") {
       if (customerDraft.documentType !== "ruc") return false;
       if (customerDraft.documentNumber?.length !== 11) return false;
+      if (!customerDraft.name?.trim()) return false;
       if (!customerDraft.address?.trim()) return false;
     }
-    if (invoiceTypeDraft === "boleta" && customerDraft.documentType === "dni") {
-      if (customerDraft.documentNumber?.length !== 8) return false;
+    
+    // 2. Boleta >= 700 validation
+    if (invoiceTypeDraft === "boleta" && total >= 700) {
+      if (customerDraft.documentType === "none" || !customerDraft.documentType) return false;
+      if (!customerDraft.documentNumber?.trim()) return false;
+      if (customerDraft.documentType === "dni" && customerDraft.documentNumber?.length !== 8) return false;
+      if (customerDraft.documentType === "ruc" && customerDraft.documentNumber?.length !== 11) return false;
+      if (!customerDraft.name?.trim()) return false;
     }
+
+    // 3. General format validations if document type is selected (optional but formatting applies)
+    if (customerDraft.documentType === "dni" && customerDraft.documentNumber) {
+      if (customerDraft.documentNumber.length !== 8) return false;
+    }
+    if (customerDraft.documentType === "ruc" && customerDraft.documentNumber) {
+      if (customerDraft.documentNumber.length !== 11) return false;
+    }
+
+    // 4. Email validation
     if (customerDraft.email?.trim()) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(customerDraft.email.trim())) return false;
     }
     return true;
-  }, [customerDraft, invoiceTypeDraft]);
+  }, [customerDraft, invoiceTypeDraft, total]);
 
   const customerValidationMessage = useMemo(() => {
     if (invoiceTypeDraft === "factura") {
       if (customerDraft.documentType !== "ruc") return "FACTURA REQUIERE RUC";
-      if (customerDraft.documentNumber?.length !== 11)
-        return "RUC = 11 DÍGITOS";
+      if (customerDraft.documentNumber?.length !== 11) return "RUC = 11 DÍGITOS";
+      if (!customerDraft.name?.trim()) return "RAZÓN SOCIAL REQUERIDA";
       if (!customerDraft.address?.trim()) return "DIRECCIÓN REQUERIDA";
     }
-    if (invoiceTypeDraft === "boleta" && customerDraft.documentType === "dni") {
-      if (customerDraft.documentNumber?.length !== 8) return "DNI = 8 DÍGITOS";
+    
+    if (invoiceTypeDraft === "boleta" && total >= 700) {
+      if (customerDraft.documentType === "none" || !customerDraft.documentType) {
+        return "BOLETA >= 700 REQUIERE IDENTIFICACIÓN";
+      }
+      if (!customerDraft.documentNumber?.trim()) {
+        return "NÚMERO DE DOCUMENTO REQUERIDO";
+      }
+      if (customerDraft.documentType === "dni" && customerDraft.documentNumber?.length !== 8) {
+        return "DNI = 8 DÍGITOS";
+      }
+      if (customerDraft.documentType === "ruc" && customerDraft.documentNumber?.length !== 11) {
+        return "RUC = 11 DÍGITOS";
+      }
+      if (!customerDraft.name?.trim()) {
+        return "NOMBRE DEL CLIENTE REQUERIDO";
+      }
     }
+
+    if (customerDraft.documentType === "dni" && customerDraft.documentNumber) {
+      if (customerDraft.documentNumber.length !== 8) return "DNI DEBE SER DE 8 DÍGITOS";
+    }
+    if (customerDraft.documentType === "ruc" && customerDraft.documentNumber) {
+      if (customerDraft.documentNumber.length !== 11) return "RUC DEBE SER DE 11 DÍGITOS";
+    }
+
     if (customerDraft.email?.trim()) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(customerDraft.email.trim())) return "EMAIL INVÁLIDO";
     }
     return "FALTAN DATOS";
-  }, [customerDraft, invoiceTypeDraft]);
+  }, [customerDraft, invoiceTypeDraft, total]);
 
   const isCustomerDirty = useMemo(() => {
     if (!activeOrder) return false;
@@ -268,12 +317,6 @@ export function ActiveOrderModal({
     setShowSearchResults(false);
   };
 
-  // Safe totals
-  const subtotal = activeOrder ? calculateSubtotal(activeOrder) : 0;
-  const total = activeOrder ? calculateOrderTotal(activeOrder) : 0;
-  const adjustmentAmount = activeOrder
-    ? calculateAdjustmentAmount(activeOrder)
-    : 0;
 
   // Helper to add payment method
   const addPaymentMethod = () => {
@@ -300,6 +343,12 @@ export function ActiveOrderModal({
     } else {
       // Bulletproof: Force unlock immediately upon opening in case of rapid toggling
       document.body.style.pointerEvents = "";
+
+      // Autofocus the search input when modal opens
+      const timer = setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 100);
+      return () => clearTimeout(timer);
     }
   }, [isOrderModalOpen]);
 
@@ -395,6 +444,7 @@ export function ActiveOrderModal({
             <div className="relative mb-6">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/50" />
               <Input
+                ref={searchInputRef}
                 placeholder="ESCANEAR O BUSCAR PRODUCTOS..."
                 className="pl-12 h-14 bg-card border-border focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all font-mono text-sm tracking-wide text-foreground placeholder:text-muted-foreground/40 rounded-xl"
                 value={searchQuery}
@@ -843,6 +893,7 @@ export function ActiveOrderModal({
                       min={0}
                       max={100}
                       value={adjustmentDraft.percent || ""}
+                      onWheel={(e) => e.currentTarget.blur()}
                       onChange={(e) =>
                         setAdjustmentDraft((prev) => ({
                           ...prev,
@@ -992,6 +1043,7 @@ export function ActiveOrderModal({
                           className="pl-12 h-14 bg-card border-border focus:border-primary/50 focus:ring-1 focus:ring-primary/50 text-foreground font-mono font-bold text-xl rounded-lg"
                           placeholder="0.00"
                           value={payment.amount || ""}
+                          onWheel={(e) => e.currentTarget.blur()}
                           onChange={(e) =>
                             setPaymentsDraft((prev) =>
                               prev.map((x, i) =>
@@ -1062,13 +1114,20 @@ export function ActiveOrderModal({
             </div>
 
             <RoleGate action="can_submit_order">
-              <Button
-                onClick={handlePayOrder}
-                disabled={isOrderBusy}
-                className="h-16 w-full sm:w-[350px] bg-primary hover:opacity-90 text-primary-foreground font-bold shadow-xs uppercase tracking-[0.2em] font-mono text-sm rounded-xl transition-all cursor-pointer"
-              >
-                <CheckCircle2 className="w-5 h-5 mr-3" /> PROCESAR PAGO
-              </Button>
+              <div className="flex flex-col items-stretch sm:items-end gap-2 w-full sm:w-auto">
+                {!isCustomerValid && (
+                  <span className="text-[10px] font-mono text-destructive font-bold uppercase tracking-widest flex items-center gap-1 justify-center sm:justify-end">
+                    <AlertTriangle className="w-3.5 h-3.5 shrink-0" /> {customerValidationMessage}
+                  </span>
+                )}
+                <Button
+                  onClick={handlePayOrder}
+                  disabled={isOrderBusy || !isCustomerValid}
+                  className="h-16 w-full sm:w-[350px] bg-primary hover:opacity-90 text-primary-foreground font-bold shadow-xs uppercase tracking-[0.2em] font-mono text-sm rounded-xl transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <CheckCircle2 className="w-5 h-5 mr-3" /> PROCESAR PAGO
+                </Button>
+              </div>
             </RoleGate>
           </div>
         </div>

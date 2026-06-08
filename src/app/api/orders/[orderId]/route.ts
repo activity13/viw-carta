@@ -468,6 +468,48 @@ export async function PATCH(
         adjustment: (order.adjustment ??
           null) as unknown as OrderAdjustmentDoc | null,
       });
+
+      // Validaciones fiscales del cliente para Factura y Boleta >= 700 soles
+      const invoiceType = order.invoiceType || "nota_venta";
+      if (invoiceType === "factura") {
+        if (
+          order.customer?.documentType !== "ruc" ||
+          order.customer?.documentNumber?.length !== 11 ||
+          !order.customer?.name?.trim() ||
+          !order.customer?.address?.trim()
+        ) {
+          return NextResponse.json(
+            { error: "La Factura requiere RUC de 11 dígitos, Razón Social y Dirección válidos." },
+            { status: 400 },
+          );
+        }
+      }
+
+      if (invoiceType === "boleta" && total >= 700) {
+        if (
+          order.customer?.documentType === "none" ||
+          !order.customer?.documentNumber?.trim() ||
+          !order.customer?.name?.trim()
+        ) {
+          return NextResponse.json(
+            { error: "Las Boletas de monto mayor o igual a S/. 700 requieren identificación obligatoria del cliente (DNI o RUC y Nombre)." },
+            { status: 400 },
+          );
+        }
+        if (order.customer?.documentType === "dni" && order.customer?.documentNumber?.length !== 8) {
+          return NextResponse.json(
+            { error: "El DNI del cliente para Boletas mayores a S/. 700 debe tener exactamente 8 dígitos." },
+            { status: 400 },
+          );
+        }
+        if (order.customer?.documentType === "ruc" && order.customer?.documentNumber?.length !== 11) {
+          return NextResponse.json(
+            { error: "El RUC del cliente para Boletas mayores a S/. 700 debe tener exactamente 11 dígitos." },
+            { status: 400 },
+          );
+        }
+      }
+
       const sum = round2(
         payments.reduce((acc: number, p: unknown) => {
           const rec = isRecord(p) ? p : {};

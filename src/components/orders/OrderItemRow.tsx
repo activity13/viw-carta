@@ -89,6 +89,7 @@ export const OrderItemRow = memo(
                 min="0"
                 className="w-14 bg-transparent text-center font-mono text-sm font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 rounded py-1 -my-1"
                 value={localQty}
+                onWheel={(e) => e.currentTarget.blur()}
                 onChange={(e) => {
                   setLocalQty(e.target.value);
                   const val = parseFloat(e.target.value);
