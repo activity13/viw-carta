@@ -59,6 +59,11 @@ export function OrdersListModal({ manager }: OrdersListModalProps) {
                       <div className="text-sm font-medium truncate">
                         Mesa #{o.tableNumber}
                       </div>
+                      {o.observations && (
+                        <div className="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider truncate">
+                          Obs: {o.observations}
+                        </div>
+                      )}
                       <div className="text-xs text-muted-foreground truncate">
                         {o.customer?.name ? o.customer.name : "Sin cliente"} ·
                         Total S/. {total.toFixed(2)}

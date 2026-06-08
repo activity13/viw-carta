@@ -5,6 +5,7 @@ import { withTransaction } from "@/lib/with-transaction";
 import Counter from "@/models/counter";
 import CashSession from "@/models/cashSession";
 import Order from "@/models/order";
+import Restaurant from "@/models/restaurants";
 
 export async function GET(request: Request) {
   try {
@@ -65,6 +66,18 @@ export async function POST() {
       );
     }
 
+    interface RestaurantSettings {
+      fiscal?: {
+        defaultInvoiceType?: "boleta" | "factura" | "nota_venta";
+      };
+    }
+
+    // Obtener la configuración fiscal por defecto del restaurante
+    const restaurant = await Restaurant.findById(restaurantId)
+      .select("fiscal.defaultInvoiceType")
+      .lean();
+    const defaultInvoiceType = (restaurant as unknown as RestaurantSettings)?.fiscal?.defaultInvoiceType || "nota_venta";
+
     // --- TRANSACCIÓN ACID (con fallback para dev local sin replica set) ---
     // El contador y la orden se crean atómicamente.
     // Si la orden falla, el contador hace rollback y no se pierden números.
@@ -86,6 +99,8 @@ export async function POST() {
           orderNumber,
           status: "active",
           tableNumber: "",
+          observations: "",
+          invoiceType: defaultInvoiceType,
           customer: { name: "", documentType: "none", documentNumber: "" },
           items: [],
           adjustment: null,
@@ -101,6 +116,8 @@ export async function POST() {
         orderNumber,
         status: "active",
         tableNumber: "",
+        observations: "",
+        invoiceType: defaultInvoiceType,
         customer: { name: "", documentType: "none", documentNumber: "" },
         items: [],
         adjustment: null,

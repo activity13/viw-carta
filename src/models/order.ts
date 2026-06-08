@@ -98,6 +98,7 @@ const OrderSchema = new Schema(
       index: true,
     },
     tableNumber: { type: String, trim: true, default: "" },
+    observations: { type: String, trim: true, default: "" },
     invoiceType: { type: String, enum: ["boleta", "factura", "nota_venta"], default: "nota_venta" },
     fiscalDocumentPrefix: { type: String, trim: true, default: "" },
     fiscalDocumentNumber: { type: Number, default: null },
@@ -152,6 +153,7 @@ const needsRebuild =
   process.env.NODE_ENV !== "production" &&
   !!existingModel &&
   (!existingModel.schema?.path?.("tableNumber") ||
+    !existingModel.schema?.path?.("observations") ||
     !existingModel.schema?.path?.("invoiceType") ||
     !existingModel.schema?.path?.("adjustment") ||
     !adjustmentPath?.schema?.path?.("note") ||

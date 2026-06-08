@@ -86,6 +86,8 @@ export function ActiveOrderModal({
     setCustomerDraft,
     tableNumberDraft,
     setTableNumberDraft,
+    observationsDraft,
+    setObservationsDraft,
     invoiceTypeDraft,
     setInvoiceTypeDraft,
     handleSetItemQty,
@@ -163,6 +165,7 @@ export function ActiveOrderModal({
       (activeOrder.invoiceType || "boleta") !==
         (invoiceTypeDraft || "boleta") ||
       (activeOrder.tableNumber || "") !== (tableNumberDraft || "") ||
+      (activeOrder.observations || "") !== (observationsDraft || "") ||
       (activeOrder.customer?.name || "").trim() !==
         (customerDraft.name || "").trim() ||
       (activeOrder.customer?.surname || "").trim() !==
@@ -178,7 +181,7 @@ export function ActiveOrderModal({
       (activeOrder.customer?.address || "").trim() !==
         (customerDraft.address || "").trim()
     );
-  }, [activeOrder, invoiceTypeDraft, tableNumberDraft, customerDraft]);
+  }, [activeOrder, invoiceTypeDraft, tableNumberDraft, observationsDraft, customerDraft]);
 
   // Debounced search effect for client dropdown
   useEffect(() => {
@@ -350,6 +353,42 @@ export function ActiveOrderModal({
 
         {/* Main Content - Scrollable */}
         <div className="flex-1 overflow-y-auto bg-background flex flex-col">
+          {/* Datos Generales del Pedido: Mesa y Observaciones */}
+          <div className="flex flex-col p-6 xl:px-12 border-b border-border bg-card shrink-0">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+              {/* Mesa */}
+              <div className="col-span-1 md:col-span-3">
+                <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/60 mb-2 block">
+                  Número de Mesa
+                </label>
+                <div className="relative group">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/40 font-mono font-bold">
+                    #
+                  </div>
+                  <Input
+                    value={tableNumberDraft}
+                    onChange={(e) => setTableNumberDraft(e.target.value)}
+                    placeholder="Mesa"
+                    className="pl-8 h-12 font-mono text-lg font-bold bg-background border-border focus:border-primary/50 focus:ring-1 focus:ring-primary/50 text-foreground rounded-xl transition-all placeholder:text-muted-foreground/20"
+                  />
+                </div>
+              </div>
+
+              {/* Observaciones */}
+              <div className="col-span-1 md:col-span-9">
+                <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/60 mb-2 block">
+                  Observaciones y Detalles del Pedido
+                </label>
+                <Input
+                  value={observationsDraft}
+                  onChange={(e) => setObservationsDraft(e.target.value)}
+                  placeholder="Ej. Alérgicos, sin cebolla, platos juntos..."
+                  className="h-12 bg-background border-border focus:border-primary/50 focus:ring-1 focus:ring-primary/50 text-foreground rounded-xl transition-all placeholder:text-muted-foreground/35"
+                />
+              </div>
+            </div>
+          </div>
+
           {/* 1. Products Container */}
           <div className="flex flex-col p-6 xl:px-12 border-b border-border shrink-0">
             {/* Search Bar */}
@@ -463,24 +502,6 @@ export function ActiveOrderModal({
               <div className="space-y-6">
                 {/* Top Row: Primary Identification */}
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-                  {/* Mesa */}
-                  <div className="col-span-1 md:col-span-2">
-                    <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/60 mb-2 block">
-                      Mesa
-                    </label>
-                    <div className="relative group">
-                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/40 font-mono">
-                        #
-                      </div>
-                      <Input
-                        value={tableNumberDraft}
-                        onChange={(e) => setTableNumberDraft(e.target.value)}
-                        placeholder="00"
-                        className="pl-8 h-12 font-mono text-lg font-bold bg-card border-border focus:border-primary/50 focus:ring-1 focus:ring-primary/50 text-foreground rounded-xl transition-all placeholder:text-muted-foreground/20"
-                      />
-                    </div>
-                  </div>
-
                   {/* Tipo Comprobante */}
                   <div className="col-span-1 md:col-span-4">
                     <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/60 mb-2 block">
@@ -536,7 +557,7 @@ export function ActiveOrderModal({
                   </div>
 
                   {/* Número / Buscar Cliente */}
-                  <div className="col-span-1 md:col-span-4 relative group z-20">
+                  <div className="col-span-1 md:col-span-6 relative group z-20">
                     <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/60 mb-2 block">
                       ID CLIENTE
                     </label>

@@ -55,6 +55,7 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
     documentNumber: "",
   });
   const [tableNumberDraft, setTableNumberDraft] = useState<string>("");
+  const [observationsDraft, setObservationsDraft] = useState<string>("");
   const [invoiceTypeDraft, setInvoiceTypeDraft] =
     useState<InvoiceType>("nota_venta");
   const [adjustmentDraft, setAdjustmentDraft] = useState<OrderAdjustment>({
@@ -82,6 +83,46 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
     }
   }, [isOrderModalOpen]);
 
+  // --- FLUSH PENDING SAVE ON MODAL CLOSE ---
+  // When the user closes the modal before the 2s debounce fires,
+  // we need to immediately save any pending changes.
+  const prevModalOpenRef = useRef(false);
+  useEffect(() => {
+    // Detect transition: was open → now closed
+    if (prevModalOpenRef.current && !isOrderModalOpen && activeOrder) {
+      // Clear any pending debounced save (it would be cancelled anyway by auto-save cleanup)
+      if (saveCustomerTimeoutRef.current) {
+        clearTimeout(saveCustomerTimeoutRef.current);
+        saveCustomerTimeoutRef.current = null;
+      }
+
+      // Check if there are unsaved changes to flush
+      const hasUnsavedChanges =
+        (activeOrder.invoiceType || "boleta") !== (invoiceTypeDraft || "boleta") ||
+        (activeOrder.tableNumber || "") !== (tableNumberDraft || "") ||
+        (activeOrder.observations || "") !== (observationsDraft || "");
+
+      if (hasUnsavedChanges) {
+        // Fire-and-forget immediate save
+        Axios.patch<Order>(`/api/orders/${activeOrder._id}`, {
+          action: "setCustomer",
+          customer: customerDraft,
+          tableNumber: tableNumberDraft,
+          observations: observationsDraft,
+          invoiceType: invoiceTypeDraft,
+        })
+          .then((res) => {
+            setActiveOrder(res.data);
+          })
+          .catch((err) => {
+            console.error("Error flushing order data on modal close:", err);
+          });
+      }
+    }
+    prevModalOpenRef.current = isOrderModalOpen;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOrderModalOpen]);
+
   // --- AUTOMATIC SAVE CUSTOMER ---
   useEffect(() => {
     // Skip if no active order or not open
@@ -93,12 +134,13 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
       return;
     }
 
-    // Comprobamos cambios SÓLO para mesa y comprobante.
+    // Comprobamos cambios SÓLO para mesa, observaciones y comprobante.
     // El cliente ahora se guarda de manera manual (Registro/Búsqueda Rápida)
     const hasChanges =
       (activeOrder.invoiceType || "boleta") !==
       (invoiceTypeDraft || "boleta") ||
-      (activeOrder.tableNumber || "") !== (tableNumberDraft || "");
+      (activeOrder.tableNumber || "") !== (tableNumberDraft || "") ||
+      (activeOrder.observations || "") !== (observationsDraft || "");
 
     if (!hasChanges) {
       if (isCustomerSaving) setIsCustomerSaving(false);
@@ -141,6 +183,7 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
                 action: "setCustomer",
                 customer: customerDraft,
                 tableNumber: tableNumberDraft,
+                observations: observationsDraft,
                 invoiceType: invoiceTypeDraft,
               },
             );
@@ -166,7 +209,7 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
       if (saveCustomerTimeoutRef.current)
         clearTimeout(saveCustomerTimeoutRef.current);
     };
-  }, [tableNumberDraft, invoiceTypeDraft, activeOrder, isOrderModalOpen]);
+  }, [tableNumberDraft, observationsDraft, invoiceTypeDraft, activeOrder, isOrderModalOpen]);
 
   // --- BRAND FETCHING ---
   useEffect(() => {
@@ -213,6 +256,7 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
     });
 
     setTableNumberDraft(order.tableNumber ?? "");
+    setObservationsDraft(order.observations ?? "");
     setInvoiceTypeDraft(order.invoiceType ?? "nota_venta");
     setAdjustmentDraft(
       order.adjustment ?? { kind: "discount", percent: 0, note: "" },
@@ -416,6 +460,7 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
         action: "setCustomer",
         customer: customerDraft,
         tableNumber: tableNumberDraft,
+        observations: observationsDraft,
         invoiceType: invoiceTypeDraft,
       });
       setActiveOrder(res.data);
@@ -428,7 +473,7 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
     } finally {
       setIsCustomerSaving(false);
     }
-  }, [activeOrder, customerDraft, tableNumberDraft, invoiceTypeDraft]);
+  }, [activeOrder, customerDraft, tableNumberDraft, observationsDraft, invoiceTypeDraft]);
 
   const handleSaveAdjustment = useCallback(async () => {
     if (!activeOrder) return;
@@ -477,7 +522,30 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
   const handleHoldOrder = useCallback(async () => {
     if (!activeOrder) return;
     setIsOrderBusy(true);
+
+    // Cancel any pending debounced save
+    if (saveCustomerTimeoutRef.current) {
+      clearTimeout(saveCustomerTimeoutRef.current);
+      saveCustomerTimeoutRef.current = null;
+    }
+
     try {
+      // Flush pending draft changes before holding
+      const hasUnsavedChanges =
+        (activeOrder.invoiceType || "boleta") !== (invoiceTypeDraft || "boleta") ||
+        (activeOrder.tableNumber || "") !== (tableNumberDraft || "") ||
+        (activeOrder.observations || "") !== (observationsDraft || "");
+
+      if (hasUnsavedChanges) {
+        await Axios.patch<Order>(`/api/orders/${activeOrder._id}`, {
+          action: "setCustomer",
+          customer: customerDraft,
+          tableNumber: tableNumberDraft,
+          observations: observationsDraft,
+          invoiceType: invoiceTypeDraft,
+        });
+      }
+
       await Axios.patch<Order>(`/api/orders/${activeOrder._id}`, {
         action: "hold",
       });
@@ -491,7 +559,7 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
     } finally {
       setIsOrderBusy(false);
     }
-  }, [activeOrder, fetchHoldOrders]);
+  }, [activeOrder, fetchHoldOrders, customerDraft, tableNumberDraft, observationsDraft, invoiceTypeDraft]);
 
   const handlePayOrder = useCallback(async () => {
     if (!activeOrder) return;
@@ -846,6 +914,8 @@ export function useOrderManager(restaurantId?: string, userId?: string) {
     isCustomerSaving,
     tableNumberDraft,
     setTableNumberDraft,
+    observationsDraft,
+    setObservationsDraft,
     invoiceTypeDraft,
     setInvoiceTypeDraft,
     adjustmentDraft,

@@ -160,6 +160,10 @@ export async function PATCH(
         order.tableNumber = body.tableNumber;
       }
 
+      if (typeof body.observations === "string") {
+        order.observations = body.observations;
+      }
+
       if (typeof body.invoiceType === "string" && ["boleta", "factura", "nota_venta"].includes(body.invoiceType)) {
         order.invoiceType = body.invoiceType;
       }

@@ -187,6 +187,11 @@ const RestaurantSchema = new Schema(
       provider: { type: String, trim: true, default: "nubefact" },
       apiEndpoint: { type: String, trim: true, default: "" },
       apiKey: { type: String, trim: true, default: "" },
+      defaultInvoiceType: {
+        type: String,
+        enum: ["boleta", "factura", "nota_venta"],
+        default: "nota_venta",
+      },
     },
   },
   {
@@ -198,6 +203,15 @@ RestaurantSchema.index({ plan: 1 });
 RestaurantSchema.index({ "subscription.plan": 1 });
 RestaurantSchema.index({ "subscription.status": 1 });
 RestaurantSchema.index({ "subscription.currentPeriodEnd": 1 });
+
+if (
+  process.env.NODE_ENV !== "production" &&
+  mongoose.models?.Restaurant &&
+  !mongoose.models.Restaurant.schema?.path?.("fiscal.defaultInvoiceType")
+) {
+  console.log("Rebuilding Restaurant model due to schema changes");
+  delete mongoose.models.Restaurant;
+}
 
 const Restaurant =
   mongoose.models?.Restaurant || model("Restaurant", RestaurantSchema);

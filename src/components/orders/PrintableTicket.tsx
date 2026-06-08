@@ -99,6 +99,7 @@ export const PrintableTicket = forwardRef<HTMLDivElement, PrintableTicketProps>(
     const taxName = brand?.fiscal?.taxName || "IGV";
 
     const tableNumber = order.tableNumber?.trim() ?? "";
+    const observations = order.observations?.trim() ?? "";
 
     const rawTotal = calculateOrderTotal(order);
 
@@ -212,6 +213,12 @@ export const PrintableTicket = forwardRef<HTMLDivElement, PrintableTicketProps>(
             <div className="flex justify-between font-bold text-[13px] mt-1 border-y border-dotted border-gray-400 py-1">
               <span>MESA:</span>
               <span>{tableNumber}</span>
+            </div>
+          )}
+          {observations && (
+            <div className="mt-1 border-t border-dotted border-gray-400 pt-1 text-[11px]">
+              <div className="font-bold">OBSERVACIONES:</div>
+              <div className="whitespace-pre-wrap uppercase font-semibold text-gray-800">{observations}</div>
             </div>
           )}
         </div>

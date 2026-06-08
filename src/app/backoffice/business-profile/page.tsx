@@ -105,6 +105,7 @@ interface Business {
     provider?: string;
     apiEndpoint?: string;
     apiKey?: string;
+    defaultInvoiceType?: "boleta" | "factura" | "nota_venta";
   };
 }
 
@@ -607,6 +608,32 @@ export default function BusinessProfileForm() {
                     disabled={!isEditing}
                     placeholder="B001"
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="fiscal.defaultInvoiceType">Comprobante por Defecto</Label>
+                  <Select
+                    value={formData.fiscal?.defaultInvoiceType || "nota_venta"}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        fiscal: {
+                          ...prev.fiscal,
+                          defaultInvoiceType: value as "boleta" | "factura" | "nota_venta",
+                        },
+                      }))
+                    }
+                    disabled={!isEditing}
+                  >
+                    <SelectTrigger className="bg-background border-border">
+                      <SelectValue placeholder="Selecciona el comprobante por defecto" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border">
+                      <SelectItem value="nota_venta">Nota de Venta (Ticket Interno)</SelectItem>
+                      <SelectItem value="boleta">Boleta de Venta (CPE)</SelectItem>
+                      <SelectItem value="factura">Factura Electrónica (CPE)</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 {/* Sección Facturación Electrónica */}

@@ -64,6 +64,7 @@ export interface Order {
   orderNumber: number;
   status: OrderStatus;
   tableNumber?: string;
+  observations?: string;
   customer?: Partial<OrderCustomer>;
   invoiceType?: InvoiceType;
   fiscalDocumentPrefix?: string;

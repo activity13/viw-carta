@@ -168,6 +168,13 @@ export function buildKitchenOrderHtml(
               )}</div>`
             : ""
         }
+        ${
+          order.observations?.trim()
+            ? `<div class="wrap" style="margin-top: 4px; border: 1px dashed #000; padding: 4px;"><strong>OBSERVACIONES:</strong> <span style="text-transform: uppercase;">${escapeHtml(
+                order.observations,
+              )}</span></div>`
+            : ""
+        }
       </div>
 
       <div class="hr"></div>
@@ -337,6 +344,13 @@ export function buildTicketHtml(
         ${
           docLine
             ? `<div class="wrap"><strong>Doc:</strong> ${docLine}</div>`
+            : ""
+        }
+        ${
+          order.observations?.trim()
+            ? `<div class="wrap" style="margin-top: 4px; border-top: 1px dotted #000; padding-top: 2px;"><strong>Obs:</strong> ${escapeHtml(
+                order.observations,
+              )}</div>`
             : ""
         }
       </div>
