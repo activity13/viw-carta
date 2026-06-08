@@ -111,3 +111,13 @@ Para mejorar la ergonomía visual y adaptarse a diferentes entornos de trabajo (
 2. **Selección en Onboarding:** Al registrarte o configurar un nuevo local, el sistema te preguntará tu preferencia en el paso de bienvenida.
 3. **Sincronización en la Nube:** A diferencia de otros sistemas, tu preferencia se guarda directamente en tu cuenta y perfil de usuario de la base de datos. Cada vez que inicies sesión (en cualquier laptop, tablet o celular), tu entorno se cargará automáticamente con tu estilo preferido.
 
+---
+
+## 🖥️ Módulo POS: Punto de Venta (En Desarrollo)
+
+Estamos implementando una interfaz de ventas ultrarrápida y centralizada en el enlace **POS** del menú superior (`/backoffice/pos`) que optimizará el flujo de trabajo de los meseros y cajeros:
+* **Facturación Rápida:** Generación de órdenes de compra e impresión térmica simplificada en caliente.
+* **Control de Mesas:** Monitoreo y actualización del estado de ocupación (libre, ocupada, atendiendo, por cobrar) en un panel de listado ágil.
+
+> [!NOTE]
+> Durante la fase de construcción activa del POS, la edición principal de tus categorías, platos y traducciones continuará realizándose desde la sección **Carta** (`/backoffice`).

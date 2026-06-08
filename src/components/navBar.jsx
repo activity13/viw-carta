@@ -73,7 +73,7 @@ export default function NavBar() {
 
   const baseNavItems = [
     {
-      href: "/backoffice",
+      href: "/backoffice/pos",
       label: "POS",
       icon: "point_of_sale",
       color: "text-primary",

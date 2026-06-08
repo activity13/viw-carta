@@ -36,11 +36,11 @@ import {
   DocumentType,
   AdjustmentKind,
   PaymentType,
-  InvoiceType,
 } from "@/types/order";
 import { useOrderManager } from "@/hooks/use-order-manager";
 import { RoleGate } from "@/components/auth/RoleGate";
 import { cn } from "@/lib/utils";
+import { motion } from "motion/react";
 
 // Local interface matching master.tsx
 export interface Meal {
@@ -485,161 +485,178 @@ export function ActiveOrderModal({
           {/* 2. Customer Container */}
           <RoleGate action="can_register_client">
             <div className="flex flex-col p-6 xl:px-12 border-b border-border shrink-0">
-              <div className="flex items-center justify-between mb-6">
+              <div className="mb-6">
                 <h2 className="text-[10px] text-muted-foreground/50 uppercase tracking-[0.3em] font-bold">
                   Registro de Cliente
                 </h2>
-                <div
-                  className="text-[10px] text-primary/70 font-mono tracking-widest font-bold uppercase hover:text-primary cursor-pointer transition-colors"
-                  onClick={() => {
-                    document.getElementById("search-client-input")?.focus();
-                  }}
-                >
-                  Buscar Existente
-                </div>
               </div>
 
               <div className="space-y-6">
                 {/* Top Row: Primary Identification */}
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-                  {/* Tipo Comprobante */}
-                  <div className="col-span-1 md:col-span-4">
-                    <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/60 mb-2 block">
-                      Comprobante
-                    </label>
-                    <Select
-                      value={invoiceTypeDraft}
-                      onValueChange={(v: InvoiceType) => setInvoiceTypeDraft(v)}
-                    >
-                      <SelectTrigger className="h-12 bg-card border-border focus:border-primary/50 focus:ring-1 focus:ring-primary/50 rounded-xl text-foreground">
-                        <SelectValue placeholder="Seleccionar" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-card border-border">
-                        <SelectItem value="boleta">
-                          Boleta de Venta (B-001)
-                        </SelectItem>
-                        <SelectItem value="factura">
-                          Factura Electrónica (F-001)
-                        </SelectItem>
-                        <SelectItem value="nota_venta">
-                          Nota de Venta (Ticket Interno)
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
+                {/* Selector Triple de Comprobante en una fila */}
+                <div className="space-y-2">
+                  <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/60 block">
+                    Tipo de Comprobante
+                  </label>
+                  <div className="relative flex items-center bg-muted/40 p-1 rounded-full border border-border w-full select-none">
+                    {(
+                      [
+                        { id: "boleta", label: "BOLETA" },
+                        { id: "factura", label: "FACTURA" },
+                        { id: "nota_venta", label: "NOTA VENTA" },
+                      ] as const
+                    ).map((opt) => {
+                      const isActive = invoiceTypeDraft === opt.id;
+                      return (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          onClick={() => setInvoiceTypeDraft(opt.id)}
+                          className={cn(
+                            "relative flex-1 h-11 flex items-center justify-center text-[10px] sm:text-xs font-bold tracking-wider transition-colors duration-200 rounded-full focus:outline-none uppercase",
+                            isActive
+                              ? "text-primary font-extrabold"
+                              : "text-muted-foreground hover:text-foreground"
+                          )}
+                        >
+                          {isActive && (
+                            <motion.div
+                              layoutId="activeInvoiceType"
+                              className="absolute inset-0 bg-background rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.12)] border border-border z-0"
+                              transition={{
+                                type: "spring",
+                                stiffness: 380,
+                                damping: 30,
+                              }}
+                            />
+                          )}
+                          <span className="relative z-10">{opt.label}</span>
+                        </button>
+                      );
+                    })}
                   </div>
+                </div>
 
-                  {/* Tipo Doc. */}
-                  <div className="col-span-1 md:col-span-2">
-                    <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/60 mb-2 block">
-                      Doc.
-                    </label>
-                    <Select
-                      value={customerDraft.documentType}
-                      onValueChange={(v: DocumentType) =>
-                        setCustomerDraft((prev) => ({
-                          ...prev,
-                          documentType: v,
-                        }))
-                      }
-                    >
-                      <SelectTrigger className="h-12 bg-card border-border focus:border-primary/50 focus:ring-1 focus:ring-primary/50 rounded-xl text-foreground">
-                        <SelectValue placeholder="Tipo" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-card border-border">
-                        <SelectItem value="none">--</SelectItem>
-                        <SelectItem value="dni">DNI</SelectItem>
-                        <SelectItem value="ruc">RUC</SelectItem>
-                        <SelectItem value="passport">PASAPORTE</SelectItem>
-                        <SelectItem value="ci">CÉDULA</SelectItem>
-                        <SelectItem value="ce">CE</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Número / Buscar Cliente */}
-                  <div className="col-span-1 md:col-span-6 relative group z-20">
-                    <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/60 mb-2 block">
-                      ID CLIENTE
-                    </label>
-                    <input
-                      id="search-client-input"
-                      value={customerDraft.documentNumber}
-                      onChange={(e) => {
-                        setCustomerDraft((prev) => ({
-                          ...prev,
-                          documentNumber: e.target.value,
-                        }));
-                        setIsClientLocked(false);
-                        setShowClientResults(true);
-                      }}
-                      onFocus={() => setShowClientResults(true)}
-                      placeholder="DNI, RUC..."
-                      className="block w-full outline-none disabled:cursor-not-allowed disabled:opacity-50 h-12 font-mono text-base tracking-wide bg-card border border-border focus:border-primary/50 focus:ring-1 focus:ring-primary/50 text-foreground rounded-xl pl-4 pr-10 placeholder:text-muted-foreground/30 transition-all uppercase"
-                    />
-                    <div className="absolute right-4 top-10 pointer-events-none transition-opacity bg-transparent">
-                      {clientSearchStatus === "searching" ? (
-                        <Loader2 className="w-4 h-4 text-primary animate-spin" />
-                      ) : isClientLocked ? (
-                        <CheckCircle2 className="w-4 h-4 text-primary" />
-                      ) : clientSearchStatus === "not_found" &&
-                        customerDraft.documentNumber.length > 2 ? (
-                        <Search className="w-4 h-4 text-primary/50" />
-                      ) : (
-                        <Search className="w-4 h-4 text-primary/30 opacity-0 group-focus-within:opacity-100" />
-                      )}
+                {/* Input Group Unificado: Tipo Doc + Nro de Documento */}
+                <div className="space-y-2 relative">
+                  <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/60 block">
+                    Identificación del Cliente
+                  </label>
+                  <div className="flex items-center rounded-xl border border-border bg-card focus-within:ring-1 focus-within:ring-primary/50 focus-within:border-primary/50 transition-all overflow-hidden h-12 relative z-20">
+                    
+                    {/* Selector de Tipo de Documento */}
+                    <div className="shrink-0">
+                      <Select
+                        value={customerDraft.documentType}
+                        onValueChange={(v: DocumentType) =>
+                          setCustomerDraft((prev) => ({
+                            ...prev,
+                            documentType: v,
+                          }))
+                        }
+                      >
+                        <SelectTrigger className="h-11 border-0 shadow-none focus:ring-0 focus:ring-offset-0 px-4 bg-transparent text-xs font-bold tracking-wider rounded-none text-foreground hover:bg-muted/10 transition-colors w-[110px] justify-between gap-1">
+                          <SelectValue placeholder="TIPO" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-card border-border">
+                          <SelectItem value="none">--</SelectItem>
+                          <SelectItem value="dni">DNI</SelectItem>
+                          <SelectItem value="ruc">RUC</SelectItem>
+                          <SelectItem value="passport">PASAPORTE</SelectItem>
+                          <SelectItem value="ci">CÉDULA</SelectItem>
+                          <SelectItem value="ce">CE</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
 
-                    {showClientResults &&
-                      clientSearchResults.length > 0 &&
-                      !isClientLocked && (
-                        <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-2xl z-50 max-h-[250px] overflow-y-auto">
-                          {clientSearchResults.map((client) => (
-                            <button
-                              key={client._id}
-                              className="w-full text-left p-4 hover:bg-muted flex flex-col border-b border-border last:border-0 transition-colors uppercase tracking-widest cursor-pointer"
-                              onClick={() => {
-                                setCustomerDraft((p) => ({
-                                  ...p,
-                                  documentType:
-                                    (client.documentType as DocumentType) ||
-                                    "none",
-                                  documentNumber: client.documentNumber,
-                                  name:
-                                    client.name || client.businessName || "",
-                                  surname: client.lastName || "",
-                                  email: client.email || "",
-                                  phone: client.phone || "",
-                                  address: client.address || "",
-                                }));
-                                const isExternal = client._id?.toString().startsWith("external-");
-                                setIsClientLocked(!isExternal);
-                                setShowClientResults(false);
-                              }}
-                            >
-                              <div className="font-bold text-xs text-foreground flex items-center flex-wrap gap-2">
-                                <span className="text-primary font-mono">
-                                  {client.documentNumber}
-                                </span>
-                                <span>
-                                  {client.name || client.businessName}{" "}
-                                  {client.lastName || ""}
-                                </span>
-                                {client._id?.toString().startsWith("external-") && (
-                                  <span className="inline-flex text-[9px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-mono uppercase tracking-wider font-bold">
-                                    AUTO
-                                  </span>
-                                )}
-                              </div>
-                              {client.phone && (
-                                <div className="text-[10px] text-muted-foreground/50 font-mono mt-1">
-                                  TEL: {client.phone}
-                                </div>
-                              )}
-                            </button>
-                          ))}
-                        </div>
-                      )}
+                    {/* Línea Divisoria */}
+                    <div className="w-[1px] h-6 bg-border shrink-0" />
+
+                    {/* Input del Número de Documento */}
+                    <div className="flex-1 relative h-full flex items-center">
+                      <input
+                        id="search-client-input"
+                        value={customerDraft.documentNumber}
+                        onChange={(e) => {
+                          setCustomerDraft((prev) => ({
+                            ...prev,
+                            documentNumber: e.target.value,
+                          }));
+                          setIsClientLocked(false);
+                          setShowClientResults(true);
+                        }}
+                        onFocus={() => setShowClientResults(true)}
+                        placeholder="Nro de DNI, RUC o Pasaporte..."
+                        className="w-full h-full px-4 bg-transparent outline-none border-0 text-foreground font-mono text-sm tracking-wider placeholder:text-muted-foreground/30 uppercase disabled:cursor-not-allowed disabled:opacity-50"
+                      />
+                      
+                      {/* Estado visual de búsqueda (Loader / Check / Icono) */}
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none transition-opacity bg-transparent">
+                        {clientSearchStatus === "searching" ? (
+                          <Loader2 className="w-4 h-4 text-primary animate-spin" />
+                        ) : isClientLocked ? (
+                          <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                        ) : clientSearchStatus === "not_found" &&
+                          customerDraft.documentNumber.length > 2 ? (
+                          <Search className="w-4 h-4 text-rose-400" />
+                        ) : (
+                          <Search className="w-4 h-4 text-primary/30" />
+                        )}
+                      </div>
+                    </div>
                   </div>
+
+                  {/* Panel Autocompletar / Resultados de búsqueda */}
+                  {showClientResults &&
+                    clientSearchResults.length > 0 &&
+                    !isClientLocked && (
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-2xl z-30 max-h-[250px] overflow-y-auto">
+                        {clientSearchResults.map((client) => (
+                          <button
+                            key={client._id}
+                            className="w-full text-left p-4 hover:bg-muted flex flex-col border-b border-border last:border-0 transition-colors uppercase tracking-widest cursor-pointer"
+                            onClick={() => {
+                              setCustomerDraft((p) => ({
+                                ...p,
+                                documentType:
+                                  (client.documentType as DocumentType) ||
+                                  "none",
+                                documentNumber: client.documentNumber,
+                                name:
+                                  client.name || client.businessName || "",
+                                surname: client.lastName || "",
+                                email: client.email || "",
+                                phone: client.phone || "",
+                                address: client.address || "",
+                              }));
+                              const isExternal = client._id?.toString().startsWith("external-");
+                              setIsClientLocked(!isExternal);
+                              setShowClientResults(false);
+                            }}
+                          >
+                            <div className="font-bold text-xs text-foreground flex items-center flex-wrap gap-2">
+                              <span className="text-primary font-mono">
+                                {client.documentNumber}
+                              </span>
+                              <span>
+                                {client.name || client.businessName}{" "}
+                                {client.lastName || ""}
+                              </span>
+                              {client._id?.toString().startsWith("external-") && (
+                                <span className="inline-flex text-[9px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-mono uppercase tracking-wider font-bold">
+                                  AUTO
+                                </span>
+                              )}
+                            </div>
+                            {client.phone && (
+                              <div className="text-[10px] text-muted-foreground/50 font-mono mt-1">
+                                TEL: {client.phone}
+                              </div>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
 
                   {showClientResults && (
                     <div
@@ -704,7 +721,7 @@ export function ActiveOrderModal({
                       }
                       placeholder="EMAIL"
                       disabled={isClientLocked}
-                      className="h-12 bg-background border-b border-border border-t-0 border-x-0 rounded-none focus:border-primary/50 text-foreground placeholder:text-muted-foreground/20 disabled:opacity-50 uppercase tracking-widest text-xs font-mono"
+                      className="h-12 bg-card border-border focus:border-primary/50 focus:ring-1 focus:ring-primary/50 text-foreground rounded-xl placeholder:text-muted-foreground/20 disabled:opacity-50 uppercase tracking-widest text-xs font-mono"
                     />
                   </div>
                   <div className="relative group">
@@ -722,7 +739,7 @@ export function ActiveOrderModal({
                       }
                       placeholder="TEL"
                       disabled={isClientLocked}
-                      className="h-12 bg-background border-b border-border border-t-0 border-x-0 rounded-none focus:border-primary/50 text-foreground placeholder:text-muted-foreground/20 disabled:opacity-50 uppercase tracking-widest text-xs font-mono"
+                      className="h-12 bg-card border-border focus:border-primary/50 focus:ring-1 focus:ring-primary/50 text-foreground rounded-xl placeholder:text-muted-foreground/20 disabled:opacity-50 uppercase tracking-widest text-xs font-mono"
                     />
                   </div>
                   <div className="relative group">
@@ -739,7 +756,7 @@ export function ActiveOrderModal({
                       }
                       placeholder="DIRECCIÓN"
                       disabled={isClientLocked}
-                      className="h-12 bg-background border-b border-border border-t-0 border-x-0 rounded-none focus:border-primary/50 text-foreground placeholder:text-muted-foreground/20 disabled:opacity-50 uppercase tracking-widest text-xs font-mono"
+                      className="h-12 bg-card border-border focus:border-primary/50 focus:ring-1 focus:ring-primary/50 text-foreground rounded-xl placeholder:text-muted-foreground/20 disabled:opacity-50 uppercase tracking-widest text-xs font-mono"
                     />
                   </div>
                 </div>
