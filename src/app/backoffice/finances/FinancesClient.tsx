@@ -723,12 +723,12 @@ export default function FinancesClient() {
       onClick={() => setAlertMessage(null)}
     >
       <div
-        className={`bg-[#1c1b1b] border rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl flex flex-col ${
+        className={`bg-card border rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl flex flex-col ${
           alertMessage.type === "error"
-            ? "border-[#ffb4ab]/30 shadow-[0_0_40px_rgba(147,0,10,0.3)]"
+            ? "border-destructive/30 shadow-[0_0_40px_rgba(239,68,68,0.2)]"
             : alertMessage.type === "success"
-              ? "border-[#70d8c8]/30 shadow-[0_0_40px_rgba(0,80,72,0.3)]"
-              : "border-[#bdc9c6]/30 shadow-[0_0_40px_rgba(189,201,198,0.1)]"
+              ? "border-emerald-500/30 shadow-[0_0_40px_rgba(16,185,129,0.2)]"
+              : "border-border/60 shadow-[0_0_40px_rgba(0,0,0,0.15)]"
         }`}
         onClick={(e) => e.stopPropagation()}
       >
@@ -736,31 +736,31 @@ export default function FinancesClient() {
           <div
             className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 border ${
               alertMessage.type === "error"
-                ? "bg-[#93000a]/20 border-[#ffb4ab]/30"
+                ? "bg-destructive/15 border-destructive/30"
                 : alertMessage.type === "success"
-                  ? "bg-[#005048]/20 border-[#70d8c8]/30"
-                  : "bg-[#3d4947]/20 border-[#bdc9c6]/30"
+                  ? "bg-emerald-500/10 border-emerald-500/30"
+                  : "bg-secondary border-border"
             }`}
           >
             {alertMessage.type === "error" && (
-              <ShieldAlert className="w-8 h-8 text-[#ffb4ab]" />
+              <ShieldAlert className="w-8 h-8 text-destructive" />
             )}
             {alertMessage.type === "success" && (
-              <CheckCircle className="w-8 h-8 text-[#70d8c8]" />
+              <CheckCircle className="w-8 h-8 text-emerald-500" />
             )}
             {alertMessage.type === "info" && (
-              <Info className="w-8 h-8 text-[#bdc9c6]" />
+              <Info className="w-8 h-8 text-muted-foreground" />
             )}
           </div>
-          <h3 className="text-xl font-black text-[#e5e2e1] mb-2">
+          <h3 className="text-xl font-black text-foreground mb-2">
             {alertMessage.title}
           </h3>
-          <p className="text-sm text-[#bdc9c6] opacity-80 mb-6">
+          <p className="text-sm text-muted-foreground opacity-80 mb-6">
             {alertMessage.message}
           </p>
           <button
             onClick={() => setAlertMessage(null)}
-            className="w-full py-3 rounded-lg font-bold text-sm bg-[#353534] text-[#e5e2e1] hover:bg-[#3d4947] transition-colors"
+            className="w-full py-3 rounded-lg font-bold text-sm bg-secondary text-foreground hover:bg-muted transition-colors cursor-pointer"
           >
             Aceptar
           </button>
@@ -772,7 +772,7 @@ export default function FinancesClient() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-48">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#70d8c8]"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -780,40 +780,40 @@ export default function FinancesClient() {
   // PANTALLA: CERRADA (Y USUARIO NO ESTA EN HISTORY)
   if (!session && activeTab === "current") {
     return (
-      <div className="space-y-6 max-w-7xl mx-auto pb-12 font-['Manrope'] text-[#e5e2e1]">
-        <div className="flex bg-[#1c1b1b] border border-[#3d4947]/30 rounded-lg p-1 w-fit mb-8 shadow-md">
+      <div className="space-y-6 max-w-7xl mx-auto pb-12 font-['Manrope'] text-foreground">
+        <div className="flex bg-card border border-border/50 rounded-lg p-1 w-fit mb-8 shadow-md">
           <button
             onClick={() => setActiveTab("current")}
-            className="px-6 py-2 rounded-md font-bold text-sm bg-[#70d8c8] text-[#003731] transition-all"
+            className="px-6 py-2 rounded-md font-bold text-sm bg-primary text-primary-foreground transition-all cursor-pointer"
           >
             Turno Actual (Abierto)
           </button>
           <button
             onClick={() => setActiveTab("history")}
-            className="px-6 py-2 rounded-md font-bold text-sm text-[#bdc9c6] hover:text-[#e5e2e1] transition-all"
+            className="px-6 py-2 rounded-md font-bold text-sm text-muted-foreground hover:text-foreground transition-all cursor-pointer"
           >
             Histórico Avanzado
           </button>
         </div>
 
-        <div className="bg-[#1c1b1b] border border-[#3d4947]/30 rounded-xl p-8 text-center max-w-xl mx-auto shadow-xl">
-          <div className="mx-auto w-16 h-16 bg-[#201f1f] border border-[#3d4947]/30 rounded-full flex items-center justify-center mb-4">
-            <Wallet className="w-8 h-8 text-[#bdc9c6]" />
+        <div className="bg-card border border-border/50 rounded-xl p-8 text-center max-w-xl mx-auto shadow-xl">
+          <div className="mx-auto w-16 h-16 bg-muted/30 border border-border/50 rounded-full flex items-center justify-center mb-4">
+            <Wallet className="w-8 h-8 text-muted-foreground" />
           </div>
-          <h2 className="text-xl font-bold text-[#e5e2e1] mb-2">
+          <h2 className="text-xl font-bold text-foreground mb-2">
             La Caja está Cerrada
           </h2>
-          <p className="text-[#bdc9c6] text-sm opacity-80 mb-6 font-['Plus_Jakarta_Sans']">
+          <p className="text-muted-foreground text-sm opacity-80 mb-6 font-['Plus_Jakarta_Sans']">
             Abre un nuevo turno registrando el dinero base (sencillo) con el que
             se empieza.
           </p>
 
-          <div className="bg-[#131313] p-4 rounded-lg border border-[#3d4947]/30 mb-6 text-left shadow-inner">
-            <label className="block text-sm font-semibold tracking-wider text-[#bdc9c6] mb-2 uppercase text-[10px]">
+          <div className="bg-background p-4 rounded-lg border border-border/50 mb-6 text-left shadow-inner">
+            <label className="block text-sm font-semibold tracking-wider text-muted-foreground mb-2 uppercase text-[10px]">
               Dinero Físico en Caja
             </label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#70d8c8] font-bold">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-primary font-bold">
                 S/
               </span>
               <input
@@ -823,7 +823,7 @@ export default function FinancesClient() {
                 value={startCashInput}
                 onChange={(e) => setStartCashInput(e.target.value)}
                 placeholder="0.00"
-                className="w-full bg-[#1c1b1b] text-white pl-9 pr-4 py-3 border border-[#3d4947]/50 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#70d8c8] font-bold"
+                className="w-full bg-card text-foreground pl-9 pr-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-primary font-bold"
               />
             </div>
           </div>
@@ -831,7 +831,7 @@ export default function FinancesClient() {
           <button
             onClick={handleOpenShift}
             disabled={opening}
-            className="w-full sm:w-auto bg-[#70d8c8] hover:brightness-110 text-[#003731] font-bold py-3 px-8 rounded-lg transition-all flex items-center justify-center gap-2 mx-auto disabled:opacity-50 active:scale-95"
+            className="w-full sm:w-auto bg-primary hover:brightness-110 text-primary-foreground font-bold py-3 px-8 rounded-lg transition-all flex items-center justify-center gap-2 mx-auto disabled:opacity-50 active:scale-95 cursor-pointer"
           >
             <Play className="w-5 h-5" fill="currentColor" />{" "}
             {opening ? "Abriendo..." : "Abrir Turno"}
@@ -847,18 +847,18 @@ export default function FinancesClient() {
   const displayStats = activeTab === "history" ? historyStats : stats;
 
   return (
-    <div className="max-w-7xl mx-auto font-['Manrope'] pb-12 text-[#e5e2e1]">
+    <div className="max-w-7xl mx-auto font-['Manrope'] pb-12 text-foreground">
       {/* TABS HEADER */}
-      <div className="flex bg-[#1c1b1b] border border-[#3d4947]/30 rounded-lg p-1 w-fit mb-8 shadow-md">
+      <div className="flex bg-card border border-border/50 rounded-lg p-1 w-fit mb-8 shadow-md">
         <button
           onClick={() => setActiveTab("current")}
-          className={`px-6 py-2 rounded-md font-bold text-sm transition-all ${activeTab === "current" ? "bg-[#70d8c8] text-[#003731]" : "text-[#bdc9c6] hover:text-[#e5e2e1]"}`}
+          className={`px-6 py-2 rounded-md font-bold text-sm transition-all cursor-pointer ${activeTab === "current" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
         >
           {session ? "Turno Actual (Operando)" : "Turno Actual"}
         </button>
         <button
           onClick={() => setActiveTab("history")}
-          className={`px-6 py-2 rounded-md font-bold text-sm transition-all ${activeTab === "history" ? "bg-[#70d8c8] text-[#003731]" : "text-[#bdc9c6] hover:text-[#e5e2e1]"}`}
+          className={`px-6 py-2 rounded-md font-bold text-sm transition-all cursor-pointer ${activeTab === "history" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
         >
           Filtrado e Histórico
         </button>
@@ -866,45 +866,45 @@ export default function FinancesClient() {
 
       {/* TABS TITLES */}
       {activeTab === "history" ? (
-        <header className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4 bg-[#201f1f] p-6 rounded-xl border border-[#3d4947]/30 shadow-lg">
+        <header className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4 bg-card p-6 rounded-xl border border-border/50 shadow-lg">
           <div>
             <div className="flex items-center gap-3 mb-1">
-              <CalendarRange className="w-6 h-6 text-[#70d8c8]" />
-              <h1 className="text-3xl font-black tracking-tight text-[#e5e2e1]">
+              <CalendarRange className="w-6 h-6 text-primary" />
+              <h1 className="text-3xl font-black tracking-tight text-foreground">
                 Reporte Histórico
               </h1>
             </div>
-            <p className="text-[#bdc9c6] font-['Plus_Jakarta_Sans'] text-sm opacity-80 mt-2">
+            <p className="text-muted-foreground font-['Plus_Jakarta_Sans'] text-sm opacity-80 mt-2">
               Cruzamiento de datos, agrupa todas las cajas y ordenes pasadas.
             </p>
           </div>
           <div className="flex items-center gap-3 flex-wrap">
-            <div className="bg-[#131313] border border-[#3d4947]/40 rounded-lg px-3 py-1.5 flex flex-col">
-              <label className="text-[9px] font-bold text-[#70d8c8] uppercase">
+            <div className="bg-background border border-border/60 rounded-lg px-3 py-1.5 flex flex-col">
+              <label className="text-[9px] font-bold text-primary uppercase">
                 Desde
               </label>
               <input
                 type="date"
                 value={hStart}
                 onChange={(e) => setHStart(e.target.value)}
-                className="bg-transparent border-none text-sm text-white focus:outline-none focus:ring-0 p-0"
+                className="bg-transparent border-none text-sm text-foreground focus:outline-none focus:ring-0 p-0"
               />
             </div>
-            <div className="bg-[#131313] border border-[#3d4947]/40 rounded-lg px-3 py-1.5 flex flex-col">
-              <label className="text-[9px] font-bold text-[#ffb4ab] uppercase">
+            <div className="bg-background border border-border/60 rounded-lg px-3 py-1.5 flex flex-col">
+              <label className="text-[9px] font-bold text-destructive uppercase">
                 Hasta
               </label>
               <input
                 type="date"
                 value={hEnd}
                 onChange={(e) => setHEnd(e.target.value)}
-                className="bg-transparent border-none text-sm text-white focus:outline-none focus:ring-0 p-0"
+                className="bg-transparent border-none text-sm text-foreground focus:outline-none focus:ring-0 p-0"
               />
             </div>
             <button
               onClick={fetchHistory}
               disabled={fetchingHistory}
-              className="bg-[#70d8c8] hover:brightness-110 text-[#003731] font-bold py-3 px-6 rounded-lg transition-all active:scale-95 disabled:opacity-50"
+              className="bg-primary hover:brightness-110 text-primary-foreground font-bold py-3 px-6 rounded-lg transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
             >
               {fetchingHistory ? "Buscando..." : "Aplicar Filtros"}
             </button>
@@ -914,12 +914,12 @@ export default function FinancesClient() {
         <header className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
           <div>
             <div className="flex items-center gap-3 mb-1">
-              <span className="w-2 h-2 rounded-full bg-[#70d8c8] animate-pulse"></span>
-              <h1 className="text-3xl font-black tracking-tight text-[#e5e2e1]">
+              <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+              <h1 className="text-3xl font-black tracking-tight text-foreground">
                 Panel Financiero
               </h1>
             </div>
-            <p className="text-[#bdc9c6] font-['Plus_Jakarta_Sans'] text-sm flex items-center gap-2 opacity-80">
+            <p className="text-muted-foreground font-['Plus_Jakarta_Sans'] text-sm flex items-center gap-2 opacity-80">
               <Clock className="w-4 h-4" /> Abierto el{" "}
               {session ? new Date(session.openedAt).toLocaleString() : ""}
             </p>
@@ -927,7 +927,7 @@ export default function FinancesClient() {
           <button
             onClick={() => setCloseSessionConfirm(true)}
             disabled={closing}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-lg border border-[#ffb4ab]/30 text-[#ffb4ab] font-bold hover:bg-[#93000a]/20 transition-colors active:scale-95"
+            className="flex items-center gap-2 px-6 py-2.5 rounded-lg border border-destructive/30 text-destructive font-bold hover:bg-destructive/15 transition-colors active:scale-95 cursor-pointer"
           >
             {closing ? (
               <History className="w-5 h-5 animate-spin" />
@@ -942,33 +942,33 @@ export default function FinancesClient() {
       {/* METRICS (DYNAMIC FOR BOTH VIEWS) */}
       {displayStats ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-10">
-          <div className="bg-[#1c1b1b] rounded-xl p-6 border-l-4 border-[#3d4947]/30 transition-all hover:bg-[#201f1f]">
-            <p className="text-[#bdc9c6] text-[10px] font-['Plus_Jakarta_Sans'] font-bold uppercase tracking-widest mb-2 opacity-70">
+          <div className="bg-card rounded-xl p-6 border-l-4 border-border/50 transition-all hover:bg-muted/20">
+            <p className="text-muted-foreground text-[10px] font-['Plus_Jakarta_Sans'] font-bold uppercase tracking-widest mb-2 opacity-70">
               Venta Bruta Total
             </p>
-            <p className="text-3xl font-black text-[#e5e2e1]">
+            <p className="text-3xl font-black text-foreground">
               S/ {displayStats.totalSales.toFixed(2)}
             </p>
-            <p className="text-[#bdc9c6] text-xs mt-2 italic opacity-60 flex items-center gap-1">
+            <p className="text-muted-foreground text-xs mt-2 italic opacity-60 flex items-center gap-1">
               <TrendingUp className="w-3 h-3" /> {displayStats.orderCount}{" "}
               órdenes pagadas
             </p>
           </div>
 
-          <div className="bg-[#1c1b1b] rounded-xl p-6 border-l-4 border-[#70d8c8] transition-all hover:bg-[#201f1f] shadow-xl shadow-[#70d8c8]/5">
-            <p className="text-[#70d8c8] text-[10px] font-['Plus_Jakarta_Sans'] font-bold uppercase tracking-widest mb-2">
+          <div className="bg-card rounded-xl p-6 border-l-4 border-primary transition-all hover:bg-muted/20 shadow-xl shadow-primary/5">
+            <p className="text-primary text-[10px] font-['Plus_Jakarta_Sans'] font-bold uppercase tracking-widest mb-2">
               {activeTab === "current"
                 ? "Efectivo Esperado (Caja)"
                 : "Ingresos en Efectivo"}
             </p>
-            <p className="text-3xl font-black text-[#70d8c8]">
+            <p className="text-3xl font-black text-primary">
               S/{" "}
               {activeTab === "current"
                 ? (displayStats.expectedCashInRegister || 0).toFixed(2)
                 : displayStats.totalCash.toFixed(2)}
             </p>
             {activeTab === "current" && (
-              <p className="text-[#bdc9c6] text-xs mt-2 opacity-80 flex items-center gap-1 font-['Plus_Jakarta_Sans']">
+              <p className="text-muted-foreground text-xs mt-2 opacity-80 flex items-center gap-1 font-['Plus_Jakarta_Sans']">
                 <Banknote className="w-3 h-3" /> Base: S/
                 {session?.startingCash?.toFixed(2) || "0.00"} + Venta: S/
                 {displayStats.totalCash.toFixed(2)}
@@ -976,52 +976,52 @@ export default function FinancesClient() {
             )}
           </div>
 
-          <div className="bg-[#1c1b1b] rounded-xl p-6 border-l-4 border-[#3d4947]/30 transition-all hover:bg-[#201f1f]">
-            <p className="text-[#bdc9c6] text-[10px] font-['Plus_Jakarta_Sans'] font-bold uppercase tracking-widest mb-2 opacity-70">
+          <div className="bg-card rounded-xl p-6 border-l-4 border-border/50 transition-all hover:bg-muted/20">
+            <p className="text-muted-foreground text-[10px] font-['Plus_Jakarta_Sans'] font-bold uppercase tracking-widest mb-2 opacity-70">
               Tarjetas & Digitales
             </p>
-            <p className="text-3xl font-black text-[#e5e2e1]">
+            <p className="text-3xl font-black text-foreground">
               S/{" "}
               {(displayStats.totalCard + displayStats.totalTransfer).toFixed(2)}
             </p>
-            <p className="text-[#bdc9c6] text-xs mt-2 opacity-60 font-['Plus_Jakarta_Sans'] flex items-center gap-1">
+            <p className="text-muted-foreground text-xs mt-2 opacity-60 font-['Plus_Jakarta_Sans'] flex items-center gap-1">
               <CreditCard className="w-3 h-3" /> T: S/
               {displayStats.totalCard.toFixed(2)} | Tr: S/
               {displayStats.totalTransfer.toFixed(2)}
             </p>
           </div>
 
-          <div className="bg-[#1c1b1b] rounded-xl p-6 border-l-4 border-[#3d4947]/30 transition-all hover:bg-[#201f1f]">
-            <p className="text-[#bdc9c6] text-[10px] font-['Plus_Jakarta_Sans'] font-bold uppercase tracking-widest mb-2 opacity-70">
+          <div className="bg-card rounded-xl p-6 border-l-4 border-border/50 transition-all hover:bg-muted/20">
+            <p className="text-muted-foreground text-[10px] font-['Plus_Jakarta_Sans'] font-bold uppercase tracking-widest mb-2 opacity-70">
               Ticket Promedio
             </p>
-            <p className="text-3xl font-black text-[#e5e2e1]">
+            <p className="text-3xl font-black text-foreground">
               S/ {displayStats.ticketPromedio}
             </p>
-            <p className="text-[#bdc9c6] text-xs mt-2 opacity-60 font-['Plus_Jakarta_Sans']">
+            <p className="text-muted-foreground text-xs mt-2 opacity-60 font-['Plus_Jakarta_Sans']">
               En {displayStats.orderCount} atenciones
             </p>
           </div>
 
-          <div className="bg-[#1c1b1b] rounded-xl p-6 border-l-4 border-[#3d4947]/30 transition-all hover:bg-[#201f1f]">
-            <p className="text-[#bdc9c6] text-[10px] font-['Plus_Jakarta_Sans'] font-bold uppercase tracking-widest mb-2 opacity-70">
+          <div className="bg-card rounded-xl p-6 border-l-4 border-border/50 transition-all hover:bg-muted/20">
+            <p className="text-muted-foreground text-[10px] font-['Plus_Jakarta_Sans'] font-bold uppercase tracking-widest mb-2 opacity-70">
               Platos Vendidos
             </p>
-            <p className="text-3xl font-black text-[#e5e2e1]">
+            <p className="text-3xl font-black text-foreground">
               {displayStats.totalItemsSold ?? 0}
             </p>
-            <p className="text-[#bdc9c6] text-xs mt-2 opacity-60 font-['Plus_Jakarta_Sans'] flex items-center gap-1">
+            <p className="text-muted-foreground text-xs mt-2 opacity-60 font-['Plus_Jakarta_Sans'] flex items-center gap-1">
               <Utensils className="w-3 h-3" /> Productos prepar.
             </p>
           </div>
         </div>
       ) : activeTab === "history" ? (
-        <div className="text-center py-20 bg-[#1c1b1b] rounded-xl border border-[#3d4947]/20 mb-10 opacity-70 flex flex-col items-center">
-          <CalendarRange className="w-12 h-12 mb-4 text-[#3d4947]" />
-          <p className="text-[#bdc9c6] font-bold">
+        <div className="text-center py-20 bg-card rounded-xl border border-border/30 mb-10 opacity-70 flex flex-col items-center">
+          <CalendarRange className="w-12 h-12 mb-4 text-muted-foreground/40" />
+          <p className="text-muted-foreground font-bold">
             Aplica los filtros de fecha arriba
           </p>
-          <p className="text-xs text-[#bdc9c6]/60">
+          <p className="text-xs text-muted-foreground/60">
             Para poblar los datos globales.
           </p>
         </div>
@@ -1032,14 +1032,14 @@ export default function FinancesClient() {
           {/* Left Column: Sales Registry (ONLY IF CURRENT TURN) */}
           <div className="lg:col-span-2 space-y-6">
             {activeTab === "current" ? (
-              <div className="bg-[#201f1f] rounded-xl overflow-hidden border border-[#3d4947]/30 shadow-lg">
-                <div className="px-6 py-5 flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-[#3d4947]/20 bg-[#1c1b1b]/50">
-                  <h2 className="font-black tracking-tight text-[#e5e2e1]">
+              <div className="bg-card rounded-xl overflow-hidden border border-border/50 shadow-lg">
+                <div className="px-6 py-5 flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-border/40 bg-muted/20">
+                  <h2 className="font-black tracking-tight text-foreground">
                     REGISTRO DE VENTAS - ESTE TURNO
                   </h2>
                   <button
                     onClick={handleExportToCSV}
-                    className="flex items-center gap-2 px-4 py-2 bg-[#70d8c8]/10 hover:bg-[#70d8c8]/20 border border-[#70d8c8]/20 text-[#70d8c8] rounded-lg font-bold text-xs transition-all active:scale-95"
+                    className="flex items-center gap-2 px-4 py-2 bg-primary/10 hover:bg-primary/20 border border-primary/20 text-primary rounded-lg font-bold text-xs transition-all active:scale-95 cursor-pointer"
                     title="Exportar ventas de este turno a formato Excel/CSV"
                   >
                     <Printer className="w-4 h-4" /> Exportar a Excel (.csv)
@@ -1049,7 +1049,7 @@ export default function FinancesClient() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left font-['Plus_Jakarta_Sans'] text-sm">
                     <thead>
-                      <tr className="text-[#bdc9c6] border-b border-[#3d4947]/20 opacity-80">
+                      <tr className="text-muted-foreground border-b border-border/40 opacity-80">
                         <th className="px-6 py-4 font-bold uppercase tracking-widest text-[10px]">
                           #
                         </th>
@@ -1073,7 +1073,7 @@ export default function FinancesClient() {
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#3d4947]/10">
+                    <tbody className="divide-y divide-border/20">
                       {orders && orders.length > 0 ? (
                         orders.map((order: OrderType) => {
                           const isPaid = order.status === "paid";
@@ -1105,13 +1105,13 @@ export default function FinancesClient() {
                           return (
                             <tr
                               key={order._id}
-                              className={`transition-colors group cursor-pointer hover:bg-[#201f1f] ${!isPaid ? "opacity-60" : ""}`}
+                              className={`transition-colors group cursor-pointer hover:bg-muted/30 ${!isPaid ? "opacity-60" : ""}`}
                               onClick={() => setSelectedOrder(order)}
                             >
-                              <td className="px-6 py-4 font-black font-['Manrope'] text-[#70d8c8]">
+                              <td className="px-6 py-4 font-black font-['Manrope'] text-primary">
                                 #{order.orderNumber}
                               </td>
-                              <td className="px-4 py-4 text-[#bdc9c6] opacity-80 text-xs">
+                              <td className="px-4 py-4 text-muted-foreground opacity-80 text-xs">
                                 {new Date(order.createdAt).toLocaleTimeString(
                                   [],
                                   { timeStyle: "short" },
@@ -1121,49 +1121,49 @@ export default function FinancesClient() {
                                 S/ {orderTotal.toFixed(2)}
                               </td>
                               <td className="px-4 py-4">
-                                <span className="flex items-center gap-1.5 text-[11px] font-bold text-[#bdc9c6]">
+                                <span className="flex items-center gap-1.5 text-[11px] font-bold text-muted-foreground">
                                   <Banknote className="w-3.5 h-3.5" /> {pLabel}
                                 </span>
                               </td>
                               <td className="px-4 py-4">
                                 {isPaid && (
-                                  <span className="px-2.5 py-1 rounded-full bg-[#005048]/50 text-[#70d8c8] text-[9px] font-black uppercase tracking-widest border border-[#70d8c8]/20">
+                                  <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 text-[9px] font-black uppercase tracking-widest border border-emerald-500/20">
                                     Pagada
                                   </span>
                                 )}
                                 {isCancelled && (
-                                  <span className="px-2.5 py-1 rounded-full bg-[#93000a]/20 text-[#ffb4ab] text-[9px] font-black uppercase tracking-widest border border-[#ffb4ab]/20">
+                                  <span className="px-2.5 py-1 rounded-full bg-destructive/10 text-destructive text-[9px] font-black uppercase tracking-widest border border-destructive/20">
                                     Anulada
                                   </span>
                                 )}
                                 {!isPaid && !isCancelled && (
-                                  <span className="px-2.5 py-1 rounded-full bg-orange-500/10 text-orange-400 text-[9px] font-black uppercase tracking-widest border border-orange-500/20">
+                                  <span className="px-2.5 py-1 rounded-full bg-orange-500/10 text-orange-500 text-[9px] font-black uppercase tracking-widest border border-orange-500/20">
                                     Espera
                                   </span>
                                 )}
                               </td>
                               <td className="px-4 py-4">
                                 {order.invoiceType === "nota_venta" ? (
-                                  <span className="text-[#bdc9c6]/40 text-xs font-semibold">—</span>
+                                  <span className="text-muted-foreground/40 text-xs font-semibold">—</span>
                                 ) : (
                                   <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                                     {isPaid && (!order.fiscalStatus || order.fiscalStatus.status === "pending") && (
-                                      <span className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 px-2.5 py-1 rounded-full" title="Emisión asíncrona pendiente">
-                                        <Clock className="w-3.5 h-3.5 animate-pulse text-yellow-400" /> Pendiente
+                                      <span className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-amber-500 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-full" title="Emisión asíncrona pendiente">
+                                        <Clock className="w-3.5 h-3.5 animate-pulse text-amber-500" /> Pendiente
                                       </span>
                                     )}
 
                                     {order.fiscalStatus?.status === "emitted" && (
                                       <div className="flex items-center gap-1.5">
-                                        <span className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-[#70d8c8] bg-[#005048]/30 border border-[#70d8c8]/20 px-2.5 py-1 rounded-full" title="Emitido y timbrado por SUNAT">
-                                          <CheckCircle className="w-3.5 h-3.5 text-[#70d8c8]" /> {order.fiscalStatus?.pdfUrl ? `${order.fiscalDocumentPrefix}-${order.fiscalDocumentNumber}` : "Emitido"}
+                                        <span className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full" title="Emitido y timbrado por SUNAT">
+                                          <CheckCircle className="w-3.5 h-3.5 text-emerald-600" /> {order.fiscalStatus?.pdfUrl ? `${order.fiscalDocumentPrefix}-${order.fiscalDocumentNumber}` : "Emitido"}
                                         </span>
                                         {order.fiscalStatus.pdfUrl && (
                                           <a
                                             href={order.fiscalStatus.pdfUrl}
                                             target="_blank"
                                             rel="noreferrer"
-                                            className="p-1.5 text-[#70d8c8] hover:bg-[#70d8c8]/20 rounded-full transition-colors"
+                                            className="p-1.5 text-primary hover:bg-primary/20 rounded-full transition-colors"
                                             title="Ver PDF Oficial"
                                           >
                                             <Info className="w-4 h-4" />
@@ -1175,19 +1175,19 @@ export default function FinancesClient() {
                                     {order.fiscalStatus?.status === "failed" && (
                                       <div className="flex items-center gap-1.5">
                                         <span 
-                                          className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-[#ffb4ab] bg-[#93000a]/20 border border-[#ffb4ab]/20 px-2.5 py-1 rounded-full cursor-help" 
+                                          className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-destructive bg-destructive/10 border border-destructive/20 px-2.5 py-1 rounded-full cursor-help" 
                                           title={order.fiscalStatus.errorMessage || "Fallo en la emisión fiscal"}
                                         >
-                                          <ShieldAlert className="w-3.5 h-3.5 text-[#ffb4ab]" /> Falló
+                                          <ShieldAlert className="w-3.5 h-3.5 text-destructive" /> Falló
                                         </span>
                                         <button
                                           disabled={reemittingOrderId === order._id}
                                           onClick={() => handleEmitFiscal(order._id)}
-                                          className="flex items-center gap-1 text-[10px] font-extrabold text-[#70d8c8] bg-[#70d8c8]/10 hover:bg-[#70d8c8]/20 border border-[#70d8c8]/20 px-2.5 py-1 rounded-lg transition-all active:scale-95 disabled:opacity-50"
+                                          className="flex items-center gap-1 text-[10px] font-extrabold text-primary bg-primary/10 hover:bg-primary/20 border border-primary/20 px-2.5 py-1 rounded-lg transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
                                           title="Re-emitir Comprobante a SUNAT"
                                         >
                                           {reemittingOrderId === order._id ? (
-                                            <div className="w-3.5 h-3.5 border-2 border-b-transparent border-[#70d8c8] rounded-full animate-spin"></div>
+                                            <div className="w-3.5 h-3.5 border-2 border-b-transparent border-primary rounded-full animate-spin"></div>
                                           ) : (
                                             <span>Re-emitir</span>
                                           )}
@@ -1204,7 +1204,7 @@ export default function FinancesClient() {
                                     setCancelOrderConfirm(order._id);
                                   }}
                                   disabled={isCancelled}
-                                  className={`p-2 rounded-full transition-colors ${isCancelled ? "opacity-20 cursor-not-allowed" : "text-[#ffb4ab] hover:bg-[#93000a]/20"}`}
+                                  className={`p-2 rounded-full transition-colors ${isCancelled ? "opacity-20 cursor-not-allowed" : "text-destructive hover:bg-destructive/10"}`}
                                   title="Anular Orden PERMANENTEMENTE"
                                 >
                                   <Ban className="w-4 h-4" />
@@ -1216,8 +1216,8 @@ export default function FinancesClient() {
                       ) : (
                         <tr>
                           <td
-                            colSpan={6}
-                            className="px-6 py-12 text-center text-[#bdc9c6] opacity-40"
+                            colSpan={7}
+                            className="px-6 py-12 text-center text-muted-foreground opacity-40"
                           >
                             No hay ventas registradas.
                           </td>
@@ -1228,15 +1228,15 @@ export default function FinancesClient() {
                 </div>
               </div>
             ) : (
-              <div className="bg-[#201f1f] rounded-xl overflow-hidden border border-[#3d4947]/30 shadow-lg">
-                <div className="px-6 py-5 flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-[#3d4947]/20 bg-[#1c1b1b]/50">
-                  <h2 className="font-black tracking-tight text-[#e5e2e1] text-xs">
+              <div className="bg-card rounded-xl overflow-hidden border border-border/50 shadow-lg">
+                <div className="px-6 py-5 flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-border/40 bg-muted/20">
+                  <h2 className="font-black tracking-tight text-foreground text-xs">
                     HISTORIAL DE CAJAS (TURNOS CERRADOS)
                   </h2>
                   <button
                     onClick={handleExportHistoryRangeCSV}
                     disabled={exportingHistory}
-                    className="flex items-center gap-2 px-4 py-2 bg-[#70d8c8]/10 hover:bg-[#70d8c8]/20 border border-[#70d8c8]/20 text-[#70d8c8] rounded-lg font-bold text-xs transition-all active:scale-95 disabled:opacity-50"
+                    className="flex items-center gap-2 px-4 py-2 bg-primary/10 hover:bg-primary/20 border border-primary/20 text-primary rounded-lg font-bold text-xs transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
                     title="Exportar todas las ventas de este rango a Excel/CSV"
                   >
                     <Printer className="w-4 h-4" /> {exportingHistory ? "Exportando..." : "Exportar Rango a Excel (.csv)"}
@@ -1246,7 +1246,7 @@ export default function FinancesClient() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left font-['Plus_Jakarta_Sans'] text-sm">
                     <thead>
-                      <tr className="text-[#bdc9c6] border-b border-[#3d4947]/20 opacity-80">
+                      <tr className="text-muted-foreground border-b border-border/40 opacity-80">
                         <th className="px-6 py-4 font-bold uppercase tracking-widest text-[10px]">
                           Fecha / Turno
                         </th>
@@ -1267,50 +1267,50 @@ export default function FinancesClient() {
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#3d4947]/10">
+                    <tbody className="divide-y divide-border/20">
                       {historySessions && historySessions.length > 0 ? (
                         historySessions.map((histSession: SessionType) => {
                           const openDateStr = new Date(histSession.openedAt).toLocaleDateString();
                           const openTimeStr = new Date(histSession.openedAt).toLocaleTimeString([], { timeStyle: "short" });
                           const closeTimeStr = histSession.closedAt 
-                            ? new Date(histSession.closedAt).toLocaleTimeString([], { timeStyle: "short" })
+                             ? new Date(histSession.closedAt).toLocaleTimeString([], { timeStyle: "short" })
                             : "Abierto";
 
                           return (
                             <tr
                               key={histSession._id}
-                              className="transition-colors group hover:bg-[#201f1f]"
+                              className="transition-colors group hover:bg-muted/30"
                             >
                               <td className="px-6 py-4 font-black font-['Manrope']">
-                                <div className="text-[#70d8c8]">{openDateStr}</div>
-                                <div className="text-[10px] text-[#bdc9c6] opacity-60">
+                                <div className="text-primary">{openDateStr}</div>
+                                <div className="text-[10px] text-muted-foreground opacity-60">
                                   {openTimeStr} - {closeTimeStr}
                                 </div>
                               </td>
-                              <td className="px-4 py-4 text-[#bdc9c6] font-semibold">
+                              <td className="px-4 py-4 text-muted-foreground font-semibold">
                                 S/ {(histSession.startingCash || 0).toFixed(2)}
                               </td>
-                              <td className="px-4 py-4 font-black text-white">
+                              <td className="px-4 py-4 font-black">
                                 S/ {(histSession.summary?.totalSales || 0).toFixed(2)}
                               </td>
-                              <td className="px-4 py-4 text-[#bdc9c6] text-xs">
+                              <td className="px-4 py-4 text-muted-foreground text-xs">
                                 <div>A: {histSession.openedByUserId?.fullName || "—"}</div>
                                 {histSession.closedByUserId && (
                                   <div>C: {histSession.closedByUserId?.fullName || "—"}</div>
                                 )}
                               </td>
-                              <td className="px-4 py-4 text-[#bdc9c6] text-xs max-w-[150px] truncate" title={histSession.notes || ""}>
+                              <td className="px-4 py-4 text-muted-foreground text-xs max-w-[150px] truncate" title={histSession.notes || ""}>
                                 {histSession.notes || <span className="opacity-40">—</span>}
                               </td>
                               <td className="px-6 py-4 text-right">
                                 <button
                                   onClick={() => handleExportSpecificSessionCSV(histSession._id)}
                                   disabled={exportingSessionId === histSession._id}
-                                  className="flex items-center gap-1.5 px-3 py-1.5 bg-[#70d8c8]/10 hover:bg-[#70d8c8]/20 border border-[#70d8c8]/20 text-[#70d8c8] rounded-lg font-bold text-xs transition-all active:scale-95 disabled:opacity-50 ml-auto"
+                                  className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 hover:bg-primary/20 border border-primary/20 text-primary rounded-lg font-bold text-xs transition-all active:scale-95 disabled:opacity-50 ml-auto cursor-pointer"
                                   title="Exportar ventas de este turno a formato Excel/CSV"
                                 >
                                   {exportingSessionId === histSession._id ? (
-                                    <div className="w-3.5 h-3.5 border-2 border-b-transparent border-[#70d8c8] rounded-full animate-spin"></div>
+                                    <div className="w-3.5 h-3.5 border-2 border-b-transparent border-primary rounded-full animate-spin"></div>
                                   ) : (
                                     <>
                                       <Printer className="w-3.5 h-3.5" /> <span>Exportar</span>
@@ -1325,7 +1325,7 @@ export default function FinancesClient() {
                         <tr>
                           <td
                             colSpan={6}
-                            className="px-6 py-12 text-center text-[#bdc9c6] opacity-40"
+                            className="px-6 py-12 text-center text-muted-foreground opacity-40"
                           >
                             No hay turnos cerrados en este rango.
                           </td>
@@ -1340,12 +1340,12 @@ export default function FinancesClient() {
 
           {/* Right Column: Products & Ops */}
           <div className="space-y-6">
-            <section className="bg-[#201f1f] rounded-xl p-6 border border-[#3d4947]/30 shadow-lg">
+            <section className="bg-card rounded-xl p-6 border border-border/50 shadow-lg">
               <div className="flex items-center justify-between mb-5">
-                <h3 className="font-black text-[#e5e2e1] tracking-tight text-sm">
+                <h3 className="font-black text-foreground tracking-tight text-sm">
                   TOP PLATOS & PRODUCTOS
                 </h3>
-                <TrendingUp className="w-4 h-4 text-[#70d8c8]" />
+                <TrendingUp className="w-4 h-4 text-primary" />
               </div>
 
               <div className="space-y-3">
@@ -1354,53 +1354,53 @@ export default function FinancesClient() {
                     (dish: { name: string; qty: number }, idx: number) => (
                       <div
                         key={idx}
-                        className="flex items-center justify-between p-3 rounded-xl bg-[#131313] border border-[#3d4947]/20 hover:border-[#70d8c8]/30 transition-colors group"
+                        className="flex items-center justify-between p-3 rounded-xl bg-background border border-border/40 hover:border-primary/30 transition-colors group"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-[#353534] flex items-center justify-center text-[10px] font-black text-[#bdc9c6]">
+                          <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center text-[10px] font-black text-muted-foreground">
                             #{idx + 1}
                           </div>
                           <div>
-                            <p className="text-sm font-bold text-[#e5e2e1] leading-tight break-words max-w-[200px]">
+                            <p className="text-sm font-bold text-foreground leading-tight break-words max-w-[200px]">
                               {dish.name}
                             </p>
                           </div>
                         </div>
-                        <span className="font-black text-[#70d8c8] font-['Manrope'] bg-[#005048]/30 px-3 py-1 rounded-full text-sm shadow-inner">
+                        <span className="font-black text-emerald-600 font-['Manrope'] bg-emerald-500/10 px-3 py-1 rounded-full text-sm shadow-inner">
                           {dish.qty}
                         </span>
                       </div>
                     ),
                   )
                 ) : (
-                  <p className="text-[12px] text-[#bdc9c6] opacity-50 text-center py-4 bg-[#1c1b1b] rounded-lg border border-dashed border-[#3d4947]/50">
+                  <p className="text-[12px] text-muted-foreground opacity-50 text-center py-4 bg-background rounded-lg border border-dashed border-border">
                     Sin datos registrados.
                   </p>
                 )}
               </div>
             </section>
 
-            <section className="bg-[#2a2a2a] rounded-xl p-6 border border-[#3d4947]/40 shadow-xl relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#ebdcff]/30 to-transparent opacity-50"></div>
+            <section className="bg-card rounded-xl p-6 border border-border/50 shadow-xl relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/30 to-transparent opacity-50"></div>
               <div className="flex items-center gap-2 mb-5">
-                <ShieldAlert className="w-4 h-4 text-[#d4bbff]" />
-                <h3 className="font-black text-[#e5e2e1] tracking-tight text-sm">
+                <ShieldAlert className="w-4 h-4 text-primary" />
+                <h3 className="font-black text-foreground tracking-tight text-sm">
                   CONTROL OPERATIVO
                 </h3>
               </div>
               <div className="space-y-3">
-                <div className="flex items-center gap-4 p-4 rounded-xl bg-[#1c1b1b] border border-[#3d4947]/30 shadow-inner">
-                  <CircleOff className="w-5 h-5 text-[#bdc9c6] opacity-50" />
+                <div className="flex items-center gap-4 p-4 rounded-xl bg-background border border-border/40 shadow-inner">
+                  <CircleOff className="w-5 h-5 text-muted-foreground opacity-50" />
                   <div>
-                    <p className="text-sm font-black text-[#e5e2e1]">
+                    <p className="text-sm font-black text-foreground">
                       {displayStats.cancelledOrderCount} Órdenes Anuladas
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 p-4 rounded-xl bg-[#1c1b1b] border border-[#ffb4ab]/20 shadow-inner">
-                  <Tag className="w-5 h-5 text-[#ffb4ab]" />
+                <div className="flex items-center gap-4 p-4 rounded-xl bg-background border border-destructive/20 shadow-inner">
+                  <Tag className="w-5 h-5 text-destructive" />
                   <div>
-                    <p className="text-sm font-black text-[#e5e2e1]">
+                    <p className="text-sm font-black text-foreground">
                       S/ {displayStats.totalDiscounts.toFixed(2)} Descuentos
                     </p>
                   </div>
@@ -1418,24 +1418,24 @@ export default function FinancesClient() {
           onClick={() => setSelectedOrder(null)}
         >
           <div
-            className="bg-[#1c1b1b] border border-[#3d4947]/50 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl flex flex-col"
+            className="bg-card border border-border rounded-2xl w-full max-w-md overflow-hidden shadow-2xl flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-center p-6 border-b border-[#3d4947]/30 bg-[#201f1f]">
-              <h3 className="text-xl font-black text-[#e5e2e1]">
+            <div className="flex justify-between items-center p-6 border-b border-border/40 bg-muted/20">
+              <h3 className="text-xl font-black text-foreground">
                 Comprobante Emitido
               </h3>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => window.print()}
-                  className="p-2 bg-[#70d8c8]/20 text-[#70d8c8] hover:bg-[#70d8c8]/40 rounded-full transition-colors"
+                  className="p-2 bg-primary/20 text-primary hover:bg-primary/40 rounded-full transition-colors cursor-pointer"
                   title="Imprimir Copia"
                 >
                   <Printer className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => setSelectedOrder(null)}
-                  className="text-[#bdc9c6] hover:text-white transition-colors p-2"
+                  className="text-muted-foreground hover:text-foreground transition-colors p-2 cursor-pointer"
                   title="Cerrar"
                 >
                   <X className="w-6 h-6" />
@@ -1443,22 +1443,22 @@ export default function FinancesClient() {
               </div>
             </div>
             {selectedOrder.invoiceType !== "nota_venta" && (
-              <div className="p-4 bg-[#131313] border-b border-[#3d4947]/20 flex flex-col gap-2 print:hidden">
+              <div className="p-4 bg-background border-b border-border/40 flex flex-col gap-2 print:hidden">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-[#bdc9c6] font-bold">Estado Fiscal (SUNAT):</span>
+                  <span className="text-muted-foreground font-bold">Estado Fiscal (SUNAT):</span>
                   {(!selectedOrder.fiscalStatus || selectedOrder.fiscalStatus.status === "pending") && (
-                    <span className="flex items-center gap-1 font-bold text-yellow-400">
-                      <Clock className="w-3.5 h-3.5 animate-pulse text-yellow-400" /> Emisión Pendiente
+                    <span className="flex items-center gap-1 font-bold text-amber-500">
+                      <Clock className="w-3.5 h-3.5 animate-pulse text-amber-500" /> Emisión Pendiente
                     </span>
                   )}
                   {selectedOrder.fiscalStatus?.status === "emitted" && (
-                    <span className="flex items-center gap-1 font-bold text-[#70d8c8]">
-                      <CheckCircle className="w-3.5 h-3.5 text-[#70d8c8]" /> Aceptado por SUNAT
+                    <span className="flex items-center gap-1 font-bold text-emerald-600">
+                      <CheckCircle className="w-3.5 h-3.5 text-emerald-600" /> Aceptado por SUNAT
                     </span>
                   )}
                   {selectedOrder.fiscalStatus?.status === "failed" && (
-                    <span className="flex items-center gap-1 font-bold text-[#ffb4ab]">
-                      <ShieldAlert className="w-3.5 h-3.5 text-[#ffb4ab]" /> Error de Emisión
+                    <span className="flex items-center gap-1 font-bold text-destructive">
+                      <ShieldAlert className="w-3.5 h-3.5 text-destructive" /> Error de Emisión
                     </span>
                   )}
                 </div>
@@ -1471,7 +1471,7 @@ export default function FinancesClient() {
                         href={selectedOrder.fiscalStatus.pdfUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="flex-1 py-2.5 bg-[#70d8c8]/10 hover:bg-[#70d8c8]/20 border border-[#70d8c8]/20 rounded-lg text-center font-bold text-xs text-[#70d8c8] transition-colors"
+                        className="flex-1 py-2.5 bg-primary/10 hover:bg-primary/20 border border-primary/20 rounded-lg text-center font-bold text-xs text-primary transition-colors"
                       >
                         Ver PDF Oficial
                       </a>
@@ -1481,7 +1481,7 @@ export default function FinancesClient() {
                         href={selectedOrder.fiscalStatus.xmlUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="flex-1 py-2.5 bg-[#3d4947]/50 hover:bg-[#3d4947] border border-[#3d4947]/80 rounded-lg text-center font-bold text-xs text-[#e5e2e1] transition-colors"
+                        className="flex-1 py-2.5 bg-secondary hover:bg-muted border border-border rounded-lg text-center font-bold text-xs text-foreground transition-colors"
                       >
                         Descargar XML
                       </a>
@@ -1492,7 +1492,7 @@ export default function FinancesClient() {
                 {/* Error log & Re-emit Action */}
                 {selectedOrder.fiscalStatus?.status === "failed" && (
                   <div className="mt-2 space-y-2">
-                    <div className="p-3 bg-[#93000a]/10 border border-[#ffb4ab]/10 rounded-lg text-xs text-[#ffb4ab]">
+                    <div className="p-3 bg-destructive/10 border border-destructive/10 rounded-lg text-xs text-destructive">
                       <p className="font-bold">Detalle del Error:</p>
                       <p className="opacity-95">{selectedOrder.fiscalStatus.errorMessage || "Error al procesar el timbrado con el PSE."}</p>
                     </div>
@@ -1500,10 +1500,10 @@ export default function FinancesClient() {
                       <button
                         disabled={reemittingOrderId === selectedOrder._id}
                         onClick={() => handleEmitFiscal(selectedOrder._id, false)}
-                        className="flex-1 py-2.5 bg-[#70d8c8]/10 hover:bg-[#70d8c8]/20 border border-[#70d8c8]/30 text-[#70d8c8] rounded-lg font-bold text-xs transition-colors flex items-center justify-center gap-1.5"
+                        className="flex-1 py-2.5 bg-primary/10 hover:bg-primary/20 border border-primary/30 text-primary rounded-lg font-bold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                       >
                         {reemittingOrderId === selectedOrder._id ? (
-                          <div className="w-4 h-4 border-2 border-b-transparent border-[#70d8c8] rounded-full animate-spin"></div>
+                           <div className="w-4 h-4 border-2 border-b-transparent border-primary rounded-full animate-spin"></div>
                         ) : (
                           <span>Reintentar</span>
                         )}
@@ -1511,11 +1511,11 @@ export default function FinancesClient() {
                       <button
                         disabled={reemittingOrderId === selectedOrder._id}
                         onClick={() => handleEmitFiscal(selectedOrder._id, true)}
-                        className="flex-1 py-2.5 bg-[#70d8c8] hover:bg-[#70d8c8]/90 text-[#003731] rounded-lg font-black text-xs transition-colors flex items-center justify-center gap-1.5"
+                        className="flex-1 py-2.5 bg-primary hover:opacity-90 text-primary-foreground rounded-lg font-black text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                         title="Incrementa secuencialmente el correlativo del restaurante y re-emite"
                       >
                         {reemittingOrderId === selectedOrder._id ? (
-                          <div className="w-4 h-4 border-2 border-b-transparent border-[#003731] rounded-full animate-spin"></div>
+                          <div className="w-4 h-4 border-2 border-b-transparent border-primary-foreground rounded-full animate-spin"></div>
                         ) : (
                           <span>Asignar Nuevo Nº</span>
                         )}
@@ -1525,7 +1525,7 @@ export default function FinancesClient() {
                 )}
               </div>
             )}
-            <div className="p-6 overflow-y-auto max-h-[70vh] flex justify-center bg-[#131313] print:hidden">
+            <div className="p-6 overflow-y-auto max-h-[70vh] flex justify-center bg-background print:hidden">
               <div className="transform scale-90 origin-top">
                 <PrintableTicket
                   order={selectedOrder as unknown as Order}
@@ -1546,30 +1546,30 @@ export default function FinancesClient() {
           onClick={() => setCancelOrderConfirm(null)}
         >
           <div
-            className="bg-[#1c1b1b] border border-[#ffb4ab]/30 rounded-2xl w-full max-w-sm overflow-hidden shadow-[0_0_40px_rgba(147,0,10,0.3)] flex flex-col"
+            className="bg-card border border-destructive/30 rounded-2xl w-full max-w-sm overflow-hidden shadow-[0_0_40px_rgba(239,68,68,0.2)] flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex flex-col items-center p-8 text-center">
-              <div className="w-16 h-16 bg-[#93000a]/20 rounded-full flex items-center justify-center mb-4 border border-[#ffb4ab]/30">
-                <Ban className="w-8 h-8 text-[#ffb4ab]" />
+              <div className="w-16 h-16 bg-destructive/15 rounded-full flex items-center justify-center mb-4 border border-destructive/30">
+                <Ban className="w-8 h-8 text-destructive" />
               </div>
-              <h3 className="text-xl font-black text-[#e5e2e1] mb-2">
+              <h3 className="text-xl font-black text-foreground mb-2">
                 ¿Anular Orden?
               </h3>
-              <p className="text-sm text-[#bdc9c6] opacity-80 mb-6">
+              <p className="text-sm text-muted-foreground opacity-80 mb-6">
                 Estás a punto de anular permanentemente esta transacción. Esta
                 acción no se puede deshacer y alterará los totales de caja.
               </p>
               <div className="flex gap-3 w-full">
                 <button
                   onClick={() => setCancelOrderConfirm(null)}
-                  className="flex-1 py-3 rounded-lg font-bold text-sm bg-[#353534] text-[#e5e2e1] hover:bg-[#3d4947] transition-colors"
+                  className="flex-1 py-3 rounded-lg font-bold text-sm bg-secondary text-foreground hover:bg-muted transition-colors cursor-pointer"
                 >
                   Regresar
                 </button>
                 <button
                   onClick={() => handleCancelOrder(cancelOrderConfirm)}
-                  className="flex-1 py-3 rounded-lg font-bold text-sm bg-[#93000a] text-[#ffb4ab] hover:brightness-110 transition-colors"
+                  className="flex-1 py-3 rounded-lg font-bold text-sm bg-destructive text-destructive-foreground hover:brightness-110 transition-colors cursor-pointer"
                 >
                   Sí, Anular
                 </button>
@@ -1586,17 +1586,17 @@ export default function FinancesClient() {
           onClick={() => setCloseSessionConfirm(false)}
         >
           <div
-            className="bg-[#1c1b1b] border border-[#ffb4ab]/30 rounded-2xl w-full max-w-sm overflow-hidden shadow-[0_0_40px_rgba(147,0,10,0.3)] flex flex-col"
+            className="bg-card border border-destructive/30 rounded-2xl w-full max-w-sm overflow-hidden shadow-[0_0_40px_rgba(239,68,68,0.2)] flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex flex-col items-center p-8 text-center">
-              <div className="w-16 h-16 bg-[#93000a]/20 rounded-full flex items-center justify-center mb-4 border border-[#ffb4ab]/30 transform hover:scale-110 transition-transform">
-                <Lock className="w-8 h-8 text-[#ffb4ab]" />
+              <div className="w-16 h-16 bg-destructive/15 rounded-full flex items-center justify-center mb-4 border border-destructive/30 transform hover:scale-110 transition-transform">
+                <Lock className="w-8 h-8 text-destructive" />
               </div>
-              <h3 className="text-xl font-black text-[#e5e2e1] mb-2">
+              <h3 className="text-xl font-black text-foreground mb-2">
                 ¿Cerrar Turno de Caja?
               </h3>
-              <p className="text-sm text-[#bdc9c6] opacity-80 mb-6">
+              <p className="text-sm text-muted-foreground opacity-80 mb-6">
                 Estás a punto de congelar las ventas y dar por finalizada esta
                 sesión. Esta acción es definitiva y no podrás revertirla. ¿Estás
                 seguro/a?
@@ -1604,14 +1604,14 @@ export default function FinancesClient() {
               <div className="flex gap-3 w-full">
                 <button
                   onClick={() => setCloseSessionConfirm(false)}
-                  className="flex-1 py-3 rounded-lg font-bold text-sm bg-[#353534] text-[#e5e2e1] hover:bg-[#3d4947] transition-colors"
+                  className="flex-1 py-3 rounded-lg font-bold text-sm bg-secondary text-foreground hover:bg-muted transition-colors cursor-pointer"
                 >
                   Continuar Turno
                 </button>
                 <button
                   onClick={handleCloseShift}
                   disabled={closing}
-                  className="flex-1 py-3 rounded-lg font-bold text-sm bg-[#93000a] text-[#ffb4ab] hover:brightness-110 transition-colors disabled:opacity-50"
+                  className="flex-1 py-3 rounded-lg font-bold text-sm bg-destructive text-destructive-foreground hover:brightness-110 transition-colors disabled:opacity-50 cursor-pointer"
                 >
                   {closing ? "Cerrando..." : "Sí, Cerrar Caja"}
                 </button>

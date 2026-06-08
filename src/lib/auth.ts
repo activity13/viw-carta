@@ -87,6 +87,7 @@ export const authOptions: NextAuthOptions = {
         token.id = String(getUserIdFromAuthUser(user) ?? token.sub ?? "");
         token.username = getStringFieldFromUnknown(user, "username") ?? null;
         token.restaurantId = user.restaurantId?.toString();
+        token.backofficeTheme = getStringFieldFromUnknown(user, "backofficeTheme") ?? "dark";
         token.exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24;
         token.iat = Math.floor(Date.now() / 1000);
 
@@ -136,6 +137,7 @@ export const authOptions: NextAuthOptions = {
           session.user.role = null;
           session.user.subscriptionStatus = null;
           session.user.subscriptionPlan = null;
+          session.user.backofficeTheme = "dark";
         }
         return session;
       };
@@ -148,7 +150,7 @@ export const authOptions: NextAuthOptions = {
       // Buscamos al usuario en cada request que exige la sesión.
       // Esto añade una query a MongoDB por petición, pero garantiza la seguridad en tiempo real.
       const user = await User.findById(userId).select(
-        "passwordChangedAt isActive restaurantId"
+        "passwordChangedAt isActive restaurantId backofficeTheme"
       );
 
       // Validate User Status: Si lo apagaron, borramos su sesión.
@@ -191,6 +193,7 @@ export const authOptions: NextAuthOptions = {
           | string
           | null
           | undefined;
+        session.user.backofficeTheme = user?.backofficeTheme ?? (token.backofficeTheme as string | null | undefined) ?? "dark";
       }
 
       return session;

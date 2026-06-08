@@ -55,6 +55,13 @@ La coordinación entre la sala (meseros) y el corazón del restaurante (cocina) 
 2. El mesero, desde su terminal o dispositivo, registra la orden en la mesa correspondiente. Solo visualizará las herramientas necesarias para vender, sin acceso a configuraciones administrativas.
 3. El sistema calcula al instante los subtotales, propinas e impuestos. Sin errores humanos ni sumas manuales.
 
+### Autocompletado de Clientes (DNI / RUC)
+Para agilizar el flujo de facturación y evitar la digitación manual de datos:
+- Al escribir el número de documento (8 dígitos para DNI, 11 dígitos para RUC) en el campo **ID CLIENTE**, el sistema buscará primero localmente.
+- Si no existe un registro previo, consultará automáticamente con los padrones oficiales de SUNAT/RENIEC en tiempo real.
+- Selecciona el resultado marcado con la insignia **AUTO** para rellenar al instante la razón social y dirección (en el caso de RUC para facturas) o nombres y apellidos (en el caso de DNI para boletas).
+- Completa opcionalmente el teléfono o correo del cliente y presiona **FIJAR CLIENTE** para guardar el registro localmente y vincularlo a la orden activa.
+
 ### Flujo para la Cocina (Tickets)
 1. Al confirmar la orden, esta se envía automáticamente a las pantallas o impresoras de cocina.
 2. Cada ticket ingresa con indicaciones claras sobre variantes (ej. *Término medio*, *Sin cebolla*).
@@ -90,3 +97,17 @@ Sabemos que la SUNAT o el internet pueden fallar en el momento menos oportuno. P
 * **Reintentar Timbrado:** Ideal si el fallo fue un micro-corte de internet. Intenta emitir el documento ante el OSE nuevamente en caliente.
 * **Imprimir Respaldo Local (Recomendado en Emergencias):** Imprime inmediatamente un ticket local interno (Nota de Venta de respaldo) para entregar al cliente sin hacerlo esperar. La orden quedará marcada como "pagada" en tu caja y podrás re-emitir el comprobante a la SUNAT con un solo clic más tarde, desde tu panel de **Finanzas > Comprobantes Pendientes**, cuando el servicio se restablezca.
 * **Omitir e Ir al Inicio:** Cierra la pantalla de control para seguir atendiendo a otros clientes en la fila.
+
+---
+
+## 🎨 Personalización Visual: Modo Claro y Modo Oscuro
+
+Para mejorar la ergonomía visual y adaptarse a diferentes entornos de trabajo (como luz solar directa en terrazas o baja iluminación nocturna), Viw-Carta permite alternar el tema visual del panel administrativo (Backoffice / POS):
+* **Modo Claro (Apple Style):** Diseñado con tonalidades grises suaves y bordes limpios inspirados en las pautas estéticas de Apple. Reduce la fatiga visual bajo luz solar directa o en laptops durante el día.
+* **Modo Oscuro (Matrix Style):** El tema clásico y elegante de alto contraste con tonos oscuros y acentos en verde terminal.
+
+### ¿Cómo cambiar y guardar tu tema?
+1. **Alternador en la Barra de Navegación (NavBar):** En la esquina derecha de la barra superior, haz clic en el icono de sol/luna. El cambio es instantáneo.
+2. **Selección en Onboarding:** Al registrarte o configurar un nuevo local, el sistema te preguntará tu preferencia en el paso de bienvenida.
+3. **Sincronización en la Nube:** A diferencia de otros sistemas, tu preferencia se guarda directamente en tu cuenta y perfil de usuario de la base de datos. Cada vez que inicies sesión (en cualquier laptop, tablet o celular), tu entorno se cargará automáticamente con tu estilo preferido.
+

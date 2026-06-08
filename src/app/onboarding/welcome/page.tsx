@@ -21,6 +21,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useTheme } from "next-themes";
 
 interface Category {
   _id: string;
@@ -64,12 +65,32 @@ function OnboardingWelcomeContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const restaurantId = searchParams.get("restaurantId");
+  const { theme, setTheme } = useTheme();
 
   const [isLoading, setIsLoading] = useState(true);
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [meals, setMeals] = useState<Meal[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [selectedTheme, setSelectedTheme] = useState<string>("dark");
+
+  useEffect(() => {
+    if (theme) {
+      setSelectedTheme(theme);
+    }
+  }, [theme]);
+
+  const handleThemeSelection = async (themeName: "light" | "dark") => {
+    setSelectedTheme(themeName);
+    setTheme(themeName);
+    try {
+      await axios.put("/api/backoffice/update-theme", { theme: themeName });
+      toast.success(`Estilo cambiado a ${themeName === "dark" ? "Original" : "Luz"}`);
+    } catch (err) {
+      console.error("Error updating theme:", err);
+      toast.error("No se pudo guardar el tema en tu perfil");
+    }
+  };
 
   useEffect(() => {
     if (restaurantId) {
@@ -214,6 +235,116 @@ function OnboardingWelcomeContent() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Personaliza tu Estilo (Theme Selection) */}
+        <Card className="mb-10 border-border bg-card shadow-xl overflow-hidden">
+          <CardHeader className="text-center pb-4 border-b border-border mb-6">
+            <CardTitle className="text-2xl font-roboto tracking-widest text-primary flex items-center justify-center gap-2">
+              <Sparkles className="w-5 h-5" />
+              Elige tu Estilo Visual
+            </CardTitle>
+            <CardDescription className="text-base text-muted-foreground font-mono">
+              Personaliza tu experiencia de trabajo desde el primer segundo
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="px-6 pb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto mb-6">
+              {/* Option Dark: Original */}
+              <button
+                onClick={() => handleThemeSelection("dark")}
+                className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all cursor-pointer relative overflow-hidden group ${
+                  selectedTheme === "dark"
+                    ? "border-primary bg-primary/5 shadow-lg shadow-primary/10"
+                    : "border-border bg-background hover:border-primary/40 hover:bg-muted/30"
+                }`}
+              >
+                {selectedTheme === "dark" && (
+                  <div className="absolute top-3 right-3 w-5 h-5 bg-primary text-black rounded-full flex items-center justify-center text-xs font-bold">
+                    ✓
+                  </div>
+                )}
+                {/* Visual mockup of Dark Mode */}
+                <div className="w-full aspect-video rounded-lg bg-zinc-950 p-2 mb-4 border border-zinc-800 flex flex-col gap-1.5 justify-between transition-transform group-hover:scale-102">
+                  <div className="flex justify-between items-center pb-1 border-b border-zinc-800">
+                    <div className="w-8 h-2 bg-zinc-800 rounded" />
+                    <div className="w-3 h-3 bg-zinc-800 rounded-full" />
+                  </div>
+                  <div className="flex gap-2 flex-1 items-stretch py-1">
+                    <div className="w-1/3 bg-zinc-900 rounded p-1 flex flex-col gap-1">
+                      <div className="w-full h-1 bg-zinc-800 rounded" />
+                      <div className="w-full h-1 bg-zinc-800 rounded" />
+                      <div className="w-full h-1 bg-zinc-800 rounded" />
+                    </div>
+                    <div className="flex-1 bg-zinc-900 rounded p-1.5 flex flex-col justify-between">
+                      <div className="space-y-1">
+                        <div className="w-3/4 h-2 bg-zinc-800 rounded" />
+                        <div className="w-1/2 h-1 bg-zinc-800 rounded" />
+                      </div>
+                      <div className="w-full h-4 bg-zinc-850 rounded" />
+                    </div>
+                  </div>
+                </div>
+                <span className="text-lg font-bold text-foreground font-roboto uppercase tracking-wider">
+                  Original (Oscuro)
+                </span>
+                <span className="text-xs text-muted-foreground font-mono mt-1">
+                  El diseño clásico de matriz oscura de Viw
+                </span>
+              </button>
+
+              {/* Option Light: Luz */}
+              <button
+                onClick={() => handleThemeSelection("light")}
+                className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all cursor-pointer relative overflow-hidden group ${
+                  selectedTheme === "light"
+                    ? "border-primary bg-primary/5 shadow-lg shadow-primary/10"
+                    : "border-border bg-background hover:border-primary/40 hover:bg-muted/30"
+                }`}
+              >
+                {selectedTheme === "light" && (
+                  <div className="absolute top-3 right-3 w-5 h-5 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-bold">
+                    ✓
+                  </div>
+                )}
+                {/* Visual mockup of Light Mode */}
+                <div className="w-full aspect-video rounded-lg bg-zinc-100 p-2 mb-4 border border-zinc-200 flex flex-col gap-1.5 justify-between transition-transform group-hover:scale-102">
+                  <div className="flex justify-between items-center pb-1 border-b border-zinc-200">
+                    <div className="w-8 h-2 bg-zinc-350 rounded" />
+                    <div className="w-3 h-3 bg-zinc-350 rounded-full" />
+                  </div>
+                  <div className="flex gap-2 flex-1 items-stretch py-1">
+                    <div className="w-1/3 bg-zinc-200 rounded p-1 flex flex-col gap-1">
+                      <div className="w-full h-1 bg-zinc-300 rounded" />
+                      <div className="w-full h-1 bg-zinc-300 rounded" />
+                      <div className="w-full h-1 bg-zinc-300 rounded" />
+                    </div>
+                    <div className="flex-1 bg-zinc-200 rounded p-1.5 flex flex-col justify-between">
+                      <div className="space-y-1">
+                        <div className="w-3/4 h-2 bg-zinc-350 rounded" />
+                        <div className="w-1/2 h-1 bg-zinc-300 rounded" />
+                      </div>
+                      <div className="w-full h-4 bg-zinc-250 rounded" />
+                    </div>
+                  </div>
+                </div>
+                <span className="text-lg font-bold text-foreground font-roboto uppercase tracking-wider">
+                  Luz (Claro)
+                </span>
+                <span className="text-xs text-muted-foreground font-mono mt-1">
+                  Estilo Apple con tonos grises y limpios
+                </span>
+              </button>
+            </div>
+
+            {/* Friendly message */}
+            <div className="max-w-xl mx-auto bg-muted/40 border border-border/80 rounded-xl p-4 flex gap-3 items-center text-sm text-muted-foreground font-mono leading-relaxed">
+              <span className="material-symbols-rounded text-primary text-[24px] shrink-0">info</span>
+              <p>
+                ¡No te preocupes por tu elección! Siempre puedes cambiar el estilo visual en cualquier momento usando el alternador de sol / luna ubicado en la barra de navegación superior.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* What's Next Section */}
         <Card className="mb-10 border-border bg-card shadow-xl">

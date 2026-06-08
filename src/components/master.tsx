@@ -743,7 +743,7 @@ export default function Master() {
                   key={cat._id}
                   variant={isSelected ? "default" : "outline"}
                   className={`cursor-pointer select-none transition-all hover:scale-105 px-3 py-3 text-sm ${isSelected
-                    ? "bg-primary text-black shadow-lg shadow-emerald-500/20 hover:bg-primary/90"
+                    ? "bg-primary text-primary-foreground shadow-md hover:bg-primary/90"
                     : "bg-muted hover:bg-inactive-background text-muted-foreground"
                     }`}
                   onClick={() => toggleCategory(cat._id)}
@@ -763,9 +763,9 @@ export default function Master() {
         </div>
 
         {/* Product List */}
-        <div className="w-full bg-black border-none shadow-none rounded-xl">
+        <div className="w-full bg-card border border-border rounded-xl">
           <div className="flex flex-col space-y-4 p-6 pb-4">
-            <h3 className="text-xl font-bold flex items-center gap-2 text-white">
+            <h3 className="text-xl font-bold flex items-center gap-2 text-foreground">
               Productos
               {isSavingOrder && (
                 <span className="flex items-center gap-1 text-xs font-normal text-muted-foreground bg-muted px-2 py-1 rounded-full animate-pulse">
@@ -781,10 +781,10 @@ export default function Master() {
                   setFilterStatus(val)
                 }
               >
-                <SelectTrigger className="w-[160px] rounded-2xl bg-gray-900 border-gray-800 text-white">
+                <SelectTrigger className="w-[160px] rounded-2xl bg-muted border-border text-foreground">
                   <SelectValue placeholder="Estado" />
                 </SelectTrigger>
-                <SelectContent className="rounded-xl border-gray-800 bg-gray-900 text-white">
+                <SelectContent className="rounded-xl border-border bg-popover text-popover-foreground">
                   <SelectItem className="rounded-xl" value="all">
                     Todos
                   </SelectItem>
@@ -811,7 +811,7 @@ export default function Master() {
                   placeholder="Buscar producto..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-11 pr-4 py-2.5 bg-gray-900 border border-gray-800 rounded-xl text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all duration-200 w-full"
+                  className="pl-11 pr-4 py-2.5 bg-muted border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-ring focus:ring-1 focus:ring-ring transition-all duration-200 w-full"
                 />
               </div>
             </div>
@@ -820,7 +820,7 @@ export default function Master() {
 
 
           <div className="p-6 pt-0">
-            <div className="rounded-2xl border border-gray-800 bg-black">
+            <div className="rounded-2xl border border-border bg-card">
               {/* Desktop View (Table-like Grid) */}
               <div className="hidden md:block">
                 <div className="grid grid-cols-[5%_55%_20%_20%] bg-inactive-background p-3 rounded-2xl font-medium text-sm text-muted-foreground border-b">

@@ -3,6 +3,66 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { handleAuthError, requireAuth } from "@/lib/auth-helpers";
 import Client from "@/models/client";
 
+async function queryPeruApi(documentNumber: string) {
+  const token = process.env.PERU_API_TOKEN || "392bcf44bd1ff233add4bc20e91999012f53e51b524d541084e081beacd2bc63";
+  const type = documentNumber.length === 8 ? "dni" : "ruc";
+  const url = `https://apiperu.dev/api/${type}`;
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify({ [type]: documentNumber }),
+      // Set a reasonable timeout so we don't hang the request forever
+      signal: AbortSignal.timeout(5000)
+    });
+
+    if (!response.ok) {
+      console.error(`Peru API error: ${response.statusText}`);
+      return null;
+    }
+
+    const resData = await response.json();
+    if (resData.success && resData.data) {
+      const { data } = resData;
+      if (type === "dni") {
+        return {
+          _id: `external-${documentNumber}`,
+          documentType: "dni",
+          documentNumber: documentNumber,
+          name: data.nombres || "",
+          lastName: `${data.apellido_paterno || ""} ${data.apellido_materno || ""}`.trim(),
+          businessName: "",
+          address: "",
+          clientType: "standard",
+          phone: "",
+          email: ""
+        };
+      } else {
+        return {
+          _id: `external-${documentNumber}`,
+          documentType: "ruc",
+          documentNumber: documentNumber,
+          name: data.nombre_o_razon_social || "",
+          lastName: "",
+          businessName: data.nombre_o_razon_social || "",
+          address: data.direccion_completa || data.direccion || "",
+          clientType: "standard",
+          phone: "",
+          email: ""
+        };
+      }
+    }
+  } catch (error) {
+    console.error("Peru API query failed:", error);
+  }
+  return null;
+}
+
 export async function GET(request: Request) {
   try {
     const session = await requireAuth("waiter");
@@ -24,7 +84,19 @@ export async function GET(request: Request) {
       ];
     }
 
-    const clients = await Client.find(query).sort({ createdAt: -1 }).limit(50);
+    const clients = await Client.find(query).sort({ createdAt: -1 }).limit(50).lean();
+
+    // If search is a valid DNI (8 digits) or RUC (11 digits), and we don't have an exact local match
+    if (search && /^\d+$/.test(search) && (search.length === 8 || search.length === 11)) {
+      const hasExactLocal = clients.some(c => c.documentNumber === search);
+      if (!hasExactLocal) {
+        const externalResult = await queryPeruApi(search);
+        if (externalResult) {
+          clients.unshift(externalResult as unknown as typeof clients[number]);
+        }
+      }
+    }
+
     return NextResponse.json(clients, { status: 200 });
   } catch (error) {
     return handleAuthError(error);

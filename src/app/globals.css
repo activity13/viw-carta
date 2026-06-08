@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 @import "tw-animate-css";
 
 @plugin 'tailwind-scrollbar' {
@@ -145,6 +146,39 @@
     letter-spacing: 0.05em;
     text-transform: uppercase;
   }
+}
+
+/* --- LIGHT THEME (APPLE STYLE) --- */
+.light, [data-theme="light"] {
+  --background: oklch(0.97 0.005 260);          /* #F5F5F7 Apple Light Gray */
+  --inactive-background: oklch(0.93 0.005 260); /* #E5E5EA */
+  --foreground: oklch(0.15 0.005 260);          /* #1D1D1F Apple Dark Gray */
+  
+  --card: oklch(1 0 0);                         /* #FFFFFF */
+  --card-foreground: oklch(0.15 0.005 260);
+  
+  --popover: oklch(1 0 0);                      /* #FFFFFF */
+  --popover-foreground: oklch(0.15 0.005 260);
+  
+  --primary: oklch(0.22 0.01 260);              /* #1D1D1F Apple Charcoal */
+  --primary-foreground: oklch(1 0 0);
+  
+  --secondary: oklch(0.96 0.005 260);           /* #F2F2F7 */
+  --secondary-foreground: oklch(0.45 0.005 260);/* #86868B */
+  --secondary-content: var(--secondary-foreground);
+  
+  --muted: oklch(0.96 0.005 260);
+  --muted-foreground: oklch(0.45 0.005 260);
+  
+  --accent: oklch(0.93 0.005 260);              /* #E5E5EA */
+  --accent-foreground: oklch(0.15 0.005 260);
+  
+  --destructive: oklch(0.55 0.22 25);
+  --destructive-foreground: oklch(0.98 0.01 100);
+  
+  --border: oklch(0.88 0.005 260);              /* #D1D1D6 */
+  --input: oklch(0.93 0.005 260);
+  --ring: oklch(0.55 0.2 250);                  /* #007AFF Apple System Blue */
 }
 
 /* --- MARKETING THEME: LUMINOUS --- */

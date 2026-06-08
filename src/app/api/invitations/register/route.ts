@@ -51,7 +51,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { fullName, username, email, password } = userData;
+    const { fullName, username, email, password, backofficeTheme } = userData;
 
     // Verificar si el usuario ya existe
     const thereIsUser = await User.findOne({
@@ -89,6 +89,7 @@ export async function POST(request: Request) {
         restaurantId,
         role: invitation.role || "waiter",
         isActive: true,
+        backofficeTheme: backofficeTheme || "dark",
       });
 
       redirectTo = "/backoffice";
@@ -133,6 +134,7 @@ export async function POST(request: Request) {
         restaurantId,
         role: "admin",
         isActive: true,
+        backofficeTheme: backofficeTheme || "dark",
       });
 
       // CREAR DATOS INICIALES (ONBOARDING)

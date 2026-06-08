@@ -14,6 +14,7 @@ declare module "next-auth" {
       role?: string | null;
       subscriptionStatus?: string | null;
       subscriptionPlan?: string | null;
+      backofficeTheme?: string | null;
     };
   }
 
@@ -22,6 +23,7 @@ declare module "next-auth" {
     username?: string | null;
     restaurantId?: string;
     role?: string | null;
+    backofficeTheme?: string | null;
   }
 }
 
@@ -37,5 +39,6 @@ declare module "next-auth/jwt" {
     slug?: string | null;
     subscriptionStatus?: string | null;
     subscriptionPlan?: string | null;
+    backofficeTheme?: string | null;
   }
 }

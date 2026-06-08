@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { signIn } from "next-auth/react";
 import axios, { AxiosError } from "axios";
+import { useTheme } from "next-themes";
 import {
   Card,
   CardContent,
@@ -21,6 +22,7 @@ import {
   XCircle,
   Loader2,
   Shield,
+  Palette,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -38,6 +40,20 @@ export default function InvitationPage() {
   const params = useParams();
   const router = useRouter();
   const code = params.code as string;
+
+  const { theme, setTheme } = useTheme();
+  const [selectedTheme, setSelectedTheme] = useState<"light" | "dark">("dark");
+
+  useEffect(() => {
+    if (theme === "light" || theme === "dark") {
+      setSelectedTheme(theme);
+    }
+  }, [theme]);
+
+  const handleThemeSelection = (themeName: "light" | "dark") => {
+    setSelectedTheme(themeName);
+    setTheme(themeName);
+  };
 
   const [invitation, setInvitation] = useState<InvitationData | null>(null);
   const [isValidating, setIsValidating] = useState(true);
@@ -135,6 +151,7 @@ export default function InvitationPage() {
           username: formData.username,
           email: formData.email,
           password: formData.password,
+          backofficeTheme: selectedTheme,
         },
       };
 
@@ -176,23 +193,23 @@ export default function InvitationPage() {
 
   if (isValidating) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#050505]">
-        <Loader2 className="w-10 h-10 animate-spin text-emerald-500" />
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-10 h-10 animate-spin text-primary" />
       </div>
     );
   }
 
   if (error && !invitation) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#050505] p-4">
-        <Card className="w-full max-w-md bg-zinc-900 border-zinc-800">
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <Card className="w-full max-w-md bg-card border-border">
           <CardHeader className="text-center">
-            <XCircle className="w-12 h-12 text-rose-500 mx-auto mb-4" />
-            <CardTitle className="text-white">Invitación no válida</CardTitle>
-            <CardDescription className="text-zinc-400">{error}</CardDescription>
+            <XCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
+            <CardTitle className="text-foreground">Invitación no válida</CardTitle>
+            <CardDescription className="text-muted-foreground">{error}</CardDescription>
           </CardHeader>
           <CardContent className="text-center">
-            <Button onClick={() => router.push("/")} className="bg-emerald-600 hover:bg-emerald-700 text-white w-full">
+            <Button onClick={() => router.push("/")} className="bg-primary hover:opacity-90 text-primary-foreground w-full font-bold">
               Volver al inicio
             </Button>
           </CardContent>
@@ -203,12 +220,12 @@ export default function InvitationPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#050505]">
-        <Card className="w-full max-w-md bg-zinc-900 border-zinc-800">
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Card className="w-full max-w-md bg-card border-border">
           <CardHeader className="text-center">
-            <CheckCircle className="w-12 h-12 text-emerald-500 mx-auto mb-4" />
-            <CardTitle className="text-white">¡Registro Exitoso!</CardTitle>
-            <CardDescription className="text-zinc-400">{success}</CardDescription>
+            <CheckCircle className="w-12 h-12 text-primary mx-auto mb-4" />
+            <CardTitle className="text-foreground">¡Registro Exitoso!</CardTitle>
+            <CardDescription className="text-muted-foreground">{success}</CardDescription>
           </CardHeader>
         </Card>
       </div>
@@ -218,16 +235,16 @@ export default function InvitationPage() {
   const isStaffInvite = invitation?.type === "staff_invitation";
 
   return (
-    <div className="min-h-screen bg-[#050505] py-12 px-4 flex flex-col items-center">
+    <div className="min-h-screen bg-background py-12 px-4 flex flex-col items-center">
       <div className="max-w-4xl w-full">
         <div className="text-center mb-10">
-          <div className="w-20 h-20 bg-emerald-600/10 border border-emerald-500/20 rounded-3xl flex items-center justify-center mx-auto mb-6">
+          <div className="w-20 h-20 bg-primary/10 border border-primary/20 rounded-3xl flex items-center justify-center mx-auto mb-6">
             <Image src="/logo-c.svg" alt="Logo" width={40} height={40} />
           </div>
-          <h1 className="text-4xl font-bold text-white tracking-tight uppercase font-roboto">
+          <h1 className="text-4xl font-bold text-foreground tracking-tight uppercase font-roboto">
             {isStaffInvite ? "Únete al Equipo" : "Bienvenido a VIW Carta"}
           </h1>
-          <p className="text-zinc-400 mt-2 max-w-md mx-auto">
+          <p className="text-muted-foreground mt-2 max-w-md mx-auto">
             {isStaffInvite 
               ? `Has sido invitado a unirte a ${invitation?.restaurantName}. Completa tu perfil para empezar.`
               : "Estás a un paso de digitalizar tu restaurante. Completa tu registro."}
@@ -236,13 +253,13 @@ export default function InvitationPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
           <div className="space-y-6">
-            <Card className="bg-zinc-900 border-zinc-800">
+            <Card className="bg-card border-border">
               <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2 text-lg">
-                  <Shield className="w-5 h-5 text-emerald-500" />
+                <CardTitle className="text-foreground flex items-center gap-2 text-lg">
+                  <Shield className="w-5 h-5 text-primary" />
                   Información de la Cuenta
                 </CardTitle>
-                <CardDescription className="text-zinc-400">
+                <CardDescription className="text-muted-foreground">
                   {isStaffInvite 
                     ? `Te unirás como ${invitation?.role?.toUpperCase()}` 
                     : "Configura tus credenciales de acceso"}
@@ -250,18 +267,18 @@ export default function InvitationPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-zinc-300">Correo Electrónico</Label>
+                  <Label htmlFor="email" className="text-foreground/90">Correo Electrónico</Label>
                   <Input
                     id="email"
                     name="email"
                     type="email"
                     value={formData.email}
                     disabled
-                    className="bg-zinc-950 border-zinc-800 text-zinc-500 cursor-not-allowed"
+                    className="bg-muted border-border text-muted-foreground cursor-not-allowed"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="fullName" className="text-zinc-300">Nombre Completo</Label>
+                  <Label htmlFor="fullName" className="text-foreground/90">Nombre Completo</Label>
                   <Input
                     id="fullName"
                     name="fullName"
@@ -269,11 +286,11 @@ export default function InvitationPage() {
                     onChange={handleChange}
                     required
                     placeholder="Ej. Juan Pérez"
-                    className="bg-zinc-950 border-zinc-800 text-white focus:border-emerald-500 transition-colors"
+                    className="bg-background border-border text-foreground focus-visible:ring-primary transition-colors"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="username" className="text-zinc-300">Nombre de Usuario</Label>
+                  <Label htmlFor="username" className="text-foreground/90">Nombre de Usuario</Label>
                   <Input
                     id="username"
                     name="username"
@@ -281,12 +298,12 @@ export default function InvitationPage() {
                     onChange={handleChange}
                     required
                     placeholder="juanperez"
-                    className="bg-zinc-950 border-zinc-800 text-white focus:border-emerald-500 transition-colors font-mono"
+                    className="bg-background border-border text-foreground focus-visible:ring-primary transition-colors font-mono"
                   />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="password" className="text-zinc-300">Contraseña</Label>
+                    <Label htmlFor="password" className="text-foreground/90">Contraseña</Label>
                     <Input
                       id="password"
                       name="password"
@@ -295,11 +312,11 @@ export default function InvitationPage() {
                       onChange={handleChange}
                       required
                       placeholder="******"
-                      className="bg-zinc-950 border-zinc-800 text-white focus:border-emerald-500 transition-colors"
+                      className="bg-background border-border text-foreground focus-visible:ring-primary transition-colors"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="confirmPassword" className="text-zinc-300">Confirmar</Label>
+                    <Label htmlFor="confirmPassword" className="text-foreground/90">Confirmar</Label>
                     <Input
                       id="confirmPassword"
                       name="confirmPassword"
@@ -308,9 +325,109 @@ export default function InvitationPage() {
                       onChange={handleChange}
                       required
                       placeholder="******"
-                      className="bg-zinc-950 border-zinc-800 text-white focus:border-emerald-500 transition-colors"
+                      className="bg-background border-border text-foreground focus-visible:ring-primary transition-colors"
                     />
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Preferencia Visual */}
+            <Card className="bg-card border-border">
+              <CardHeader>
+                <CardTitle className="text-foreground flex items-center gap-2 text-lg">
+                  <Palette className="w-5 h-5 text-primary" />
+                  Preferencia Visual
+                </CardTitle>
+                <CardDescription className="text-muted-foreground">
+                  Elige el estilo visual para tu panel de administración
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Option Dark: Original */}
+                  <button
+                    type="button"
+                    onClick={() => handleThemeSelection("dark")}
+                    className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all cursor-pointer relative overflow-hidden group ${
+                      selectedTheme === "dark"
+                        ? "border-primary bg-primary/5 shadow-lg shadow-primary/10"
+                        : "border-border bg-background hover:border-primary/40 hover:bg-muted/30"
+                    }`}
+                  >
+                    {selectedTheme === "dark" && (
+                      <div className="absolute top-2 right-2 w-4 h-4 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-[10px] font-bold">
+                        ✓
+                      </div>
+                    )}
+                    <div className="w-full aspect-video rounded bg-zinc-950 p-1 mb-2 border border-zinc-800 flex flex-col gap-1 justify-between transition-transform group-hover:scale-102">
+                      <div className="flex justify-between items-center pb-0.5 border-b border-zinc-800">
+                        <div className="w-6 h-1 bg-zinc-850 rounded" />
+                        <div className="w-2 h-2 bg-zinc-800 rounded-full" />
+                      </div>
+                      <div className="flex gap-1 flex-1 items-stretch py-0.5">
+                        <div className="w-1/3 bg-zinc-900 rounded p-0.5 flex flex-col gap-0.5">
+                          <div className="w-full h-0.5 bg-zinc-800 rounded" />
+                          <div className="w-full h-0.5 bg-zinc-800 rounded" />
+                        </div>
+                        <div className="flex-1 bg-zinc-900 rounded p-1 flex flex-col justify-between">
+                          <div className="space-y-0.5">
+                            <div className="w-3/4 h-1 bg-zinc-800 rounded" />
+                            <div className="w-1/2 h-0.5 bg-zinc-800 rounded" />
+                          </div>
+                          <div className="w-full h-2 bg-zinc-850 rounded" />
+                        </div>
+                      </div>
+                    </div>
+                    <span className="text-sm font-bold text-foreground font-roboto uppercase tracking-wider">
+                      Original
+                    </span>
+                    <span className="text-[10px] text-muted-foreground font-mono mt-0.5 text-center leading-none">
+                      Tema oscuro clásico
+                    </span>
+                  </button>
+
+                  {/* Option Light: Luz */}
+                  <button
+                    type="button"
+                    onClick={() => handleThemeSelection("light")}
+                    className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all cursor-pointer relative overflow-hidden group ${
+                      selectedTheme === "light"
+                        ? "border-primary bg-primary/5 shadow-lg shadow-primary/10"
+                        : "border-border bg-background hover:border-primary/40 hover:bg-muted/30"
+                    }`}
+                  >
+                    {selectedTheme === "light" && (
+                      <div className="absolute top-2 right-2 w-4 h-4 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-[10px] font-bold">
+                        ✓
+                      </div>
+                    )}
+                    <div className="w-full aspect-video rounded bg-zinc-100 p-1 mb-2 border border-zinc-200 flex flex-col gap-1 justify-between transition-transform group-hover:scale-102">
+                      <div className="flex justify-between items-center pb-0.5 border-b border-zinc-200">
+                        <div className="w-6 h-1 bg-zinc-350 rounded" />
+                        <div className="w-2 h-2 bg-zinc-350 rounded-full" />
+                      </div>
+                      <div className="flex gap-1 flex-1 items-stretch py-0.5">
+                        <div className="w-1/3 bg-zinc-200 rounded p-0.5 flex flex-col gap-0.5">
+                          <div className="w-full h-0.5 bg-zinc-300 rounded" />
+                          <div className="w-full h-0.5 bg-zinc-300 rounded" />
+                        </div>
+                        <div className="flex-1 bg-zinc-200 rounded p-1 flex flex-col justify-between">
+                          <div className="space-y-0.5">
+                            <div className="w-3/4 h-1 bg-zinc-350 rounded" />
+                            <div className="w-1/2 h-0.5 bg-zinc-300 rounded" />
+                          </div>
+                          <div className="w-full h-2 bg-zinc-250 rounded" />
+                        </div>
+                      </div>
+                    </div>
+                    <span className="text-sm font-bold text-foreground font-roboto uppercase tracking-wider">
+                      Luz (Claro)
+                    </span>
+                    <span className="text-[10px] text-muted-foreground font-mono mt-0.5 text-center leading-none">
+                      Estilo Apple Claro
+                    </span>
+                  </button>
                 </div>
               </CardContent>
             </Card>
@@ -318,7 +435,7 @@ export default function InvitationPage() {
             <Button
               onClick={handleSubmit}
               disabled={isRegistering}
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-6 rounded-xl transition-all shadow-lg shadow-emerald-900/20"
+              className="w-full bg-primary hover:opacity-90 text-primary-foreground font-bold py-6 rounded-xl transition-all shadow-lg"
             >
               {isRegistering ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -329,17 +446,17 @@ export default function InvitationPage() {
           </div>
 
           {!isStaffInvite ? (
-            <Card className="bg-zinc-900 border-zinc-800">
+            <Card className="bg-card border-border">
               <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2 text-lg">
-                  <Building2 className="w-5 h-5 text-emerald-500" />
+                <CardTitle className="text-foreground flex items-center gap-2 text-lg">
+                  <Building2 className="w-5 h-5 text-primary" />
                   Tu Restaurante
                 </CardTitle>
-                <CardDescription className="text-zinc-400">Datos principales de tu establecimiento</CardDescription>
+                <CardDescription className="text-muted-foreground">Datos principales de tu establecimiento</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="restaurantName" className="text-zinc-300">Nombre</Label>
+                  <Label htmlFor="restaurantName" className="text-foreground/90">Nombre</Label>
                   <Input
                     id="restaurantName"
                     name="restaurantName"
@@ -347,11 +464,11 @@ export default function InvitationPage() {
                     onChange={handleChange}
                     required
                     placeholder="Restaurante"
-                    className="bg-zinc-950 border-zinc-800 text-white"
+                    className="bg-background border-border text-foreground focus-visible:ring-primary"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="restaurantSlug" className="text-zinc-300">Slug (URL)</Label>
+                  <Label htmlFor="restaurantSlug" className="text-foreground/90">Slug (URL)</Label>
                   <Input
                     id="restaurantSlug"
                     name="restaurantSlug"
@@ -359,11 +476,11 @@ export default function InvitationPage() {
                     onChange={handleChange}
                     required
                     placeholder="mi-restaurante"
-                    className="bg-zinc-950 border-zinc-800 text-white font-mono"
+                    className="bg-background border-border text-foreground font-mono focus-visible:ring-primary"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="restaurantDirection" className="text-zinc-300">Dirección</Label>
+                  <Label htmlFor="restaurantDirection" className="text-foreground/90">Dirección</Label>
                   <Input
                     id="restaurantDirection"
                     name="restaurantDirection"
@@ -371,11 +488,11 @@ export default function InvitationPage() {
                     onChange={handleChange}
                     required
                     placeholder="Av. Principal 123"
-                    className="bg-zinc-950 border-zinc-800 text-white"
+                    className="bg-background border-border text-foreground focus-visible:ring-primary"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="restaurantPhone" className="text-zinc-300">Teléfono</Label>
+                  <Label htmlFor="restaurantPhone" className="text-foreground/90">Teléfono</Label>
                   <Input
                     id="restaurantPhone"
                     name="restaurantPhone"
@@ -383,46 +500,46 @@ export default function InvitationPage() {
                     onChange={handleChange}
                     required
                     placeholder="+51..."
-                    className="bg-zinc-950 border-zinc-800 text-white"
+                    className="bg-background border-border text-foreground focus-visible:ring-primary"
                   />
                 </div>
               </CardContent>
             </Card>
           ) : (
             <div className="flex flex-col gap-6">
-              <Card className="bg-zinc-900 border-zinc-800 border-l-4 border-l-emerald-500">
+              <Card className="bg-card border-border border-l-4 border-l-primary">
                 <CardHeader>
-                  <CardTitle className="text-white text-lg">Negocio Asociado</CardTitle>
+                  <CardTitle className="text-foreground text-lg">Negocio Asociado</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-lg bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-                      <Building2 className="text-emerald-500" />
+                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20">
+                      <Building2 className="text-primary" />
                     </div>
                     <div>
-                      <h3 className="text-white font-bold text-xl">{invitation?.restaurantName}</h3>
-                      <p className="text-zinc-400 text-sm">Registro como colaborador {invitation?.role}</p>
+                      <h3 className="text-foreground font-bold text-xl">{invitation?.restaurantName}</h3>
+                      <p className="text-muted-foreground text-sm">Registro como colaborador {invitation?.role}</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
               
-              <div className="p-6 bg-emerald-500/5 rounded-2xl border border-emerald-500/10 space-y-4">
-                <h4 className="text-emerald-500 font-bold flex items-center gap-2">
+              <div className="p-6 bg-primary/5 rounded-2xl border border-primary/10 space-y-4">
+                <h4 className="text-primary font-bold flex items-center gap-2">
                   <CheckCircle size={18} />
                   ¿Qué puedes hacer ahora?
                 </h4>
-                <ul className="space-y-3 text-zinc-400 text-sm">
+                <ul className="space-y-3 text-muted-foreground text-sm">
                   <li className="flex items-start gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
                     Acceder al panel de gestión de pedidos en tiempo real.
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
                     Visualizar y gestionar el stock del menú digital.
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
                     Personalizar tu perfil de colaborador.
                   </li>
                 </ul>
@@ -432,7 +549,7 @@ export default function InvitationPage() {
         </div>
 
         {error && (
-          <div className="mt-8 p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-500 text-center text-sm font-medium">
+          <div className="mt-8 p-4 bg-destructive/10 border border-destructive/20 rounded-xl text-destructive text-center text-sm font-medium">
             {error}
           </div>
         )}

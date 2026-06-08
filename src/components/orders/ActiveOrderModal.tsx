@@ -305,7 +305,7 @@ export function ActiveOrderModal({
   return (
     <Dialog open={isOrderModalOpen} onOpenChange={setIsOrderModalOpen}>
       <DialogContent
-        className="w-full max-w-[95vw] sm:max-w-[1400px]! h-[95vh] flex flex-col p-0 gap-0 overflow-hidden bg-[#0a0a0a] border border-[#222] text-[#e5e5e5]"
+        className="w-full max-w-[95vw] sm:max-w-[1400px]! h-[95vh] flex flex-col p-0 gap-0 overflow-hidden bg-card border border-border text-foreground"
         onOpenAutoFocus={(e) => e.preventDefault()}
         onInteractOutside={(e) => {
           const hasToast = document.querySelector(
@@ -316,9 +316,9 @@ export function ActiveOrderModal({
         style={{ pointerEvents: "auto" }}
       >
         {/* Header - Control Operativo */}
-        <div className="flex items-center justify-between p-6 border-b border-[#222] bg-[#0a0a0a] z-30 shrink-0">
+        <div className="flex items-center justify-between p-6 border-b border-border bg-card z-30 shrink-0">
           <div>
-            <h1 className="text-xl md:text-3xl text-white font-black tracking-[0.2em] md:tracking-[0.3em] font-mono uppercase">
+            <h1 className="text-xl md:text-3xl text-foreground font-black tracking-[0.2em] md:tracking-[0.3em] font-mono uppercase">
               P R O C E S A R <span className="opacity-0">_</span> O R D E N
             </h1>
             <p className="text-[10px] text-muted-foreground/50 font-mono tracking-widest mt-2 uppercase">
@@ -327,7 +327,7 @@ export function ActiveOrderModal({
           </div>
           <div className="flex items-start gap-4">
             <div className="hidden md:flex flex-col items-end">
-              <span className="px-3 py-1 bg-[#1a1a1a] border border-[#333] rounded font-mono text-xs text-[#70d8c8] tracking-widest font-bold">
+              <span className="px-3 py-1 bg-secondary border border-border rounded font-mono text-xs text-primary tracking-widest font-bold">
                 #{activeOrder.orderNumber}
               </span>
               <span className="text-[10px] text-muted-foreground/60 font-mono uppercase mt-2 tracking-widest">
@@ -335,12 +335,12 @@ export function ActiveOrderModal({
               </span>
             </div>
             {isOrderBusy && (
-              <Loader2 className="w-5 h-5 animate-spin text-[#70d8c8] mt-1" />
+              <Loader2 className="w-5 h-5 animate-spin text-primary mt-1" />
             )}
             <Button
               variant="ghost"
               size="icon"
-              className="text-muted-foreground hover:text-white hover:bg-[#222] rounded-full"
+              className="text-muted-foreground hover:text-foreground hover:bg-muted rounded-full cursor-pointer"
               onClick={() => setIsOrderModalOpen(false)}
             >
               <X className="w-6 h-6" />
@@ -349,15 +349,15 @@ export function ActiveOrderModal({
         </div>
 
         {/* Main Content - Scrollable */}
-        <div className="flex-1 overflow-y-auto bg-[#0a0a0a] flex flex-col">
+        <div className="flex-1 overflow-y-auto bg-background flex flex-col">
           {/* 1. Products Container */}
-          <div className="flex flex-col p-6 xl:px-12 border-b border-[#222] shrink-0">
+          <div className="flex flex-col p-6 xl:px-12 border-b border-border shrink-0">
             {/* Search Bar */}
             <div className="relative mb-6">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/50" />
               <Input
                 placeholder="ESCANEAR O BUSCAR PRODUCTOS..."
-                className="pl-12 h-14 bg-[#111111] border-[#222] focus:border-[#70d8c8]/50 focus:ring-1 focus:ring-[#70d8c8]/50 transition-all font-mono text-sm tracking-wide text-white placeholder:text-muted-foreground/40 rounded-xl"
+                className="pl-12 h-14 bg-card border-border focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all font-mono text-sm tracking-wide text-foreground placeholder:text-muted-foreground/40 rounded-xl"
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
@@ -368,7 +368,7 @@ export function ActiveOrderModal({
 
               {/* Search Suggestions Dropdown */}
               {showSearchResults && searchQuery && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-[#111] border border-[#333] rounded-xl shadow-2xl z-50 max-h-[300px] overflow-y-auto overflow-hidden">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-2xl z-50 max-h-[300px] overflow-y-auto overflow-hidden">
                   {filteredMeals.length === 0 ? (
                     <div className="p-6 text-sm text-muted-foreground/50 text-center font-mono uppercase tracking-widest">
                       Sin resultados
@@ -377,11 +377,11 @@ export function ActiveOrderModal({
                     filteredMeals.map((meal) => (
                       <button
                         key={meal._id}
-                        className="w-full text-left p-4 hover:bg-[#1a1a1a] flex items-center justify-between border-b border-[#222] last:border-0 transition-colors group"
+                        className="w-full text-left p-4 hover:bg-muted flex items-center justify-between border-b border-border last:border-0 transition-colors group cursor-pointer"
                         onClick={() => handleSelectMeal(meal._id)}
                       >
                         <div>
-                          <div className="font-bold text-sm text-[#e5e5e5] group-hover:text-[#70d8c8] transition-colors uppercase tracking-wide">
+                          <div className="font-bold text-sm text-foreground group-hover:text-primary transition-colors uppercase tracking-wide">
                             {meal.name}
                           </div>
                           {meal.description && (
@@ -390,7 +390,7 @@ export function ActiveOrderModal({
                             </div>
                           )}
                         </div>
-                        <div className="font-mono font-bold text-sm text-[#70d8c8]">
+                        <div className="font-mono font-bold text-sm text-primary">
                           S/. {meal.basePrice.toFixed(2)}
                         </div>
                       </button>
@@ -414,7 +414,7 @@ export function ActiveOrderModal({
               <h2 className="text-[10px] text-muted-foreground/50 uppercase tracking-[0.3em] font-bold">
                 Productos Seleccionados
               </h2>
-              <div className="px-2 py-1 bg-[#111] border border-[#222] text-[#70d8c8] font-mono text-[10px] tracking-widest rounded font-bold">
+              <div className="px-2 py-1 bg-secondary border border-border text-primary font-mono text-[10px] tracking-widest rounded font-bold">
                 {activeOrder.items.length} ITEMS
               </div>
             </div>
@@ -422,7 +422,7 @@ export function ActiveOrderModal({
             {/* Product List */}
             <div className="flex-1 space-y-0">
               {activeOrder.items.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground/30 border border-dashed border-[#222] rounded-2xl bg-[#0f0f0f]">
+                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground/30 border border-dashed border-border rounded-2xl bg-muted/45">
                   <ShoppingBagIcon className="w-12 h-12 mb-4 opacity-20" />
                   <p className="text-xs font-mono uppercase tracking-widest font-bold">
                     La orden está vacía
@@ -445,13 +445,13 @@ export function ActiveOrderModal({
 
           {/* 2. Customer Container */}
           <RoleGate action="can_register_client">
-            <div className="flex flex-col p-6 xl:px-12 border-b border-[#222] shrink-0">
+            <div className="flex flex-col p-6 xl:px-12 border-b border-border shrink-0">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-[10px] text-muted-foreground/50 uppercase tracking-[0.3em] font-bold">
                   Registro de Cliente
                 </h2>
                 <div
-                  className="text-[10px] text-[#70d8c8]/70 font-mono tracking-widest font-bold uppercase hover:text-[#70d8c8] cursor-pointer transition-colors"
+                  className="text-[10px] text-primary/70 font-mono tracking-widest font-bold uppercase hover:text-primary cursor-pointer transition-colors"
                   onClick={() => {
                     document.getElementById("search-client-input")?.focus();
                   }}
@@ -476,7 +476,7 @@ export function ActiveOrderModal({
                         value={tableNumberDraft}
                         onChange={(e) => setTableNumberDraft(e.target.value)}
                         placeholder="00"
-                        className="pl-8 h-12 font-mono text-lg font-bold bg-[#111] border-[#222] focus:border-[#70d8c8]/50 focus:ring-1 focus:ring-[#70d8c8]/50 text-[#e5e5e5] rounded-xl transition-all placeholder:text-muted-foreground/20"
+                        className="pl-8 h-12 font-mono text-lg font-bold bg-card border-border focus:border-primary/50 focus:ring-1 focus:ring-primary/50 text-foreground rounded-xl transition-all placeholder:text-muted-foreground/20"
                       />
                     </div>
                   </div>
@@ -490,10 +490,10 @@ export function ActiveOrderModal({
                       value={invoiceTypeDraft}
                       onValueChange={(v: InvoiceType) => setInvoiceTypeDraft(v)}
                     >
-                      <SelectTrigger className="h-12 bg-[#111] border-[#222] focus:border-[#70d8c8]/50 focus:ring-1 focus:ring-[#70d8c8]/50 rounded-xl text-[#e5e5e5]">
+                      <SelectTrigger className="h-12 bg-card border-border focus:border-primary/50 focus:ring-1 focus:ring-primary/50 rounded-xl text-foreground">
                         <SelectValue placeholder="Seleccionar" />
                       </SelectTrigger>
-                      <SelectContent className="bg-[#111] border-[#333]">
+                      <SelectContent className="bg-card border-border">
                         <SelectItem value="boleta">
                           Boleta de Venta (B-001)
                         </SelectItem>
@@ -521,10 +521,10 @@ export function ActiveOrderModal({
                         }))
                       }
                     >
-                      <SelectTrigger className="h-12 bg-[#111] border-[#222] focus:border-[#70d8c8]/50 focus:ring-1 focus:ring-[#70d8c8]/50 rounded-xl text-[#e5e5e5]">
+                      <SelectTrigger className="h-12 bg-card border-border focus:border-primary/50 focus:ring-1 focus:ring-primary/50 rounded-xl text-foreground">
                         <SelectValue placeholder="Tipo" />
                       </SelectTrigger>
-                      <SelectContent className="bg-[#111] border-[#333]">
+                      <SelectContent className="bg-card border-border">
                         <SelectItem value="none">--</SelectItem>
                         <SelectItem value="dni">DNI</SelectItem>
                         <SelectItem value="ruc">RUC</SelectItem>
@@ -553,29 +553,29 @@ export function ActiveOrderModal({
                       }}
                       onFocus={() => setShowClientResults(true)}
                       placeholder="DNI, RUC..."
-                      className="block w-full outline-none disabled:cursor-not-allowed disabled:opacity-50 h-12 font-mono text-base tracking-wide bg-[#111] border border-[#222] focus:border-[#70d8c8]/50 focus:ring-1 focus:ring-[#70d8c8]/50 text-[#e5e5e5] rounded-xl pl-4 pr-10 placeholder:text-muted-foreground/30 transition-all uppercase"
+                      className="block w-full outline-none disabled:cursor-not-allowed disabled:opacity-50 h-12 font-mono text-base tracking-wide bg-card border border-border focus:border-primary/50 focus:ring-1 focus:ring-primary/50 text-foreground rounded-xl pl-4 pr-10 placeholder:text-muted-foreground/30 transition-all uppercase"
                     />
                     <div className="absolute right-4 top-10 pointer-events-none transition-opacity bg-transparent">
                       {clientSearchStatus === "searching" ? (
-                        <Loader2 className="w-4 h-4 text-[#70d8c8] animate-spin" />
+                        <Loader2 className="w-4 h-4 text-primary animate-spin" />
                       ) : isClientLocked ? (
-                        <CheckCircle2 className="w-4 h-4 text-[#70d8c8]" />
+                        <CheckCircle2 className="w-4 h-4 text-primary" />
                       ) : clientSearchStatus === "not_found" &&
                         customerDraft.documentNumber.length > 2 ? (
-                        <Search className="w-4 h-4 text-[#70d8c8]/50" />
+                        <Search className="w-4 h-4 text-primary/50" />
                       ) : (
-                        <Search className="w-4 h-4 text-[#70d8c8]/30 opacity-0 group-focus-within:opacity-100" />
+                        <Search className="w-4 h-4 text-primary/30 opacity-0 group-focus-within:opacity-100" />
                       )}
                     </div>
 
                     {showClientResults &&
                       clientSearchResults.length > 0 &&
                       !isClientLocked && (
-                        <div className="absolute top-full left-0 right-0 mt-2 bg-[#111] border border-[#333] rounded-xl shadow-2xl z-50 max-h-[250px] overflow-y-auto">
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-2xl z-50 max-h-[250px] overflow-y-auto">
                           {clientSearchResults.map((client) => (
                             <button
                               key={client._id}
-                              className="w-full text-left p-4 hover:bg-[#1a1a1a] flex flex-col border-b border-[#222] last:border-0 transition-colors uppercase tracking-widest"
+                              className="w-full text-left p-4 hover:bg-muted flex flex-col border-b border-border last:border-0 transition-colors uppercase tracking-widest cursor-pointer"
                               onClick={() => {
                                 setCustomerDraft((p) => ({
                                   ...p,
@@ -590,16 +590,24 @@ export function ActiveOrderModal({
                                   phone: client.phone || "",
                                   address: client.address || "",
                                 }));
-                                setIsClientLocked(true);
+                                const isExternal = client._id?.toString().startsWith("external-");
+                                setIsClientLocked(!isExternal);
                                 setShowClientResults(false);
                               }}
                             >
-                              <div className="font-bold text-xs text-[#e5e5e5]">
-                                <span className="text-[#70d8c8] mr-2 font-mono">
+                              <div className="font-bold text-xs text-foreground flex items-center flex-wrap gap-2">
+                                <span className="text-primary font-mono">
                                   {client.documentNumber}
                                 </span>
-                                {client.name || client.businessName}{" "}
-                                {client.lastName || ""}
+                                <span>
+                                  {client.name || client.businessName}{" "}
+                                  {client.lastName || ""}
+                                </span>
+                                {client._id?.toString().startsWith("external-") && (
+                                  <span className="inline-flex text-[9px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-mono uppercase tracking-wider font-bold">
+                                    AUTO
+                                  </span>
+                                )}
                               </div>
                               {client.phone && (
                                 <div className="text-[10px] text-muted-foreground/50 font-mono mt-1">
@@ -636,7 +644,7 @@ export function ActiveOrderModal({
                       }
                       placeholder="NOMBRES"
                       disabled={isClientLocked}
-                      className="h-12 bg-[#111] border-[#222] focus:border-[#70d8c8]/50 focus:ring-1 focus:ring-[#70d8c8]/50 text-[#e5e5e5] rounded-xl placeholder:text-muted-foreground/20 disabled:opacity-50 uppercase tracking-widest text-sm"
+                      className="h-12 bg-card border-border focus:border-primary/50 focus:ring-1 focus:ring-primary/50 text-foreground rounded-xl placeholder:text-muted-foreground/20 disabled:opacity-50 uppercase tracking-widest text-sm"
                     />
                   </div>
                   <div>
@@ -653,7 +661,7 @@ export function ActiveOrderModal({
                       }
                       placeholder="APELLIDOS (OPCIONAL)"
                       disabled={isClientLocked}
-                      className="h-12 bg-[#111] border-[#222] focus:border-[#70d8c8]/50 focus:ring-1 focus:ring-[#70d8c8]/50 text-[#e5e5e5] rounded-xl placeholder:text-muted-foreground/20 disabled:opacity-50 uppercase tracking-widest text-sm"
+                      className="h-12 bg-card border-border focus:border-primary/50 focus:ring-1 focus:ring-primary/50 text-foreground rounded-xl placeholder:text-muted-foreground/20 disabled:opacity-50 uppercase tracking-widest text-sm"
                     />
                   </div>
                 </div>
@@ -675,7 +683,7 @@ export function ActiveOrderModal({
                       }
                       placeholder="EMAIL"
                       disabled={isClientLocked}
-                      className="h-12 bg-[#0f0f0f] border-b border-[#222] border-t-0 border-x-0 rounded-none focus:border-[#70d8c8]/50 text-[#e5e5e5] placeholder:text-muted-foreground/20 disabled:opacity-50 uppercase tracking-widest text-xs font-mono"
+                      className="h-12 bg-background border-b border-border border-t-0 border-x-0 rounded-none focus:border-primary/50 text-foreground placeholder:text-muted-foreground/20 disabled:opacity-50 uppercase tracking-widest text-xs font-mono"
                     />
                   </div>
                   <div className="relative group">
@@ -693,7 +701,7 @@ export function ActiveOrderModal({
                       }
                       placeholder="TEL"
                       disabled={isClientLocked}
-                      className="h-12 bg-[#0f0f0f] border-b border-[#222] border-t-0 border-x-0 rounded-none focus:border-[#70d8c8]/50 text-[#e5e5e5] placeholder:text-muted-foreground/20 disabled:opacity-50 uppercase tracking-widest text-xs font-mono"
+                      className="h-12 bg-background border-b border-border border-t-0 border-x-0 rounded-none focus:border-primary/50 text-foreground placeholder:text-muted-foreground/20 disabled:opacity-50 uppercase tracking-widest text-xs font-mono"
                     />
                   </div>
                   <div className="relative group">
@@ -710,7 +718,7 @@ export function ActiveOrderModal({
                       }
                       placeholder="DIRECCIÓN"
                       disabled={isClientLocked}
-                      className="h-12 bg-[#0f0f0f] border-b border-[#222] border-t-0 border-x-0 rounded-none focus:border-[#70d8c8]/50 text-[#e5e5e5] placeholder:text-muted-foreground/20 disabled:opacity-50 uppercase tracking-widest text-xs font-mono"
+                      className="h-12 bg-background border-b border-border border-t-0 border-x-0 rounded-none focus:border-primary/50 text-foreground placeholder:text-muted-foreground/20 disabled:opacity-50 uppercase tracking-widest text-xs font-mono"
                     />
                   </div>
                 </div>
@@ -719,7 +727,7 @@ export function ActiveOrderModal({
                 <div className="flex justify-between items-center pt-4">
                   <div className="flex items-center">
                     {!isCustomerValid ? (
-                      <span className="inline-flex items-center px-2 py-1 text-[10px] tracking-widest font-mono text-[#5c1616] border border-[#5c1616]/50 rounded">
+                      <span className="inline-flex items-center px-2 py-1 text-[10px] tracking-widest font-mono text-destructive border border-destructive/50 bg-destructive/10 rounded">
                         <AlertTriangle className="w-3 h-3 mr-2" />
                         {customerValidationMessage}
                       </span>
@@ -734,14 +742,14 @@ export function ActiveOrderModal({
 
                   <div className="h-8 flex items-center justify-end">
                     {isCustomerSaving ? (
-                      <div className="flex items-center text-[#70d8c8] animate-pulse">
+                      <div className="flex items-center text-primary animate-pulse">
                         <Loader2 className="w-4 h-4 animate-spin mr-2" />
                         <span className="text-[10px] font-mono tracking-widest uppercase font-bold">
                           Guardando...
                         </span>
                       </div>
                     ) : !isCustomerDirty ? (
-                      <div className="flex items-center text-[#e5e5e5]/50 transition-all">
+                      <div className="flex items-center text-foreground/50 transition-all">
                         <CheckCircle2 className="w-4 h-4 mr-2" />
                         <span className="text-[10px] font-mono tracking-widest uppercase font-bold">
                           Datos enlazados
@@ -750,7 +758,7 @@ export function ActiveOrderModal({
                     ) : (
                       <Button
                         size="sm"
-                        className="h-8 text-[10px] tracking-widest font-mono bg-[#1a1a1a] hover:bg-[#70d8c8] text-white hover:text-black border border-[#333] transition-colors"
+                        className="h-8 text-[10px] tracking-widest font-mono bg-secondary hover:bg-primary text-foreground hover:text-primary-foreground border border-border transition-colors cursor-pointer"
                         onClick={handleConfirmCustomerBtn}
                         disabled={isConfirming}
                       >
@@ -768,32 +776,32 @@ export function ActiveOrderModal({
 
           {/* 3. Pricing Container */}
           <RoleGate action="can_set_adjustment">
-            <div className="flex flex-col p-6 xl:px-12 border-b border-[#222] shrink-0">
+            <div className="flex flex-col p-6 xl:px-12 border-b border-border shrink-0">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                 <div className="space-y-4">
                   <h2 className="text-[10px] text-muted-foreground/50 uppercase tracking-[0.3em] font-bold mb-4">
                     Resumen de Precios
                   </h2>
-                  <div className="flex items-center gap-2 p-1 bg-[#111] rounded-xl border border-[#222]">
+                  <div className="flex items-center gap-2 p-1 bg-background rounded-xl border border-border">
                     <Select
                       value={adjustmentDraft.kind}
                       onValueChange={(val: AdjustmentKind) =>
                         setAdjustmentDraft((prev) => ({ ...prev, kind: val }))
                       }
                     >
-                      <SelectTrigger className="w-[120px] h-10 border-0 bg-transparent text-xs text-[#e5e5e5] uppercase tracking-widest focus:ring-0">
+                      <SelectTrigger className="w-[120px] h-10 border-0 bg-transparent text-xs text-foreground uppercase tracking-widest focus:ring-0">
                         <SelectValue placeholder="Tipo" />
                       </SelectTrigger>
-                      <SelectContent className="bg-[#1a1a1a] border-[#333]">
+                      <SelectContent className="bg-card border-border">
                         <SelectItem value="discount">DESC</SelectItem>
                         <SelectItem value="surcharge">REC</SelectItem>
                       </SelectContent>
                     </Select>
-                    <div className="w-px h-6 bg-[#333]"></div>
+                    <div className="w-px h-6 bg-border"></div>
                     <Input
                       type="number"
                       placeholder="%"
-                      className="w-16 h-10 border-0 bg-transparent text-xs text-center text-[#70d8c8] font-bold focus-visible:ring-0"
+                      className="w-16 h-10 border-0 bg-transparent text-xs text-center text-primary font-bold focus-visible:ring-0"
                       min={0}
                       max={100}
                       value={adjustmentDraft.percent || ""}
@@ -804,10 +812,10 @@ export function ActiveOrderModal({
                         }))
                       }
                     />
-                    <div className="w-px h-6 bg-[#333]"></div>
+                    <div className="w-px h-6 bg-border"></div>
                     <Input
                       placeholder="MOTIVO"
-                      className="h-10 border-0 bg-transparent text-xs flex-1 uppercase tracking-widest text-[#e5e5e5] placeholder:text-muted-foreground/30 focus-visible:ring-0"
+                      className="h-10 border-0 bg-transparent text-xs flex-1 uppercase tracking-widest text-foreground placeholder:text-muted-foreground/30 focus-visible:ring-0"
                       value={adjustmentDraft.note || ""}
                       onChange={(e) =>
                         setAdjustmentDraft((prev) => ({
@@ -819,7 +827,7 @@ export function ActiveOrderModal({
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="h-10 w-10 p-0 hover:bg-[#222] text-[#70d8c8] rounded-lg"
+                      className="h-10 w-10 p-0 hover:bg-muted text-primary rounded-lg cursor-pointer"
                       onClick={handleSaveAdjustment}
                       disabled={isOrderBusy}
                       title="Aplicar ajuste"
@@ -829,7 +837,7 @@ export function ActiveOrderModal({
                   </div>
 
                   {activeOrder.adjustment && (
-                    <div className="flex items-center justify-between text-xs p-3 bg-[#111] border border-[#70d8c8]/20 text-[#70d8c8] rounded-lg font-mono">
+                    <div className="flex items-center justify-between text-xs p-3 bg-primary/10 border border-primary/20 text-primary rounded-lg font-mono">
                       <span className="uppercase tracking-widest">
                         {activeOrder.adjustment.kind === "discount"
                           ? "DESC: "
@@ -838,7 +846,7 @@ export function ActiveOrderModal({
                       </span>
                       <button
                         onClick={handleRemoveAdjustment}
-                        className="underline hover:text-[#e5e5e5] uppercase tracking-widest"
+                        className="underline hover:text-foreground uppercase tracking-widest cursor-pointer"
                       >
                         QUITAR
                       </button>
@@ -849,12 +857,12 @@ export function ActiveOrderModal({
                 <div className="space-y-3 font-mono text-sm self-end">
                   <div className="flex justify-between text-muted-foreground/50 tracking-widest uppercase mb-2">
                     <span>Subtotal</span>
-                    <span className="text-[#e5e5e5]">
+                    <span className="text-foreground">
                       S/. {subtotal.toFixed(2)}
                     </span>
                   </div>
                   {activeOrder.adjustment && (
-                    <div className="flex justify-between text-[#70d8c8] tracking-widest uppercase">
+                    <div className="flex justify-between text-primary tracking-widest uppercase">
                       <span>
                         {activeOrder.adjustment.kind === "discount"
                           ? "Descuento"
@@ -867,10 +875,10 @@ export function ActiveOrderModal({
                       </span>
                     </div>
                   )}
-                  <div className="border-t border-[#333] my-3"></div>
+                  <div className="border-t border-border my-3"></div>
                   <div className="flex justify-between text-xl font-bold tracking-widest uppercase">
-                    <span className="text-white">Total</span>
-                    <span className="text-[#70d8c8]">
+                    <span className="text-foreground">Total</span>
+                    <span className="text-primary">
                       S/. {total.toFixed(2)}
                     </span>
                   </div>
@@ -881,7 +889,7 @@ export function ActiveOrderModal({
 
           {/* 4. Payment Container */}
           <RoleGate action="can_register_payment">
-            <div className="flex flex-col p-6 xl:px-12 border-b border-[#222] shrink-0 pb-32">
+            <div className="flex flex-col p-6 xl:px-12 border-b border-border shrink-0 pb-32">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-[10px] text-muted-foreground/50 uppercase tracking-[0.3em] font-bold">
                   Control Operativo
@@ -892,7 +900,7 @@ export function ActiveOrderModal({
                 {paymentsDraft.map((payment, idx) => (
                   <div
                     key={idx}
-                    className="bg-[#111] border border-[#222] p-4 rounded-xl relative group"
+                    className="bg-background border border-border p-4 rounded-xl relative group"
                   >
                     {/* Big Selector Buttons */}
                     <div className="grid grid-cols-3 gap-2 mb-4">
@@ -911,10 +919,10 @@ export function ActiveOrderModal({
                           <button
                             key={opt.id}
                             className={cn(
-                              "flex flex-col items-center justify-center p-4 border rounded-lg transition-all duration-200",
+                              "flex flex-col items-center justify-center p-4 border rounded-lg transition-all duration-200 cursor-pointer",
                               isSelected
-                                ? "bg-[#1a1a1a] border-[#70d8c8]/50 text-[#70d8c8]"
-                                : "bg-[#0a0a0a] border-[#222] text-muted-foreground/40 hover:bg-[#151515] hover:text-[#e5e5e5]",
+                                ? "bg-secondary border-primary/50 text-primary"
+                                : "bg-card border-border text-muted-foreground/40 hover:bg-muted/40 hover:text-foreground",
                             )}
                             onClick={() => {
                               setPaymentsDraft((prev) =>
@@ -938,12 +946,12 @@ export function ActiveOrderModal({
                     {/* Amount Input */}
                     <div className="flex items-center gap-4">
                       <div className="relative flex-1">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#70d8c8] font-mono font-bold">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-primary font-mono font-bold">
                           S/.
                         </span>
                         <Input
                           type="number"
-                          className="pl-12 h-14 bg-[#0a0a0a] border-[#222] focus:border-[#70d8c8]/50 focus:ring-1 focus:ring-[#70d8c8]/50 text-[#e5e5e5] font-mono font-bold text-xl rounded-lg"
+                          className="pl-12 h-14 bg-card border-border focus:border-primary/50 focus:ring-1 focus:ring-primary/50 text-foreground font-mono font-bold text-xl rounded-lg"
                           placeholder="0.00"
                           value={payment.amount || ""}
                           onChange={(e) =>
@@ -962,7 +970,7 @@ export function ActiveOrderModal({
                           variant="ghost"
                           size="icon"
                           onClick={() => removePaymentMethod(idx)}
-                          className="h-14 w-14 rounded-lg bg-[#5c1616]/20 text-[#ffb4ab] border border-[#5c1616] hover:bg-[#5c1616]/80 hover:text-white transition-colors shrink-0"
+                          className="h-14 w-14 rounded-lg bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive hover:text-destructive-foreground transition-colors shrink-0 cursor-pointer"
                         >
                           <Trash2 className="w-5 h-5" />
                         </Button>
@@ -974,7 +982,7 @@ export function ActiveOrderModal({
                 <Button
                   variant="outline"
                   onClick={addPaymentMethod}
-                  className="w-full h-14 border border-dashed border-[#333] bg-transparent text-muted-foreground hover:text-[#70d8c8] hover:border-[#70d8c8]/50 hover:bg-[#70d8c8]/5 uppercase tracking-widest font-mono text-xs rounded-xl transition-all"
+                  className="w-full h-14 border border-dashed border-border bg-transparent text-muted-foreground hover:text-primary hover:border-primary/50 hover:bg-primary/5 uppercase tracking-widest font-mono text-xs rounded-xl transition-all cursor-pointer"
                 >
                   <Plus className="w-4 h-4 mr-2" /> DIVIDIR PAGO (OTRO MÉTODO)
                 </Button>
@@ -984,14 +992,14 @@ export function ActiveOrderModal({
         </div>
 
         {/* Floating Technical Footer */}
-        <div className="p-4 bg-[#0a0a0a]/80 backdrop-blur-md border-t border-[#222] z-40 shrink-0">
+        <div className="p-4 bg-card/90 backdrop-blur-md border-t border-border z-40 shrink-0">
           <div className="flex flex-col-reverse sm:flex-row items-stretch sm:justify-between sm:items-center gap-4 max-w-[1400px] mx-auto xl:px-8">
             <div className="flex items-center gap-3">
               <Button
                 variant="outline"
                 onClick={handleHoldOrder}
                 disabled={isOrderBusy}
-                className="flex-1 sm:flex-none h-14 bg-[#111] hover:bg-[#1a1a1a] border-[#333] text-muted-foreground hover:text-[#e5e5e5] uppercase font-mono tracking-widest text-[10px] sm:text-xs rounded-xl"
+                className="flex-1 sm:flex-none h-14 bg-background hover:bg-muted border-border text-muted-foreground hover:text-foreground uppercase font-mono tracking-widest text-[10px] sm:text-xs rounded-xl cursor-pointer"
               >
                 MANTENER ORDEN
               </Button>
@@ -999,7 +1007,7 @@ export function ActiveOrderModal({
                 variant="outline"
                 onClick={handlePrintKitchenOrder}
                 disabled={isOrderBusy}
-                className="flex-1 sm:flex-none h-14 bg-[#111] hover:bg-[#1a1a1a] border-[#333] text-muted-foreground hover:text-[#e5e5e5] uppercase font-mono tracking-widest text-[10px] sm:text-xs rounded-xl"
+                className="flex-1 sm:flex-none h-14 bg-background hover:bg-muted border-border text-muted-foreground hover:text-foreground uppercase font-mono tracking-widest text-[10px] sm:text-xs rounded-xl cursor-pointer"
               >
                 <ReceiptText className="w-4 h-4 sm:mr-2" />{" "}
                 <span className="hidden sm:inline">COCINA</span>
@@ -1008,7 +1016,7 @@ export function ActiveOrderModal({
                 variant="outline"
                 onClick={handlePrintPrebill}
                 disabled={isOrderBusy}
-                className="flex-1 sm:flex-none h-14 bg-[#111] hover:bg-[#1a1a1a] border-[#333] text-muted-foreground hover:text-[#e5e5e5] uppercase font-mono tracking-widest text-[10px] sm:text-xs rounded-xl"
+                className="flex-1 sm:flex-none h-14 bg-background hover:bg-muted border-border text-muted-foreground hover:text-foreground uppercase font-mono tracking-widest text-[10px] sm:text-xs rounded-xl cursor-pointer"
               >
                 <Receipt className="w-4 h-4 sm:mr-2" />{" "}
                 <span className="hidden sm:inline">PRE-CUENTA</span>
@@ -1019,7 +1027,7 @@ export function ActiveOrderModal({
               <Button
                 onClick={handlePayOrder}
                 disabled={isOrderBusy}
-                className="h-16 w-full sm:w-[350px] bg-[#70d8c8] hover:bg-[#5bc2b2] text-[#0a0a0a] font-bold shadow-[0_0_30px_-5px_rgba(112,216,200,0.4)] hover:shadow-[0_0_40px_0_rgba(112,216,200,0.6)] uppercase tracking-[0.2em] font-mono text-sm rounded-xl transition-all"
+                className="h-16 w-full sm:w-[350px] bg-primary hover:opacity-90 text-primary-foreground font-bold shadow-xs uppercase tracking-[0.2em] font-mono text-sm rounded-xl transition-all cursor-pointer"
               >
                 <CheckCircle2 className="w-5 h-5 mr-3" /> PROCESAR PAGO
               </Button>
@@ -1029,18 +1037,18 @@ export function ActiveOrderModal({
 
         {/* Synchronized Payment Stamping Overlay */}
         {paymentStep !== "idle" && (
-          <div className="absolute inset-0 z-50 bg-[#0a0a0a]/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-fade-in" style={{ pointerEvents: "auto" }}>
-            <div className="w-full max-w-lg bg-[#111] border border-[#222] rounded-2xl p-8 shadow-2xl flex flex-col items-center">
+          <div className="absolute inset-0 z-50 bg-background/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-fade-in" style={{ pointerEvents: "auto" }}>
+            <div className="w-full max-w-lg bg-card border border-border rounded-2xl p-8 shadow-2xl flex flex-col items-center">
               
               {/* Step: Paying */}
               {paymentStep === "paying" && (
                 <div className="space-y-6 py-8">
                   <div className="relative flex justify-center items-center">
-                    <div className="w-16 h-16 rounded-full border-t-2 border-r-2 border-[#70d8c8] animate-spin"></div>
-                    <CreditCard className="w-6 h-6 text-[#70d8c8] absolute" />
+                    <div className="w-16 h-16 rounded-full border-t-2 border-r-2 border-primary animate-spin"></div>
+                    <CreditCard className="w-6 h-6 text-primary absolute" />
                   </div>
                   <div className="space-y-2">
-                    <h3 className="text-lg font-bold uppercase tracking-[0.2em] text-white font-mono">
+                    <h3 className="text-lg font-bold uppercase tracking-[0.2em] text-foreground font-mono">
                       REGISTRANDO PAGO
                     </h3>
                     <p className="text-xs text-muted-foreground font-mono tracking-widest">
@@ -1054,17 +1062,17 @@ export function ActiveOrderModal({
               {paymentStep === "stamping" && (
                 <div className="space-y-6 py-8 w-full">
                   <div className="relative flex justify-center items-center">
-                    <div className="w-16 h-16 rounded-full border-2 border-[#70d8c8]/20 border-t-2 border-t-[#70d8c8] animate-spin"></div>
-                    <Loader2 className="w-6 h-6 text-[#70d8c8] absolute animate-pulse" />
+                    <div className="w-16 h-16 rounded-full border-2 border-primary/20 border-t-2 border-t-primary animate-spin"></div>
+                    <Loader2 className="w-6 h-6 text-primary absolute animate-pulse" />
                   </div>
                   <div className="space-y-2">
-                    <h3 className="text-lg font-bold uppercase tracking-[0.2em] text-[#70d8c8] font-mono animate-pulse">
+                    <h3 className="text-lg font-bold uppercase tracking-[0.2em] text-primary font-mono animate-pulse">
                       TIMBRANDO CPE
                     </h3>
                     <p className="text-xs text-muted-foreground font-mono tracking-widest">
                       Conectando con SUNAT y Nubefact...
                     </p>
-                    <div className="text-[10px] text-[#70d8c8]/60 font-mono tracking-widest border border-[#70d8c8]/20 rounded bg-[#70d8c8]/5 px-3 py-2.5 mt-4 max-w-sm mx-auto text-left leading-relaxed">
+                    <div className="text-[10px] text-primary/70 font-mono tracking-widest border border-primary/20 rounded bg-primary/5 px-3 py-2.5 mt-4 max-w-sm mx-auto text-left leading-relaxed">
                       &gt; FIRMANDO XML DOCUMENTO... <br />
                       &gt; DESPACHANDO ADAPTADOR OSE...
                     </div>
@@ -1075,18 +1083,18 @@ export function ActiveOrderModal({
               {/* Step: Success */}
               {paymentStep === "success" && (
                 <div className="space-y-6 py-8">
-                  <div className="w-16 h-16 rounded-full bg-[#70d8c8]/10 border border-[#70d8c8]/30 flex items-center justify-center text-[#70d8c8] animate-bounce mx-auto">
+                  <div className="w-16 h-16 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center text-primary animate-bounce mx-auto">
                     <CheckCircle2 className="w-10 h-10" />
                   </div>
                   <div className="space-y-2">
-                    <h3 className="text-lg font-bold uppercase tracking-[0.2em] text-white font-mono">
+                    <h3 className="text-lg font-bold uppercase tracking-[0.2em] text-foreground font-mono">
                       ¡OPERACIÓN EXITOSA!
                     </h3>
-                    <p className="text-xs text-[#70d8c8] font-mono tracking-widest">
+                    <p className="text-xs text-primary font-mono tracking-widest">
                       Imprimiendo comprobante de pago electrónico...
                     </p>
                     {stampedOrder && (
-                      <div className="text-[11px] font-mono bg-[#1a1a1a] text-muted-foreground rounded px-3 py-2 mt-4 inline-block border border-[#333] uppercase">
+                      <div className="text-[11px] font-mono bg-muted text-muted-foreground rounded px-3 py-2 mt-4 inline-block border border-border uppercase">
                         COMPROBANTE: {stampedOrder.fiscalDocumentPrefix}-{String(stampedOrder.fiscalDocumentNumber || "").padStart(8, "0")}
                       </div>
                     )}
@@ -1097,12 +1105,12 @@ export function ActiveOrderModal({
               {/* Step: Failed */}
               {paymentStep === "failed" && (
                 <div className="space-y-6 w-full">
-                  <div className="w-16 h-16 rounded-full bg-[#5c1616]/20 border border-[#5c1616] flex items-center justify-center text-[#ffb4ab] mx-auto">
+                  <div className="w-16 h-16 rounded-full bg-destructive/15 border border-destructive/20 flex items-center justify-center text-destructive mx-auto">
                     <AlertTriangle className="w-8 h-8" />
                   </div>
                   
                   <div className="space-y-2">
-                    <h3 className="text-md font-bold uppercase tracking-[0.2em] text-[#ffb4ab] font-mono">
+                    <h3 className="text-md font-bold uppercase tracking-[0.2em] text-destructive font-mono">
                       ERROR DE EMISIÓN FISCAL
                     </h3>
                     <p className="text-[11px] text-muted-foreground font-mono tracking-wide leading-relaxed">
@@ -1110,8 +1118,8 @@ export function ActiveOrderModal({
                     </p>
                   </div>
 
-                  <div className="bg-[#1a1111] border border-[#5c1616]/40 rounded-xl p-4 text-left font-mono text-xs text-[#ffb4ab] max-h-[120px] overflow-y-auto w-full select-all">
-                    <div className="font-bold text-[10px] text-muted-foreground mb-1 uppercase tracking-widest border-b border-[#5c1616]/20 pb-1">
+                  <div className="bg-destructive/10 border border-destructive/25 rounded-xl p-4 text-left font-mono text-xs text-destructive max-h-[120px] overflow-y-auto w-full select-all">
+                    <div className="font-bold text-[10px] text-muted-foreground mb-1 uppercase tracking-widest border-b border-destructive/20 pb-1">
                       Mensaje de Error SUNAT:
                     </div>
                     {stampingError || "Error desconocido al procesar facturación electrónica."}
@@ -1121,7 +1129,7 @@ export function ActiveOrderModal({
                     <Button
                       onClick={() => stampedOrder && handleRetryStamping(stampedOrder)}
                       disabled={isOrderBusy}
-                      className="w-full h-12 bg-[#70d8c8] hover:bg-[#5bc2b2] text-[#0a0a0a] font-bold font-mono text-xs tracking-widest uppercase rounded-xl transition-all"
+                      className="w-full h-12 bg-primary hover:opacity-90 text-primary-foreground font-bold font-mono text-xs tracking-widest uppercase rounded-xl transition-all cursor-pointer"
                     >
                       {isOrderBusy ? (
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -1135,7 +1143,7 @@ export function ActiveOrderModal({
                       variant="outline"
                       onClick={() => stampedOrder && handlePrintWithoutStamping(stampedOrder)}
                       disabled={isOrderBusy}
-                      className="w-full h-12 bg-[#1a1a1a] hover:bg-[#252525] border-[#333] text-white font-bold font-mono text-xs tracking-widest uppercase rounded-xl transition-all"
+                      className="w-full h-12 bg-secondary hover:bg-muted border-border text-foreground font-bold font-mono text-xs tracking-widest uppercase rounded-xl transition-all cursor-pointer"
                     >
                       <Receipt className="w-4 h-4 mr-2" /> IMPRIMIR RESPALDO LOCAL
                     </Button>
@@ -1147,7 +1155,7 @@ export function ActiveOrderModal({
                         manager.setActiveOrder(null);
                       }}
                       disabled={isOrderBusy}
-                      className="w-full h-10 text-muted-foreground hover:text-white hover:bg-transparent font-mono text-[10px] tracking-widest uppercase"
+                      className="w-full h-10 text-muted-foreground hover:text-foreground hover:bg-transparent font-mono text-[10px] tracking-widest uppercase cursor-pointer"
                     >
                       OMITIR E IR A INICIO
                     </Button>

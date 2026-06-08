@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import Link from "next/link";
 import {
@@ -8,6 +10,7 @@ import {
   ChevronRight,
   Settings,
 } from "lucide-react";
+import { useTheme } from "next-themes";
 import "@material-symbols/font-400/rounded.css";
 import { usePathname } from "next/navigation";
 import LogoutButton from "./ui/LogoutButton";
@@ -41,6 +44,13 @@ export default function NavBar() {
   const isSuperAdmin = role === "superadmin";
   const isAdmin = role === "admin";
 
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const [businessLogo, setBusinessLogo] = React.useState(null);
 
   React.useEffect(() => {
@@ -66,14 +76,14 @@ export default function NavBar() {
       href: "/backoffice",
       label: "POS",
       icon: "point_of_sale",
-      color: "text-emerald-500",
+      color: "text-primary",
       description: "Punto de venta interactivo",
     },
     {
       href: "/backoffice",
       label: "Carta",
       icon: "menu_book",
-      color: "text-emerald-600",
+      color: "text-primary",
       description: "Gestor de carta y traducciones",
     },
     ...(isAdmin || isSuperAdmin
@@ -161,7 +171,7 @@ export default function NavBar() {
                         href={item.href}
                         className={`group flex items-center gap-2 h-16 px-4 text-sm font-medium transition-all duration-300 relative 
                           ${isActive
-                            ? "text-emerald-500 bg-emerald-500/5"
+                            ? "text-primary bg-primary/5"
                             : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                           }`}
                       >
@@ -169,7 +179,7 @@ export default function NavBar() {
                         <span>{item.label}</span>
                         {/* Horizontal Active Indicator (Bottom Bar) */}
                         {isActive && (
-                          <div className="absolute bottom-0 left-0 right-0 h-1 bg-emerald-500 rounded-t-full shadow-[0_-2px_10px_rgba(16,185,129,0.3)] animate-in slide-in-from-bottom-2 fade-in" />
+                          <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary rounded-t-full shadow-xs shadow-primary/30 animate-in slide-in-from-bottom-2 fade-in" />
                         )}
                       </Link>
                     </NavigationMenuLink>
@@ -182,7 +192,7 @@ export default function NavBar() {
 
         {/* CORTE DERECHO: User Pod (Diseño único) */}
         <div className="hidden md:flex items-center justify-end shrink-0">
-          <div className="flex items-center p-1 rounded-full border bg-inactive-background shadow-sm transition-all hover:shadow-md hover:border-emerald-500/30 group/pod">
+          <div className="flex items-center p-1 rounded-full border bg-inactive-background shadow-sm transition-all hover:shadow-md hover:border-primary/30 group/pod">
             {/* SuperAdmin Crown (Si aplica) */}
             {isSuperAdmin && (
               <Link
@@ -199,7 +209,7 @@ export default function NavBar() {
               href="/backoffice/user-profile"
               className="flex items-center gap-2 pl-3 pr-4 py-1.5 rounded-full hover:bg-muted transition-colors"
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 overflow-hidden border border-emerald-200">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/15 text-primary overflow-hidden border border-primary/20">
                 {businessLogo ? (
                   <img
                     src={businessLogo}
@@ -214,6 +224,26 @@ export default function NavBar() {
                 {session?.user?.username || "Cuenta"}
               </span>
             </Link>
+
+            {/* Theme Toggle Button */}
+            <button
+              onClick={() => {
+                if (mounted) {
+                  const newTheme = theme === "dark" ? "light" : "dark";
+                  setTheme(newTheme);
+                  axios.put("/api/backoffice/update-theme", { theme: newTheme })
+                    .catch((err) => console.error("Error persisting theme:", err));
+                }
+              }}
+              className="ml-1 mr-1 flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
+              title={mounted && theme === "dark" ? "Modo Claro" : "Modo Oscuro"}
+            >
+              {mounted && theme === "dark" ? (
+                <span className="material-symbols-rounded text-[20px]">light_mode</span>
+              ) : (
+                <span className="material-symbols-rounded text-[20px]">dark_mode</span>
+              )}
+            </button>
 
             {/* Divisor Vertical */}
             <div className="h-5 w-px bg-border mx-1" />
@@ -238,7 +268,7 @@ export default function NavBar() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-muted-foreground hover:text-emerald-600 hover:bg-emerald-50"
+                className="text-muted-foreground hover:text-primary hover:bg-primary/5"
               >
                 <Menu className="h-6 w-6" />
                 <span className="sr-only">Toggle menu</span>
@@ -246,10 +276,10 @@ export default function NavBar() {
             </SheetTrigger>
             <SheetContent
               side="right"
-              className="flex flex-col w-[85%] sm:w-[350px] p-0 border-l-emerald-100"
+              className="flex flex-col w-[85%] sm:w-[350px] p-0 border-l-border"
             >
               <SheetHeader className="p-6 pb-2 text-left border-b bg-muted/10">
-                <SheetTitle className="flex items-center gap-2 text-emerald-950">
+                <SheetTitle className="flex items-center gap-2 text-foreground">
                   <span className="font-bold tracking-tight">
                     Menú Principal
                   </span>
@@ -259,7 +289,7 @@ export default function NavBar() {
                 <div className="flex items-center gap-4 py-4 mt-2">
                   <Avatar className="h-12 w-12 border-2 border-white shadow-sm">
                     <AvatarImage src={businessLogo || session?.user?.image} />
-                    <AvatarFallback className="bg-emerald-100 text-emerald-700 font-medium">
+                    <AvatarFallback className="bg-primary/15 text-primary font-medium">
                       {session?.user?.name?.slice(0, 2).toUpperCase() || "CN"}
                     </AvatarFallback>
                   </Avatar>
@@ -273,7 +303,7 @@ export default function NavBar() {
                   </div>
                 </div>
               </SheetHeader>
-
+ 
               <div className="flex-1 overflow-y-auto py-6 px-4">
                 <div className="space-y-6">
                   {/* Main Navigation */}
@@ -288,30 +318,30 @@ export default function NavBar() {
                           <Link
                             href={item.href}
                             className={`relative flex items-start gap-4 p-3 rounded-lg transition-all group overflow-hidden ${isActive
-                              ? "bg-emerald-50/80 hover:bg-emerald-100"
+                              ? "bg-primary/10 hover:bg-primary/15"
                               : "hover:bg-muted"
                               }`}
                           >
                             {isActive && (
-                              <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500 rounded-r-full shadow-[2px_0_8px_rgba(16,185,129,0.3)]" />
+                              <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-r-full shadow-xs shadow-primary/30" />
                             )}
                             <div
                               className={`mt-0.5 p-2 rounded-md bg-background shadow-sm ring-1 ring-border transition-all flex items-center justify-center ${isActive
-                                ? "ring-emerald-300 shadow-emerald-500/20 text-emerald-600"
-                                : `group-hover:ring-emerald-200 group-hover:bg-white ${item.color}`
+                                ? "ring-primary/30 shadow-xs shadow-primary/10 text-primary"
+                                : `group-hover:ring-primary/20 group-hover:bg-white ${item.color}`
                                 }`}
                             >
                               <span className="material-symbols-rounded text-[20px]">{item.icon}</span>
                             </div>
                             <div className="flex-1 space-y-0.5">
-                              <p className={`text-sm font-medium leading-none ${isActive ? "text-emerald-900" : "text-foreground group-hover:text-emerald-900"}`}>
+                              <p className={`text-sm font-medium leading-none ${isActive ? "text-primary" : "text-foreground group-hover:text-primary"}`}>
                                 {item.label}
                               </p>
                               <p className="text-xs text-muted-foreground line-clamp-1">
                                 {item.description}
                               </p>
                             </div>
-                            <ChevronRight className={`h-4 w-4 self-center ${isActive ? "text-emerald-500" : "text-muted-foreground/30 group-hover:text-emerald-400"}`} />
+                            <ChevronRight className={`h-4 w-4 self-center ${isActive ? "text-primary" : "text-muted-foreground/30 group-hover:text-primary/70"}`} />
                           </Link>
                         </SheetClose>
                       );
@@ -352,6 +382,25 @@ export default function NavBar() {
               </div>
 
               <SheetFooter className="p-4 border-t bg-muted/10 mt-auto">
+                <Button
+                  onClick={() => {
+                    if (mounted) {
+                      const newTheme = theme === "dark" ? "light" : "dark";
+                      setTheme(newTheme);
+                      axios.put("/api/backoffice/update-theme", { theme: newTheme })
+                        .catch((err) => console.error("Error persisting theme:", err));
+                    }
+                  }}
+                  variant="outline"
+                  className="w-full justify-start mb-2 text-muted-foreground hover:text-foreground cursor-pointer"
+                >
+                  <span className="material-symbols-rounded mr-2 text-[20px]">
+                    {mounted && theme === "dark" ? "light_mode" : "dark_mode"}
+                  </span>
+                  <span>
+                    {mounted && theme === "dark" ? "Modo Claro" : "Modo Oscuro"}
+                  </span>
+                </Button>
                 <LogoutButton
                   className="w-full justify-start text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200/50"
                   variant="outline"

@@ -4,18 +4,28 @@ import { useSession } from "next-auth/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
+import { useTheme } from "next-themes";
 
 export default function SessionGuard({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { status } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { setTheme } = useTheme();
 
   const isPublicPage = pathname?.startsWith("/backoffice/login");
+
+  // Sincronizar el tema del usuario desde la base de datos únicamente al iniciar sesión
+  useEffect(() => {
+    if (status === "authenticated" && session?.user?.backofficeTheme) {
+      setTheme(session.user.backofficeTheme);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status]);
 
   useEffect(() => {
     if (status === "unauthenticated" && !isPublicPage) {

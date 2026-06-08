@@ -40,6 +40,12 @@ const userSchema = new Schema(
       default: "waiter",
       required: true,
     },
+    backofficeTheme: {
+      type: String,
+      enum: ["light", "dark"],
+      default: "dark",
+      required: true,
+    },
 
     isActive: {
       type: Boolean,
