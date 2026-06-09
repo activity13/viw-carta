@@ -50,6 +50,8 @@ interface KartaProps {
     image?: string;
   };
   systemMessages?: MessageSystem[];
+  isEmbedded?: boolean;
+  hideOrder?: boolean;
 }
 
 interface MessageSystem {
@@ -285,7 +287,7 @@ function TappableMealRow({
 
 // ─── Main Karta Content ────────────────────────────────────────────────────────
 
-function KartaContent({ data, restaurant, systemMessages = [] }: KartaProps) {
+function KartaContent({ data, restaurant, systemMessages = [], isEmbedded = false, hideOrder = false }: KartaProps) {
   const { language } = useLanguage();
   const [showMenu, setShowMenu] = useState(false);
   const [activeMenu, setActiveMenu] = useState<MenuType>("principal");
@@ -328,6 +330,7 @@ function KartaContent({ data, restaurant, systemMessages = [] }: KartaProps) {
     return (
       <LaKLanding
         restaurant={restaurant}
+        isEmbedded={isEmbedded}
         onNavigate={(menu) => {
           setActiveMenu(menu);
           setShowMenu(true);
@@ -595,7 +598,7 @@ function KartaContent({ data, restaurant, systemMessages = [] }: KartaProps) {
       />
 
       {/* Floating cart button */}
-      <OrderFloatingButton restaurantPhone={restaurant.phone || ""} />
+      {!hideOrder && <OrderFloatingButton restaurantPhone={restaurant.phone || ""} />}
     </div>
   );
 }

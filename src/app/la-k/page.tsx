@@ -63,7 +63,16 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 // ─── Page Component ────────────────────────────────────────────────────────────
-export default async function LaK() {
+export default async function LaK({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const resolvedSearchParams = await searchParams;
+  const embed = resolvedSearchParams.embed === "true";
+  const customPhone = typeof resolvedSearchParams.phone === "string" ? resolvedSearchParams.phone : undefined;
+  const hideOrder = resolvedSearchParams.hide_order === "true";
+
   const subdomain = "la-k";
   const data = await getPublicMenuData(subdomain);
 
@@ -73,7 +82,7 @@ export default async function LaK() {
     id: data.restaurant.id,
     name: data.restaurant.name,
     slug: data.restaurant.slug,
-    phone: data.restaurant.phone,
+    phone: customPhone || data.restaurant.phone,
     direction: data.restaurant.direction,
     location: data.restaurant.location,
     description: data.restaurant.description,
@@ -100,6 +109,7 @@ export default async function LaK() {
               addressLocality: "Vichayito",
               addressRegion: "Piura",
               addressCountry: "PE",
+              postalCode: "20150"
             },
             servesCuisine: [
               "Peruana",
@@ -135,6 +145,8 @@ export default async function LaK() {
         data={data}
         restaurant={restaurant}
         systemMessages={data.systemMessages}
+        isEmbedded={embed}
+        hideOrder={hideOrder}
       />
     </div>
   );

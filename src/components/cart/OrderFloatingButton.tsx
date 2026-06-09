@@ -21,7 +21,7 @@ export const OrderFloatingButton = ({
 
   return (
     <>
-      <div className="fixed bottom-20 lg:bottom-6 right-4 lg:right-6 z-90 animate-in fade-in slide-in-from-bottom-4">
+      <div className="fixed bottom-36 lg:bottom-6 right-4 lg:right-6 z-90 animate-in fade-in slide-in-from-bottom-4">
         <Button
           size="lg"
           className={cn(

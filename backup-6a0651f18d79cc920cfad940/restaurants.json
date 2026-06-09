@@ -45,6 +45,7 @@
     "menuSections": [
       {
         "name": "Carta Principal",
+        "name_en": "Main Menu",
         "slug": "carta",
         "order": 1,
         "isActive": true,
@@ -52,6 +53,7 @@
       },
       {
         "name": "Bebidas",
+        "name_en": "Drinks",
         "slug": "bebidas",
         "order": 2,
         "isActive": true,
@@ -59,6 +61,7 @@
       },
       {
         "name": "Nigiris",
+        "name_en": "Nigiris",
         "slug": "nigiris",
         "order": 3,
         "isActive": true,

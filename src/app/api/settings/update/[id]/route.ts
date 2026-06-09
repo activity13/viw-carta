@@ -5,6 +5,7 @@ import Restaurant from "@/models/restaurants";
 import path from "path";
 import { UTApi } from "uploadthing/server";
 import { requireAuth, handleAuthError } from "@/lib/auth-helpers";
+import { revalidateMenu } from "@/lib/public-menu";
 
 const utapi = new UTApi();
 
@@ -157,6 +158,9 @@ export async function PUT(
         { error: "Business not found" },
         { status: 404 },
       );
+
+    // Revalidate public menu cache after updating settings
+    await revalidateMenu(id);
 
     return NextResponse.json({
       message: "Tu negocio ha sido actualizado correctamente.",

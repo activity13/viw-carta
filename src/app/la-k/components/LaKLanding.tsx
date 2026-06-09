@@ -20,11 +20,12 @@ interface LaKRestaurantInfo {
 interface LaKLandingProps {
   restaurant: LaKRestaurantInfo;
   onNavigate: (menu: "principal" | "pizzas") => void;
+  isEmbedded?: boolean;
 }
 
 // ─── LaKLanding ────────────────────────────────────────────────────────────────
 
-export default function LaKLanding({ restaurant, onNavigate }: LaKLandingProps) {
+export default function LaKLanding({ restaurant, onNavigate, isEmbedded = false }: LaKLandingProps) {
   const { language, toggleLanguage } = useLanguage();
 
   const phoneNumber = (restaurant.phone || "").replace(/\s+/g, "").trim();
@@ -72,36 +73,38 @@ export default function LaKLanding({ restaurant, onNavigate }: LaKLandingProps) 
         <div className="w-16 h-px bg-black/20 mb-6" />
 
         {/* Business info */}
-        <div className="flex flex-col items-center gap-3 mb-10 text-center">
-          {restaurant.direction && (
-            <div className="flex items-center gap-2 text-black/50 text-xs tracking-wider uppercase">
-              <MapPin className="w-3.5 h-3.5 shrink-0" />
-              <span>{restaurant.direction}</span>
-            </div>
-          )}
+        {!isEmbedded && (
+          <div className="flex flex-col items-center gap-3 mb-10 text-center">
+            {restaurant.direction && (
+              <div className="flex items-center gap-2 text-black/50 text-xs tracking-wider uppercase">
+                <MapPin className="w-3.5 h-3.5 shrink-0" />
+                <span>{restaurant.direction}</span>
+              </div>
+            )}
 
-          {restaurant.phone && (
-            <a
-              href={`tel:${phoneNumber}`}
-              className="flex items-center gap-2 text-black/50 hover:text-black text-xs tracking-wider uppercase transition-colors duration-300"
-            >
-              <Phone className="w-3.5 h-3.5 shrink-0" />
-              <span>{restaurant.phone}</span>
-            </a>
-          )}
+            {restaurant.phone && (
+              <a
+                href={`tel:${phoneNumber}`}
+                className="flex items-center gap-2 text-black/50 hover:text-black text-xs tracking-wider uppercase transition-colors duration-300"
+              >
+                <Phone className="w-3.5 h-3.5 shrink-0" />
+                <span>{restaurant.phone}</span>
+              </a>
+            )}
 
-          {restaurant.location && (
-            <a
-              href={restaurant.location}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 text-black/50 hover:text-black text-xs tracking-wider uppercase transition-colors duration-300"
-            >
-              <Navigation className="w-3.5 h-3.5 shrink-0" />
-              <span>{language === "en" ? "View on Map" : "Ver en Mapa"}</span>
-            </a>
-          )}
-        </div>
+            {restaurant.location && (
+              <a
+                href={restaurant.location}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-black/50 hover:text-black text-xs tracking-wider uppercase transition-colors duration-300"
+              >
+                <Navigation className="w-3.5 h-3.5 shrink-0" />
+                <span>{language === "en" ? "View on Map" : "Ver en Mapa"}</span>
+              </a>
+            )}
+          </div>
+        )}
 
         {/* Menu navigation buttons */}
         <div className="w-full flex flex-col gap-3 mb-10">

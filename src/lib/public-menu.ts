@@ -29,6 +29,7 @@ export interface PublicMenuData {
     businessType: "restaurant" | "store";
     menuSections?: Array<{
       name: string;
+      name_en?: string;
       slug: string;
       order: number;
       isActive: boolean;
